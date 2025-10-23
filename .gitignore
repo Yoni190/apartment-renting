@@ -28,3 +28,26 @@ Homestead.json
 .env.production
 .phpactor.json
 auth.json
+
+
+################################
+# 4. MOBILE (React Native/Expo) IGNORES
+################################
+
+# Expo specific temporary directories
+.expo/
+web-build/
+*.jks           # Android Keystore files (CRITICAL security)
+*.keystore      # Android Keystore files (CRITICAL security)
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Native build folders (even if managed by Expo, these can be generated)
+mobile/android/build/
+mobile/android/.gradle/
+mobile/ios/build/
+mobile/ios/Pods/
+mobile/ios/Podfile.lock
+mobile/DerivedData/
