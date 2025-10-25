@@ -5,19 +5,23 @@ import { createStackNavigator } from '@react-navigation/stack'
 import LoginScreen from './screens/LoginScreen';
 import HomeScreen from './screens/HomeScreen';
 import RegisterScreen from './screens/RegisterScreen';
+import HomeTabs from './screens/HomeTabs';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 
 const Stack = createStackNavigator()
 
 export default function App() {
   return (
+    <SafeAreaProvider>
     <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Register" component={RegisterScreen} />
-        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="Home" component={HomeTabs} options={{ headerShown: false }}/>
       </Stack.Navigator>
     </NavigationContainer>
+    </SafeAreaProvider>
   );
 }
 
