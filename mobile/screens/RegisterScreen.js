@@ -1,9 +1,56 @@
 import { KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import React from 'react'
+import React, { useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
+import axios from 'axios'
+import * as SecureStore from "expo-secure-store"
 
 const RegisterScreen = () => {
-const navigation = useNavigation()
+    const [name, setName] = useState("")
+    const [email, setEmail] = useState("")
+    const [password, setPassword] = useState("")
+    const [passwordConfirmation, setPasswordConfirmation] = useState("")
+    const [errors, setErrors] = useState({})
+    const [loading, setLoading] = useState(false)
+    const navigation = useNavigation()
+
+    const API_URL = process.env.EXPO_PUBLIC_API_URL;
+
+
+    const handleRegister = async () => {
+        setErrors({})
+        setLoading(true)
+        try {
+            const response = await axios.post(`${API_URL}/register`, {
+                name,
+                email,
+                password,
+                password_confirmation: passwordConfirmation,
+                device_name: `${Platform.OS} ${Platform.Version}`
+            }, {
+                headers: {
+                    Accept: "application/json"
+                }
+            })
+
+            const access_token = response.data.token
+            console.log(access_token)
+
+            await SecureStore.setItemAsync('token', access_token)
+            .then(() => navigation.replace("Home"))
+            .catch(err => console.error(err))
+
+            
+        } 
+        catch (error) {
+            console.log(error.response.data)
+            if(error.response.status === 422){
+                setErrors(error.response.data)
+            }
+                
+        } finally {
+            setLoading(false)
+        } 
+    }
   return (
     <KeyboardAvoidingView
     behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -11,28 +58,62 @@ const navigation = useNavigation()
     >
     <View style={styles.innerContainer}>
         <Text style={styles.title}>Greetings</Text>
-        <Text style={styles.subTitle}>Login to Continue</Text>
+        <Text style={styles.subTitle}>Register to Continue</Text>
 
+         <TextInput 
+            placeholder='Name'
+            style={styles.textInput}
+            placeholderTextColor="#999"
+            value={name}
+            onChangeText={(text) => setName(text)}
+        />
+        {errors && Object.keys(errors).length > 0 && errors.errors.name && (
+        <Text style={styles.errorText}>{errors.errors.name}</Text>
+      )}
       <TextInput 
         placeholder='Email Address'
         keyboardType='email-address'
         style={styles.textInput}
         placeholderTextColor="#999"
+        value={email}
+        onChangeText={(text) => setEmail(text)}
+        autoCapitalize='none'
       />
+      {errors && Object.keys(errors).length > 0 && errors.errors.email && (
+        <Text style={styles.errorText}>{errors.errors.email}</Text>
+      )}
+      
       <TextInput 
         placeholder='Password'
         secureTextEntry={true}
         style={styles.textInput}
         placeholderTextColor="#999"
+        value={password}
+        onChangeText={(text) => setPassword(text)}
       />
+      {errors && Object.keys(errors).length > 0 && errors.errors.password && (
+        <Text style={styles.errorText}>{errors.errors.password}</Text>
+      )}
+
+      <TextInput 
+        placeholder='Confirm Password'
+        secureTextEntry={true}
+        style={styles.textInput}
+        placeholderTextColor="#999"
+        value={passwordConfirmation}
+        onChangeText={(text) => setPasswordConfirmation(text)}
+      />
+
       <TouchableOpacity 
-      style={styles.btn}
+      style={[styles.btn, loading && {opacity: 0.6}]}
+      onPress={handleRegister}
+      disabled={loading}
       >
-        <Text style={styles.btnText}>Login</Text>
+        <Text style={styles.btnText}>{loading ? 'Loading...' : "Register"}</Text>
       </TouchableOpacity>
 
       <Text style={styles.footerText}>
-        Don't have an account? <Text style={styles.linkText}>Sign Up</Text>
+        Already have an account? <Text style={styles.linkText} onPress={() => navigation.replace("Login")}>Log In</Text>
       </Text>
     </View>
     </KeyboardAvoidingView>
@@ -66,7 +147,7 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
         paddingHorizontal: 15,
         fontSize: 16,
-        marginBottom: 15,
+        marginBottom: 10,
         backgroundColor: '#F5F5F5'
     },
     btn: {
@@ -100,5 +181,9 @@ const styles = StyleSheet.create({
     linkText: {
         color: '#111',
         fontWeight: 'bold'
+    },
+    errorText: {
+        color: "red",
+        marginBottom: 5
     }
 })
