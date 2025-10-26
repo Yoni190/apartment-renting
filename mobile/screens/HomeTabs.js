@@ -38,12 +38,12 @@ const HomeTabs = () => {
         }}
       />
       <Tab.Screen 
-        name="Profile" 
-        component={ProfileScreen}
+        name="Settings" 
+        component={RegisterScreen}
         options={{
           tabBarIcon: ({ focused }) => (
             <Ionicons 
-              name={focused ? 'person' : 'person-outline'} 
+              name={focused ? 'settings' : 'settings-outline'} 
               size={24} 
               color={focused ? '#111' : '#999'} 
             />
@@ -51,12 +51,12 @@ const HomeTabs = () => {
         }}
       />
       <Tab.Screen 
-        name="Settings" 
-        component={RegisterScreen}
+        name="Profile" 
+        component={ProfileScreen}
         options={{
           tabBarIcon: ({ focused }) => (
             <Ionicons 
-              name={focused ? 'settings' : 'settings-outline'} 
+              name={focused ? 'person' : 'person-outline'} 
               size={24} 
               color={focused ? '#111' : '#999'} 
             />
