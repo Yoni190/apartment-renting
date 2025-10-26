@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableOpacity, View, Image, ScrollView, Modal } from 'react-native'
+import { StyleSheet, Text, TouchableOpacity, View, Image, ScrollView, Modal, Linking } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import * as SecureStore from 'expo-secure-store'
@@ -12,11 +12,24 @@ const ProfileScreen = () => {
   const [showModal, setShowModal] = useState(false)
 
   const API_URL = process.env.EXPO_PUBLIC_API_URL;
+
+  const WEB_URL = process.env.EXPO_PUBLIC_WEB_URL;
     
   const handleLogout = async () => {
     await SecureStore.deleteItemAsync("token")
       .then(() => navigation.replace("Login"))
       .catch(err => console.error(err))
+  }
+
+  const handleHelp = async () => {
+    const url = `${WEB_URL}/help`
+    const supported = await Linking.canOpenURL(url)
+
+    if(supported) {
+        await Linking.openURL(url)
+    } else {
+        console.error("Error opening: " + url)
+    }
   }
 
   useEffect(() => {
@@ -85,7 +98,7 @@ const ProfileScreen = () => {
 
         {/* Help & Logout */}
         <View style={styles.section}>
-          <TouchableOpacity style={styles.row}>
+          <TouchableOpacity style={styles.row} onPress={handleHelp}>
             <BadgeQuestionMark />
             <Text style={styles.label}>Help & Support</Text>
           </TouchableOpacity>
