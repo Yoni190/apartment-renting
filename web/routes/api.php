@@ -43,17 +43,20 @@ Route::post('/login', function (Request $request) {
 
 
 Route::post('/register', function(Request $request) {
+    logger($request->role);
     $request->validate([
         'name' => ['required', 'string', 'max:255'],
         'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
         'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        'device_name' => ['required']
+        'device_name' => ['required'],
+        'role' => ['required'],
     ]);
 
     $user = User::create([
         'name' => $request->name,
         'email' => $request->email,
-        'password' => Hash::make($request->password)
+        'password' => Hash::make($request->password),
+        'role' => $request->role
     ]);
 
 

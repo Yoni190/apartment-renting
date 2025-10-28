@@ -28,7 +28,8 @@ const RegisterScreen = () => {
                 email,
                 password,
                 password_confirmation: passwordConfirmation,
-                device_name: `${Platform.OS} ${Platform.Version}`
+                device_name: `${Platform.OS} ${Platform.Version}`,
+                role: 0
             }, {
                 headers: {
                     Accept: "application/json"
