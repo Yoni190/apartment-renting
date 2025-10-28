@@ -3,12 +3,14 @@ import React, { useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
 import axios from 'axios'
 import * as SecureStore from "expo-secure-store"
+import { Eye, EyeClosed } from 'lucide-react-native'
 
 const LoginScreen = () => {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [errors, setErrors] = useState({})
     const [loading, setLoading] = useState(false)
+    const [passStatus, setPassStatus] = useState(true)
     const navigation = useNavigation()
 
     const API_URL = process.env.EXPO_PUBLIC_API_URL;
@@ -68,14 +70,19 @@ const LoginScreen = () => {
         <Text style={styles.errorText}>{errors.errors.email}</Text>
       )}
       
-      <TextInput 
-        placeholder='Password'
-        secureTextEntry={true}
-        style={styles.textInput}
-        placeholderTextColor="#999"
-        value={password}
-        onChangeText={(text) => setPassword(text)}
-      />
+      <View style={styles.passwordContainer}>
+        <TextInput
+            placeholder='Password'
+            secureTextEntry={passStatus}
+            placeholderTextColor="#999"
+            value={password}
+            onChangeText={setPassword}
+        />
+        <TouchableOpacity onPress={() => setPassStatus(!passStatus)}>
+            {passStatus ? <EyeClosed color="#666" /> : <Eye color="#666" />}
+        </TouchableOpacity>
+        </View>
+      
       {errors && Object.keys(errors).length > 0 && errors.errors.password && (
         <Text style={styles.errorText}>{errors.errors.password}</Text>
       )}
@@ -161,5 +168,17 @@ const styles = StyleSheet.create({
     errorText: {
         color: "red",
         marginBottom: 5
-    }
+    },
+    passwordContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        borderWidth: 1,
+        borderColor: '#ddd',
+        borderRadius: 12,
+        backgroundColor: '#F5F5F5',
+        paddingHorizontal: 10,
+        marginBottom: 10
+        },
+
 })

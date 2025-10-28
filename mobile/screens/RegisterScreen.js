@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
 import axios from 'axios'
 import * as SecureStore from "expo-secure-store"
+import { Eye, EyeClosed } from 'lucide-react-native'
 
 const RegisterScreen = () => {
     const [name, setName] = useState("")
@@ -11,6 +12,8 @@ const RegisterScreen = () => {
     const [passwordConfirmation, setPasswordConfirmation] = useState("")
     const [errors, setErrors] = useState({})
     const [loading, setLoading] = useState(false)
+    const [passStatus, setPassStatus] = useState(true)
+    const [confirmPassStatus, setConfirmPassStatus] = useState(true)
     const navigation = useNavigation()
 
     const API_URL = process.env.EXPO_PUBLIC_API_URL;
@@ -83,26 +86,34 @@ const RegisterScreen = () => {
         <Text style={styles.errorText}>{errors.errors.email}</Text>
       )}
       
-      <TextInput 
-        placeholder='Password'
-        secureTextEntry={true}
-        style={styles.textInput}
-        placeholderTextColor="#999"
-        value={password}
-        onChangeText={(text) => setPassword(text)}
-      />
-      {errors && Object.keys(errors).length > 0 && errors.errors.password && (
-        <Text style={styles.errorText}>{errors.errors.password}</Text>
-      )}
+      <View style={styles.passwordContainer}>
+        <TextInput 
+            placeholder='Password'
+            secureTextEntry={passStatus}
+            placeholderTextColor="#999"
+            value={password}
+            onChangeText={(text) => setPassword(text)}
+        />
+        {errors && Object.keys(errors).length > 0 && errors.errors.password && (
+            <Text style={styles.errorText}>{errors.errors.password}</Text>
+        )}
+        <TouchableOpacity onPress={() => setPassStatus(!passStatus)}>
+            {passStatus ? <EyeClosed color="#666" /> : <Eye color="#666" />}
+        </TouchableOpacity>
+    </View>
 
-      <TextInput 
-        placeholder='Confirm Password'
-        secureTextEntry={true}
-        style={styles.textInput}
-        placeholderTextColor="#999"
-        value={passwordConfirmation}
-        onChangeText={(text) => setPasswordConfirmation(text)}
-      />
+        <View style={styles.passwordContainer}>
+            <TextInput 
+                placeholder='Confirm Password'
+                secureTextEntry={confirmPassStatus}
+                placeholderTextColor="#999"
+                value={passwordConfirmation}
+                onChangeText={(text) => setPasswordConfirmation(text)}
+            />
+            <TouchableOpacity onPress={() => setConfirmPassStatus(!confirmPassStatus)}>
+                {confirmPassStatus ? <EyeClosed color="#666" /> : <Eye color="#666" />}
+            </TouchableOpacity>
+        </View>
 
       <TouchableOpacity 
       style={[styles.btn, loading && {opacity: 0.6}]}
@@ -185,5 +196,16 @@ const styles = StyleSheet.create({
     errorText: {
         color: "red",
         marginBottom: 5
-    }
+    },
+    passwordContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        borderWidth: 1,
+        borderColor: '#ddd',
+        borderRadius: 12,
+        backgroundColor: '#F5F5F5',
+        paddingHorizontal: 10,
+        marginBottom: 10
+        },
 })
