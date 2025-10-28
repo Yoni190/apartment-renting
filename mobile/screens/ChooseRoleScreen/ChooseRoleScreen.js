@@ -1,7 +1,8 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Text, TouchableOpacity, View } from 'react-native'
 import React from 'react'
 import { ArrowRight } from 'lucide-react-native'
 import { useNavigation } from '@react-navigation/native'
+import styles from './ChooseRoleScreenStyle'
 
 const ChooseRoleScreen = () => {
     const navigation = useNavigation()
@@ -28,19 +29,3 @@ const ChooseRoleScreen = () => {
 }
 
 export default ChooseRoleScreen
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        gap: 12,
-        marginTop: 100
-    },
-    btn: {
-        borderWidth: 1,
-        borderRadius: 15,
-        paddingVertical: 25,
-        paddingHorizontal: 20,
-        flexDirection: 'row',
-        justifyContent: 'space-between'
-    }
-})

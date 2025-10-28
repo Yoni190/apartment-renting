@@ -2,12 +2,13 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack'
-import LoginScreen from './screens/LoginScreen';
+import LoginScreen from './screens/LoginScreen/LoginScreen';
 import HomeScreen from './screens/HomeScreen';
-import RegisterScreen from './screens/RegisterScreen';
+import RegisterScreen from './screens/RegisterScreen/RegisterScreen';
 import HomeTabs from './screens/HomeTabs';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import ChooseRoleScreen from './screens/ChooseRoleScreen';
+import ChooseRoleScreen from './screens/ChooseRoleScreen/ChooseRoleScreen';
+
 
 
 const Stack = createStackNavigator()

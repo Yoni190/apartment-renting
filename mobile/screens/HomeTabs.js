@@ -4,9 +4,9 @@ import { Text, View, TouchableOpacity } from 'react-native'
 import { Ionicons } from '@expo/vector-icons' // optional icons
 
 import HomeScreen from './HomeScreen'
-import LoginScreen from './LoginScreen'
-import RegisterScreen from './RegisterScreen'
-import ProfileScreen from './ProfileScreen'
+import LoginScreen from './LoginScreen/LoginScreen'
+import RegisterScreen from './RegisterScreen/RegisterScreen'
+import ProfileScreen from './ProfileScreen/ProfileScreen'
 
 const Tab = createBottomTabNavigator()
 
