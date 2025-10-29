@@ -9,6 +9,7 @@ import styles from './RegisterScreenStyle'
 const RegisterScreen = () => {
     const [name, setName] = useState("")
     const [email, setEmail] = useState("")
+    const [phone, setPhone] = useState("")
     const [password, setPassword] = useState("")
     const [passwordConfirmation, setPasswordConfirmation] = useState("")
     const [errors, setErrors] = useState({})
@@ -30,7 +31,8 @@ const RegisterScreen = () => {
                 password,
                 password_confirmation: passwordConfirmation,
                 device_name: `${Platform.OS} ${Platform.Version}`,
-                role: 0
+                role: 0,
+                phone
             }, {
                 headers: {
                     Accept: "application/json"
@@ -87,6 +89,15 @@ const RegisterScreen = () => {
       {errors && Object.keys(errors).length > 0 && errors.errors.email && (
         <Text style={styles.errorText}>{errors.errors.email}</Text>
       )}
+
+      <TextInput 
+        placeholder='Phone Number'
+        keyboardType='phone-pad'
+        style={styles.textInput}
+        placeholderTextColor="#999"
+        value={phone}
+        onChangeText={(text) => setPhone(text)}
+      />
       
       <View style={styles.passwordContainer}>
         <TextInput 
