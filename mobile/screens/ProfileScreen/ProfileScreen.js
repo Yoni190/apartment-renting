@@ -73,7 +73,7 @@ const ProfileScreen = () => {
 
         {/* Profile Actions */}
         <View style={styles.section}>
-          <TouchableOpacity style={styles.row}>
+          <TouchableOpacity style={styles.row} onPress={() => navigation.navigate('EditProfile')}>
             <UserPen />
             <Text style={styles.label}>Edit Profile</Text>
           </TouchableOpacity>
