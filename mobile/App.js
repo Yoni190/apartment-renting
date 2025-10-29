@@ -9,11 +9,21 @@ import HomeTabs from './screens/HomeTabs';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import ChooseRoleScreen from './screens/ChooseRoleScreen/ChooseRoleScreen';
 import HomeScreen from './screens/HomeScreen/HomeScreen';
+import { useEffect } from 'react';
+import * as NavigationBar from 'expo-navigation-bar'
 
 
 const Stack = createStackNavigator()
 
 export default function App() {
+  useEffect(() => {
+    const hideNavBar = async () => {
+      await NavigationBar.setVisibilityAsync('hidden')
+      await NavigationBar.setBehaviorAsync('overlay-swipe')
+    }
+
+    hideNavBar()
+  }, [])
   return (
     <SafeAreaProvider>
     <NavigationContainer>

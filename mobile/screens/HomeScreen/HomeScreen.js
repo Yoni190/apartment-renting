@@ -53,7 +53,7 @@ const HomeScreen = () => {
     useEffect(() => {
       const getUser = async () => {
         const access_token = await SecureStore.getItemAsync("token")
-        if(!access_token) navigation.replace("Login")
+        if(!access_token) navigation.replace('Login')
 
         try {
             const response = await axios.get(`${API_URL}/user`, {
@@ -74,77 +74,79 @@ const HomeScreen = () => {
     }, [])
     
   return (
-    <ScrollView showsVerticalScrollIndicator={false}> 
-      <Header 
-        title='Home'
-      />
-      <View style={styles.searchContainer}>
-        <TextInput 
-          placeholder='Search..'
-          style={styles.textInput}
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+      <ScrollView showsVerticalScrollIndicator={false}> 
+        <Header 
+          title='Home'
         />
-        <TouchableOpacity style={styles.filter}>
-          <SlidersHorizontal />
-        </TouchableOpacity>
-      </View>
-
-      <Text style={styles.title}>Recommended</Text>
-      <ScrollView 
-        showsHorizontalScrollIndicator={false} 
-        contentContainerStyle={styles.recommendationsContainer} 
-        horizontal={true}
-        >
-        {dummy_recommendations.map((dummy) => 
-          <TouchableOpacity style={styles.recommendations} key={dummy.name} activeOpacity={0.8}>
-            {/* Top Part */}
-            <View>
-              <Image 
-                source={require('../../assets/apartment_dummy.jpeg')}
-                resizeMode='cover'
-                style={styles.recommendationsImage}
-              />
-            </View>
-            {/* Bottom Part */}
-            <View>
-              <Text style={styles.apartmentTitle}>{dummy.name}</Text>
-              <View style={styles.apartmentInfo}>
-                <Text style={styles.location}>{dummy.location}</Text>
-                <Text>{dummy.price}</Text>
-              </View>
-            </View>
-            
+        <View style={styles.searchContainer}>
+          <TextInput 
+            placeholder='Search..'
+            style={styles.textInput}
+          />
+          <TouchableOpacity style={styles.filter}>
+            <SlidersHorizontal />
           </TouchableOpacity>
-        )}
+        </View>
+
+        <Text style={styles.title}>Recommended</Text>
+        <ScrollView 
+          showsHorizontalScrollIndicator={false} 
+          contentContainerStyle={styles.recommendationsContainer} 
+          horizontal={true}
+          >
+          {dummy_recommendations.map((dummy) => 
+            <TouchableOpacity style={styles.recommendations} key={dummy.name} activeOpacity={0.8}>
+              {/* Top Part */}
+              <View>
+                <Image 
+                  source={require('../../assets/apartment_dummy.jpeg')}
+                  resizeMode='cover'
+                  style={styles.recommendationsImage}
+                />
+              </View>
+              {/* Bottom Part */}
+              <View>
+                <Text style={styles.apartmentTitle}>{dummy.name}</Text>
+                <View style={styles.apartmentInfo}>
+                  <Text style={styles.location}>{dummy.location}</Text>
+                  <Text>{dummy.price}</Text>
+                </View>
+              </View>
+              
+            </TouchableOpacity>
+          )}
+        </ScrollView>
+        
+        <Text style={styles.title}>Apartments</Text>
+        <View style={styles.apartmentsContainer}>
+          {dummy_recommendations.map((dummy) => 
+            <TouchableOpacity key={dummy.name} style={styles.apartments} activeOpacity={0.8}>
+              {/* Top Part */}
+              <View>
+                <Image 
+                  source={require('../../assets/apartment_dummy.jpeg')}
+                  resizeMode='cover'
+                  style={styles.recommendationsImage}
+                />
+              </View>
+              {/* Bottom Part */}
+              <View>
+                <Text>{dummy.name}</Text>
+                <View style={styles.apartmentInfo}>
+                  <Text>{dummy.location}</Text>
+                  <Text>{dummy.price}</Text>
+                </View>
+              </View>
+              
+            </TouchableOpacity>
+
+          )}
+        </View>
+
+        
       </ScrollView>
-      
-      <Text style={styles.title}>Apartments</Text>
-      <View style={styles.apartmentsContainer}>
-        {dummy_recommendations.map((dummy) => 
-          <TouchableOpacity key={dummy.name} style={styles.apartments} activeOpacity={0.8}>
-            {/* Top Part */}
-            <View>
-              <Image 
-                source={require('../../assets/apartment_dummy.jpeg')}
-                resizeMode='cover'
-                style={styles.recommendationsImage}
-              />
-            </View>
-            {/* Bottom Part */}
-            <View>
-              <Text>{dummy.name}</Text>
-              <View style={styles.apartmentInfo}>
-                <Text>{dummy.location}</Text>
-                <Text>{dummy.price}</Text>
-              </View>
-            </View>
-            
-          </TouchableOpacity>
-
-        )}
-      </View>
-
-      
-    </ScrollView>
+    </SafeAreaView>
   )
 }
 
