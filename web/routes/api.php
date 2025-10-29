@@ -50,13 +50,15 @@ Route::post('/register', function(Request $request) {
         'password' => ['required', 'confirmed', Rules\Password::defaults()],
         'device_name' => ['required'],
         'role' => ['required'],
+        'phone_number' => ['phone_number']
     ]);
 
     $user = User::create([
         'name' => $request->name,
         'email' => $request->email,
         'password' => Hash::make($request->password),
-        'role' => $request->role
+        'role' => $request->role,
+        'phone_number' => $request->phone
     ]);
 
 
