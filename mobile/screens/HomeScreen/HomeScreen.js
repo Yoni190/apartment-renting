@@ -6,7 +6,7 @@ import { useNavigation } from '@react-navigation/native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import styles from './HomeScreenStyle'
 import Header from '../../components/Header'
-import { SlidersHorizontal } from 'lucide-react-native'
+import { SlidersHorizontal, ToolCase } from 'lucide-react-native'
 
 const HomeScreen = () => {
     const [user, setUser] = useState(null)
@@ -33,6 +33,16 @@ const HomeScreen = () => {
       },
       {
         name: 'ANother Villa Si',
+        location: 'Summit',
+        price: '50,000 Birr'
+      },
+      {
+        name: 'ANother Vi Sui',
+        location: 'Summit',
+        price: '50,000 Birr'
+      },
+      {
+        name: 'ANother Vila Si',
         location: 'Summit',
         price: '50,000 Birr'
       },
@@ -64,7 +74,7 @@ const HomeScreen = () => {
     }, [])
     
   return (
-    <SafeAreaView>
+    <ScrollView showsVerticalScrollIndicator={false}> 
       <Header 
         title='Home'
       />
@@ -78,15 +88,14 @@ const HomeScreen = () => {
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.recommendedTitle}>Recommended</Text>
+      <Text style={styles.title}>Recommended</Text>
       <ScrollView 
         showsHorizontalScrollIndicator={false} 
         contentContainerStyle={styles.recommendationsContainer} 
         horizontal={true}
-
-      >
+        >
         {dummy_recommendations.map((dummy) => 
-          <TouchableOpacity style={styles.recommendations} key={dummy.name}>
+          <TouchableOpacity style={styles.recommendations} key={dummy.name} activeOpacity={0.8}>
             {/* Top Part */}
             <View>
               <Image 
@@ -105,12 +114,37 @@ const HomeScreen = () => {
             </View>
             
           </TouchableOpacity>
-      
         )}
       </ScrollView>
       
+      <Text style={styles.title}>Apartments</Text>
+      <View style={styles.apartmentsContainer}>
+        {dummy_recommendations.map((dummy) => 
+          <TouchableOpacity key={dummy.name} style={styles.apartments} activeOpacity={0.8}>
+            {/* Top Part */}
+            <View>
+              <Image 
+                source={require('../../assets/apartment_dummy.jpeg')}
+                resizeMode='cover'
+                style={styles.recommendationsImage}
+              />
+            </View>
+            {/* Bottom Part */}
+            <View>
+              <Text>{dummy.name}</Text>
+              <View style={styles.apartmentInfo}>
+                <Text>{dummy.location}</Text>
+                <Text>{dummy.price}</Text>
+              </View>
+            </View>
+            
+          </TouchableOpacity>
+
+        )}
+      </View>
+
       
-    </SafeAreaView>
+    </ScrollView>
   )
 }
 
