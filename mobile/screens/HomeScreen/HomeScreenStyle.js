@@ -12,6 +12,41 @@ export default StyleSheet.create({
         flexDirection: 'row',
     },
     filter: {
-        alignSelf: 'center'
+        justifyContent: 'center',
+        marginRight: 5
+    },
+    recommendations: {
+        width: 200,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: '#ddd',
+        marginRight: 10,
+        padding: 15,
+        backgroundColor: '#fff',
+        },
+    recommendationsContainer: {
+        flexDirection: 'row',
+    },
+    recommendedTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginTop: 20
+    },
+    recommendationsImage: {
+        width: '100%',
+        height: 120,
+        borderRadius: 10,
+        marginBottom: 10,
+    },
+    apartmentTitle: {
+        fontSize: 18,
+        fontWeight: 'bold'
+    },
+    location: {
+        fontSize: 12,
+    },
+    apartmentInfo: {
+        flexDirection: 'row',
+        justifyContent: 'space-between'
     }
 })

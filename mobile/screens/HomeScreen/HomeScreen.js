@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import * as SecureStore from "expo-secure-store"
 import axios from 'axios'
@@ -14,6 +14,29 @@ const HomeScreen = () => {
     const navigation = useNavigation()
 
     const API_URL = process.env.EXPO_PUBLIC_API_URL;
+
+    const dummy_recommendations = [
+      {
+        name: 'Villa',
+        location: 'CMC',
+        price: '90,000 Birr'
+      },
+      {
+        name: 'ANother Villa',
+        location: 'Summit',
+        price: '50,000 Birr'
+      },
+      {
+        name: 'ANother Villa Sui',
+        location: 'Summit',
+        price: '50,000 Birr'
+      },
+      {
+        name: 'ANother Villa Si',
+        location: 'Summit',
+        price: '50,000 Birr'
+      },
+    ]
 
     
 
@@ -50,10 +73,43 @@ const HomeScreen = () => {
           placeholder='Search..'
           style={styles.textInput}
         />
-        <SlidersHorizontal style={styles.filter}/>
+        <TouchableOpacity style={styles.filter}>
+          <SlidersHorizontal />
+        </TouchableOpacity>
       </View>
+
+      <Text style={styles.recommendedTitle}>Recommended</Text>
+      <ScrollView 
+        showsHorizontalScrollIndicator={false} 
+        contentContainerStyle={styles.recommendationsContainer} 
+        horizontal={true}
+
+      >
+        {dummy_recommendations.map((dummy) => 
+          <TouchableOpacity style={styles.recommendations} key={dummy.name}>
+            {/* Top Part */}
+            <View>
+              <Image 
+                source={require('../../assets/apartment_dummy.jpeg')}
+                resizeMode='cover'
+                style={styles.recommendationsImage}
+              />
+            </View>
+            {/* Bottom Part */}
+            <View>
+              <Text style={styles.apartmentTitle}>{dummy.name}</Text>
+              <View style={styles.apartmentInfo}>
+                <Text style={styles.location}>{dummy.location}</Text>
+                <Text>{dummy.price}</Text>
+              </View>
+            </View>
+            
+          </TouchableOpacity>
       
-      <Text>Greetings, {user && user.name}</Text>
+        )}
+      </ScrollView>
+      
+      
     </SafeAreaView>
   )
 }
