@@ -1,9 +1,12 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import * as SecureStore from "expo-secure-store"
 import axios from 'axios'
 import { useNavigation } from '@react-navigation/native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import styles from './HomeScreenStyle'
+import Header from '../../components/Header'
+import { SlidersHorizontal } from 'lucide-react-native'
 
 const HomeScreen = () => {
     const [user, setUser] = useState(null)
@@ -39,6 +42,17 @@ const HomeScreen = () => {
     
   return (
     <SafeAreaView>
+      <Header 
+        title='Home'
+      />
+      <View style={styles.searchContainer}>
+        <TextInput 
+          placeholder='Search..'
+          style={styles.textInput}
+        />
+        <SlidersHorizontal style={styles.filter}/>
+      </View>
+      
       <Text>Greetings, {user && user.name}</Text>
     </SafeAreaView>
   )
