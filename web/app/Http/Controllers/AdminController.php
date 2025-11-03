@@ -26,4 +26,8 @@ class AdminController extends Controller
     function users() {
         return view('web.admin.users');
     }
+
+    function apartments() {
+        return view('web.admin.apartments');
+    }
 }
