@@ -6,7 +6,7 @@ import { useNavigation } from '@react-navigation/native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import styles from './HomeScreenStyle'
 import Header from '../../components/Header'
-import { SlidersHorizontal, ToolCase } from 'lucide-react-native'
+import { Plus, SlidersHorizontal, ToolCase } from 'lucide-react-native'
 
 const HomeScreen = () => {
     const [user, setUser] = useState(null)
@@ -144,7 +144,9 @@ const HomeScreen = () => {
           )}
         </View>
 
-        
+        <TouchableOpacity>
+          <Text><Plus /></Text>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   )
