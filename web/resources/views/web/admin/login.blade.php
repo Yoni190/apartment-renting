@@ -80,6 +80,9 @@
             <button type="submit" class="btn btn-primary">Log In</button>
         </form>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+
+
+        <!-- Show Password Script -->
         <script>
             const togglePassword = document.querySelector('#togglePassword');
             const password = document.querySelector('#password');
@@ -88,10 +91,18 @@
                 const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
                 password.setAttribute('type', type);
 
-                // toggle icon between eye and eye-slash
                 this.classList.toggle('bi-eye');
                 this.classList.toggle('bi-eye-slash');
             });
+        </script>
+
+        <!-- Auto Close alert messages -->
+        <script>
+            const toastElList = [].slice.call(document.querySelectorAll('.toast'))
+            const toastList = toastElList.map(function(toastEl) {
+                return new bootstrap.Toast(toastEl, { delay: 4000, autohide: true });
+            });
+            toastList.forEach(toast => toast.show());
         </script>
     </body>
     </html>
