@@ -16,7 +16,7 @@
     </style>
 </head>
 <body>
-    <form action="/login" method="POST" class="border p-5 rounded shadow-lg d-flex flex-column">
+    <form action="{{ route('admin.login.submit') }}" method="POST" class="border p-5 rounded shadow-lg d-flex flex-column">
         @csrf
         <h2>Login</h2>
         <input type="email" name="email" id="email" placeholder="Email Address" class="form-control mb-3">

@@ -19,11 +19,15 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/login/admin', [AdminController::class, 'showLogin']);
+Route::prefix('admin')->group(function () {
+    Route::get('/login', [AdminController::class, 'showLogin'])->name('admin.login');
 
-Route::post('/login', [AdminController::class, 'login']);
+    Route::post('/login', [AdminController::class, 'login'])->name('admin.login.submit');
 
-Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+});
+
+
 
 
 Route::get('/help', function () {
