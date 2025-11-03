@@ -14,7 +14,11 @@
             <a href="{{ route('admin.settings') }}" class="nav-link text-dark">⚙️ Settings</a>
         </li>
         <li class="nav-item mt-3">
-            <a href="# " class="btn btn-outline-danger w-100">Logout</a>
+            <form method="POST" action="{{ route('admin.logout') }}">
+                @csrf
+                <button type="submit" class="btn btn-outline-danger w-100">Logout</button>
+            </form>
         </li>
+
     </ul>
 </div>
