@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
+use App\Http\Controllers\AdminController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,18 +19,11 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/login/admin', function () {
-    return view('web.admin.login');
-});
+Route::get('/login/admin', [AdminController::class, 'showLogin']);
 
-Route::post('/login', function(Request $request) {
-    $request->validate([
-        'email' => 'required|email',
-        'password' => 'required'
-    ]);
+Route::post('/login', [AdminController::class, 'login']);
 
-    return view('web.admin.dashboard');
-});
+Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
 
 
 Route::get('/help', function () {
