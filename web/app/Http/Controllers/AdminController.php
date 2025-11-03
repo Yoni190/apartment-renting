@@ -30,4 +30,8 @@ class AdminController extends Controller
     function apartments() {
         return view('web.admin.apartments');
     }
+
+    function settings() {
+        return view('web.admin.settings');
+    }
 }
