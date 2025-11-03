@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
 {
@@ -16,7 +17,20 @@ class AdminController extends Controller
             'password' => 'required'
         ]);
 
-        return redirect()->route('admin.dashboard');
+        $credentials = $request->only('email', 'password');
+
+
+        if(Auth::guard('admin')->attempt($credentials)) {
+            $request->session()->regenerate();
+            return redirect()->route('admin.dashboard');
+        }
+
+        return back()->withErrors([
+            'email' => 'Invalid Credentials.'
+        ]);
+
+
+        
     }
 
     function dashboard() {
