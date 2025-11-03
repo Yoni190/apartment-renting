@@ -22,4 +22,8 @@ class AdminController extends Controller
     function dashboard() {
         return view('web.admin.dashboard');
     }
+
+    function users() {
+        return view('web.admin.users');
+    }
 }

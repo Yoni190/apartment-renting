@@ -2,10 +2,10 @@
     <h5 class="mb-4">Admin Menu</h5>
     <ul class="nav nav-pills flex-column w-100">
         <li class="nav-item mb-2">
-            <a href="#" class="nav-link text-dark">🏠 Dashboard</a>
+            <a href="{{ route('admin.dashboard') }}" class="nav-link text-dark">🏠 Dashboard</a>
         </li>
         <li class="nav-item mb-2">
-            <a href="#" class="nav-link text-dark">👥 Users</a>
+            <a href="{{ route('admin.users') }}" class="nav-link text-dark">👥 Users</a>
         </li>
         <li class="nav-item mb-2">
             <a href="#" class="nav-link text-dark">🏢 Apartments</a>
