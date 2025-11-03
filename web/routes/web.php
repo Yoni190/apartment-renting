@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,6 +20,15 @@ Route::get('/', function () {
 
 Route::get('/login/admin', function () {
     return view('web.admin.login');
+});
+
+Route::post('/login', function(Request $request) {
+    $request->validate([
+        'email' => 'required|email',
+        'password' => 'required'
+    ]);
+
+    return view('web.admin.dashboard');
 });
 
 
