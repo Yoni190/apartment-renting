@@ -21,6 +21,7 @@
             border-right: 1px solid #dee2e6;
         }
       </style>
+      @stack('styles')
 </head>
 <body>
     <header>
@@ -53,5 +54,6 @@
         });
         toastList.forEach(toast => toast.show());
     </script>
+    @stack('scripts')
 </body>
 </html>
