@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ApartmentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,9 +29,10 @@ Route::prefix('admin')->group(function () {
     Route::middleware('auth:admin')->group(function() {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
         Route::get('/users', [UserController::class, 'index'])->name('admin.users');
-        Route::get('/apartments', [AdminController::class, 'apartments'])->name('admin.apartments');
+        Route::get('/apartments', [ApartmentController::class, 'index'])->name('admin.apartments');
         Route::get('/settings', [AdminController::class, 'settings'])->name('admin.settings');
         Route::patch('/users/{user}/status', [UserController::class, 'toggleStatus'])->name('admin.users.toggleStatus');
+        Route::patch('/apartments/{apartment}/status', [ApartmentController::class, 'toggleStatus'])->name('admin.apartments.toggleStatus');
     });
     
 });
