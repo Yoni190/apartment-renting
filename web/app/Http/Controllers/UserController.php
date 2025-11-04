@@ -11,6 +11,6 @@ class UserController extends Controller
         $user->status = $user->status === 1 ? 0 : 1;
         $user->save();
 
-        return redirect()->back()->with('success', 'User Status updated successfully');
+        return redirect()->back()->with('message', "$user->name's status updated successfully");
     }
 }

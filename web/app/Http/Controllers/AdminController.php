@@ -46,7 +46,7 @@ class AdminController extends Controller
     }
 
     function users() {
-        $users = User::select('id', 'name', 'email', 'role')->paginate(20);
+        $users = User::select('id', 'name', 'email', 'role', 'status')->paginate(20);
         return view('web.admin.users', compact('users'));
     }
 

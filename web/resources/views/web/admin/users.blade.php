@@ -71,11 +71,22 @@
                             <td>{{ $user->name }}</td>
                             <td>{{ $user->email }}</td>
                             <td>{{ $user->role == 0 ? 'Renter' : 'Apartment Owner' }}</td>
-                            <td><span class="badge bg-success">Active</span><span class="badge bg-danger">Inactive</span></td>
+                            <td>
+                                @if($user->status === 1)
+                                    <span class="badge bg-success">Active</span>
+                                @else
+                                    <span class="badge bg-danger">Inactive</span>
+                                @endif
+                            </td>
                             <td class="text-end">
-                                <button class="btn btn-sm btn-danger">
-                                    <i class="bi bi-slash-circle"></i> Block
-                                </button>
+                                <form action="{{ route('admin.users.toggleStatus', $user) }}" method="POST">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button class="btn btn-sm btn-danger">
+                                        <i class="bi bi-slash-circle"></i> Change Status
+                                    </button>
+                                </form>
+                                
                             </td>
                         </tr>
                     @empty
