@@ -5,9 +5,37 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Models\Admin;
 
 class AdminController extends Controller
 {
+    function index(Request $request) {
+        $query = Admin::query();
+
+        if($request->filled('name')) {
+            $query->where('name', 'like', '%' . $request->name . '%');
+        }
+
+        if($request->filled('role')) {
+            $query->where('role', $request->role);
+        }
+
+        $admins = $query->orderBy('id', 'desc')->paginate(10)->withQueryString();
+
+        return view('web.admin.admins', compact('admins'));
+    }
+
+    function delete(Admin $admin) {
+        if(auth()->id() == $admin->id) {
+            return redirect()->back()->with('error', 'You cannot delete your own account.');
+        }
+
+        $admin->delete();
+
+
+        return redirect()->route('admin.admins.index')->with('message', "$admin->name has been deleted successfully");
+    }
+
     function showLogin() {
         return view('web.admin.login');
     }
@@ -40,6 +68,7 @@ class AdminController extends Controller
 
         return redirect()->route('admin.login')->with('message', 'You have been logged out successfully.');
     }
+    
  
     function dashboard() {
         return view('web.admin.dashboard');

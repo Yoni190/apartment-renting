@@ -11,6 +11,9 @@
             <a href="{{ route('admin.apartments') }}" class="nav-link text-dark">🏢 Apartments</a>
         </li>
         <li class="nav-item mb-2">
+            <a href="{{ route('admin.admins.index') }}" class="nav-link text-dark">Admins</a>
+        </li>
+        <li class="nav-item mb-2">
             <a href="{{ route('admin.settings') }}" class="nav-link text-dark">⚙️ Settings</a>
         </li>
         <li class="nav-item mt-3">
