@@ -31,15 +31,27 @@
                     <label for="role" class="form-label">Role</label>
                     <select name="role" id="role" class="form-select">
                         <option value="">All</option>
-                        <option value="0" {{ request('role') == '0' ? 'selected' : '' }}>Renter</option>
-                        <option value="1" {{ request('role') == '1' ? 'selected' : '' }}>Apartment Owner</option>
+                        <option value="0" {{ request('role') == '0' ? 'selected' : '' }}>Apartment Owner</option>
+                        <option value="1" {{ request('role') == '1' ? 'selected' : '' }}>Renter</option>
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label for="status" class="form-label">Status</label>
+                    <select name="status" id="status" class="form-select">
+                        <option value="">All</option>
+                        <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>Inactive</option>
+                        <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Active</option>
                     </select>
                 </div>
 
                 <div class="col-md-4 d-flex gap-2">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-funnel"></i> Apply Filters
-                    </button>
+                    <form action="{{ route('admin.users') }}" method="GET">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-funnel"></i> Apply Filters
+                        </button>
+                    </form>
+                    
                     <a href="{{ route('admin.users') }}" class="btn btn-outline-secondary">
                         <i class="bi bi-x-circle"></i> Reset
                     </a>
@@ -70,7 +82,7 @@
                             <td>{{ $user->id }}</td>
                             <td>{{ $user->name }}</td>
                             <td>{{ $user->email }}</td>
-                            <td>{{ $user->role == 0 ? 'Renter' : 'Apartment Owner' }}</td>
+                            <td>{{ $user->role == 0 ? 'Apartment Owner' : 'Renter' }}</td>
                             <td>
                                 @if($user->status === 1)
                                     <span class="badge bg-success">Active</span>

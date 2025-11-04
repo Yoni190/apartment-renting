@@ -45,11 +45,6 @@ class AdminController extends Controller
         return view('web.admin.dashboard');
     }
 
-    function users() {
-        $users = User::select('id', 'name', 'email', 'role', 'status')->paginate(20);
-        return view('web.admin.users', compact('users'));
-    }
-
     function apartments() {
         return view('web.admin.apartments');
     }
