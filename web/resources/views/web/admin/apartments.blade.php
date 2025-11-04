@@ -5,6 +5,44 @@
 
 <h1>Apartments</h1>
 
+{{-- Filter Card --}}
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Filter Apartments</h5>
+        </div>
+        <div class="card-body">
+            <form method="GET" action="{{ route('admin.apartments') }}" class="row g-3 align-items-end">
+
+                <div class="col-md-4">
+                    <label for="name" class="form-label">Search by Title</label>
+                    <input type="text" name="title" id="title" value="{{ request('title') }}" class="form-control" placeholder="Enter title...">
+                </div>
+
+                <div class="col-md-4">
+                    <label for="status" class="form-label">Status</label>
+                    <select name="status" id="status" class="form-select">
+                        <option value="">All</option>
+                        <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>Inactive</option>
+                        <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Active</option>
+                    </select>
+                </div>
+
+
+                <div class="col-md-4 d-flex gap-2">
+                    <form action="{{ route('admin.users') }}" method="GET">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-funnel"></i> Apply Filters
+                        </button>
+                    </form>
+                    
+                    <a href="{{ route('admin.apartments') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle"></i> Reset
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
 <div class="card shadow-sm">
         <div class="card-header bg-dark text-white">
             <h5 class="mb-0">Apartments List</h5>

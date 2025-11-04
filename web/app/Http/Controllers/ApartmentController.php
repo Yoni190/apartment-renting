@@ -10,6 +10,7 @@ class ApartmentController extends Controller
     function index(Request $request) {
         $query = Apartment::query();
 
+
         if($request->filled('title')) {
             $query->where('title', 'like', '%' . $request->title . '%');
         }
