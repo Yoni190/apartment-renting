@@ -1,5 +1,5 @@
 @extends('web.admin.layout.app')
-@section('title', 'Apartments')
+@section('title', 'Gojoye - Apartments')
 
 @section('content')
 

@@ -1,5 +1,5 @@
 @extends('web.admin.layout.app')
-@section('title', 'Dashboard')
+@section('title', 'Gojoye - Dashboard')
 
 @section('content')
 
