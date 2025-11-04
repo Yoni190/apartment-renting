@@ -79,7 +79,7 @@
                                 @endif
                             </td>
                             <td class="text-end">
-                                <form action="{{ route('admin.users.toggleStatus', $user) }}" method="POST">
+                                <form action="{{ route('admin.users.toggleStatus', $user) }}" method="POST" class="status-form">
                                     @csrf
                                     @method('PATCH')
                                     <button class="btn btn-sm btn-danger">
@@ -106,5 +106,31 @@
 
 </div>
 
+
+@push('scripts')
+<script>
+    document.querySelectorAll('.status-form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault()
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "This will change the user's status!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, change it'
+            }).then((result) => {
+                if(result.isConfirmed) {
+                    form.submit()
+                }
+            })
+        })
+    })
+</script>
+
+
+@endpush
 
 @endsection

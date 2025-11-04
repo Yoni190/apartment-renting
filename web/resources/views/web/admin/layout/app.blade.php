@@ -54,6 +54,7 @@
         });
         toastList.forEach(toast => toast.show());
     </script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @stack('scripts')
 </body>
 </html>
