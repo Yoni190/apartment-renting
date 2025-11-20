@@ -15,6 +15,10 @@ class ApartmentController extends Controller
             $query->where('title', 'like', '%' . $request->title . '%');
         }
 
+        if($request->filled('address')) {
+            $query->where('address', 'like', '%' . $request->address . '%');
+        }
+
 
         if($request->filled('status')) {
             $query->where('status', $request->status);

@@ -14,8 +14,13 @@
             <form method="GET" action="{{ route('admin.apartments') }}" class="row g-3 align-items-end">
 
                 <div class="col-md-4">
-                    <label for="name" class="form-label">Search by Title</label>
+                    <label for="title" class="form-label">Search by Title</label>
                     <input type="text" name="title" id="title" value="{{ request('title') }}" class="form-control" placeholder="Enter title...">
+                </div>
+
+                <div class="col-md-4">
+                    <label for="address" class="form-label">Search by Address</label>
+                    <input type="text" name="address" id="address" value="{{ request('address') }}" class="form-control" placeholder="Enter address...">
                 </div>
 
                 <div class="col-md-4">
