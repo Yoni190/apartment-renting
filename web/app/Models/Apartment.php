@@ -19,4 +19,9 @@ class Apartment extends Model
         'bathrooms',
         'size'
     ];
+
+    public function owner() {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
 }
