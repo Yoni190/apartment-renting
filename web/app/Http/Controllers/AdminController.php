@@ -71,7 +71,26 @@ class AdminController extends Controller
     
  
     function dashboard() {
-        return view('web.admin.dashboard');
+        //Dummy Data
+        $totalUsers = 1200;
+        $totalSales = 54000;
+        $totalOrders = 320;
+
+
+        $monthlySales = [
+            'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            'data'   => [5000, 7000, 8000, 6500, 9000, 11000]
+        ];
+
+        $userGrowth = [
+            'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            'data'   => [100, 150, 160, 200, 250, 300]
+        ];
+
+        return view('web.admin.dashboard', compact(
+            'totalUsers', 'totalSales', 'totalOrders',
+            'monthlySales', 'userGrowth'
+        ));
     }
 
     function apartments() {
