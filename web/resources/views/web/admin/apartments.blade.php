@@ -139,6 +139,7 @@
                 <thead class="table-dark">
                     <tr>
                         <th>ID</th>
+                        <th>Owner</th>
                         <th>Title</th>
                         <th>Description</th>
                         <th>Price</th>
@@ -153,6 +154,7 @@
                     @forelse($apartments as $apartment)
                         <tr>
                             <td>{{ $apartment->id }}</td>
+                            <td>{{ $apartment->owner->name }}</td>
                             <td>{{ $apartment->title }}</td>
                             <td>{{ $apartment->description }}</td>
                             <td>{{ $apartment->price }}
