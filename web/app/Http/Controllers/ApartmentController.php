@@ -19,6 +19,10 @@ class ApartmentController extends Controller
             $query->where('address', 'like', '%' . $request->address . '%');
         }
 
+        if($request->filled('bedrooms')) {
+            $query->where('bedrooms', 'like', '%' . $request->bedrooms . '%');
+        }
+
         if ($request->min_price !== null) {
             $query->where('price', '>=', $request->min_price);
         }
