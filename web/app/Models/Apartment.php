@@ -17,7 +17,8 @@ class Apartment extends Model
         'address',
         'bedrooms',
         'bathrooms',
-        'size'
+        'size',
+        'user_id'
     ];
 
     public function owner() {

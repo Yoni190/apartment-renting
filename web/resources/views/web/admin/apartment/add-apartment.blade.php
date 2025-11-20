@@ -12,7 +12,7 @@
 
         <div class="card-body">
 
-            <form action="#" method="POST">
+            <form action="{{ route('admin.add-apartment') }}" method="POST">
                 @csrf
 
                 <div class="row g-4">
