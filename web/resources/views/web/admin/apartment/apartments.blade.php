@@ -44,6 +44,18 @@
     top: 18px;
     border-radius: 3px;
 }
+
+#filterCard {
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+}
+
+#filterCard.show {
+    max-height: 2000px;
+    opacity: 1;
+}
 </style>
 
 
@@ -53,13 +65,17 @@
 
 <div class="d-flex justify-content-between align-items-center">
     <h1>Apartments</h1>
-    <a href="{{ route('admin.apartments.add') }}" class="btn btn-primary">
-            Add Apartment
-    </a>
+    <div>
+        <button class="btn btn-secondary" id="toggleFilterBtn">Filter</button>
+        <a href="{{ route('admin.apartments.add') }}" class="btn btn-primary">
+                Add Apartment
+        </a>
+        
+    </div>
 </div>
 
 {{-- Filter Card --}}
-    <div class="card shadow-sm mb-4">
+    <div class="card shadow-sm mb-4" id="filterCard">
         <div class="card-header bg-light">
             <h5 class="mb-0">Filter Apartments</h5>
         </div>
@@ -187,7 +203,7 @@
                         <th>Bedrooms</th>
                         <th>Bathrooms</th>
                         <th>Status</th>
-                        <th class="text-end">Actions</th>
+                        <th class="text-center">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -245,7 +261,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center text-muted py-4">No apartments found.</td>
+                            <td colspan="11" class="text-center text-muted py-4">No apartments found.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -261,6 +277,20 @@
 </div>
 
 @push('scripts')
+
+<!-- Show/Hide filter card -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const toggleBtn = document.querySelector('#toggleFilterBtn')
+    const filterCard = document.querySelector('#filterCard')
+
+    toggleBtn.addEventListener('click', () => {
+        filterCard.classList.toggle("show");
+    })
+})
+</script>
+
+
 <script>
     document.querySelectorAll('.status-form').forEach(form => {
         form.addEventListener('submit', function(e) {
