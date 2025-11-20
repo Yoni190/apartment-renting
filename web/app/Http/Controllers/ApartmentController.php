@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Apartment;
+use App\Models\User;
 
 class ApartmentController extends Controller
 {
@@ -53,7 +54,7 @@ class ApartmentController extends Controller
         
         
 
-        return view('web.admin.apartments', compact('apartments', 'max_price'));
+        return view('web.admin.apartment.apartments', compact('apartments', 'max_price'));
     }
 
     public function toggleStatus(Apartment $apartment){
@@ -61,5 +62,10 @@ class ApartmentController extends Controller
         $apartment->save();
 
         return redirect()->back()->with('message', "$apartment->title's status updated successfully");
+    }
+
+    public function addApartment() {
+        $users = User::all();
+        return  view('web.admin.apartment.add-apartment', compact('users'));
     }
 }

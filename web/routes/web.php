@@ -31,6 +31,7 @@ Route::prefix('admin')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
         Route::get('/users', [UserController::class, 'index'])->name('admin.users');
         Route::get('/apartments', [ApartmentController::class, 'index'])->name('admin.apartments');
+        Route::get('/apartment/add', [ApartmentController::class, 'addApartment'])->name('admin.apartments.add');
         Route::get('/settings', [AdminController::class, 'settings'])->name('admin.settings');
         Route::get('/admins', [AdminController::class, 'index'])->name('admin.admins.index');
         Route::delete('/{admin}/delete', [AdminController::class, 'delete'])->name('admin.delete');

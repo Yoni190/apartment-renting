@@ -119,15 +119,21 @@
 
 
 
-                <div class="col-md-4 d-flex gap-2">
-                    <form action="{{ route('admin.users') }}" method="GET">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-funnel"></i> Apply Filters
-                        </button>
-                    </form>
-                    
-                    <a href="{{ route('admin.apartments') }}" class="btn btn-outline-secondary">
-                        <i class="bi bi-x-circle"></i> Reset
+                <div class="d-flex gap-2 justify-content-between">
+                    <div>
+                        <form action="{{ route('admin.users') }}" method="GET">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-funnel"></i> Apply Filters
+                            </button>
+                        </form>
+                        
+                        <a href="{{ route('admin.apartments') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle"></i> Reset
+                        </a>
+                    </div>
+
+                    <a href="{{ route('admin.apartments.add') }}" class="btn btn-primary">
+                         Add Apartment
                     </a>
                 </div>
             </form>
