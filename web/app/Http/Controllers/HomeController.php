@@ -8,7 +8,7 @@ use App\Models\Apartment;
 class HomeController extends Controller
 {
     public function index() {
-        $featuredApartments = Apartment::take(6)->get();
+        $featuredApartments = Apartment::where('is_featured', 1)->take(6)->get();
         return view('web.home', compact('featuredApartments'));
     }
 }
