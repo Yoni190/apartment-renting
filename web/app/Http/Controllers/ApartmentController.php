@@ -74,6 +74,13 @@ class ApartmentController extends Controller
         return redirect()->back()->with('message', "$apartment->title's status updated successfully");
     }
 
+    public function toggleFeatured(Apartment $apartment) {
+        $apartment->is_featured = $apartment->is_featured === 1 ? 0 : 1;
+        $apartment->save();
+
+        return redirect()->back()->with('message', "$apartment->title's featured status updated successfully");
+    }
+
     public function addApartmentView() {
         $users = User::all();
         return  view('web.admin.apartment.add-apartment', compact('users'));

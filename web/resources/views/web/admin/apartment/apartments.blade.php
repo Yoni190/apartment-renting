@@ -202,6 +202,7 @@
                         <th>Size</th>
                         <th>Bedrooms</th>
                         <th>Bathrooms</th>
+                        <th>Featured Status</th>
                         <th>Status</th>
                         <th class="text-center">Actions</th>
                     </tr>
@@ -220,6 +221,25 @@
                             <td>{{ $apartment->size }}</td>
                             <td>{{ $apartment->bedrooms }}</td>
                             <td>{{ $apartment->bathrooms }}</td>
+                            <td>
+                                @if($apartment->is_featured === 1)
+                                    <form action="{{ route('admin.apartments.toggleFeatured', $apartment) }}" method="POST">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button style="all:unset;cursor:pointer">
+                                            <span class="badge bg-success">Active</span>
+                                        </button>
+                                    </form>
+                                @else
+                                    <form action="{{ route('admin.apartments.toggleFeatured', $apartment) }}" method="POST">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" style="all:unset;cursor:pointer">
+                                            <span class="badge bg-danger">Inactive</span>
+                                        </button>
+                                    </form>
+                                @endif
+                            </td>
                             <td>
                                 @if($apartment->status === 1)
                                     <span class="badge bg-success">Active</span>

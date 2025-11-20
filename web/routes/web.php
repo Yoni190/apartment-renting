@@ -42,6 +42,7 @@ Route::prefix('admin')->group(function () {
         Route::delete('/{admin}/delete', [AdminController::class, 'delete'])->name('admin.delete');
         Route::patch('/users/{user}/status', [UserController::class, 'toggleStatus'])->name('admin.users.toggleStatus');
         Route::patch('/apartments/{apartment}/status', [ApartmentController::class, 'toggleStatus'])->name('admin.apartments.toggleStatus');
+        Route::patch('/apartments/{apartment}/featured-status', [ApartmentController::class, 'toggleFeatured'])->name('admin.apartments.toggleFeatured');
         Route::get('/admin/report/download', [ReportController::class, 'download'])
         ->name('admin.downloadReport');
     });
