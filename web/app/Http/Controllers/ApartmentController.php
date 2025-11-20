@@ -11,6 +11,12 @@ class ApartmentController extends Controller
         $query = Apartment::query();
 
 
+        if($request->filled('owner')) {
+            $query->whereHas('owner', function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->owner . '%');
+            });
+        }
+
         if($request->filled('title')) {
             $query->where('title', 'like', '%' . $request->title . '%');
         }
