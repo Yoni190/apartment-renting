@@ -73,6 +73,7 @@
                         <th>Email</th>
                         <th>Role</th>
                         <th>Status</th>
+                        <th>Number of Apartments</th>
                         <th class="text-end">Actions</th>
                     </tr>
                 </thead>
@@ -89,6 +90,9 @@
                                 @else
                                     <span class="badge bg-danger">Inactive</span>
                                 @endif
+                            </td>
+                            <td class="text-center">
+                                {{ $user->apartments->count() }}
                             </td>
                             <td class="text-end">
                                 <form action="{{ route('admin.users.toggleStatus', $user) }}" method="POST" class="status-form">
