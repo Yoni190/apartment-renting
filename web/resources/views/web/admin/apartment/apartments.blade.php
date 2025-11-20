@@ -51,7 +51,12 @@
 @endpush
 @section('content')
 
-<h1>Apartments</h1>
+<div class="d-flex justify-content-between align-items-center">
+    <h1>Apartments</h1>
+    <a href="{{ route('admin.apartments.add') }}" class="btn btn-primary">
+            Add Apartment
+    </a>
+</div>
 
 {{-- Filter Card --}}
     <div class="card shadow-sm mb-4">
@@ -85,6 +90,7 @@
                     <input type="text" name="bathrooms" id="bathrooms" value="{{ request('bathrooms') }}" class="form-control" placeholder="Enter bathrooms...">
                 </div>
 
+
                 <div class="col-md-4">
                     <label for="status" class="form-label">Status</label>
                     <select name="status" id="status" class="form-select">
@@ -117,9 +123,34 @@
                     </div>
                 </div>
 
+                <div class="col-md-12 mt-3">
+                    <label class="form-label">Size Range (sq.m)</label>
+
+                    <div class="range-container">
+                        <input type="range" id="minSize" name="min_size"
+                            min="0" max="{{ $max_size }}"
+                            value="{{ request('min_size', 0) }}"
+                            class="range-slider">
+
+                        <input type="range" id="maxSize" name="max_size"
+                            min="0" max="{{ $max_size }}"
+                            value="{{ request('max_size', $max_size) }}"
+                            class="range-slider">
+
+                        <div class="slider-track"></div>
+                    </div>
+
+                    <div class="d-flex justify-content-between small mt-1">
+                        <span>Min: <strong id="minSizeValue">{{ request('min_size', 0) }}</strong></span>
+                        <span>Max: <strong id="maxSizeValue">{{ request('max_size', $max_size) }}</strong></span>
+                    </div>
+                </div>
+
+                
 
 
-                <div class="d-flex gap-2 justify-content-between">
+
+                <div class="d-flex gap-2">
                     <div>
                         <form action="{{ route('admin.users') }}" method="GET">
                             <button type="submit" class="btn btn-primary">
@@ -132,9 +163,7 @@
                         </a>
                     </div>
 
-                    <a href="{{ route('admin.apartments.add') }}" class="btn btn-primary">
-                         Add Apartment
-                    </a>
+                    
                 </div>
             </form>
         </div>
@@ -319,6 +348,52 @@ document.addEventListener("DOMContentLoaded", () => {
 
     updateTrack(); // initialize
 });
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+    const minSizeSlider = document.getElementById("minSize");
+    const maxSizeSlider = document.getElementById("maxSize");
+    const minSizeValue = document.getElementById("minSizeValue");
+    const maxSizeValue = document.getElementById("maxSizeValue");
+    const sizeTrack = minSizeSlider.parentElement.querySelector(".slider-track");
+
+    function updateSizeTrack() {
+        const min = parseInt(minSizeSlider.value);
+        const max = parseInt(maxSizeSlider.value);
+
+        const percent1 = (min / minSizeSlider.max) * 100;
+        const percent2 = (max / maxSizeSlider.max) * 100;
+
+        sizeTrack.style.background = `linear-gradient(
+            to right,
+            #d3d3d3 ${percent1}%,
+            #0d6efd ${percent1}%,
+            #0d6efd ${percent2}%,
+            #d3d3d3 ${percent2}%
+        )`;
+
+        minSizeValue.textContent = min;
+        maxSizeValue.textContent = max;
+    }
+
+    minSizeSlider.addEventListener("input", function () {
+        if (parseInt(minSizeSlider.value) > parseInt(maxSizeSlider.value)) {
+            minSizeSlider.value = maxSizeSlider.value;
+        }
+        updateSizeTrack();
+    });
+
+    maxSizeSlider.addEventListener("input", function () {
+        if (parseInt(maxSizeSlider.value) < parseInt(minSizeSlider.value)) {
+            maxSizeSlider.value = minSizeSlider.value;
+        }
+        updateSizeTrack();
+    });
+
+    updateSizeTrack(); // initialize
+});
+
 </script>
 
 

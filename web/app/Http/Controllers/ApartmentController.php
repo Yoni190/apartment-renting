@@ -41,6 +41,14 @@ class ApartmentController extends Controller
         if ($request->max_price !== null) {
             $query->where('price', '<=', $request->max_price);
         }
+        
+        if ($request->min_size !== null) {
+            $query->where('size', '>=', $request->min_size);
+        }
+
+        if ($request->max_size !== null) {
+            $query->where('size', '<=', $request->max_size);
+        }
 
 
 
@@ -50,11 +58,13 @@ class ApartmentController extends Controller
 
         $max_price = $request->max_price ? $request->max_price : (clone $query)->max('price');
 
+        $max_size = $request->max_size ? $request->max_size : (clone $query)->max('size');
+
         $apartments = $query->orderBy('id', 'desc')->paginate(10)->withQueryString();
         
         
 
-        return view('web.admin.apartment.apartments', compact('apartments', 'max_price'));
+        return view('web.admin.apartment.apartments', compact('apartments', 'max_price', 'max_size'));
     }
 
     public function toggleStatus(Apartment $apartment){
