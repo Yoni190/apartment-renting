@@ -9,6 +9,10 @@ class HomeController extends Controller
 {
     public function index() {
         $featuredApartments = Apartment::where('is_featured', 1)->take(6)->get();
-        return view('web.home', compact('featuredApartments'));
+        return view('web.client.home', compact('featuredApartments'));
+    }
+
+    public function register() {
+        return view('web.client.register');
     }
 }

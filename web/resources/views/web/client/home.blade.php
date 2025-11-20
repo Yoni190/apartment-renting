@@ -1,4 +1,4 @@
-@extends('web.layout.app')
+@extends('web.client.layout.app')
 
 @section('title', 'Home - Rent Your Dream Apartment')
 

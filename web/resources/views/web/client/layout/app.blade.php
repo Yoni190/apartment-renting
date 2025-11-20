@@ -64,7 +64,7 @@
                             <a href="#" class="btn btn-outline-light btn-sm">Login</a>
                         </li>
                         <li class="nav-item ms-2">
-                            <a href="#" class="btn btn-primary btn-sm">Register</a>
+                            <a href="{{ route('user.register') }}" class="btn btn-primary btn-sm">Register</a>
                         </li>
                     @endauth
 

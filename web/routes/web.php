@@ -20,6 +20,7 @@ use App\Http\Controllers\HomeController;
 */
 
 Route::get('/', [HomeController::class, 'index']);
+Route::get('/register', [HomeController::class, 'register'])->name('user.register');
 
 Route::prefix('admin')->group(function () {
     Route::get('/login', [AdminController::class, 'showLogin'])->name('admin.login');
