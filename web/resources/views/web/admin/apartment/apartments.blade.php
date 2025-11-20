@@ -201,6 +201,13 @@
                                         </button>
                                     </form>
 
+                                    {{-- Edit apartment --}}
+                                    <form action="{{ route('admin.apartments.edit', $apartment) }}" method="GET">
+                                        <button type="submit" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Apartment">
+                                            <i class="bi bi-pen"></i>
+                                        </button>
+                                    </form>
+
                                 </div>
                             </td>
 

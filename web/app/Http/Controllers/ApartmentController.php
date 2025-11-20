@@ -69,6 +69,39 @@ class ApartmentController extends Controller
         return  view('web.admin.apartment.add-apartment', compact('users'));
     }
 
+    public function editApartmentView(Apartment $apartment) {
+        $users = User::all();
+        return  view('web.admin.apartment.edit-apartment', compact('apartment', 'users'));
+    }
+
+    public function editApartment(Request $request, Apartment $apartment) {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'price' => 'required|numeric|min:0',
+            'address' => 'required|string',
+            'bedrooms' => 'required|integer|min:0',
+            'bathrooms' => 'required|integer|min:0',
+            'size' => 'nullable|numeric|min:0',
+            'owner' => 'required|exists:users,id',
+        ]);
+
+        $apartment->update([
+            'title' => $request->name,
+            'description' => $request->description,
+            'price' => $request->price,
+            'status' => 1,
+            'address' => $request->address,
+            'bedrooms' => $request->bedrooms,
+            'bathrooms' => $request->bathrooms,
+            'size' => $request->size,
+            'user_id' => $request->owner,
+        ]);
+
+        return redirect()->route('admin.apartments')
+        ->with('message', 'Apartment edited successfully!');
+    }
+
     public function addApartment(Request $request) {
         $request->validate([
             'name' => 'required|string|max:255',

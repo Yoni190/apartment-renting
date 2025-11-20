@@ -32,6 +32,8 @@ Route::prefix('admin')->group(function () {
         Route::get('/users', [UserController::class, 'index'])->name('admin.users');
         Route::get('/apartments', [ApartmentController::class, 'index'])->name('admin.apartments');
         Route::get('/apartment/add', [ApartmentController::class, 'addApartmentView'])->name('admin.apartments.add');
+        Route::get('/apartment/edit/{apartment}', [ApartmentController::class, 'editApartmentView'])->name('admin.apartments.edit');
+        Route::post('/apartment/edit-apartment/{apartment}', [ApartmentController::class, 'editApartment'])->name('admin.edit-apartment');
         Route::post('/apartment/add-apartment', [ApartmentController::class, 'addApartment'])->name('admin.add-apartment');
         Route::delete('/apartments/{apartment}/delete', [ApartmentController::class, 'delete'])->name('admin.apartments.destroy');
         Route::get('/settings', [AdminController::class, 'settings'])->name('admin.settings');
