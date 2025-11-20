@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ApartmentController;
+use App\Http\Controllers\ReportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,6 +36,8 @@ Route::prefix('admin')->group(function () {
         Route::delete('/{admin}/delete', [AdminController::class, 'delete'])->name('admin.delete');
         Route::patch('/users/{user}/status', [UserController::class, 'toggleStatus'])->name('admin.users.toggleStatus');
         Route::patch('/apartments/{apartment}/status', [ApartmentController::class, 'toggleStatus'])->name('admin.apartments.toggleStatus');
+        Route::get('/admin/report/download', [ReportController::class, 'download'])
+        ->name('admin.downloadReport');
     });
     
 });

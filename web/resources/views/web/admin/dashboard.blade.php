@@ -6,10 +6,13 @@
 
 <div class="container mt-4">
 
-    <h2 class="mb-4">Admin Dashboard</h2>
-    <a href="#" class="btn btn-primary">
-            Download Report (PDF)
-        </a>
+    <div class="d-flex justify-content-between align-items-center">
+        <h2 class="mb-4">Admin Dashboard</h2>
+        <a href="{{ route('admin.downloadReport') }}" class="btn btn-primary p-2">
+                Download Report (PDF)
+            </a>
+    </div>
+    
 
     <!-- Summary Cards -->
     <div class="row mb-4">
