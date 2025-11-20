@@ -95,6 +95,12 @@ class ApartmentController extends Controller
 
         return redirect()->route('admin.apartments')
         ->with('message', 'Apartment added successfully!');
+    }
 
+    public function delete(Apartment $apartment) {
+        $apartment->delete();
+
+        return redirect()->route('admin.apartments')
+        ->with('message', 'Apartment deleted successfully!');
     }
 }

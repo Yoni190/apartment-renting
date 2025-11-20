@@ -180,16 +180,30 @@
                                     <span class="badge bg-danger">Inactive</span>
                                 @endif
                             </td>
-                            <td class="text-end">
-                                <form action="{{ route('admin.apartments.toggleStatus', $apartment) }}" method="POST" class="status-form">
-                                    @csrf
-                                    @method('PATCH')
-                                    <button class="btn btn-sm btn-danger">
-                                        <i class="bi bi-slash-circle"></i> Change Status
-                                    </button>
-                                </form>
-                                
+                            <td class="text-center">
+                                <div class="d-flex justify-content-center gap-2">
+
+                                    {{-- Toggle Status --}}
+                                    <form action="{{ route('admin.apartments.toggleStatus', $apartment) }}" method="POST" class="status-form">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="btn btn-sm btn-outline-warning" data-bs-toggle="tooltip" data-bs-placement="top" title="Change Status">
+                                            <i class="bi bi-slash-circle"></i>
+                                        </button>
+                                    </form>
+
+                                    {{-- Delete Apartment --}}
+                                    <form action="{{ route('admin.apartments.destroy', $apartment) }}" method="POST" class="delete-form">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete Apartment">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+
+                                </div>
                             </td>
+
                         </tr>
                     @empty
                         <tr>
@@ -222,6 +236,28 @@
                 confirmButtonColor: '#d33',
                 cancelButtonColor: '#3085d6',
                 confirmButtonText: 'Yes, change it'
+            }).then((result) => {
+                if(result.isConfirmed) {
+                    form.submit()
+                }
+            })
+        })
+    })
+</script>
+
+<script>
+    document.querySelectorAll('.delete-form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault()
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "This will delete the apartment!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it'
             }).then((result) => {
                 if(result.isConfirmed) {
                     form.submit()
