@@ -17,6 +17,7 @@ class Apartment extends Model
         'address',
         'bedrooms',
         'bathrooms',
+        'is_featured',
         'size',
         'user_id'
     ];
