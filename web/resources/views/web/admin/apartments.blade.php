@@ -1,6 +1,54 @@
 @extends('web.admin.layout.app')
 @section('title', 'Gojoye - Apartments')
 
+
+@push('styles')
+<style>
+.range-container {
+    position: relative;
+    height: 40px;
+}
+
+.range-slider {
+    position: absolute;
+    width: 100%;
+    pointer-events: none;
+    -webkit-appearance: none;
+    background: transparent;
+}
+
+.range-slider::-webkit-slider-thumb {
+    pointer-events: all;
+    height: 20px;
+    width: 20px;
+    background: #0d6efd;
+    border-radius: 50%;
+    cursor: pointer;
+    -webkit-appearance: none;
+}
+
+.slider-track {
+    position: absolute;
+    height: 6px;
+    background: #d3d3d3;
+    top: 8px;
+    left: 0;
+    right: 0;
+    border-radius: 3px;
+}
+
+.slider-track-active {
+    position: absolute;
+    height: 6px;
+    background: linear-gradient(90deg, #0d6efd, #007bff);
+    top: 18px;
+    border-radius: 3px;
+}
+</style>
+
+
+
+@endpush
 @section('content')
 
 <h1>Apartments</h1>
@@ -31,6 +79,30 @@
                         <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Active</option>
                     </select>
                 </div>
+
+                <div class="col-md-12">
+                    <label class="form-label">Price Range</label>
+
+                    <div class="range-container">
+                        <input type="range" id="minPrice" name="min_price"
+                            min="0" max="{{ $max_price }}"
+                            value="{{ request('min_price', 0) }}"
+                            class="range-slider">
+
+                        <input type="range" id="maxPrice" name="max_price"
+                            min="0" max="{{ $max_price }}"
+                            value="{{ request('max_price', $max_price) }}"
+                            class="range-slider">
+
+                        <div class="slider-track"></div>
+                    </div>
+
+                    <div class="d-flex justify-content-between small mt-1">
+                        <span>Min: <strong id="minPriceValue">{{ request('min_price', 0) }}</strong></span>
+                        <span>Max: <strong id="maxPriceValue">{{ request('max_price', $max_price) }}</strong></span>
+                    </div>
+                </div>
+
 
 
                 <div class="col-md-4 d-flex gap-2">
@@ -136,6 +208,52 @@
         })
     })
 </script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const minSlider = document.getElementById("minPrice");
+    const maxSlider = document.getElementById("maxPrice");
+    const minValue = document.getElementById("minPriceValue");
+    const maxValue = document.getElementById("maxPriceValue");
+    const track = document.querySelector(".slider-track");
+
+    function updateTrack() {
+        const min = parseInt(minSlider.value);
+        const max = parseInt(maxSlider.value);
+
+        const percent1 = (min / minSlider.max) * 100;
+        const percent2 = (max / maxSlider.max) * 100;
+
+        track.style.background = `linear-gradient(
+            to right,
+            #d3d3d3 ${percent1}%,
+            #0d6efd ${percent1}%,
+            #0d6efd ${percent2}%,
+            #d3d3d3 ${percent2}%
+        )`;
+
+        minValue.textContent = min;
+        maxValue.textContent = max;
+    }
+
+    minSlider.addEventListener("input", function () {
+        if (parseInt(minSlider.value) > parseInt(maxSlider.value)) {
+            minSlider.value = maxSlider.value;
+        }
+        updateTrack();
+    });
+
+    maxSlider.addEventListener("input", function () {
+        if (parseInt(maxSlider.value) < parseInt(minSlider.value)) {
+            maxSlider.value = minSlider.value;
+        }
+        updateTrack();
+    });
+
+    updateTrack(); // initialize
+});
+</script>
+
 
 
 @endpush

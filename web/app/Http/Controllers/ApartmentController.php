@@ -19,14 +19,27 @@ class ApartmentController extends Controller
             $query->where('address', 'like', '%' . $request->address . '%');
         }
 
+        if ($request->min_price !== null) {
+            $query->where('price', '>=', $request->min_price);
+        }
+
+        if ($request->max_price !== null) {
+            $query->where('price', '<=', $request->max_price);
+        }
+
+
 
         if($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
-        $apartments = $query->orderBy('id', 'desc')->paginate(10)->withQueryString();
+        $max_price = $request->max_price ? $request->max_price : (clone $query)->max('price');
 
-        return view('web.admin.apartments', compact('apartments'));
+        $apartments = $query->orderBy('id', 'desc')->paginate(10)->withQueryString();
+        
+        
+
+        return view('web.admin.apartments', compact('apartments', 'max_price'));
     }
 
     public function toggleStatus(Apartment $apartment){
