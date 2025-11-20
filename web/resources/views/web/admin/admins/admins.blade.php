@@ -9,8 +9,8 @@
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 mb-0">Admin Management</h1>
-        <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-secondary btn-sm">
-            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        <a href="{{ route('admin.add') }}" class="btn btn-primary btn-sm">
+            <i class="bi bi-plus-circle"></i> Add Admin
         </a>
     </div>
 

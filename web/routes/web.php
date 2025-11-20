@@ -38,6 +38,8 @@ Route::prefix('admin')->group(function () {
         Route::delete('/apartments/{apartment}/delete', [ApartmentController::class, 'delete'])->name('admin.apartments.destroy');
         Route::get('/settings', [AdminController::class, 'settings'])->name('admin.settings');
         Route::get('/admins', [AdminController::class, 'index'])->name('admin.admins.index');
+        Route::get('/admins/add', [AdminController::class, 'addView'])->name('admin.add');
+        Route::post('/admins/add-admin', [AdminController::class, 'add'])->name('admin.add-admin');
         Route::delete('/{admin}/delete', [AdminController::class, 'delete'])->name('admin.delete');
         Route::patch('/users/{user}/status', [UserController::class, 'toggleStatus'])->name('admin.users.toggleStatus');
         Route::patch('/apartments/{apartment}/status', [ApartmentController::class, 'toggleStatus'])->name('admin.apartments.toggleStatus');

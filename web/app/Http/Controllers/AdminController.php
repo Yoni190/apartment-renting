@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Admin;
+use App\Models\AdminRole;
+use Illuminate\Support\Facades\Hash;
+
 
 class AdminController extends Controller
 {
@@ -22,7 +25,7 @@ class AdminController extends Controller
 
         $admins = $query->orderBy('id', 'desc')->paginate(10)->withQueryString();
 
-        return view('web.admin.admins', compact('admins'));
+        return view('web.admin.admins.admins', compact('admins'));
     }
 
     function delete(Admin $admin) {
@@ -95,6 +98,30 @@ class AdminController extends Controller
 
     function apartments() {
         return view('web.admin.apartments');
+    }
+
+    function addView() {
+        $roles = AdminRole::all();
+        return view('web.admin.admins.add', compact('roles'));
+    }
+
+    function add(Request $request) {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|unique:admins|email|max:255',
+            'password' => 'required|max:255',
+            'role' => 'required|exists:admin_roles,id',
+        ]);
+
+        $admin = new Admin();
+        $admin->name = $request->name;
+        $admin->email = $request->email;
+        $admin->admin_role_id = $request->role;
+        $admin->password = Hash::make($request->password);
+        $admin->save();
+
+        return redirect()->route('admin.admins.index')
+        ->with('message', 'Admin created successfully!');
     }
 
     function settings() {
