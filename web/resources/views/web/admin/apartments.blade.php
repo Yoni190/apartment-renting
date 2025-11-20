@@ -77,6 +77,11 @@
                 </div>
 
                 <div class="col-md-4">
+                    <label for="bathrooms" class="form-label">Search by Bathrooms</label>
+                    <input type="text" name="bathrooms" id="bathrooms" value="{{ request('bathrooms') }}" class="form-control" placeholder="Enter bathrooms...">
+                </div>
+
+                <div class="col-md-4">
                     <label for="status" class="form-label">Status</label>
                     <select name="status" id="status" class="form-select">
                         <option value="">All</option>
