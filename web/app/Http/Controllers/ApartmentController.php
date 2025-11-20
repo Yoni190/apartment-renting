@@ -128,6 +128,7 @@ class ApartmentController extends Controller
             'bedrooms' => 'required|integer|min:0',
             'bathrooms' => 'required|integer|min:0',
             'size' => 'nullable|numeric|min:0',
+            'featured' => 'required',
             'owner' => 'required|exists:users,id',
         ]);
 
@@ -140,6 +141,7 @@ class ApartmentController extends Controller
             'bedrooms' => $request->bedrooms,
             'bathrooms' => $request->bathrooms,
             'size' => $request->size,
+            'is_featured' => $request->featured,
             'user_id' => $request->owner,
         ]);
 

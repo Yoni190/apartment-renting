@@ -83,13 +83,23 @@
                     </div>
 
                     <!-- Owner -->
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label class="form-label fw-semibold">Owner</label>
                         <select name="owner" class="form-select">
                             <option disabled selected>Select owner...</option>
                             @foreach($users as $user)
                                 <option value="{{ $user->id }}">{{ $user->name }}</option>
                             @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Featured Status -->
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Featured Status</label>
+                        <select name="featured" class="form-select">
+                            <option disabled selected>Set featured status...</option>
+                            <option value="1">Active</option>
+                            <option value="0">Inactive</option>
                         </select>
                     </div>
 
