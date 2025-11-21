@@ -92,6 +92,13 @@
                 Register
             </button>
 
+            <div class="text-center mt-3">
+                <a href="{{ route('google.redirect') }}" class="btn btn-outline-dark w-100 btn-lg">
+                    <i class="bi bi-google"></i> Continue with Google
+                </a>
+            </div>
+
+
             <p class="text-center mt-3">
                 Already have an account? 
                 <a href="{{ route('login') }}">Login</a>
