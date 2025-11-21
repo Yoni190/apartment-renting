@@ -56,13 +56,13 @@
                                 <i class="bi bi-person-circle"></i> {{ auth()->user()->name }}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="{{ route('user.dashboard') }}">Dashboard</a></li>
-                                <li><a class="dropdown-item" href="{{ route('logout') }}">Logout</a></li>
+                                <li><a class="dropdown-item" href="#">Dashboard</a></li>
+                                <li><a class="dropdown-item" href="#">Logout</a></li>
                             </ul>
                         </li>
                     @else
                         <li class="nav-item ms-2">
-                            <a href="{{ route('user.login') }}" class="btn btn-outline-light btn-sm">Login</a>
+                            <a href="{{ route('login') }}" class="btn btn-outline-light btn-sm">Login</a>
                         </li>
                         <li class="nav-item ms-2">
                             <a href="{{ route('user.renter.register') }}" class="btn btn-primary btn-sm">Register as Renter</a>

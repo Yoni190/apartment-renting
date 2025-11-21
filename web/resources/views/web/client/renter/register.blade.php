@@ -94,7 +94,7 @@
 
             <p class="text-center mt-3">
                 Already have an account? 
-                <a href="{{ route('user.login') }}">Login</a>
+                <a href="{{ route('login') }}">Login</a>
             </p>
 
         </form>

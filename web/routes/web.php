@@ -22,7 +22,12 @@ use App\Http\Controllers\HomeController;
 Route::get('/', [HomeController::class, 'index']);
 Route::get('/renter/register', [HomeController::class, 'registerView'])->name('user.renter.register');
 Route::post('/renter/register', [HomeController::class, 'register'])->name('user.renter.register-user');
-Route::get('/login', [HomeController::class, 'login'])->name('user.login');
+Route::get('/login', [HomeController::class, 'login'])->name('login');
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/home', [HomeController::class, 'home'])
+        ->name('user.renter.home');
+});
 
 Route::prefix('admin')->group(function () {
     Route::get('/login', [AdminController::class, 'showLogin'])->name('admin.login');

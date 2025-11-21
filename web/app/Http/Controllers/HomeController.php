@@ -7,12 +7,18 @@ use App\Models\Apartment;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
     public function index() {
         $featuredApartments = Apartment::where('is_featured', 1)->take(6)->get();
         return view('web.client.home', compact('featuredApartments'));
+    }
+
+    public function home() {
+        $featuredApartments = Apartment::where('is_featured', 1)->take(6)->get();
+        return view('web.client.renter.home', compact('featuredApartments'));
     }
 
     public function registerView() {
@@ -27,7 +33,7 @@ class HomeController extends Controller
             'password' => ['required', 'confirmed', Password::defaults()],
         ]);
 
-        User::create([
+        $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'phone_number' => $request->telNo,
@@ -36,7 +42,9 @@ class HomeController extends Controller
             'status' => 1
         ]);
 
-        return redirect()->route('user.login')
+        Auth::login($user);
+
+        return redirect()->route('user.renter.home')
         ->with('success', 'Account created successfully!');
     }
 
