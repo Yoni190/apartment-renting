@@ -29,7 +29,7 @@
 
         <h3 class="text-center mb-4">Create an Account</h3>
 
-        <form action="#" method="POST">
+        <form action="{{ route('user.renter.register-user') }}" method="POST">
             @csrf
 
             <div class="mb-3">
@@ -39,6 +39,16 @@
                        id="name" 
                        class="form-control form-control-lg" 
                        placeholder="John Doe" 
+                       required>
+            </div>
+
+            <div class="mb-3">
+                <label for="telNo" class="form-label">Phone Number</label>
+                <input type="text" 
+                       name="telNo" 
+                       id="telNo" 
+                       class="form-control form-control-lg" 
+                       placeholder="09xxxxxxxx" 
                        required>
             </div>
 
@@ -69,7 +79,7 @@
                 <label for="confirm-password" class="form-label">Confirm Password</label>
                 <div class="mb-3 password-wrapper">
                         <input type="password" 
-                            name="confirm_password" 
+                            name="password_confirmation" 
                             id="confirm-password" 
                             class="form-control form-control-lg" 
                             placeholder="********" 
@@ -119,6 +129,39 @@
 
                 this.classList.toggle('bi-eye');
                 this.classList.toggle('bi-eye-slash');
+            });
+        </script>
+
+
+            <!-- Password Validation -->
+        <script>
+             const form = document.querySelector('form');
+            const confirmField = document.querySelector('#confirm-password');
+
+            // Create error message element
+            const errorMsg = document.createElement('small');
+            errorMsg.classList.add('text-danger', 'mt-1');
+            errorMsg.style.display = 'none';
+            confirmField.parentNode.appendChild(errorMsg);
+
+            form.addEventListener('submit', function (e) {
+                if (password.value !== confirmPassword.value) {
+                    e.preventDefault(); // stop form submission
+                    errorMsg.textContent = "Passwords do not match.";
+                    errorMsg.style.display = 'block';
+                    confirmPassword.classList.add('is-invalid');
+                } else {
+                    errorMsg.style.display = 'none';
+                    confirmPassword.classList.remove('is-invalid');
+                }
+            });
+
+            // Live validation as user types
+            confirmPassword.addEventListener('input', function () {
+                if (password.value === confirmPassword.value) {
+                    errorMsg.style.display = 'none';
+                    confirmPassword.classList.remove('is-invalid');
+                }
             });
         </script>
 

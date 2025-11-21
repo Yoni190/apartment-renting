@@ -75,6 +75,28 @@
         </div>
     </nav>
 
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 1055;">
+            @if(session('message') || session('success'))
+                <div class="toast align-items-center text-bg-success border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            {{ session('message') ? session('message') : session('success') }}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            @elseif(session('error'))
+                <div class="toast align-items-center text-bg-danger border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            {{ session('error') }}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            @endif
+    </div>
+
     <!-- MAIN CONTENT -->
     <main class="min-vh-100">
         @yield('content')
@@ -90,6 +112,14 @@
 
     <!-- JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        const toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        const toastList = toastElList.map(function(toastEl) {
+            return new bootstrap.Toast(toastEl, { delay: 4000, autohide: true });
+        });
+        toastList.forEach(toast => toast.show());
+    </script>
 
     @stack('scripts')
 

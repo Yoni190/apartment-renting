@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Apartment;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 
 class HomeController extends Controller
 {
@@ -12,8 +15,29 @@ class HomeController extends Controller
         return view('web.client.home', compact('featuredApartments'));
     }
 
-    public function register() {
+    public function registerView() {
         return view('web.client.renter.register');
+    }
+
+    public function register(Request $request) {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email',
+            'telNo' => 'required|unique:users,phone_number',
+            'password' => ['required', 'confirmed', Password::defaults()],
+        ]);
+
+        User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone_number' => $request->telNo,
+            'password' => Hash::make($request->password),
+            'role' => 0,
+            'status' => 1
+        ]);
+
+        return redirect()->route('user.login')
+        ->with('success', 'Account created successfully!');
     }
 
     public function login() {
