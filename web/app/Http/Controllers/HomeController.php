@@ -13,6 +13,6 @@ class HomeController extends Controller
     }
 
     public function register() {
-        return view('web.client.register');
+        return view('web.client.renter.register');
     }
 }

@@ -12,8 +12,9 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
+
     <!-- Custom Styles -->
-    <link rel="stylesheet" href="{{ asset('css/main.css') }}">
+    <!-- <link rel="stylesheet" href="{{ asset('css/main.css') }}"> -->
 
     @stack('styles')
 </head>
@@ -64,7 +65,8 @@
                             <a href="#" class="btn btn-outline-light btn-sm">Login</a>
                         </li>
                         <li class="nav-item ms-2">
-                            <a href="{{ route('user.register') }}" class="btn btn-primary btn-sm">Register</a>
+                            <a href="{{ route('user.renter.register') }}" class="btn btn-primary btn-sm">Register as Renter</a>
+                            <a href="{{ route('user.renter.register') }}" class="btn btn-primary btn-sm">Register as Apartment Owner</a>
                         </li>
                     @endauth
 
