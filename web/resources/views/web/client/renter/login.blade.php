@@ -58,6 +58,11 @@
             <button type="submit" class="btn btn-primary w-100 btn-lg">
                 Login
             </button>
+            <div class="text-center mt-3">
+                <a href="{{ route('google.redirect') }}" class="btn btn-outline-dark w-100 btn-lg">
+                    <i class="bi bi-google"></i> Continue with Google
+                </a>
+            </div>
 
 
         </form>
