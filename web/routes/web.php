@@ -21,6 +21,7 @@ use App\Http\Controllers\HomeController;
 
 Route::get('/', [HomeController::class, 'index']);
 Route::get('/renter/register', [HomeController::class, 'register'])->name('user.renter.register');
+Route::get('/login', [HomeController::class, 'login'])->name('user.login');
 
 Route::prefix('admin')->group(function () {
     Route::get('/login', [AdminController::class, 'showLogin'])->name('admin.login');

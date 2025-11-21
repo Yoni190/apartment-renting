@@ -62,7 +62,7 @@
                         </li>
                     @else
                         <li class="nav-item ms-2">
-                            <a href="#" class="btn btn-outline-light btn-sm">Login</a>
+                            <a href="{{ route('user.login') }}" class="btn btn-outline-light btn-sm">Login</a>
                         </li>
                         <li class="nav-item ms-2">
                             <a href="{{ route('user.renter.register') }}" class="btn btn-primary btn-sm">Register as Renter</a>

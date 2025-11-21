@@ -15,4 +15,8 @@ class HomeController extends Controller
     public function register() {
         return view('web.client.renter.register');
     }
+
+    public function login() {
+        return view('web.client.renter.login');
+    }
 }
