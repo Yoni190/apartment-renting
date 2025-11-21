@@ -32,6 +32,7 @@ Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name
 Route::middleware(['auth'])->group(function () {
     Route::get('/home', [HomeController::class, 'home'])
         ->name('user.renter.home');
+    Route::post('/logout', [HomeController::class, 'logout'])->name('logout');
 });
 
 Route::prefix('admin')->group(function () {
