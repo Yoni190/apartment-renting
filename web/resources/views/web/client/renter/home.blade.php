@@ -111,24 +111,29 @@
 
     <div class="row g-4">
         @foreach ($featuredApartments as $apt)
-            <div class="col-md-4">
-                <div class="card apartment-card shadow-sm">
-                    <img src="{{ asset('storage/' . $apt->image) }}" 
-                         class="card-img-top" 
-                         alt="Apartment Image" 
-                         style="height: 230px; object-fit: cover;">
+            @if($apt->images && $apt->images->count() > 0)
+                @php
+                    $firstImage = $apt->images->first();
+                @endphp
+                <div class="col-md-4">
+                    <div class="card apartment-card shadow-sm">
+                        <img src="{{ asset('storage/' . $firstImage->path) }}" 
+                            class="card-img-top" 
+                            alt="Apartment Image" 
+                            style="height: 230px; object-fit: cover;">
 
-                    <div class="card-body">
-                        <h5 class="card-title">{{ $apt->title }}</h5>
-                        <p class="text-muted mb-2">{{ $apt->location }}</p>
-                        <p class="fw-bold text-primary">ETB {{ number_format($apt->price) }}/month</p>
+                        <div class="card-body">
+                            <h5 class="card-title">{{ $apt->title }}</h5>
+                            <p class="text-muted mb-2">{{ $apt->location }}</p>
+                            <p class="fw-bold text-primary">ETB {{ number_format($apt->price) }}/month</p>
 
-                        <a href="#" class="btn btn-primary w-100">
-                            View Details
-                        </a>
+                            <a href="#" class="btn btn-primary w-100">
+                                View Details
+                            </a>
+                        </div>
                     </div>
                 </div>
-            </div>
+            @endif
         @endforeach
     </div>
 

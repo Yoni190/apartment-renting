@@ -13,6 +13,9 @@ class HomeController extends Controller
 {
     public function index() {
         $featuredApartments = Apartment::where('is_featured', 1)->take(6)->get();
+
+        $featuredApartments->load('images');
+        
         return view('web.client.home', compact('featuredApartments'));
     }
 
