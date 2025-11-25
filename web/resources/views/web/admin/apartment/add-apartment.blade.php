@@ -12,7 +12,7 @@
 
         <div class="card-body">
 
-            <form action="{{ route('admin.add-apartment') }}" method="POST">
+            <form action="{{ route('admin.add-apartment') }}" method="POST" enctype="multipart/form-data">
                 @csrf
 
                 <div class="row g-4">
@@ -103,6 +103,36 @@
                         </select>
                     </div>
 
+                    <!-- Picture Upload -->
+                    <div class="col-md-12">
+                        <label class="form-label fw-semibold">Apartment Images</label>
+                        <div class="border rounded p-4 text-center bg-light" 
+                            style="border-style: dashed !important; border-color: #6c757d !important;">
+                            
+                            <input 
+                                type="file" 
+                                name="images[]" 
+                                id="images" 
+                                class="form-control" 
+                                accept="image/jpeg,image/png,image/jpg,image/gif,image/webp" 
+                                multiple
+                                style="height: auto; padding: 0.5rem;"
+                            >
+                            
+                            <div class="mt-2">
+                                <small class="form-text text-muted">
+                                    <i class="bi bi-info-circle"></i> 
+                                    Hold <kbd>Ctrl</kbd> (Windows) or <kbd>Cmd</kbd> (Mac) to select multiple images
+                                </small>
+                            </div>
+                            
+                            <div id="preview" class="d-flex flex-wrap justify-content-center mt-3 gap-2"></div>
+                            
+                            <!-- File count indicator -->
+                            <div id="fileCount" class="mt-2 text-info small fw-semibold" style="display: none;"></div>
+                        </div>
+                    </div>
+
                     <!-- Description -->
                     <div class="col-md-12">
                         <label class="form-label fw-semibold">Description</label>
@@ -128,3 +158,43 @@
 </div>
 
 @endsection
+
+@push('scripts')
+<script>
+    document.getElementById('images').addEventListener('change', function(event) {
+    const preview = document.getElementById('preview');
+    
+    
+    const files = event.target.files;
+    console.log('Total files selected:', files.length);
+    
+    // Debug: log each file
+    for (let i = 0; i < files.length; i++) {
+        console.log(`File ${i}:`, files[i].name, files[i].size, files[i].type);
+    }
+    
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        
+        if (!file.type.startsWith('image/')) {
+            console.log('Skipping non-image file:', file.name);
+            continue;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.classList.add('m-2', 'rounded', 'shadow-sm');
+            img.style.width = '120px';
+            img.style.height = '100px';
+            img.style.objectFit = 'cover';
+            preview.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+    }
+});
+</script>
+@endpush
+
+

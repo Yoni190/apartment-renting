@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Apartment;
+use App\Models\ApartmentImage;
 use App\Models\User;
 
 class ApartmentController extends Controller
@@ -130,9 +131,10 @@ class ApartmentController extends Controller
             'size' => 'nullable|numeric|min:0',
             'featured' => 'required',
             'owner' => 'required|exists:users,id',
+            'images.*' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048', 
         ]);
 
-        Apartment::create([
+        $apartment = Apartment::create([
             'title' => $request->name,
             'description' => $request->description,
             'price' => $request->price,
@@ -144,6 +146,22 @@ class ApartmentController extends Controller
             'is_featured' => $request->featured,
             'user_id' => $request->owner,
         ]);
+
+        if($request->hasFile('images')) {
+            foreach($request->file('images') as $index => $image) {
+                // Unique file name
+                $filename = time() . '_' . uniqid() . '_' . $image->getClientOriginalName();
+
+                // Store image in storage/app/public/apartments
+                $imagePath = $image->storeAs('apartments', $filename, 'public');
+
+                // Store in apartment images
+                ApartmentImage::create([
+                    'apartment_id' => $apartment->id,
+                    'path' => $imagePath,
+                ]);
+            }
+        }
 
         return redirect()->route('admin.apartments')
         ->with('message', 'Apartment added successfully!');
