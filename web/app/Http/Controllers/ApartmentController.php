@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Apartment;
 use App\Models\ApartmentImage;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
+
 
 class ApartmentController extends Controller
 {
@@ -88,6 +90,8 @@ class ApartmentController extends Controller
     }
 
     public function editApartmentView(Apartment $apartment) {
+        $apartment->load('images');
+
         $users = User::all();
         return  view('web.admin.apartment.edit-apartment', compact('apartment', 'users'));
     }
@@ -102,6 +106,7 @@ class ApartmentController extends Controller
             'bathrooms' => 'required|integer|min:0',
             'size' => 'nullable|numeric|min:0',
             'owner' => 'required|exists:users,id',
+            'images.*' => 'sometimes|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
         ]);
 
         $apartment->update([
@@ -115,6 +120,39 @@ class ApartmentController extends Controller
             'size' => $request->size,
             'user_id' => $request->owner,
         ]);
+
+        // Handle removed images
+        if ($request->filled('removed_images')) {
+            $removedImageIds = explode(',', $request->removed_images);
+            
+            foreach ($removedImageIds as $imageId) {
+                $image = ApartmentImage::find($imageId);
+                if ($image && $image->apartment_id === $apartment->id) {
+                    // Delete file from storage
+                    Storage::disk('public')->delete($image->path);
+                    // Delete record from database
+                    $image->delete();
+                }
+            }
+        }
+         // Handle new image uploads
+        if ($request->hasFile('images')) {
+            $existingImageCount = $apartment->images()->count();
+            
+            foreach ($request->file('images') as $index => $image) {
+                // Generate unique filename
+                $filename = 'apartment_' . $apartment->id . '_' . time() . '_' . ($existingImageCount + $index + 1) . '.' . $image->getClientOriginalExtension();
+                
+                // Store image
+                $imagePath = $image->storeAs('apartments', $filename, 'public');
+                
+                // Create apartment image record
+                ApartmentImage::create([
+                    'apartment_id' => $apartment->id,
+                    'path' => $imagePath,
+                ]);
+            }
+        }
 
         return redirect()->route('admin.apartments')
         ->with('message', 'Apartment edited successfully!');

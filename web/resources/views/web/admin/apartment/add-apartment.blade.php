@@ -163,6 +163,7 @@
 <script>
     document.getElementById('images').addEventListener('change', function(event) {
     const preview = document.getElementById('preview');
+    preview.innerHTML = ''
     
     
     const files = event.target.files;
