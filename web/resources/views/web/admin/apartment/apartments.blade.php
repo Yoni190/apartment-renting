@@ -56,6 +56,47 @@
     max-height: 2000px;
     opacity: 1;
 }
+/* Image Gallery Styles */
+.apartment-image {
+    width: 80px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.apartment-image:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.image-preview-container {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.more-images-badge {
+    background: rgba(0,0,0,0.7);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    cursor: pointer;
+}
+
+/* Modal Styles */
+.image-modal img {
+    max-height: 70vh;
+    object-fit: contain;
+}
+
+.image-carousel img {
+    height: 400px;
+    object-fit: cover;
+}
 </style>
 
 
@@ -194,6 +235,7 @@
                 <thead class="table-dark">
                     <tr>
                         <th>ID</th>
+                        <th>Images</th>
                         <th>Title</th>
                         <th>Owner</th>
                         <th>Description</th>
@@ -211,6 +253,42 @@
                     @forelse($apartments as $apartment)
                         <tr>
                             <td>{{ $apartment->id }}</td>
+                              <td>
+                                @if($apartment->images && $apartment->images->count() > 0)
+                                    <div class="image-preview-container">
+                                        @php
+                                            $firstImage = $apartment->images->first();
+                                            $totalImages = $apartment->images->count();
+                                        @endphp
+                                        <div class="position-relative">
+                                            <img 
+                                                src="{{ asset('storage/' . $firstImage->path) }}" 
+                                                alt="Apartment Image"
+                                                class="apartment-image"
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#imageModal"
+                                                data-apartment-id="{{ $apartment->id }}"
+                                                data-all-images='@json($apartment->images->map(function($img) { 
+                                                    return [
+                                                        'src' => asset('storage/' . $img->path),
+                                                        'alt' => 'Apartment Image'
+                                                    ];
+                                                }))'
+                                            >
+                                            @if($totalImages > 1)
+                                                <span class="position-absolute top-0 end-0 translate-middle badge bg-dark rounded-pill more-images-indicator">
+                                                    +{{ $totalImages - 1 }}
+                                                </span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @else
+                                    <div class="text-center text-muted">
+                                        <i class="bi bi-image" style="font-size: 2rem;"></i>
+                                        <div class="small">No images</div>
+                                    </div>
+                                @endif
+                            </td>
                             <td>{{ $apartment->title }}</td>
                             <td>{{ $apartment->owner->name }}</td>
                             <td>{{ $apartment->description }}</td>
@@ -296,21 +374,62 @@
 
 </div>
 
+<!-- Image Modal -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageModalLabel">Apartment Images</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div id="imageCarousel" class="carousel slide" data-bs-ride="carousel">
+                    <!-- Carousel Indicators -->
+                    <div class="carousel-indicators" id="carousel-indicators">
+                        <!-- Indicators will be dynamically added -->
+                    </div>
+                    
+                    <!-- Carousel Items -->
+                    <div class="carousel-inner" id="carousel-inner">
+                        <!-- Images will be loaded here dynamically -->
+                    </div>
+                    
+                    <!-- Carousel Controls -->
+                    <button class="carousel-control-prev" type="button" data-bs-target="#imageCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#imageCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <div id="imageCounter" class="text-muted fw-semibold"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@endsection
+
 @push('scripts')
 
 <!-- Show/Hide filter card -->
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-    const toggleBtn = document.querySelector('#toggleFilterBtn')
-    const filterCard = document.querySelector('#filterCard')
+    document.addEventListener("DOMContentLoaded", () => {
+        const toggleBtn = document.querySelector('#toggleFilterBtn')
+        const filterCard = document.querySelector('#filterCard')
 
-    toggleBtn.addEventListener('click', () => {
-        filterCard.classList.toggle("show");
+        toggleBtn.addEventListener('click', () => {
+            filterCard.classList.toggle("show");
+        })
     })
-})
 </script>
 
-
+<!-- Warning for changing status of apartment -->
 <script>
     document.querySelectorAll('.status-form').forEach(form => {
         form.addEventListener('submit', function(e) {
@@ -333,6 +452,7 @@ document.addEventListener("DOMContentLoaded", () => {
     })
 </script>
 
+<!-- Warning for deleting an apartment -->
 <script>
     document.querySelectorAll('.delete-form').forEach(form => {
         form.addEventListener('submit', function(e) {
@@ -355,51 +475,53 @@ document.addEventListener("DOMContentLoaded", () => {
     })
 </script>
 
+<!-- Script for price filter slider -->
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-    const minSlider = document.getElementById("minPrice");
-    const maxSlider = document.getElementById("maxPrice");
-    const minValue = document.getElementById("minPriceValue");
-    const maxValue = document.getElementById("maxPriceValue");
-    const track = document.querySelector(".slider-track");
+    document.addEventListener("DOMContentLoaded", () => {
+        const minSlider = document.getElementById("minPrice");
+        const maxSlider = document.getElementById("maxPrice");
+        const minValue = document.getElementById("minPriceValue");
+        const maxValue = document.getElementById("maxPriceValue");
+        const track = document.querySelector(".slider-track");
 
-    function updateTrack() {
-        const min = parseInt(minSlider.value);
-        const max = parseInt(maxSlider.value);
+        function updateTrack() {
+            const min = parseInt(minSlider.value);
+            const max = parseInt(maxSlider.value);
 
-        const percent1 = (min / minSlider.max) * 100;
-        const percent2 = (max / maxSlider.max) * 100;
+            const percent1 = (min / minSlider.max) * 100;
+            const percent2 = (max / maxSlider.max) * 100;
 
-        track.style.background = `linear-gradient(
-            to right,
-            #d3d3d3 ${percent1}%,
-            #0d6efd ${percent1}%,
-            #0d6efd ${percent2}%,
-            #d3d3d3 ${percent2}%
-        )`;
+            track.style.background = `linear-gradient(
+                to right,
+                #d3d3d3 ${percent1}%,
+                #0d6efd ${percent1}%,
+                #0d6efd ${percent2}%,
+                #d3d3d3 ${percent2}%
+            )`;
 
-        minValue.textContent = min;
-        maxValue.textContent = max;
-    }
-
-    minSlider.addEventListener("input", function () {
-        if (parseInt(minSlider.value) > parseInt(maxSlider.value)) {
-            minSlider.value = maxSlider.value;
+            minValue.textContent = min;
+            maxValue.textContent = max;
         }
-        updateTrack();
-    });
 
-    maxSlider.addEventListener("input", function () {
-        if (parseInt(maxSlider.value) < parseInt(minSlider.value)) {
-            maxSlider.value = minSlider.value;
-        }
-        updateTrack();
-    });
+        minSlider.addEventListener("input", function () {
+            if (parseInt(minSlider.value) > parseInt(maxSlider.value)) {
+                minSlider.value = maxSlider.value;
+            }
+            updateTrack();
+        });
 
-    updateTrack(); // initialize
-});
+        maxSlider.addEventListener("input", function () {
+            if (parseInt(maxSlider.value) < parseInt(minSlider.value)) {
+                maxSlider.value = minSlider.value;
+            }
+            updateTrack();
+        });
+
+        updateTrack(); // initialize
+    });
 </script>
 
+<!-- Script for size filter slider -->
 <script>
     document.addEventListener("DOMContentLoaded", () => {
     const minSizeSlider = document.getElementById("minSize");
@@ -442,12 +564,122 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     updateSizeTrack(); // initialize
-});
+    });
+
+</script>
+
+
+<!-- Apartment Images Script -->
+<script>
+    // Image Modal Functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const imageModal = document.getElementById('imageModal');
+        
+        imageModal.addEventListener('show.bs.modal', function(event) {
+            const trigger = event.relatedTarget;
+            const allImagesJSON = trigger.getAttribute('data-all-images');
+            
+            if (allImagesJSON) {
+                const allImages = JSON.parse(allImagesJSON);
+                loadAllApartmentImages(allImages);
+            }
+        });
+        
+        function loadAllApartmentImages(allImages) {
+            const carouselInner = document.getElementById('carousel-inner');
+            const carouselIndicators = document.getElementById('carousel-indicators');
+            
+            if (!allImages || allImages.length === 0) {
+                carouselInner.innerHTML = '<div class="text-center py-5 text-muted">No images found</div>';
+                document.getElementById('imageCounter').textContent = 'No images';
+                return;
+            }
+            
+            // Clear previous content
+            carouselInner.innerHTML = '';
+            carouselIndicators.innerHTML = '';
+            
+            // Build carousel items and indicators
+            allImages.forEach((image, index) => {
+                const isActive = index === 0 ? 'active' : '';
+                
+                // Carousel item
+                const carouselItem = document.createElement('div');
+                carouselItem.className = `carousel-item ${isActive}`;
+                carouselItem.innerHTML = `
+                    <img src="${image.src}" class="d-block carousel-image" alt="${image.alt}">
+                `;
+                carouselInner.appendChild(carouselItem);
+                
+                // Carousel indicator
+                const indicator = document.createElement('button');
+                indicator.type = 'button';
+                indicator.setAttribute('data-bs-target', '#imageCarousel');
+                indicator.setAttribute('data-bs-slide-to', index);
+                indicator.className = isActive ? 'active' : '';
+                indicator.setAttribute('aria-current', isActive ? 'true' : 'false');
+                indicator.setAttribute('aria-label', `Slide ${index + 1}`);
+                carouselIndicators.appendChild(indicator);
+            });
+            
+            // Update image counter
+            document.getElementById('imageCounter').textContent = `1 of ${allImages.length}`;
+            
+            // Show/hide controls based on image count
+            const prevControl = document.querySelector('.carousel-control-prev');
+            const nextControl = document.querySelector('.carousel-control-next');
+            
+            if (allImages.length > 1) {
+                prevControl.style.display = 'block';
+                nextControl.style.display = 'block';
+                carouselIndicators.style.display = 'flex';
+            } else {
+                prevControl.style.display = 'none';
+                nextControl.style.display = 'none';
+                carouselIndicators.style.display = 'none';
+            }
+        }
+        
+        // Update counter when carousel slides
+        const imageCarousel = document.getElementById('imageCarousel');
+        if (imageCarousel) {
+            imageCarousel.addEventListener('slid.bs.carousel', function(event) {
+                const activeIndex = event.to;
+                const totalItems = this.querySelectorAll('.carousel-item').length;
+                document.getElementById('imageCounter').textContent = `${activeIndex + 1} of ${totalItems}`;
+            });
+        }
+        
+        // Reset modal when closed
+        imageModal.addEventListener('hidden.bs.modal', function() {
+            const carouselInner = document.getElementById('carousel-inner');
+            const carouselIndicators = document.getElementById('carousel-indicators');
+            carouselInner.innerHTML = '';
+            carouselIndicators.innerHTML = '';
+            document.getElementById('imageCounter').textContent = '';
+        });
+    });
+
+    // Your existing scripts for filters, tooltips, etc.
+    document.addEventListener("DOMContentLoaded", () => {
+        const toggleBtn = document.querySelector('#toggleFilterBtn');
+        const filterCard = document.querySelector('#filterCard');
+
+        toggleBtn.addEventListener('click', () => {
+            filterCard.classList.toggle("show");
+        });
+        
+        // Initialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
 
 </script>
 
 
 
+
 @endpush
 
-@endsection
