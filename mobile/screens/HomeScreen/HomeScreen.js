@@ -10,6 +10,7 @@ import { Plus, SlidersHorizontal, ToolCase } from 'lucide-react-native'
 
 const HomeScreen = () => {
     const [user, setUser] = useState(null)
+    const [apartments, setApartments] = useState([])
 
     const navigation = useNavigation()
 
@@ -48,6 +49,25 @@ const HomeScreen = () => {
       },
     ]
 
+
+    useEffect(() => {
+      const getApartments = async () => {
+        try {
+          const response = await axios.get(`${API_URL}/apartment-list`, {
+            headers: {
+              Accept: 'application/json'
+            }
+          })
+
+          setApartments(response.data)
+        } catch (error) {
+          console.log(error)
+        }
+      }
+
+      getApartments()
+    }, [])
+    
     
 
     useEffect(() => {
@@ -120,8 +140,8 @@ const HomeScreen = () => {
         
         <Text style={styles.title}>Apartments</Text>
         <View style={styles.apartmentsContainer}>
-          {dummy_recommendations.map((dummy) => 
-            <TouchableOpacity key={dummy.name} style={styles.apartments} activeOpacity={0.8}>
+          {apartments.map((apartment) => 
+            <TouchableOpacity key={apartment.title} style={styles.apartments} activeOpacity={0.8}>
               {/* Top Part */}
               <View>
                 <Image 
@@ -132,10 +152,10 @@ const HomeScreen = () => {
               </View>
               {/* Bottom Part */}
               <View>
-                <Text>{dummy.name}</Text>
+                <Text>{apartment.title}</Text>
                 <View style={styles.apartmentInfo}>
-                  <Text>{dummy.location}</Text>
-                  <Text>{dummy.price}</Text>
+                  <Text>{apartment.address}</Text>
+                  <Text>{apartment.price}</Text>
                 </View>
               </View>
               
