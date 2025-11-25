@@ -113,22 +113,41 @@
     <div class="row g-4">
         @foreach($featuredApartments as $apartment)
         <div class="col-md-4">
-            <div class="card apartment-card position-relative">
+            <div class="card apartment-card position-relative h-100">
                 @if($apartment->is_featured)
                 <div class="featured-label">Featured</div>
                 @endif
-                <img src="{{ $apartment->image_url }}" class="card-img-top" alt="{{ $apartment->title }}">
-                <div class="card-body">
+                @if($apartment->images && $apartment->images->count() > 0)
+                    @php
+                        $firstImage = $apartment->images->first();
+                    @endphp
+                    <img src="{{ asset('storage/' . $firstImage->path) }}" 
+                         class="card-img-top" 
+                         alt="{{ $apartment->title }}"
+                         style="height: 250px; object-fit: cover;">
+                @else
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
+                         style="height: 250px;">
+                        <div class="text-center text-muted">
+                            <i class="bi bi-image fs-1"></i>
+                            <p class="mt-2">No Image</p>
+                        </div>
+                    </div>
+                @endif
+                <div class="card-body d-flex flex-column">
                     <h5 class="card-title">{{ $apartment->title }}</h5>
-                    <p class="card-text">{{ Str::limit($apartment->description, 80) }}</p>
-                    <p class="fw-bold">${{ number_format($apartment->price) }} / month</p>
-                    <a href="#" class="btn btn-outline-primary btn-sm">View Details</a>
+                    <p class="card-text flex-grow-1">{{ Str::limit($apartment->description, 80) }}</p>
+                    <div class="mt-auto">
+                        <p class="fw-bold text-primary mb-2">${{ number_format($apartment->price) }} / month</p>
+                        <a href="#" class="btn btn-outline-primary btn-sm w-100">View Details</a>
+                    </div>
                 </div>
             </div>
         </div>
         @endforeach
     </div>
 </section>
+
 {{--
 <!-- Apartment Categories -->
 <section class="container mb-5">
