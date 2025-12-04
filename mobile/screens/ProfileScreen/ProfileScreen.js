@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native'
 import axios from 'axios'
 import { BadgeQuestionMark, History, Lock, LogOut, Settings, UserPen, X, AlertTriangle } from 'lucide-react-native'
 import styles from './ProfileScreenStyle'
+import Header from '../../components/Header'
 
 const ProfileScreen = () => {
   const navigation = useNavigation()

@@ -16,24 +16,26 @@ const Header = ({ title }) => {
 
 export default Header
 
+
 const styles = StyleSheet.create({
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 15,
+    height: 70,
     backgroundColor: '#9fc5f8',
-    borderBottomWidth: 1,
-    borderColor: '#eee',
-    marginBottom: 10
+    justifyContent: 'center',
+    alignItems: 'center',
   },
+
+  logo: {
+    position: 'absolute',
+    left: 15,
+    width: 100,
+    height: 100,
+    resizeMode: 'contain'
+  },
+
   title: {
     fontSize: 20,
     fontWeight: '600',
     color: 'white',
-    marginLeft: '15%'
   },
-  logo: {
-    width: 100,
-    height: 100
-  }
 })
