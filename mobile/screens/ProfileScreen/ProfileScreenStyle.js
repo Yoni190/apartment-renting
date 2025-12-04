@@ -1,58 +1,79 @@
 import {StyleSheet} from 'react-native'
 
 export default StyleSheet.create({
-    container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    paddingHorizontal: 16,
-  },
-  header: {
-    alignItems: 'center',
-    marginTop: 30,
-    marginBottom: 20,
-  },
-  avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    marginBottom: 12,
-    borderWidth: 2,
-    borderColor: '#e63946',
-  },
-  name: {
-    fontSize: 22,
-    fontWeight: '600',
-    color: '#222',
-  },
-  email: {
-    fontSize: 14,
-    color: '#666',
-    marginTop: 4,
-  },
-  section: {
-    marginVertical: 10,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f8f9fa',
-    paddingVertical: 14,
-    paddingHorizontal: 12,
-    borderRadius: 10,
-    marginBottom: 10,
-    gap: 10,
-  },
-  label: {
-    fontSize: 16,
-    color: '#333',
-  },
-  divider: {
-    height: 1,
-    backgroundColor: '#eee',
-    marginVertical: 10,
+  profileTop: {
+    alignItems: "center",
+    paddingTop: 30,
+    paddingBottom: 15,
   },
 
-  // --- Modal Styles ---
+  avatar: {
+    width: 110,
+    height: 110,
+    borderRadius: 110 / 2,
+    marginBottom: 15,
+  },
+
+  name: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#333",
+  },
+
+  email: {
+    fontSize: 14,
+    color: "#777",
+    marginTop: 5,
+  },
+
+  box: {
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    marginHorizontal: 20,
+    marginTop: 25,
+    paddingVertical: 5,
+    borderWidth: 1.3,
+    borderColor: "#ddd",
+  },
+
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 15,
+    paddingHorizontal: 15,
+    borderBottomWidth: 1,
+    borderColor: "#eee",
+  },
+
+  rowText: {
+    fontSize: 16,
+    color: "#333",
+    marginLeft: 12,
+    flex: 1,
+  },
+
+  arrow: {
+    fontSize: 18,
+    color: "#777",
+  },
+
+  logoutBtn: {
+    flexDirection: "row",
+    backgroundColor: "#ffe5e5",
+    marginHorizontal: 20,
+    paddingVertical: 14,
+    marginTop: 25,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 10,
+  },
+
+  logoutText: {
+    color: "#d00000",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+    // --- Modal Styles ---
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.4)',
@@ -93,5 +114,4 @@ export default StyleSheet.create({
     alignItems: 'center',
     marginHorizontal: 5,
   },
-
-})
+});

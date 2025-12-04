@@ -56,67 +56,59 @@ const ProfileScreen = () => {
   }, [])
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        
-        {/* Header */}
-        <View style={styles.header}>
-          <Image 
-            source={{ uri: user?.avatar || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png' }}
-            style={styles.avatar}
-          />
-          <Text style={styles.name}>{user ? user.name : 'Loading...'}</Text>
-          <Text style={styles.email}>{user?.email}</Text>
-        </View>
+  <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
+    <Header title="Profile" />
 
-        {/* Divider */}
-        <View style={styles.divider} />
+    <ScrollView showsVerticalScrollIndicator={false}>
 
-        {/* Profile Actions */}
-        <View style={styles.section}>
-          <TouchableOpacity style={styles.row} onPress={() => navigation.navigate('EditProfile')}>
-            <UserPen />
-            <Text style={styles.label}>Edit Profile</Text>
-          </TouchableOpacity>
+      {/* Profile Top */}
+      <View style={styles.profileTop}>
+        <Image
+          source={{
+            uri:
+              user?.avatar ||
+              "https://cdn-icons-png.flaticon.com/512/149/149071.png",
+          }}
+          style={styles.avatar}
+        />
 
-          <TouchableOpacity style={styles.row}>
-            <History />
-            <Text style={styles.label}>Order History</Text>
-          </TouchableOpacity>
+        <Text style={styles.name}>{user?.name}</Text>
+        <Text style={styles.email}>{user?.email}</Text>
+      </View>
 
-          <TouchableOpacity style={styles.row}>
-            <Settings />
-            <Text style={styles.label}>Settings</Text>
-          </TouchableOpacity>
+      {/* Box (Edit Profile / History / Settings) */}
+      <View style={styles.box}>
+        <TouchableOpacity style={styles.row} onPress={() => navigation.navigate("EditProfile")}>
+          <UserPen size={20} color="#333" />
+          <Text style={styles.rowText}>Edit Profile</Text>
+          <Text style={styles.arrow}>{'>'}</Text>
+        </TouchableOpacity>
 
-          <TouchableOpacity style={styles.row}>
-            <Lock />
-            <Text style={styles.label}>Privacy</Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity style={styles.row}>
+          <History size={20} color="#333" />
+          <Text style={styles.rowText}>History</Text>
+          <Text style={styles.arrow}>{'>'}</Text>
+        </TouchableOpacity>
 
-        {/* Divider */}
-        <View style={styles.divider} />
+        <TouchableOpacity style={styles.row}>
+          <Settings size={20} color="#333" />
+          <Text style={styles.rowText}>Settings</Text>
+          <Text style={styles.arrow}>{'>'}</Text>
+        </TouchableOpacity>
+      </View>
 
-        {/* Help & Logout */}
-        <View style={styles.section}>
-          <TouchableOpacity style={styles.row} onPress={handleHelp}>
-            <BadgeQuestionMark />
-            <Text style={styles.label}>Help & Support</Text>
-          </TouchableOpacity>
+      {/* Logout Button */}
+      <TouchableOpacity
+        style={styles.logoutBtn}
+        onPress={() => setShowModal(true)}
+      >
+        <LogOut size={18} color="#d00000" style={{ marginRight: 6 }} />
+        <Text style={styles.logoutText}>Log Out</Text>
+      </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.row, { backgroundColor: '#ffecec' }]}
-            onPress={() => setShowModal(true)}
-          >
-            <LogOut color="#e63946" />
-            <Text style={[styles.label, { color: '#e63946', fontWeight: '600' }]}>Log Out</Text>
-          </TouchableOpacity>
-        </View>
+    </ScrollView>
 
-      </ScrollView>
-
-      {/* Logout Confirmation Modal */}
+    {/* Logout Confirmation Modal */}
       <Modal
         visible={showModal}
         transparent
@@ -151,8 +143,9 @@ const ProfileScreen = () => {
           </View>
         </View>
       </Modal>
-    </SafeAreaView>
-  )
+  </SafeAreaView>
+);
+
 }
 
 export default ProfileScreen
