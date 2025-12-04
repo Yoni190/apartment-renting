@@ -99,16 +99,6 @@ const HomeScreen = () => {
         <Header 
           title='Home'
         />
-        <View style={styles.searchContainer}>
-          <TextInput 
-            placeholder='Search..'
-            style={styles.textInput}
-          />
-          <TouchableOpacity style={styles.filter}>
-            <SlidersHorizontal />
-          </TouchableOpacity>
-        </View>
-
         <Text style={styles.title}>Recommended</Text>
         <ScrollView 
           showsHorizontalScrollIndicator={false} 
