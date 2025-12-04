@@ -6,6 +6,9 @@ import LoginScreen from './LoginScreen/LoginScreen'
 import RegisterScreen from './RegisterScreen/RegisterScreen'
 import ProfileScreen from './ProfileScreen/ProfileScreen'
 import HomeScreen from './HomeScreen/HomeScreen'
+import SearchScreen from './SearchScreen/SearchScreen'
+import MessagesScreen from './MessagesScreen/MessagesScreen'
+import FavouritesScreen from './FavouritesScreen/FavouritesScreen'
 
 const Tab = createBottomTabNavigator()
 
@@ -16,7 +19,7 @@ const HomeTabs = () => {
         headerShown: false,
         tabBarShowLabel: false,
         tabBarStyle: {
-          backgroundColor: '#fff',
+          backgroundColor: '#9fc5f8',
           borderTopWidth: 0,
           elevation: 10,
           height: 60,
@@ -30,21 +33,43 @@ const HomeTabs = () => {
           tabBarIcon: ({ focused }) => (
             <Ionicons 
               name={focused ? 'home' : 'home-outline'} 
-              size={24} 
-              color={focused ? '#111' : '#999'} 
+              size={24}
             />
           )
         }}
       />
       <Tab.Screen 
-        name="Settings" 
-        component={RegisterScreen}
+        name="Search" 
+        component={SearchScreen}
         options={{
           tabBarIcon: ({ focused }) => (
             <Ionicons 
-              name={focused ? 'settings' : 'settings-outline'} 
+              name={focused ? 'search' : 'search-outline'} 
               size={24} 
-              color={focused ? '#111' : '#999'} 
+            />
+          )
+        }}
+      />
+      <Tab.Screen 
+        name="Messages" 
+        component={MessagesScreen}
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <Ionicons 
+              name={focused ? 'chatbubble' : 'chatbubble-outline'} 
+              size={24}
+            />
+          )
+        }}
+      />
+      <Tab.Screen 
+        name="Favourites" 
+        component={FavouritesScreen}
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <Ionicons 
+              name={focused ? 'heart' : 'heart-outline'} 
+              size={24}
             />
           )
         }}
@@ -56,8 +81,7 @@ const HomeTabs = () => {
           tabBarIcon: ({ focused }) => (
             <Ionicons 
               name={focused ? 'person' : 'person-outline'} 
-              size={24} 
-              color={focused ? '#111' : '#999'} 
+              size={24}
             />
           )
         }}
