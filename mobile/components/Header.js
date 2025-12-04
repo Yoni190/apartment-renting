@@ -1,10 +1,14 @@
 // components/Header.js
 import React from 'react'
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native'
 
 const Header = ({ title }) => {
   return (
     <View style={styles.header}>
+      <Image
+        source={require('../assets/logo.png')}
+        style={styles.logo}
+        />
       <Text style={styles.title}>{title}</Text>
     </View>
   )
@@ -15,11 +19,9 @@ export default Header
 const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 15,
-    paddingVertical: 10,
-    backgroundColor: '#fff',
+    backgroundColor: '#9fc5f8',
     borderBottomWidth: 1,
     borderColor: '#eee',
     marginBottom: 10
@@ -27,5 +29,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: '600',
+    color: 'white',
+    marginLeft: '15%'
   },
+  logo: {
+    width: 100,
+    height: 100
+  }
 })
