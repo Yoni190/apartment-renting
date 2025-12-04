@@ -8,13 +8,6 @@ export default StyleSheet.create({
         padding: 10,
         marginHorizontal: 5
     },
-    searchContainer: {
-        flexDirection: 'row',
-    },
-    filter: {
-        justifyContent: 'center',
-        marginRight: 5
-    },
     recommendations: {
         width: 200,
         borderRadius: 12,
