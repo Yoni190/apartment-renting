@@ -21,7 +21,7 @@ const ChooseRoleScreen = () => {
         <ArrowRight />
       </TouchableOpacity>
       <TouchableOpacity style={styles.btn} onPress={handleRenter}>
-        <Text>Continue as Tenant</Text>
+        <Text>Continue as Client</Text>
         <ArrowRight />
       </TouchableOpacity>
     </View>
