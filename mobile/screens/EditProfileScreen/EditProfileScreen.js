@@ -50,7 +50,7 @@ const EditProfileScreen = () => {
         placeholder='Phone Number'
         style={styles.textInput}
       />
-
+      {/* //add more fields as needed */}
       <TouchableOpacity style={styles.btn}>
         <Text style={styles.btnText}>Edit</Text>
       </TouchableOpacity>
@@ -59,3 +59,5 @@ const EditProfileScreen = () => {
 }
 
 export default EditProfileScreen
+
+//
