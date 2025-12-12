@@ -20,5 +20,3 @@ export default StyleSheet.create({
     }
 })
 
-//as for update and delete
-//CRUD
