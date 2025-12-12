@@ -22,6 +22,7 @@ const RegisterScreen = () => {
 
 
     const handleRegister = async () => {
+      
         setErrors({})
         setLoading(true)
         try {

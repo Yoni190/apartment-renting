@@ -19,3 +19,5 @@ export default StyleSheet.create({
         textAlign: 'center'
     }
 })
+
+//as for update and delete
