@@ -45,7 +45,7 @@ const EditProfileScreen = () => {
         placeholder='Email Address'
         style={styles.textInput}
         value={user.email}
-      />
+      />{/* //add more fields as needed */}
       <TextInput
         placeholder='Phone Number'
         style={styles.textInput}
@@ -60,4 +60,3 @@ const EditProfileScreen = () => {
 
 export default EditProfileScreen
 
-//
