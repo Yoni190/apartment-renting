@@ -15,6 +15,7 @@ import EditProfileScreen from './screens/EditProfileScreen/EditProfileScreen';
 import HomeForPO from './screens/HomeForPO/HomeForPO';
 import AddListing from './screens/AddListing/AddListing';
 import OwnerTabs from './screens/OwnerTabs'
+import ApartmentDetails from './screens/ApartmentDetails/ApartmentDetails';
 
 
 const Stack = createStackNavigator()
@@ -42,6 +43,7 @@ export default function App() {
         <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }}/>
         <Stack.Screen name="Home" component={HomeTabs} options={{ headerShown: false }}/>
         <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+        <Stack.Screen name="ApartmentDetails" component={ApartmentDetails} options={{ headerShown: false }}/>
       </Stack.Navigator>
     </NavigationContainer>
     </SafeAreaProvider>

@@ -92,6 +92,11 @@ const HomeScreen = () => {
 
       getUser()
     }, [])
+
+
+    const navigateToDetails = () => {
+      navigation.navigate("ApartmentDetails")
+    }
     
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
@@ -107,7 +112,11 @@ const HomeScreen = () => {
           horizontal={true}
           >
           {dummy_recommendations.map((dummy) => 
-            <TouchableOpacity style={styles.recommendations} key={dummy.name} activeOpacity={0.8}>
+            <TouchableOpacity 
+              style={styles.recommendations} 
+              key={dummy.name} 
+              activeOpacity={0.8}
+              onPress={navigateToDetails}>
               {/* Top Part */}
               <View>
                 <Image 
@@ -132,7 +141,12 @@ const HomeScreen = () => {
         <Text style={styles.title}>Apartments</Text>
         <View style={styles.apartmentsContainer}>
           {apartments.map((apartment) => 
-            <TouchableOpacity key={apartment.title} style={styles.apartments} activeOpacity={0.8}>
+            <TouchableOpacity 
+              key={apartment.title} 
+              style={styles.apartments} 
+              activeOpacity={0.8}
+              onPress={navigateToDetails}
+              >
               {/* Top Part */}
               <View>
                 <Image 
