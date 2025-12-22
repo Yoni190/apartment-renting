@@ -6,7 +6,7 @@ export default StyleSheet.create({
         justifyContent: "center",
         backgroundColor: "#F9FAFB",
         paddingHorizontal: 25,
-        paddingTop: 50,
+        paddingTop: 120,
     },
     innerContainer: {
         backgroundColor: 'white',
