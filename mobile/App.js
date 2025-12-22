@@ -32,7 +32,7 @@ export default function App() {
     <SafeAreaProvider>
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name="ChooseRole" component={ChooseRoleScreen} />
+        <Stack.Screen name="Gojoye " component={ChooseRoleScreen} options={{ headerShown: false }}/>
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Register" component={RegisterScreen} />
   <Stack.Screen name="Home" component={HomeTabs} options={{ headerShown: false }}/>

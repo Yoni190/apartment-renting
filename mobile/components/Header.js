@@ -1,40 +1,45 @@
 // components/Header.js
 import React from 'react'
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native'
+import { Text, StyleSheet, Image } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 const Header = ({ title }) => {
   return (
-    <View style={styles.header}>
+    <SafeAreaView edges={['top']} style={styles.header}>
       <Image
         source={require('../assets/logo.png')}
         style={styles.logo}
-        />
+      />
       <Text style={styles.title}>{title}</Text>
-    </View>
+    </SafeAreaView>
   )
 }
 
 export default Header
 
-
 const styles = StyleSheet.create({
   header: {
-    height: 70,
+    position: 'absolute',   // 🔑 STICK IT
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 90,
     backgroundColor: '#9fc5f8',
     justifyContent: 'center',
     alignItems: 'center',
+    zIndex: 1000,
   },
 
   logo: {
     position: 'absolute',
     left: 15,
-    width: 100,
-    height: 100,
-    resizeMode: 'contain'
+    width: 70,
+    height: 70,
+    resizeMode: 'contain',
   },
 
   title: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '600',
     color: 'white',
   },
