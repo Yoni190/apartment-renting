@@ -33,7 +33,7 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen name="Gojoye " component={ChooseRoleScreen} options={{ headerShown: false }}/>
-        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }}/>
         <Stack.Screen name="Register" component={RegisterScreen} />
   <Stack.Screen name="Home" component={HomeTabs} options={{ headerShown: false }}/>
   <Stack.Screen name="OwnerHome" component={OwnerTabs} options={{ headerShown: false }} />

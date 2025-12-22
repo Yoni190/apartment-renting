@@ -1,10 +1,11 @@
-import { KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View, Image } from 'react-native'
 import React, { useState } from 'react'
 import { useNavigation, useRoute } from '@react-navigation/native'
 import axios from 'axios'
 import * as SecureStore from "expo-secure-store"
 import { Eye, EyeClosed } from 'lucide-react-native'
 import styles from './LoginScreenStyle'
+import Header from '../../components/Header'
 
 const LoginScreen = () => {
     const [email, setEmail] = useState("")
@@ -84,7 +85,9 @@ const LoginScreen = () => {
     behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     style={styles.container}
     >
-    <View style={styles.innerContainer}>
+      <Header 
+        title="Login" />
+    <View>
         <Text style={styles.title}>Welcome Back</Text>
         <Text style={styles.subTitle}>Login to Continue</Text>
         {selectedRoleParam !== undefined && (
@@ -135,6 +138,20 @@ const LoginScreen = () => {
         Don't have an account? <Text style={styles.linkText} onPress={() => navigation.replace("Register", { role: selectedRoleParam ?? 1 })}>Sign Up</Text>
       </Text>
     </View>
+
+          <View style={styles.orRow}>
+            <View style={styles.line} />
+            <Text style={styles.orText}>OR</Text>
+            <View style={styles.line} />
+          </View>
+
+          <TouchableOpacity style={styles.googleBtn}>
+            <Image 
+            source={require('../../assets/google_icon.png')} 
+            style={styles.googleIcon}
+            />
+            <Text style={styles.googleBtnText}>Login with Google</Text>
+          </TouchableOpacity>
     </KeyboardAvoidingView>
     
   )

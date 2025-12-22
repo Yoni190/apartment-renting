@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    height: 90,
+    height: 110,
     backgroundColor: '#9fc5f8',
     justifyContent: 'center',
     alignItems: 'center',
@@ -32,6 +32,7 @@ const styles = StyleSheet.create({
 
   logo: {
     position: 'absolute',
+    top: 30,
     left: 15,
     width: 70,
     height: 70,
