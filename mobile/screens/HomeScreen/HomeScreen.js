@@ -95,10 +95,11 @@ const HomeScreen = () => {
     
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
-      <ScrollView showsVerticalScrollIndicator={false}> 
-        <Header 
+      <Header 
           title='Home'
         />
+      <ScrollView showsVerticalScrollIndicator={false}> 
+        
         <Text style={styles.title}>Recommended</Text>
         <ScrollView 
           showsHorizontalScrollIndicator={false} 
