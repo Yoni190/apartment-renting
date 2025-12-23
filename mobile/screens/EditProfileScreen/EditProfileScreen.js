@@ -33,7 +33,7 @@ const EditProfileScreen = () => {
     getUser()
   }, [])
 
-
+//FOR REl?
   return (
     <View styles={styles.container}>
       <TextInput 
