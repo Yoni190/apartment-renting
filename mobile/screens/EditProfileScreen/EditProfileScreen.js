@@ -35,7 +35,6 @@ const EditProfileScreen = () => {
 
 //FOR REl?
 //profile
-//picture
 //because
   return (
     <View styles={styles.container}>
