@@ -34,7 +34,6 @@ const EditProfileScreen = () => {
   }, [])
 
 //FOR REl?
-//edit 
 //profile
 //picture
 //because
