@@ -34,6 +34,7 @@ const EditProfileScreen = () => {
   }, [])
 
 //FOR REl?
+//why is user null initially?
   return (
     <View styles={styles.container}>
       <TextInput 
