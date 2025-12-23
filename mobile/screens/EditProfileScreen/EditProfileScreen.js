@@ -33,8 +33,7 @@ const EditProfileScreen = () => {
     getUser()
   }, [])
 
-//FOR REl?
-//profile
+//FOR REl
 //because
   return (
     <View styles={styles.container}>
