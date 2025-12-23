@@ -34,7 +34,7 @@ const EditProfileScreen = () => {
   }, [])
 
 
-//because
+
   return (
     <View styles={styles.container}>
       <TextInput 
