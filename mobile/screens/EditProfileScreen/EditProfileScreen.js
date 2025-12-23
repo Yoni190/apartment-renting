@@ -34,7 +34,6 @@ const EditProfileScreen = () => {
   }, [])
 
 
-
   return (
     <View styles={styles.container}>
       <TextInput 
