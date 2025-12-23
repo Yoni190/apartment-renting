@@ -36,7 +36,7 @@ const EditProfileScreen = () => {
 //FOR REl?
 //edit 
 //profile
-//pocture
+//picture
 //why is user null initially?
 //because
   return (
