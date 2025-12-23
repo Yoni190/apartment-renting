@@ -37,7 +37,6 @@ const EditProfileScreen = () => {
 //edit 
 //profile
 //picture
-//why is user null initially?
 //because
   return (
     <View styles={styles.container}>
