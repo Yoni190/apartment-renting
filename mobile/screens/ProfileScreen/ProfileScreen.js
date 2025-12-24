@@ -25,7 +25,7 @@ const ProfileScreen = () => {
 
   const handleLogout = async () => {
     await SecureStore.deleteItemAsync("token")
-      .then(() => navigation.replace("Login"))
+      .then(() => navigation.replace("Gojoye"))
       .catch(err => console.error(err))
   }
 

@@ -34,10 +34,8 @@ export default function App() {
     <SafeAreaProvider>
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name="Gojoye " component={ChooseRoleScreen} options={{ headerShown: false }}/>
+        <Stack.Screen name="Gojoye" component={ChooseRoleScreen} options={{ headerShown: false }}/>
         <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }}/>
-        
-        
         <Stack.Screen name="OwnerHome" component={OwnerTabs} options={{ headerShown: false }} />
         <Stack.Screen name="HomeForPO" component={HomeForPO} options={{ headerShown: false }} />
         <Stack.Screen name="AddListing" component={AddListing} options={{ headerShown: false }} />

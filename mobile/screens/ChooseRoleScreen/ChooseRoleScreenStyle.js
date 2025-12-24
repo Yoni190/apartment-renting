@@ -66,4 +66,21 @@ export default StyleSheet.create({
     fontSize: 12,
     color: '#555',
   },
+  languageWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-end',
+    marginBottom: 15,
+    paddingHorizontal: 10,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 20,
+    backgroundColor: '#fafafa',
+  },
+
+  languagePicker: {
+    width: 140,
+    height: 55,
+    marginLeft: 5,
+  },
 })
