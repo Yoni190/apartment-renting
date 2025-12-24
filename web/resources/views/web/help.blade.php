@@ -6,6 +6,6 @@
     <title>Help</title>
 </head>
 <body>
-    <h1>This is help</h1>
+    <h1>This is help too</h1>
 </body>
 </html>
