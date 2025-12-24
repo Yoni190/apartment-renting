@@ -23,6 +23,7 @@
                                 name="name" 
                                 class="form-control" 
                                 placeholder="Enter API name..." 
+                                value="{{ $paymentApi->name }}"
                                 required
                             >
                     </div>
@@ -34,6 +35,7 @@
                             id="key"
                             class="form-control"
                             placeholder="Enter API Key..."
+                            value="{{ $paymentApi->api_key }}"
                             required
                             >
                     </div>
@@ -45,6 +47,7 @@
                             id="provider"
                             class="form-control"
                             placeholder="Enter API Provider..."
+                            value="{{ $paymentApi->api_provider }}"
                             required
                             >
                     </div>

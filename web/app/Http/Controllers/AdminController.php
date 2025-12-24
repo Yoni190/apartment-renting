@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Admin;
 use App\Models\AdminRole;
+use App\Models\Api;
 use Illuminate\Support\Facades\Hash;
 
 
@@ -125,6 +126,25 @@ class AdminController extends Controller
     }
 
     function settings() {
-        return view('web.admin.settings');
+        $paymentApi = Api::where('type', 'payment')
+        ->first(['name', 'api_key', 'api_provider']);
+
+      if ($paymentApi) {
+            $paymentApi->api_key = decrypt($paymentApi->api_key);
+
+            $length = strlen($paymentApi->api_key);
+            if ($length > 8) {
+                // Mask all characters except first 4 and last 4
+                $paymentApi->masked_key = substr($paymentApi->api_key, 0, 4) 
+                    . str_repeat('*', $length - 8) 
+                    . substr($paymentApi->api_key, -4);
+            } else {
+                // If too short, just mask everything except the first character
+                $paymentApi->masked_key = substr($paymentApi->api_key, 0, 1) 
+                    . str_repeat('*', max(0, $length - 1));
+            }
+        }
+
+        return view('web.admin.settings', compact('paymentApi'));
     }
 }
