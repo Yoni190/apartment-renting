@@ -24,6 +24,46 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+// update user profile (name, email, phone, optional password)
+Route::middleware('auth:sanctum')->patch('/user', function (Request $request) {
+    $user = $request->user();
+
+    $request->validate([
+        'name' => ['required', 'string', 'max:255'],
+        'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
+        'phone_number' => ['nullable', 'string', 'max:30'],
+        'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
+        'current_password' => ['required_with:password']
+    ]);
+
+    // if changing password, verify current password
+    if ($request->filled('password')) {
+        if (!Hash::check($request->input('current_password'), $user->password)) {
+            return response()->json(['message' => 'Current password is incorrect'], 403);
+        }
+        $user->password = Hash::make($request->password);
+    }
+
+    $user->name = $request->name;
+    $user->email = $request->email;
+    if ($request->filled('phone_number')) {
+        $user->phone_number = $request->phone_number;
+    }
+
+    $user->save();
+
+    return $user;
+});
+
+// delete authenticated user
+Route::middleware('auth:sanctum')->delete('/user', function (Request $request) {
+    $user = $request->user();
+    // revoke tokens
+    $user->tokens()->delete();
+    $user->delete();
+    return response()->json(['message' => 'User deleted']);
+});
+
 Route::get('/apartment-list', function () {
     $apartments = Apartment::all();
 
@@ -60,7 +100,7 @@ Route::post('/register', function(Request $request) {
         'password' => ['required', 'confirmed', Rules\Password::defaults()],
         'device_name' => ['required'],
         'role' => ['required'],
-        'phone_number' => ['phone_number']
+        'phone_number' => ['nullable', 'string', 'max:30']
     ]);
 
     $user = User::create([
@@ -68,7 +108,7 @@ Route::post('/register', function(Request $request) {
         'email' => $request->email,
         'password' => Hash::make($request->password),
         'role' => $request->role,
-        'phone_number' => $request->phone
+        'phone_number' => $request->phone_number
     ]);
 
 
