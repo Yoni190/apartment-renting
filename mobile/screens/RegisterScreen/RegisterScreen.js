@@ -51,7 +51,7 @@ const RegisterScreen = () => {
             await SecureStore.setItemAsync('token', access_token)
             // navigate according to selected role (owner=0 -> HomeForPO, client=1 -> Home)
             if (selectedRole === 0) {
-              navigation.replace('HomeForPO')
+              navigation.replace('OwnerHome')
             } else {
               navigation.replace('Home')
             }

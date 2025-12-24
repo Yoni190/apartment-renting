@@ -41,7 +41,7 @@ const LoginScreen = () => {
       await SecureStore.setItemAsync('token', access_token)
           // if a role was selected before logging in, honor that selection
           if (selectedRoleParam !== undefined) {
-            if (selectedRoleParam === 0) navigation.replace('HomeForPO')
+            if (selectedRoleParam === 0) navigation.replace('OwnerHome')
             else navigation.replace('Home')
           } else {
             // otherwise fetch the user to determine role and redirect accordingly
@@ -51,7 +51,7 @@ const LoginScreen = () => {
               })
               const user = userRes.data
               if (user?.role === 0) {
-                navigation.replace('HomeForPO')
+                navigation.replace('OwnerHome')
               } else {
                 navigation.replace('Home')
               }
