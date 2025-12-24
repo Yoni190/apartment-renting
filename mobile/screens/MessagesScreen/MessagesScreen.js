@@ -2,20 +2,23 @@ import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import Header from '../../components/Header'
 import { MessageCircle } from 'lucide-react-native'
+import { useTranslation } from 'react-i18next'
 
 const MessagesScreen = () => {
+
+  const { t } = useTranslation()
+
   return (
     <View style={{ flex: 1, backgroundColor: '#f9f9f9' }}>
-      <Header title="Messages" />
+      <Header title={t("messages")} />
 
       <View style={styles.emptyState}>
         <MessageCircle size={60} color="#ccc" strokeWidth={1.2} />
 
-        <Text style={styles.emptyTitle}>No Messages Yet</Text>
+        <Text style={styles.emptyTitle}>{t("no_messages_yet")}</Text>
 
         <Text style={styles.emptySubtitle}>
-          When someone sends you a message, it will appear here.  
-          Start a conversation to get things going!
+          {t("no_messages_subtitle")}
         </Text>
       </View>
     </View>

@@ -1,11 +1,14 @@
 import { StyleSheet, Text, View, Image } from 'react-native'
 import React from 'react'
 import Header from '../../components/Header'
+import { useTranslation } from 'react-i18next'
 
 const FavouritesScreen = () => {
+  const { t } = useTranslation()
+
   return (
     <View style={styles.container}>
-      <Header title="Favourites" />
+      <Header title={t("favourites")}/>
 
       <View style={styles.emptyState}>
         
@@ -19,12 +22,11 @@ const FavouritesScreen = () => {
         </View>
 
         {/* Title */}
-        <Text style={styles.title}>You have no favourites</Text>
+        <Text style={styles.title}>{t("you_have_no_favourites")}</Text>
 
         {/* Subtitle */}
         <Text style={styles.subtitle}>
-          Tap the heart icon on any{"\n"}
-          property to add it to favourites
+          {t('favouritesSubtitle')}
         </Text>
 
       </View>
@@ -33,6 +35,7 @@ const FavouritesScreen = () => {
 }
 
 export default FavouritesScreen
+
 
 const styles = StyleSheet.create({
   container: {
