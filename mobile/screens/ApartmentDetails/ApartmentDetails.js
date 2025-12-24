@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
+  Linking,
   Platform,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -34,6 +35,7 @@ export default function ApartmentDetails() {
   const [listing, setListing] = useState(null)
   const [user, setUser] = useState(null)
   const [activeTab, setActiveTab] = useState('All')
+  const [heroIndex, setHeroIndex] = useState(0)
 
   useEffect(() => {
     if (!listingId) return
@@ -90,6 +92,96 @@ export default function ApartmentDetails() {
   const overallPriceRange = listing?.price_range
   const overallBedroomRange = listing?.bedroom_range
 
+  function getImageUrl(img) {
+    if (!img) return null
+    if (img.url) return img.url
+    if (img.path) return `${API_URL}/storage/${img.path}`
+    return img
+  }
+
+  // Format date string as dd-MM-yyyy (fallback to input if invalid)
+  const formatDate = (input) => {
+    if (!input) return ''
+    const d = new Date(input)
+    if (isNaN(d)) return input
+    const dd = String(d.getDate()).padStart(2, '0')
+    const mm = String(d.getMonth() + 1).padStart(2, '0')
+    const yyyy = d.getFullYear()
+    return `${dd}-${mm}-${yyyy}`
+  }
+
+  const formatTime = (input) => {
+    if (!input) return ''
+    // assume input is HH:MM or ISO time
+    if (/^\d{2}:\d{2}/.test(input)) return input.slice(0,5)
+    const d = new Date(input)
+    if (isNaN(d)) return input
+    const hh = String(d.getHours()).padStart(2, '0')
+    const mi = String(d.getMinutes()).padStart(2, '0')
+    return `${hh}:${mi}`
+  }
+
+  // Build human-friendly tour string if meta contains tour info
+  const tourInfoText = (() => {
+    const meta = listing?.meta || {}
+    if (!meta) return null
+    // Accept several patterns: meta.open_for_tour true + dates in meta.open_for_tour_dates or separate keys
+    const tour = meta.open_for_tour
+    if (!tour && !meta.open_for_tour_dates && !meta.tour_from_date && !meta.open_for_tour_from_date) return null
+
+    // Collect date/time values from common keys
+    const fromDate = meta.open_for_tour_dates?.from || meta.tour_from_date || meta.open_for_tour_from_date || meta.open_for_tour_from || meta.open_for_tour?.from_date
+    const toDate = meta.open_for_tour_dates?.to || meta.tour_to_date || meta.open_for_tour_to_date || meta.open_for_tour?.to_date
+    const fromTime = meta.open_for_tour_dates?.start_time || meta.tour_from_time || meta.open_for_tour_from_time || meta.open_for_tour?.from_time || meta.open_for_tour?.start_time
+    const toTime = meta.open_for_tour_dates?.end_time || meta.tour_to_time || meta.open_for_tour_to_time || meta.open_for_tour?.to_time || meta.open_for_tour?.end_time
+
+    if (fromDate || toDate || fromTime || toTime) {
+      const fd = formatDate(fromDate) || ''
+      const td = formatDate(toDate) || ''
+      const ft = formatTime(fromTime) || ''
+      const tt = formatTime(toTime) || ''
+      const datePart = fd && td ? `${fd} to ${td}` : fd || td || ''
+      const timePart = ft && tt ? `from ${ft} to ${tt}` : ft || tt ? `from ${ft || tt}` : ''
+      return `${datePart}${datePart && timePart ? ' ' : ''}${timePart}`.trim()
+    }
+
+    // If meta.open_for_tour is boolean true but no dates, show 'Open for tours'
+    if (tour === true || tour === 'true') return 'Open for tours'
+    return null
+  })()
+
+  // Address composition: prefer structured meta.location fields when present
+  const addressFromMeta = (() => {
+    const loc = listing?.meta?.location || listing?.location || {}
+    const parts = []
+    if (loc.city) parts.push(loc.city)
+    if (loc.subcity) parts.push(loc.subcity)
+    if (loc.area) parts.push(loc.area)
+    if (loc.landmark) parts.push(loc.landmark)
+    if (parts.length > 0) return parts.join(', ')
+    return listing?.address || ''
+  })()
+
+  // Map coordinates (if provided in meta.location)
+  const coords = (() => {
+    const loc = listing?.meta?.location || listing?.location || {}
+    const lat = loc.lat || loc.latitude || loc.lat_dd || null
+    const lng = loc.lng || loc.longitude || loc.lon || loc.lng_dd || null
+    if (lat && lng) return { lat, lng }
+    return null
+  })()
+
+  const openDirections = async () => {
+    if (!coords) return Alert.alert('No location', 'No coordinates available')
+    const { lat, lng } = coords
+    const url = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`
+    try {
+      await Linking.openURL(url)
+    } catch (e) {
+      Alert.alert('Error', 'Could not open maps')
+    }
+  }
+
   const handleTour = () => {
     Alert.alert('Tour', 'Request a tour — not yet implemented')
   }
@@ -112,6 +204,46 @@ export default function ApartmentDetails() {
 
   const handleDeactivate = async () => {
     Alert.alert('Deactivate', 'Deactivate listing? (not implemented)')
+  }
+
+  // Helper: pretty format keys from snake_case or camelCase to Title Case
+  const formatKey = (key) => {
+    if (!key) return ''
+    // replace underscores and dashes, split camelCase
+    const spaced = key
+      .replace(/[_-]+/g, ' ')
+      .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    return spaced
+      .split(' ')
+      .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+      .join(' ')
+  }
+
+  // Recursive renderer for owner-provided meta values
+  const renderMetaValue = (value) => {
+    if (value === null || value === undefined) return <Text style={styles.metaValue}>—</Text>
+    if (Array.isArray(value)) {
+      return (
+        <View>
+          {value.map((v, i) => (
+            <Text key={i} style={styles.metaValue}>- {typeof v === 'object' ? JSON.stringify(v) : String(v)}</Text>
+          ))}
+        </View>
+      )
+    }
+    if (typeof value === 'object') {
+      return (
+        <View>
+          {Object.entries(value).map(([k, v]) => (
+            <View key={k} style={{ marginBottom: 6 }}>
+              <Text style={[styles.metaKey, { width: '100%', fontWeight: '600' }]}>{formatKey(k)}</Text>
+              <Text style={styles.metaValue}>{typeof v === 'object' ? JSON.stringify(v) : String(v)}</Text>
+            </View>
+          ))}
+        </View>
+      )
+    }
+    return <Text style={styles.metaValue}>{String(value)}</Text>
   }
 
   if (loading) {
@@ -160,8 +292,15 @@ export default function ApartmentDetails() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#f8fafc' }}>
       <Header title={listing.title || 'Listing'} />
+
+      {/* Hero image */}
+      {Array.isArray(listing?.images) && listing.images.length > 0 ? (
+        <View>
+          <Image source={{ uri: getImageUrl(listing.images[heroIndex]) }} style={styles.apartmentImage} />
+        </View>
+      ) : null}
 
       {/* Owner controls */}
       {isOwner && (
@@ -171,16 +310,40 @@ export default function ApartmentDetails() {
         </View>
       )}
 
-      <ScrollView contentContainerStyle={{ paddingBottom: 120 }}>
+      <ScrollView contentContainerStyle={{ paddingBottom: 140 }}>
         {/* Header section: title + last updated */}
         <View style={styles.content}>
           {listing.title ? <Text style={styles.title}>{listing.title}</Text> : null}
+          {overallPriceRange ? <Text style={styles.price}>{overallPriceRange}</Text> : null}
           {listing.updated_at ? <Text style={styles.updated}>Last updated: {new Date(listing.updated_at).toLocaleString()}</Text> : null}
 
           {/* Location */}
           {listing.address ? (
             <View style={styles.locationRow}>
               <Text style={styles.locationText}>{listing.address}</Text>
+            </View>
+          ) : null}
+
+          {/* Badges */}
+          <View style={{ flexDirection: 'row', marginTop: 8, marginBottom: 8, flexWrap: 'wrap' }}>
+            {tourInfoText ? <View style={styles.badge}><Text style={styles.badgeText}>{tourInfoText}</Text></View> : null}
+            {listing.meta?.allow_phone ? <View style={styles.badge}><Text style={styles.badgeText}>Phone enabled</Text></View> : null}
+          </View>
+
+          {/* Location */}
+          <View style={styles.divider} />
+          <Text style={styles.sectionTitle}>Location</Text>
+          {addressFromMeta ? <Text style={styles.locationText}>{addressFromMeta}</Text> : null}
+          {coords ? (
+            <View style={{ marginTop: 8 }}>
+              <View style={styles.mapBox}>
+                <Text style={styles.mapText}>Map location: {coords.lat}, {coords.lng}</Text>
+              </View>
+              <View style={{ marginTop: 8 }}>
+                <TouchableOpacity style={styles.directionsBtn} onPress={openDirections} accessibilityRole="button">
+                  <Text style={styles.directionsText}>Directions</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           ) : null}
 
@@ -228,14 +391,35 @@ export default function ApartmentDetails() {
             ))
           )}
 
-          {/* Amenities (owner-provided only) */}
+          {/* Amenities (owner-provided only) - comma-separated */}
           {Array.isArray(listing.meta?.amenities) && listing.meta.amenities.length > 0 ? (
             <>
               <View style={styles.divider} />
               <Text style={styles.sectionTitle}>Amenities</Text>
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-                {listing.meta.amenities.map((a) => (
-                  <View key={a} style={styles.badge}><Text style={styles.badgeText}>{a}</Text></View>
+              <Text style={{ color: '#374151', marginTop: 6 }}>{listing.meta.amenities.join(', ')}</Text>
+            </>
+          ) : null}
+
+          {/* Utilities (owner-provided) - comma-separated if present */}
+          {Array.isArray(listing.meta?.utilities) && listing.meta.utilities.length > 0 ? (
+            <>
+              <View style={styles.divider} />
+              <Text style={styles.sectionTitle}>Utilities</Text>
+              <Text style={{ color: '#374151', marginTop: 6 }}>{listing.meta.utilities.join(', ')}</Text>
+            </>
+          ) : null}
+
+          {/* Owner provided raw/meta data - show everything owner entered */}
+          {listing.meta && Object.keys(listing.meta).length > 0 ? (
+            <>
+              <View style={styles.divider} />
+              <Text style={styles.sectionTitle}>Owner provided data</Text>
+              <View style={styles.metaBox}>
+                {Object.entries(listing.meta).map(([k, v]) => (
+                  <View key={k} style={styles.metaRow}>
+                    <Text style={styles.metaKey}>{formatKey(k)}</Text>
+                    <View style={{ flex: 1 }}>{renderMetaValue(v)}</View>
+                  </View>
                 ))}
               </View>
             </>
