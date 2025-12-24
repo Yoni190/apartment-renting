@@ -18,10 +18,6 @@ const ChooseRoleScreen = () => {
     navigation.navigate('Login', { role: 1 })
   }
 
-<<<<<<< Updated upstream
-=======
-  
->>>>>>> Stashed changes
   return (
     <View style={styles.container}>
       <Header title="Gojoye" />
@@ -29,11 +25,7 @@ const ChooseRoleScreen = () => {
       <Text style={styles.screenTitle}>Choose Your Role</Text>
 
       {/* Property Owner Card */}
-<<<<<<< Updated upstream
       <TouchableOpacity style={styles.card} onPress={handleApartment}>
-=======
-      <TouchableOpacity style={styles.card}>
->>>>>>> Stashed changes
         <View style={styles.iconCircle}>
           <Building2 size={32} color="#000" />
         </View>
@@ -51,14 +43,7 @@ const ChooseRoleScreen = () => {
       </View>
 
       {/* Client Card */}
-<<<<<<< Updated upstream
       <TouchableOpacity style={styles.card} onPress={handleRenter}>
-=======
-      <TouchableOpacity
-        style={styles.card}
-        onPress={() => navigation.navigate('Login')}
-      >
->>>>>>> Stashed changes
         <View style={styles.iconCircle}>
           <User size={32} color="#000" />
         </View>

@@ -13,7 +13,8 @@
 
         <div class="card-body">
 
-            <form action="#">
+            <form action="{{ route('admin.settings.save') }}" method="POST">
+                @csrf
                 <div class="row g-4">
                     <div class="col-md-6">
                             <label class="form-label fw-semibold">API Name</label>
@@ -22,6 +23,7 @@
                                 name="name" 
                                 class="form-control" 
                                 placeholder="Enter API name..." 
+                                required
                             >
                     </div>
 
@@ -32,6 +34,18 @@
                             id="key"
                             class="form-control"
                             placeholder="Enter API Key..."
+                            required
+                            >
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="provider" class="form-label fw-semibold">API Provider</label>
+                        <input type="text"
+                            name="provider"
+                            id="provider"
+                            class="form-control"
+                            placeholder="Enter API Provider..."
+                            required
                             >
                     </div>
                 </div>
