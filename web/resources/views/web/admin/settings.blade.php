@@ -30,14 +30,18 @@
 
                     <div class="col-md-6">
                         <label for="key" class="form-label fw-semibold">API Key</label>
-                        <input type="text"
-                            name="key"
-                            id="key"
-                            class="form-control"
-                            placeholder="Enter API Key..."
-                            value="{{ $paymentApi->api_key }}"
-                            required
+                        <div class="input-group">
+                            <input type="text"
+                                name="key"
+                                id="key"
+                                class="form-control"
+                                value="{{ $paymentApi->masked_key }}"
+                                required
                             >
+                            <button type="button" class="btn btn-outline-secondary" id="toggleKey">
+                                👁️
+                            </button>
+                        </div>
                     </div>
 
                     <div class="col-md-6">
@@ -64,3 +68,27 @@
 </div>
 
 @endsection
+
+@push('scripts')
+
+<script>
+    const keyInput = document.getElementById('key');
+    const toggleButton = document.getElementById('toggleKey');
+
+    // Store both values
+    const maskedKey = "{{ $paymentApi->masked_key }}";
+    const fullKey = "{{ $paymentApi->api_key }}";
+    let showingFull = false;
+
+    toggleButton.addEventListener('click', () => {
+        if (showingFull) {
+            keyInput.value = maskedKey;
+        } else {
+            keyInput.value = fullKey;
+        }
+        showingFull = !showingFull;
+    });
+</script>
+
+
+@endpush
