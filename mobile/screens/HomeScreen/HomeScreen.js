@@ -8,6 +8,7 @@ import styles from './HomeScreenStyle'
 import { Ionicons } from '@expo/vector-icons'
 import Header from '../../components/Header'
 import { SlidersHorizontal, ToolCase } from 'lucide-react-native'
+import ListingCard from '../../components/ListingCard'
 
 const HomeScreen = () => {
     const [user, setUser] = useState(null)
@@ -112,6 +113,22 @@ const HomeScreen = () => {
       navigation.navigate('Messages')
     }
 
+    // ListingCard handlers used by the card component
+    const handleSave = (apartment) => {
+      setApartments(prev => prev.map(a => a.id === apartment.id ? { ...a, fav: true } : a))
+    }
+
+    const handleUnsave = (apartment) => {
+      setApartments(prev => prev.map(a => a.id === apartment.id ? { ...a, fav: false } : a))
+    }
+
+    const handleMessage = (apartment) => openMessage(apartment)
+
+    const handleCall = (phone) => {
+      // For mobile: use Linking.openURL(`tel:${phone}`) in production
+      Alert.alert('Call', phone ?? 'No phone number')
+    }
+
     return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
       <Header 
@@ -153,43 +170,35 @@ const HomeScreen = () => {
         </ScrollView>
         
         <Text style={styles.title}>Apartments</Text>
-        <View style={styles.apartmentsContainer}>
-          {apartments.map((apartment) => (
-            <TouchableOpacity 
-              key={apartment.title} 
-              style={styles.apartments} 
-              activeOpacity={0.8}
-              onPress={navigateToDetails}
-            >
-            {/* Top Part */}
-              <View>
-                <Image 
-                  source={require('../../assets/apartment_dummy.jpeg')}
-                  resizeMode='cover'
-                  style={styles.recommendationsImage}
-                />
-                <TouchableOpacity style={styles.heartWrap} onPress={() => toggleFavorite(apartment.title)}>
-                  <Ionicons name={apartment.fav ? 'heart' : 'heart-outline'} size={22} color={apartment.fav ? '#e0245e' : '#fff'} />
-                </TouchableOpacity>
-              </View>
-              <View style={{ paddingTop: 8 }}>
-                <Text style={styles.apartmentTitle}>{apartment.title}</Text>
-                <View style={styles.apartmentInfo}>
-                  <Text style={{ flex: 1 }}>{apartment.address}</Text>
-                  <Text>{apartment.price}</Text>
-                </View>
-                <Text numberOfLines={2} style={{ marginTop: 6 }}>{apartment.description ?? ''}</Text>
-                <View style={{ flexDirection: 'row', marginTop: 8 }}>
-                  <TouchableOpacity style={[styles.msgBtn, { backgroundColor: '#9fc5f8' }]} onPress={() => openMessage(apartment)}>
-                    <Text style={{ color: '#fff', fontWeight: '700' }}>Message</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={[styles.msgBtn, { backgroundColor: '#eee', marginLeft: 8 }]} onPress={() => openContacts(apartment)}>
-                    <Text style={{ color: '#333', fontWeight: '700' }}>Contacts</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </TouchableOpacity>
-          ))}
+
+        {/* Show listings using ListingCard only */}
+        <View style={{ alignItems: 'center', paddingVertical: 8 }}>
+          {apartments.map((a) => {
+            const images = (a.images || []).map(img => img.url || (img.path ? `${API_URL}/storage/${img.path}` : null)).filter(Boolean)
+            const meta = a.meta || {}
+
+            return (
+              <ListingCard
+                key={a.id}
+                images={images.length ? images : undefined}
+                hasVideo={!!meta.hasVideo}
+                hasVirtualTour={!!meta.hasVirtualTour}
+                priceRange={meta.price_range || a.price || undefined}
+                bedroomRange={meta.bedroom_range || (a.bedrooms ? `${a.bedrooms} Beds` : undefined)}
+                title={a.title || undefined}
+                address={a.address || (meta.location ? `${meta.location.area ?? ''} ${meta.location.city ?? ''}` : undefined)}
+                amenities={meta.amenities || undefined}
+                phoneEnabled={!!meta.allow_phone}
+                contactPhone={meta.contact_phone || a.contact_phone || undefined}
+                saved={a.fav || a.is_favorite || false}
+                onSave={() => handleSave(a)}
+                onUnsave={() => handleUnsave(a)}
+                onMessage={() => openMessage(a)}
+                onCall={(phone) => openContacts(a)}
+                onPress={() => navigation.navigate('ApartmentDetails', { listingId: a.id })}
+              />
+            )
+          })}
         </View>
       </ScrollView>
     </SafeAreaView>

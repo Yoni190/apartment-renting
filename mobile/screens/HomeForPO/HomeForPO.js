@@ -7,6 +7,7 @@ import axios from 'axios'
 import * as SecureStore from 'expo-secure-store'
 import { useNavigation } from '@react-navigation/native'
 import { useIsFocused } from '@react-navigation/native'
+import ListingCard from '../../components/ListingCard'
 
 const HomeForPO = () => {
   const [listings, setListings] = useState([])
@@ -49,6 +50,15 @@ const HomeForPO = () => {
     if (navigation && navigation.navigate) navigation.navigate('AddListing')
   }
 
+  const handleEdit = (apt) => {
+    // navigate to edit screen
+    console.log('edit', apt.id)
+  }
+  const handleDeactivate = (apt) => {
+    // call server to change status
+    console.log('deactivate', apt.id)
+  }
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView contentContainerStyle={styles.content}>
@@ -64,31 +74,27 @@ const HomeForPO = () => {
             </TouchableOpacity>
           </View>
         ) : (
-          <View style={styles.apartmentsContainer}>
-            {listings.map((item, idx) => (
-              <View key={idx} style={styles.apartmentCard}>
-                <Image source={ (item.images && item.images[0]) ? { uri: (item.images[0].url || item.images[0].path || item.images[0].filename) } : require('../../assets/apartment_dummy.jpeg') } style={styles.apartmentImage} />
-                <View style={styles.apartmentBody}>
-                  <View style={styles.rowBetween}>
-                    <Text style={styles.priceText}>{item.price ?? ''}</Text>
-                    <Text style={styles.bedText}>{item.bedrooms ?? ''} bd</Text>
-                  </View>
-                  <Text style={styles.apartmentTitle}>{item.title}</Text>
-                  <Text style={styles.addressText}>{item.address}</Text>
-                  <Text style={styles.subCityText}>{item.location?.sub_city ?? ''}</Text>
-                  <Text style={styles.descriptionText} numberOfLines={2}>{item.description}</Text>
+          <View style={{ alignItems: 'center', paddingVertical: 8 }}>
+            {listings.map((item) => {
+              const images = (item.images || []).map(img => img.url || (img.path ? `${API_URL}/storage/${img.path}` : null)).filter(Boolean)
+              const meta = item.meta || {}
 
-                  <View style={styles.cardActions}>
-                    <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#9fc5f8' }]} onPress={() => navigation.navigate('OwnerMessages') }>
-                      <Text style={styles.actionText}>Message</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#eee' }]} onPress={() => Alert.alert('Contact', item.contact_phone ?? 'No contact') }>
-                      <Text style={[styles.actionText, { color: '#333' }]}>Contacts</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </View>
-            ))}
+              return (
+                <ListingCard
+                  key={item.id}
+                  images={images.length ? images : undefined}
+                  priceRange={item.price}
+                  bedroomRange={item.bedrooms ? `${item.bedrooms} bd` : undefined}
+                  title={item.title}
+                  address={item.address}
+                  amenities={meta.amenities}
+                  isOwnerMode={true}
+                  onEdit={() => handleEdit(item)}
+                  onDeactivate={() => handleDeactivate(item)}
+                  onPress={() => navigation.navigate('ApartmentDetails', { listingId: item.id })}
+                />
+              )
+            })}
           </View>
         )}
       </ScrollView>

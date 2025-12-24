@@ -31,6 +31,15 @@ export default StyleSheet.create({
         borderRadius: 10,
         marginBottom: 10,
     },
+    placeholderImage: {
+        width: '100%',
+        height: 120,
+        borderRadius: 10,
+        marginBottom: 10,
+        backgroundColor: '#f2f2f2',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
     apartmentTitle: {
         fontSize: 18,
         fontWeight: 'bold'
