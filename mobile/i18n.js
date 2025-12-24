@@ -1,6 +1,6 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import * as RNLocalize from 'react-native-localize';
+import * as Localization from 'expo-localization';
 import * as SecureStore from 'expo-secure-store';
 import { I18nManager } from 'react-native';
 
@@ -24,14 +24,11 @@ const languageDetector = {
 
       // 2. Detect device language
       let deviceLang = 'en';
-      const locales = RNLocalize.getLocales();
+      const locale = Localization.locale || '';
+      const firstLang = locale.split('-')[0];
 
-      if (Array.isArray(locales) && locales.length > 0) {
-        const firstLang = locales[0].languageCode;
-
-        if (firstLang === 'am') deviceLang = 'am';
-        else if (firstLang === 'ti') deviceLang = 'tg';
-      }
+      if (firstLang === 'am') deviceLang = 'am';
+      else if (firstLang === 'ti') deviceLang = 'tg';
 
       // 3. Call the callback
       cb(deviceLang);
