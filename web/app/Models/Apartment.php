@@ -19,7 +19,12 @@ class Apartment extends Model
         'bathrooms',
         'is_featured',
         'size',
+        'meta',
         'user_id'
+    ];
+
+    protected $casts = [
+        'meta' => 'array',
     ];
 
     public function owner() {

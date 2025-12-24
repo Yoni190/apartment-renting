@@ -72,6 +72,12 @@ Route::get('/apartment-list', function () {
     return $apartments;
 });
 
+// get single apartment details
+Route::get('/apartments/{apartment}', function (Apartment $apartment) {
+    $apartment->load('images');
+    return $apartment;
+});
+
 // get apartments for authenticated owner
 Route::middleware('auth:sanctum')->get('/my-apartments', function (Request $request) {
     $user = $request->user();
@@ -80,26 +86,64 @@ Route::middleware('auth:sanctum')->get('/my-apartments', function (Request $requ
     return $apartments;
 });
 
-// create a new apartment (owner)
+// create a new apartment (owner) - accepts multipart/form-data including images
 Route::middleware('auth:sanctum')->post('/apartments', function (Request $request) {
     $user = $request->user();
 
+    // Basic validation for core fields; additional fields are stored in `meta` JSON
     $request->validate([
         'title' => ['required', 'string', 'max:255'],
         'address' => ['nullable', 'string', 'max:255'],
         'price' => ['nullable', 'string', 'max:100'],
         'description' => ['nullable', 'string'],
+        'bedrooms' => ['nullable', 'integer'],
+        'bathrooms' => ['nullable', 'integer'],
+        'size' => ['nullable', 'numeric'],
+        'images.*' => ['sometimes', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:5120'],
     ]);
 
-    $apartment = Apartment::create([
-        'title' => $request->title,
-        'address' => $request->address,
-        'price' => $request->price,
-        'description' => $request->description,
+    // Prepare apartment payload
+    $apartmentData = [
+        'title' => $request->input('title'),
+        'address' => $request->input('address'),
+        'price' => $request->input('price'),
+        'description' => $request->input('description'),
+        'bedrooms' => $request->input('bedrooms') ?? 1,
+        'bathrooms' => $request->input('bathrooms') ?? 1,
+        'size' => $request->input('size'),
         'user_id' => $user->id,
-        // database column `status` is a tinyInteger; store numeric status (1 = active)
-        'status' => 1
-    ]);
+        'status' => 1,
+    ];
+
+    // Capture any extra fields into meta (utilities, amenities, deposit, open_for_tour, location, etc.)
+    $known = array_keys($apartmentData);
+    $meta = $request->except($known);
+    // Remove uploaded files from meta if present
+    if ($request->hasFile('images')) {
+        unset($meta['images']);
+    }
+
+    if (!empty($meta)) {
+        $apartmentData['meta'] = $meta;
+    }
+
+    $apartment = Apartment::create($apartmentData);
+
+    // Handle image uploads and persist to storage + apartment_images table
+    if ($request->hasFile('images')) {
+        foreach ($request->file('images') as $index => $image) {
+            $filename = 'apartment_' . $apartment->id . '_' . time() . '_' . ($index + 1) . '.' . $image->getClientOriginalExtension();
+            $imagePath = $image->storeAs('apartments', $filename, 'public');
+
+            // create ApartmentImage record
+            \App\Models\ApartmentImage::create([
+                'apartment_id' => $apartment->id,
+                'path' => $imagePath,
+            ]);
+        }
+    }
+
+    $apartment->load('images');
 
     return response()->json($apartment, 201);
 });

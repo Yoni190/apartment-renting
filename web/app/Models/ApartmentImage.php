@@ -14,7 +14,16 @@ class ApartmentImage extends Model
         'path'
     ];
 
+    protected $appends = ['url'];
+
+    protected $hidden = [];
+
     public function apartment() {
         return $this->belongsTo(Apartment::class);  
+    }
+
+    public function getUrlAttribute() {
+        // Return a publicly accessible URL for the stored image
+        return asset('storage/' . $this->path);
     }
 }

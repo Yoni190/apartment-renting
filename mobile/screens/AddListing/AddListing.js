@@ -109,13 +109,26 @@ const AddListing = () => {
       }
 
       const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, allowsMultipleSelection: false, quality: 0.7 })
-      if (!result.cancelled) {
+      // normalize result for different expo-image-picker versions
+      let pickedUri = null
+      if (result) {
+        if (result.assets && Array.isArray(result.assets) && result.assets.length > 0) {
+          pickedUri = result.assets[0].uri
+        } else if (result.uri) {
+          pickedUri = result.uri
+        } else if (result.cancelled === false && result[0] && result[0].uri) {
+          // fallback shape
+          pickedUri = result[0].uri
+        }
+      }
+
+      if (pickedUri) {
         // enforce max
         if (images.length + 1 > MAX_IMAGES) {
           setPremiumMessage('You need a premium account to upload more than 10 images per listing.')
           return
         }
-        setImages(prev => [...prev, result.uri])
+        setImages(prev => [...prev, pickedUri])
         setPremiumMessage('')
       }
     } catch (err) {
@@ -180,53 +193,79 @@ const AddListing = () => {
     try {
       const token = await SecureStore.getItemAsync('token')
       if (!token) throw new Error('Not authenticated')
+      // Build multipart/form-data payload so images are uploaded to the server
+      const formData = new FormData()
+      const addressString = (landmark.trim() ? `${area.trim()} - ${landmark.trim()}` : (area.trim() || `${subCity.trim()}, ${city}`))
 
-      const payload = {
-        title: title.trim(),
-        // backend requires `address` column; compute an address string from area/landmark/subCity
-        address: (landmark.trim() ? `${area.trim()} - ${landmark.trim()}` : (area.trim() || `${subCity.trim()}, ${city}`)),
-        property_type: propertyType,
-        purpose,
-        location: {
-          city,
-          sub_city: subCity.trim(),
-          area: area.trim(),
-          landmark: landmark.trim(),
-          latitude: mapMarker ? String(mapMarker.latitude) : latitude.trim(),
-          longitude: mapMarker ? String(mapMarker.longitude) : longitude.trim()
-        },
-  // send price as string to match backend validation (backend expects string)
-  price: String(price),
-        payment_period: paymentPeriod,
-        deposit_required: depositRequired,
-        deposit_amount: depositRequired ? Number(depositAmount) : 0,
-        utilities: Object.keys(utilities).filter(k => utilities[k]),
-        bedrooms: Number(bedrooms),
-        bathrooms: Number(bathrooms),
-        size: size ? Number(size) : null,
-        floor: Number(floor),
-        furnishing,
-        amenities: Object.keys(amenities).filter(k => amenities[k]),
-        description: description.trim(),
-        images, // array of URIs. Backend should accept multipart or handle later.
-        available_from: availableFrom || (availableFromDate ? availableFromDate.toISOString().slice(0,10) : ''),
-        open_for_tour: {
-          date_from: tourDateFrom ? tourDateFrom.toISOString().slice(0,10) : null,
-          date_to: tourDateTo ? tourDateTo.toISOString().slice(0,10) : null,
-          time_from: tourTimeFrom ? tourTimeFrom.toTimeString().slice(0,5) : null,
-          time_to: tourTimeTo ? tourTimeTo.toTimeString().slice(0,5) : null
-        },
-        min_stay: minStay,
-        contact_phone: contactPhone.trim(),
-        contact_method: contactMethod
+      formData.append('title', title.trim())
+      formData.append('address', addressString)
+      formData.append('property_type', propertyType)
+      formData.append('purpose', purpose)
+      formData.append('price', String(price))
+      formData.append('payment_period', paymentPeriod)
+      formData.append('deposit_required', depositRequired ? '1' : '0')
+      formData.append('deposit_amount', depositRequired ? String(Number(depositAmount)) : '0')
+      formData.append('bedrooms', String(Number(bedrooms)))
+      formData.append('bathrooms', String(Number(bathrooms)))
+      if (size) formData.append('size', String(Number(size)))
+      formData.append('floor', String(Number(floor)))
+      formData.append('furnishing', furnishing)
+      formData.append('description', description.trim())
+      formData.append('available_from', availableFrom || (availableFromDate ? availableFromDate.toISOString().slice(0,10) : ''))
+      formData.append('min_stay', minStay)
+      formData.append('contact_phone', contactPhone.trim())
+      formData.append('contact_method', contactMethod)
+
+      // complex objects -> stringify
+      const location = {
+        city,
+        sub_city: subCity.trim(),
+        area: area.trim(),
+        landmark: landmark.trim(),
+        latitude: mapMarker ? String(mapMarker.latitude) : latitude.trim(),
+        longitude: mapMarker ? String(mapMarker.longitude) : longitude.trim()
+      }
+      formData.append('location', JSON.stringify(location))
+
+      formData.append('utilities', JSON.stringify(Object.keys(utilities).filter(k => utilities[k])))
+      formData.append('amenities', JSON.stringify(Object.keys(amenities).filter(k => amenities[k])))
+      formData.append('open_for_tour', JSON.stringify({
+        date_from: tourDateFrom ? tourDateFrom.toISOString().slice(0,10) : null,
+        date_to: tourDateTo ? tourDateTo.toISOString().slice(0,10) : null,
+        time_from: tourTimeFrom ? tourTimeFrom.toTimeString().slice(0,5) : null,
+        time_to: tourTimeTo ? tourTimeTo.toTimeString().slice(0,5) : null
+      }))
+
+      // Attach images as files (FormData). For PHP/Laravel, use field name "images[]"
+      for (let i = 0; i < images.length; i++) {
+        let uri = images[i]
+        // images[] may contain objects or strings; normalize to string
+        if (!uri) continue
+        if (typeof uri === 'object' && uri.uri) uri = uri.uri
+
+        // Extract filename safely
+        const filename = typeof uri === 'string' ? uri.split('/').pop() : `image_${i}.jpg`
+
+        // Try to determine mime type
+        const match = /\.([0-9a-z]+)(?:\?.*)?$/i.exec(filename || '')
+        const ext = match ? match[1] : 'jpg'
+        const type = `image/${ext === 'jpg' ? 'jpeg' : ext}`
+
+        // In Expo, the uri is already a file:// path that can be uploaded
+        try {
+          formData.append('images[]', { uri, name: filename, type })
+        } catch (e) {
+          // fallback: skip problematic image
+          console.log('Failed to append image to FormData', e)
+        }
       }
 
-      const res = await axios.post(`${API_URL}/apartments`, payload, {
-        headers: { Accept: 'application/json', Authorization: `Bearer ${token}` }
+      const res = await axios.post(`${API_URL}/apartments`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data', Accept: 'application/json', Authorization: `Bearer ${token}` }
       })
 
-      Alert.alert('Success', 'Listing posted')
-      navigation.goBack()
+  Alert.alert('Success', 'Listing posted')
+  navigation.goBack()
     } catch (err) {
       console.log(err.response?.data || err.message)
       Alert.alert('Error', err.response?.data?.message || err.message || 'Failed to post listing')
@@ -389,9 +428,10 @@ const AddListing = () => {
         <Text style={styles.label}>Images</Text>
         <ScrollView style={{ marginBottom: 8 }} horizontal showsHorizontalScrollIndicator={false}>
           <View style={styles.imagesRow}>
-            {images.map((uri, i) => (
-              <Image key={i} source={{ uri }} style={styles.thumb} />
-            ))}
+            {images.map((img, i) => {
+              const uri = typeof img === 'string' ? img : (img?.uri || null)
+              return <Image key={i} source={ uri ? { uri } : require('../../assets/apartment_dummy.jpeg') } style={styles.thumb} />
+            })}
             <TouchableOpacity style={styles.imageAdd} onPress={pickImage}>
               <Text style={styles.imageAddText}>+ Add</Text>
             </TouchableOpacity>

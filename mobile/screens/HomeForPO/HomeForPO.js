@@ -6,11 +6,13 @@ import styles from './HomeForPOStyle'
 import axios from 'axios'
 import * as SecureStore from 'expo-secure-store'
 import { useNavigation } from '@react-navigation/native'
+import { useIsFocused } from '@react-navigation/native'
 
 const HomeForPO = () => {
   const [listings, setListings] = useState([])
   const [loading, setLoading] = useState(true)
   const navigation = useNavigation()
+  const isFocused = useIsFocused()
 
   const API_URL = process.env.EXPO_PUBLIC_API_URL
 
@@ -35,8 +37,12 @@ const HomeForPO = () => {
         setLoading(false)
       }
     }
-    load()
-  }, [])
+    // load when screen becomes focused
+    if (isFocused) {
+      setLoading(true)
+      load()
+    }
+  }, [isFocused])
 
   const handleAdd = () => {
     // navigate to an Add Listing screen if you have one; placeholder for now
