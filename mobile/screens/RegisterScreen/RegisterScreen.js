@@ -1,6 +1,6 @@
 import { KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
-import { useNavigation } from '@react-navigation/native'
+import { useNavigation, useRoute } from '@react-navigation/native'
 import axios from 'axios'
 import * as SecureStore from "expo-secure-store"
 import { Eye, EyeClosed } from 'lucide-react-native'
@@ -16,9 +16,14 @@ const RegisterScreen = () => {
     const [loading, setLoading] = useState(false)
     const [passStatus, setPassStatus] = useState(true)
     const [confirmPassStatus, setConfirmPassStatus] = useState(true)
-    const navigation = useNavigation()
+  const navigation = useNavigation()
+  const route = useRoute()
+  // role param if user selected before navigating; default to client (1)
+  const selectedRoleParam = route.params?.role
+  const selectedRole = selectedRoleParam ?? 1
 
-    const API_URL = process.env.EXPO_PUBLIC_API_URL;
+  // fallback API URL if env var is not set (use emulator loopback by default)
+  const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8000'
 
 
     const handleRegister = async () => {
@@ -32,7 +37,7 @@ const RegisterScreen = () => {
         password,
         password_confirmation: passwordConfirmation,
         device_name: `${Platform.OS} ${Platform.Version}`,
-        role: 0,
+        role: selectedRole,
         phone_number: phone
       }, {
                 headers: {
@@ -41,23 +46,30 @@ const RegisterScreen = () => {
             })
 
             const access_token = response.data.token
-            console.log(access_token)
+            console.log('register token', access_token)
 
             await SecureStore.setItemAsync('token', access_token)
-            .then(() => navigation.replace("Home"))
-            .catch(err => console.error(err))
-
-            
-        } 
-        catch (error) {
-            console.log(error.response.data)
-            if(error.response.status === 422){
-                setErrors(error.response.data)
+            // navigate according to selected role (owner=0 -> HomeForPO, client=1 -> Home)
+            if (selectedRole === 0) {
+              navigation.replace('HomeForPO')
+            } else {
+              navigation.replace('Home')
             }
-                
+
+        } catch (error) {
+            console.log('Register error', error?.response || error.message)
+            if (error?.response) {
+                if (error.response.status === 422) {
+                    setErrors(error.response.data)
+                } else {
+                    setErrors({ message: error.response.data?.message || 'Server error' })
+                }
+            } else {
+                setErrors({ message: 'Network error — check API host and connectivity' })
+            }
         } finally {
             setLoading(false)
-        } 
+        }
     }
   return (
     <KeyboardAvoidingView
@@ -66,7 +78,12 @@ const RegisterScreen = () => {
     >
     <View style={styles.innerContainer}>
         <Text style={styles.title}>Greetings</Text>
-        <Text style={styles.subTitle}>Register to Continue</Text>
+          <Text style={styles.subTitle}>Register to Continue</Text>
+          {selectedRoleParam !== undefined && (
+            <Text style={styles.roleInfo}>{selectedRole === 0 ? 'Signing in as Property Owner' : 'Signing in as Client'}</Text>
+          )}
+
+          {errors?.message && <Text style={styles.errorText}>{errors.message}</Text>}
 
          <TextInput 
             placeholder='Name'
@@ -75,7 +92,7 @@ const RegisterScreen = () => {
             value={name}
             onChangeText={(text) => setName(text)}
         />
-        {errors && Object.keys(errors).length > 0 && errors.errors.name && (
+        {errors?.errors?.name && (
         <Text style={styles.errorText}>{errors.errors.name}</Text>
       )}
       <TextInput 
@@ -87,7 +104,7 @@ const RegisterScreen = () => {
         onChangeText={(text) => setEmail(text)}
         autoCapitalize='none'
       />
-      {errors && Object.keys(errors).length > 0 && errors.errors.email && (
+      {errors?.errors?.email && (
         <Text style={styles.errorText}>{errors.errors.email}</Text>
       )}
 
@@ -108,9 +125,9 @@ const RegisterScreen = () => {
             value={password}
             onChangeText={(text) => setPassword(text)}
         />
-        {errors && Object.keys(errors).length > 0 && errors.errors.password && (
-            <Text style={styles.errorText}>{errors.errors.password}</Text>
-        )}
+    {errors?.errors?.password && (
+      <Text style={styles.errorText}>{errors.errors.password}</Text>
+    )}
         <TouchableOpacity onPress={() => setPassStatus(!passStatus)}>
             {passStatus ? <EyeClosed color="#666" /> : <Eye color="#666" />}
         </TouchableOpacity>
@@ -138,7 +155,7 @@ const RegisterScreen = () => {
       </TouchableOpacity>
 
       <Text style={styles.footerText}>
-        Already have an account? <Text style={styles.linkText} onPress={() => navigation.replace("Login")}>Log In</Text>
+        Already have an account? <Text style={styles.linkText} onPress={() => navigation.replace("Login", { role: selectedRole })}>Log In</Text>
       </Text>
     </View>
     </KeyboardAvoidingView>

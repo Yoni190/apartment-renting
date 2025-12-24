@@ -72,6 +72,37 @@ Route::get('/apartment-list', function () {
     return $apartments;
 });
 
+// get apartments for authenticated owner
+Route::middleware('auth:sanctum')->get('/my-apartments', function (Request $request) {
+    $user = $request->user();
+    $apartments = Apartment::where('user_id', $user->id)->get();
+    $apartments->load('images');
+    return $apartments;
+});
+
+// create a new apartment (owner)
+Route::middleware('auth:sanctum')->post('/apartments', function (Request $request) {
+    $user = $request->user();
+
+    $request->validate([
+        'title' => ['required', 'string', 'max:255'],
+        'address' => ['nullable', 'string', 'max:255'],
+        'price' => ['nullable', 'string', 'max:100'],
+        'description' => ['nullable', 'string'],
+    ]);
+
+    $apartment = Apartment::create([
+        'title' => $request->title,
+        'address' => $request->address,
+        'price' => $request->price,
+        'description' => $request->description,
+        'user_id' => $user->id,
+        'status' => 'active'
+    ]);
+
+    return response()->json($apartment, 201);
+});
+
 
 Route::post('/login', function (Request $request) {
     $request->validate([

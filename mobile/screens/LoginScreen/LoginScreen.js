@@ -1,6 +1,6 @@
 import { KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
-import { useNavigation } from '@react-navigation/native'
+import { useNavigation, useRoute } from '@react-navigation/native'
 import axios from 'axios'
 import * as SecureStore from "expo-secure-store"
 import { Eye, EyeClosed } from 'lucide-react-native'
@@ -12,42 +12,72 @@ const LoginScreen = () => {
     const [errors, setErrors] = useState({})
     const [loading, setLoading] = useState(false)
     const [passStatus, setPassStatus] = useState(true)
-    const navigation = useNavigation()
+  const navigation = useNavigation()
+  const route = useRoute()
+  // role the user selected before arriving to Login (may be undefined)
+  const selectedRoleParam = route.params?.role
 
-    const API_URL = process.env.EXPO_PUBLIC_API_URL;
+    // fallback API URL if env var is not set (common for emulator/device setups)
+    const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8000'
 
 
     const handleLogin = async () => {
         setErrors({})
         setLoading(true)
-        try {
-            const response = await axios.post(`${API_URL}/login`, {
-                email,
-                password,
-                device_name: `${Platform.OS} ${Platform.Version}`
-            }, {
-                headers: {
-                    Accept: "application/json"
-                }
-            })
+    try {
+      const response = await axios.post(`${API_URL}/login`, {
+        email,
+        password,
+        device_name: `${Platform.OS} ${Platform.Version}`
+      }, {
+        headers: {
+          Accept: "application/json"
+        }
+      })
 
-            const access_token = response.data
-            console.log(access_token)
+      const access_token = response.data
+      console.log('login token', access_token)
 
-            await SecureStore.setItemAsync('token', access_token)
-            .then(() => navigation.replace("Home"))
-            .catch(err => console.error(err))
+      await SecureStore.setItemAsync('token', access_token)
+          // if a role was selected before logging in, honor that selection
+          if (selectedRoleParam !== undefined) {
+            if (selectedRoleParam === 0) navigation.replace('HomeForPO')
+            else navigation.replace('Home')
+          } else {
+            // otherwise fetch the user to determine role and redirect accordingly
+            try {
+              const userRes = await axios.get(`${API_URL}/user`, {
+                headers: { Accept: 'application/json', Authorization: `Bearer ${access_token}` }
+              })
+              const user = userRes.data
+              if (user?.role === 0) {
+                navigation.replace('HomeForPO')
+              } else {
+                navigation.replace('Home')
+              }
+            } catch (err) {
+              console.warn('Failed to fetch user after login', err?.message)
+              navigation.replace('Home')
+            }
+          }
 
             
-        } 
-        catch (error) {
-            if(error.response.status === 422){
-                setErrors(error.response.data)
-            }
-                
-        } finally {
-            setLoading(false)
-        } 
+    } catch (error) {
+      console.log('Login error', error?.response || error.message)
+      if (error?.response) {
+        if (error.response.status === 422) {
+          setErrors(error.response.data)
+        } else if (error.response.status === 401) {
+          setErrors({ message: 'Invalid credentials' })
+        } else {
+          setErrors({ message: error.response.data?.message || 'Server error' })
+        }
+      } else {
+        setErrors({ message: 'Network error — check API host and connectivity' })
+      }
+    } finally {
+      setLoading(false)
+    }
     }
   return (
     <KeyboardAvoidingView
@@ -57,6 +87,11 @@ const LoginScreen = () => {
     <View style={styles.innerContainer}>
         <Text style={styles.title}>Welcome Back</Text>
         <Text style={styles.subTitle}>Login to Continue</Text>
+        {selectedRoleParam !== undefined && (
+          <Text style={styles.roleInfo}>{selectedRoleParam === 0 ? 'Logging in as Property Owner' : 'Logging in as Client'}</Text>
+        )}
+
+        {errors?.message && <Text style={styles.errorText}>{errors.message}</Text>}
 
       <TextInput 
         placeholder='Email Address'
@@ -67,7 +102,7 @@ const LoginScreen = () => {
         onChangeText={(text) => setEmail(text)}
         autoCapitalize='none'
       />
-      {errors && Object.keys(errors).length > 0 && errors.errors.email && (
+      {errors?.errors?.email && (
         <Text style={styles.errorText}>{errors.errors.email}</Text>
       )}
       
@@ -84,7 +119,7 @@ const LoginScreen = () => {
         </TouchableOpacity>
         </View>
       
-      {errors && Object.keys(errors).length > 0 && errors.errors.password && (
+      {errors?.errors?.password && (
         <Text style={styles.errorText}>{errors.errors.password}</Text>
       )}
 
@@ -97,7 +132,7 @@ const LoginScreen = () => {
       </TouchableOpacity>
 
       <Text style={styles.footerText}>
-        Don't have an account? <Text style={styles.linkText} onPress={() => navigation.replace("Register")}>Sign Up</Text>
+        Don't have an account? <Text style={styles.linkText} onPress={() => navigation.replace("Register", { role: selectedRoleParam ?? 1 })}>Sign Up</Text>
       </Text>
     </View>
     </KeyboardAvoidingView>

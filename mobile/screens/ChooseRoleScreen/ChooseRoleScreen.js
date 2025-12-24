@@ -7,13 +7,15 @@ import styles from './ChooseRoleScreenStyle'
 const ChooseRoleScreen = () => {
     const navigation = useNavigation()
 
-    const handleApartment = () => {
-        console.log("Owner")
-    }
+  const handleApartment = () => {
+  // navigate to the shared Login screen but indicate role = 0 (property owner)
+  navigation.navigate('Login', { role: 0 })
+  }
 
-    const handleRenter = () => {
-        navigation.navigate('Login')
-    }
+  const handleRenter = () => {
+  // navigate to Login with role = 1 (client/renter)
+  navigation.navigate('Login', { role: 1 })
+  }
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.btn} onPress={handleApartment}>

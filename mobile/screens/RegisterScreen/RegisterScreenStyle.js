@@ -50,6 +50,12 @@ export default StyleSheet.create({
         color: '#666',
         marginBottom: 30
     },
+    roleInfo: {
+        textAlign: 'center',
+        color: '#444',
+        marginBottom: 14,
+        fontWeight: '600'
+    },
     footerText: {
         textAlign: 'center',
         marginTop: 20,

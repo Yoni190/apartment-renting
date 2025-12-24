@@ -12,6 +12,8 @@ import HomeScreen from './screens/HomeScreen/HomeScreen';
 import { useEffect } from 'react';
 import * as NavigationBar from 'expo-navigation-bar'
 import EditProfileScreen from './screens/EditProfileScreen/EditProfileScreen';
+import HomeForPO from './screens/HomeForPO/HomeForPO';
+import AddListing from './screens/AddListing/AddListing';
 
 
 const Stack = createStackNavigator()
@@ -32,7 +34,9 @@ export default function App() {
         <Stack.Screen name="ChooseRole" component={ChooseRoleScreen} />
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Register" component={RegisterScreen} />
-        <Stack.Screen name="Home" component={HomeTabs} options={{ headerShown: false }}/>
+  <Stack.Screen name="Home" component={HomeTabs} options={{ headerShown: false }}/>
+  <Stack.Screen name="HomeForPO" component={HomeForPO} options={{ headerShown: false }} />
+  <Stack.Screen name="AddListing" component={AddListing} options={{ headerShown: false }} />
         <Stack.Screen name="EditProfile" component={EditProfileScreen} />
       </Stack.Navigator>
     </NavigationContainer>
