@@ -44,6 +44,8 @@ export default function App() {
         <Stack.Screen name="Home" component={HomeTabs} options={{ headerShown: false }}/>
         <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ headerShown: false }}/>
         <Stack.Screen name="ApartmentDetails" component={ApartmentDetails} options={{ headerShown: false }}/>
+        
+      
       </Stack.Navigator>
     </NavigationContainer>
     </SafeAreaProvider>
