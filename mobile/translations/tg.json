@@ -1,0 +1,16 @@
+{
+    "profile": "ፕሮፋይል",
+  "editProfile": "ፕሮፋይል ምቅያር",
+  "history": "ታሪክ",
+  "settings": "ማቀናበሪያ",
+  "logOut": "ውጣ",
+  "logOutQuestion": "ማለፊያ ውጣ?",
+  "logOutMessage": "ካብ ኣካውንትካ ክትወጽእ ከም እትደሊ ርግጸኛ ዲኻ?",
+  "cancel": "ሰርዝ",
+  "logoutConfirmation":  "ካብ ኣካውንትካ ክትወጽእ ከም እትደሊ ርግጸኛ ዲኻ?",
+  "favourites": "ፍቱዋት",
+  "messages": "መልእኽታት",
+  "no_messages_yet": "ክሳብ ሕጂ መልእኽቲ የለን",
+  "logout": "ውጻእ",
+  "chooseLanguage": "ቋንቋ ምረጽ"
+}

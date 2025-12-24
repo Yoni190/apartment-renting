@@ -6,6 +6,7 @@ import { I18nManager } from 'react-native';
 
 import en from './translations/en.json';
 import am from './translations/am.json';
+import tg from './translations/tg.json';
 
 const LANGUAGE_KEY = 'appLanguage';
 
@@ -24,9 +25,12 @@ const languageDetector = {
       // 2. Detect device language
       let deviceLang = 'en';
       const locales = RNLocalize.getLocales();
+
       if (Array.isArray(locales) && locales.length > 0) {
         const firstLang = locales[0].languageCode;
+
         if (firstLang === 'am') deviceLang = 'am';
+        else if (firstLang === 'ti') deviceLang = 'tg';
       }
 
       // 3. Call the callback
@@ -49,7 +53,11 @@ i18n
   .use(initReactI18next)
   .init({
     compatibilityJSON: 'v3',
-    resources: { en: { translation: en }, am: { translation: am } },
+    resources: {
+      en: { translation: en },
+      am: { translation: am },
+      tg: { translation: tg },
+    },
     fallbackLng: 'en',
     interpolation: { escapeValue: false },
     react: { useSuspense: false },

@@ -121,6 +121,7 @@ const ProfileScreen = () => {
           >
             <Picker.Item label="English" value="en" />
             <Picker.Item label="ኣማርኛ" value="am" />
+            <Picker.Item label="ትግርኛ" value="tg" />
           </Picker>
         </View>
       </View>
