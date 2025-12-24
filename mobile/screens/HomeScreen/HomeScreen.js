@@ -1,10 +1,11 @@
-import { Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Alert } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import * as SecureStore from "expo-secure-store"
 import axios from 'axios'
 import { useNavigation } from '@react-navigation/native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import styles from './HomeScreenStyle'
+import { Ionicons } from '@expo/vector-icons'
 import Header from '../../components/Header'
 import { SlidersHorizontal, ToolCase } from 'lucide-react-native'
 
@@ -93,7 +94,20 @@ const HomeScreen = () => {
       getUser()
     }, [])
     
-  return (
+    const toggleFavorite = (title) => {
+      // naive favorite toggle by title for demo; replace with persistent store
+      setApartments(prev => prev.map(a => a.title === title ? { ...a, fav: !a.fav } : a))
+    }
+
+    const openContacts = (apartment) => {
+      Alert.alert('Contact', apartment.contact_phone ?? 'No contact')
+    }
+
+    const openMessage = (apartment) => {
+      navigation.navigate('Messages')
+    }
+
+    return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
       <ScrollView showsVerticalScrollIndicator={false}> 
         <Header 
@@ -131,26 +145,34 @@ const HomeScreen = () => {
         <Text style={styles.title}>Apartments</Text>
         <View style={styles.apartmentsContainer}>
           {apartments.map((apartment) => 
-            <TouchableOpacity key={apartment.title} style={styles.apartments} activeOpacity={0.8}>
-              {/* Top Part */}
+            <View key={apartment.title} style={styles.apartments}>
               <View>
                 <Image 
                   source={require('../../assets/apartment_dummy.jpeg')}
                   resizeMode='cover'
                   style={styles.recommendationsImage}
                 />
+                <TouchableOpacity style={styles.heartWrap} onPress={() => toggleFavorite(apartment.title)}>
+                  <Ionicons name={apartment.fav ? 'heart' : 'heart-outline'} size={22} color={apartment.fav ? '#e0245e' : '#fff'} />
+                </TouchableOpacity>
               </View>
-              {/* Bottom Part */}
-              <View>
-                <Text>{apartment.title}</Text>
+              <View style={{ paddingTop: 8 }}>
+                <Text style={styles.apartmentTitle}>{apartment.title}</Text>
                 <View style={styles.apartmentInfo}>
-                  <Text>{apartment.address}</Text>
+                  <Text style={{ flex: 1 }}>{apartment.address}</Text>
                   <Text>{apartment.price}</Text>
                 </View>
+                <Text numberOfLines={2} style={{ marginTop: 6 }}>{apartment.description ?? ''}</Text>
+                <View style={{ flexDirection: 'row', marginTop: 8 }}>
+                  <TouchableOpacity style={[styles.msgBtn, { backgroundColor: '#9fc5f8' }]} onPress={() => openMessage(apartment)}>
+                    <Text style={{ color: '#fff', fontWeight: '700' }}>Message</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={[styles.msgBtn, { backgroundColor: '#eee', marginLeft: 8 }]} onPress={() => openContacts(apartment)}>
+                    <Text style={{ color: '#333', fontWeight: '700' }}>Contacts</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-              
-            </TouchableOpacity>
-
+            </View>
           )}
         </View>
       </ScrollView>

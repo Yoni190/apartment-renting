@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { View, Text, ScrollView, TouchableOpacity, Image } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, Image, Alert } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Header from '../../components/Header'
 import styles from './HomeForPOStyle'
@@ -58,15 +58,32 @@ const HomeForPO = () => {
             </TouchableOpacity>
           </View>
         ) : (
-          listings.map((item, idx) => (
-            <TouchableOpacity key={idx} style={styles.card} activeOpacity={0.9}>
-              <Image source={require('../../assets/apartment_dummy.jpeg')} style={styles.cardImage} />
-              <View style={styles.cardBody}>
-                <Text style={styles.cardTitle}>{item.title ?? item.name ?? 'Listing'}</Text>
-                <Text style={styles.cardSubtitle}>{item.address ?? item.location ?? ''}</Text>
+          <View style={styles.apartmentsContainer}>
+            {listings.map((item, idx) => (
+              <View key={idx} style={styles.apartmentCard}>
+                <Image source={ (item.images && item.images[0]) ? { uri: (item.images[0].url || item.images[0].path || item.images[0].filename) } : require('../../assets/apartment_dummy.jpeg') } style={styles.apartmentImage} />
+                <View style={styles.apartmentBody}>
+                  <View style={styles.rowBetween}>
+                    <Text style={styles.priceText}>{item.price ?? ''}</Text>
+                    <Text style={styles.bedText}>{item.bedrooms ?? ''} bd</Text>
+                  </View>
+                  <Text style={styles.apartmentTitle}>{item.title}</Text>
+                  <Text style={styles.addressText}>{item.address}</Text>
+                  <Text style={styles.subCityText}>{item.location?.sub_city ?? ''}</Text>
+                  <Text style={styles.descriptionText} numberOfLines={2}>{item.description}</Text>
+
+                  <View style={styles.cardActions}>
+                    <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#9fc5f8' }]} onPress={() => navigation.navigate('OwnerMessages') }>
+                      <Text style={styles.actionText}>Message</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#eee' }]} onPress={() => Alert.alert('Contact', item.contact_phone ?? 'No contact') }>
+                      <Text style={[styles.actionText, { color: '#333' }]}>Contacts</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
               </View>
-            </TouchableOpacity>
-          ))
+            ))}
+          </View>
         )}
       </ScrollView>
     </SafeAreaView>

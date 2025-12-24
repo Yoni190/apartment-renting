@@ -59,4 +59,36 @@ export default StyleSheet.create({
 
   cardTitle: { fontSize: 16, fontWeight: '600', marginBottom: 4 },
   cardSubtitle: { color: '#666' }
+,
+  apartmentsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between'
+  },
+  apartmentCard: {
+    width: '48%',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    overflow: 'hidden',
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: '#eee'
+  },
+  apartmentImage: {
+    width: '100%',
+    height: 140
+  },
+  apartmentBody: {
+    padding: 10
+  },
+  rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
+  priceText: { fontWeight: '700', color: '#1a73e8' },
+  bedText: { color: '#666' },
+  apartmentTitle: { fontSize: 14, fontWeight: '700', marginBottom: 4 },
+  addressText: { color: '#666', fontSize: 12 },
+  subCityText: { color: '#666', fontSize: 12 },
+  descriptionText: { color: '#444', marginTop: 6 },
+  cardActions: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 },
+  actionBtn: { flex: 1, paddingVertical: 8, borderRadius: 8, alignItems: 'center', marginRight: 8 },
+  actionText: { color: '#fff', fontWeight: '700' }
 })

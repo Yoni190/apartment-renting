@@ -24,7 +24,7 @@ const OwnerTabs = () => {
       }}
     >
       <Tab.Screen
-        name="OwnerHome"
+        name="OwnerHomeTab"
         component={HomeForPO}
         options={{
           tabBarIcon: ({ focused }) => (

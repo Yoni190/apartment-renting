@@ -97,7 +97,8 @@ Route::middleware('auth:sanctum')->post('/apartments', function (Request $reques
         'price' => $request->price,
         'description' => $request->description,
         'user_id' => $user->id,
-        'status' => 'active'
+        // database column `status` is a tinyInteger; store numeric status (1 = active)
+        'status' => 1
     ]);
 
     return response()->json($apartment, 201);

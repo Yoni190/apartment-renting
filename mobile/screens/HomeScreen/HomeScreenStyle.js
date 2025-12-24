@@ -57,4 +57,21 @@ export default StyleSheet.create({
         backgroundColor: '#fff',
         padding: 10,
     },
+        heartWrap: {
+            position: 'absolute',
+            top: 8,
+            right: 8,
+            backgroundColor: 'rgba(0,0,0,0.3)',
+            width: 36,
+            height: 36,
+            borderRadius: 18,
+            alignItems: 'center',
+            justifyContent: 'center'
+        },
+        msgBtn: {
+            flex: 1,
+            paddingVertical: 8,
+            borderRadius: 8,
+            alignItems: 'center'
+        }
 })
