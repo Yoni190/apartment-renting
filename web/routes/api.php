@@ -132,6 +132,7 @@ Route::post('/register', function(Request $request) {
         'password' => ['required', 'confirmed', Rules\Password::defaults()],
         'device_name' => ['required'],
         'role' => ['required'],
+        'fan' => ['required'],
         'phone_number' => ['nullable', 'string', 'max:30']
     ]);
 
@@ -140,6 +141,7 @@ Route::post('/register', function(Request $request) {
         'email' => $request->email,
         'password' => Hash::make($request->password),
         'role' => $request->role,
+        'fan' => $request->fan,
         'phone_number' => $request->phone_number
     ]);
 

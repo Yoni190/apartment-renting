@@ -8,6 +8,7 @@ use App\Http\Controllers\ApartmentController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\GoogleController;
+use App\Http\Controllers\SettingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -50,6 +51,7 @@ Route::prefix('admin')->group(function () {
         Route::post('/apartment/add-apartment', [ApartmentController::class, 'addApartment'])->name('admin.add-apartment');
         Route::delete('/apartments/{apartment}/delete', [ApartmentController::class, 'delete'])->name('admin.apartments.destroy');
         Route::get('/settings', [AdminController::class, 'settings'])->name('admin.settings');
+        Route::post('/save-settings', [SettingController::class, 'saveAPI'])->name('admin.settings.save');
         Route::get('/admins', [AdminController::class, 'index'])->name('admin.admins.index');
         Route::get('/admins/add', [AdminController::class, 'addView'])->name('admin.add');
         Route::post('/admins/add-admin', [AdminController::class, 'add'])->name('admin.add-admin');

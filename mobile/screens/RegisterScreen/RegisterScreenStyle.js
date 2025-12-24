@@ -5,7 +5,8 @@ export default StyleSheet.create({
         flex: 1,
         justifyContent: "center",
         backgroundColor: "#F9FAFB",
-        paddingHorizontal: 25
+        paddingHorizontal: 25,
+        paddingTop: 120,
     },
     innerContainer: {
         backgroundColor: 'white',
@@ -80,5 +81,42 @@ export default StyleSheet.create({
         paddingHorizontal: 10,
         marginBottom: 10
         },
+        orRow: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            marginVertical: 18,
+        },
 
+        line: {
+            flex: 1,
+            height: 1,
+            backgroundColor: '#ccc',
+        },
+
+        orText: {
+            marginHorizontal: 10,
+            fontSize: 12,
+            color: '#555',
+        },
+          googleBtn: {
+                backgroundColor: 'white',
+                borderWidth: 1,
+                borderRadius: 12,
+                paddingVertical: 15,
+                marginTop: 10,
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: 10
+            },
+            googleBtnText: {
+                color: "black",
+                fontSize: 16,
+                fontWeight: '800',
+            },
+            googleIcon: {
+                height: 30,
+                width: 30,
+                resizeMode: 'contain'
+            }
 })

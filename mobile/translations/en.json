@@ -1,0 +1,20 @@
+{
+  "profile": "Profile",
+  "editProfile": "Edit Profile",
+  "history": "History",
+  "settings": "Settings",
+  "logOut": "Log Out",
+  "logOutQuestion": "Log Out?",
+  "logOutMessage": "Are you sure you want to log out from your account?",
+  "cancel": "Cancel",
+  "chooseLanguage": "Choose Language",
+  "logout": "Log Out",
+  "logoutConfirmation": "Are you sure you want to log out?",
+  "favourites": "Favourites",
+  "you_have_no_favourites": "You have no favourites",
+  "favouritesSubtitle": "Tap the heart icon on any\nproperty to add it to favourites",
+  "messages": "Messages",
+  "no_messages_yet": "No messages yet",
+  "no_messages_subtitle": "When someone sends you a message, it will appear here. Start a conversation to get things going!",
+  "chooseYourRole": "Choose Your Role"
+}

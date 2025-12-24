@@ -1,9 +1,10 @@
-import {StyleSheet} from 'react-native'
+import { StyleSheet } from 'react-native'
 
 export default StyleSheet.create({
     container: {
         flex: 1,
         padding: 20,
+        paddingTop: 100,
         backgroundColor: '#fff',
         alignItems: 'stretch',
         justifyContent: 'flex-start'

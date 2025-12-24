@@ -93,6 +93,11 @@ const HomeScreen = () => {
 
       getUser()
     }, [])
+
+
+    const navigateToDetails = () => {
+      navigation.navigate("ApartmentDetails")
+    }
     
     const toggleFavorite = (title) => {
       // naive favorite toggle by title for demo; replace with persistent store
@@ -109,10 +114,11 @@ const HomeScreen = () => {
 
     return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
-      <ScrollView showsVerticalScrollIndicator={false}> 
-        <Header 
+      <Header 
           title='Home'
         />
+      <ScrollView showsVerticalScrollIndicator={false}> 
+        
         <Text style={styles.title}>Recommended</Text>
         <ScrollView 
           showsHorizontalScrollIndicator={false} 
@@ -120,7 +126,11 @@ const HomeScreen = () => {
           horizontal={true}
           >
           {dummy_recommendations.map((dummy) => 
-            <TouchableOpacity style={styles.recommendations} key={dummy.name} activeOpacity={0.8}>
+            <TouchableOpacity 
+              style={styles.recommendations} 
+              key={dummy.name} 
+              activeOpacity={0.8}
+              onPress={navigateToDetails}>
               {/* Top Part */}
               <View>
                 <Image 
@@ -144,8 +154,14 @@ const HomeScreen = () => {
         
         <Text style={styles.title}>Apartments</Text>
         <View style={styles.apartmentsContainer}>
-          {apartments.map((apartment) => 
-            <View key={apartment.title} style={styles.apartments}>
+          {apartments.map((apartment) => (
+            <TouchableOpacity 
+              key={apartment.title} 
+              style={styles.apartments} 
+              activeOpacity={0.8}
+              onPress={navigateToDetails}
+            >
+            {/* Top Part */}
               <View>
                 <Image 
                   source={require('../../assets/apartment_dummy.jpeg')}
@@ -172,8 +188,8 @@ const HomeScreen = () => {
                   </TouchableOpacity>
                 </View>
               </View>
-            </View>
-          )}
+            </TouchableOpacity>
+          ))}
         </View>
       </ScrollView>
     </SafeAreaView>

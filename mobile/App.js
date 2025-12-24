@@ -15,7 +15,9 @@ import EditProfileScreen from './screens/EditProfileScreen/EditProfileScreen';
 import HomeForPO from './screens/HomeForPO/HomeForPO';
 import AddListing from './screens/AddListing/AddListing';
 import OwnerTabs from './screens/OwnerTabs'
+import ApartmentDetails from './screens/ApartmentDetails/ApartmentDetails';
 
+import './i18n';
 
 const Stack = createStackNavigator()
 
@@ -32,14 +34,15 @@ export default function App() {
     <SafeAreaProvider>
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name="ChooseRole" component={ChooseRoleScreen} />
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Register" component={RegisterScreen} />
-  <Stack.Screen name="Home" component={HomeTabs} options={{ headerShown: false }}/>
-  <Stack.Screen name="OwnerHome" component={OwnerTabs} options={{ headerShown: false }} />
-  <Stack.Screen name="HomeForPO" component={HomeForPO} options={{ headerShown: false }} />
-  <Stack.Screen name="AddListing" component={AddListing} options={{ headerShown: false }} />
-        <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+        <Stack.Screen name="Gojoye" component={ChooseRoleScreen} options={{ headerShown: false }}/>
+        <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }}/>
+        <Stack.Screen name="OwnerHome" component={OwnerTabs} options={{ headerShown: false }} />
+        <Stack.Screen name="HomeForPO" component={HomeForPO} options={{ headerShown: false }} />
+        <Stack.Screen name="AddListing" component={AddListing} options={{ headerShown: false }} />
+        <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }}/>
+        <Stack.Screen name="Home" component={HomeTabs} options={{ headerShown: false }}/>
+        <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ headerShown: false }}/>
+        <Stack.Screen name="ApartmentDetails" component={ApartmentDetails} options={{ headerShown: false }}/>
       </Stack.Navigator>
     </NavigationContainer>
     </SafeAreaProvider>

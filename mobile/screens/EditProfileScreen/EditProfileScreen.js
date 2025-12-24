@@ -5,6 +5,8 @@ import * as SecureStore from 'expo-secure-store'
 import { useNavigation } from '@react-navigation/native'
 import axios from 'axios'
 import { Eye, EyeClosed } from 'lucide-react-native'
+import Header from '../../components/Header'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 const EditProfileScreen = () => {
   const navigation = useNavigation()
@@ -47,13 +49,13 @@ const EditProfileScreen = () => {
     return true
   }
 
+
+
+
   useEffect(() => {
     const getUser = async () => {
-      const access_token = await SecureStore.getItemAsync('token')
-      if (!access_token) {
-        navigation.replace('Login')
-        return
-      }
+      const access_token = await SecureStore.getItemAsync("token")
+      if (!access_token) return navigation.replace("Login")
 
       try {
         setLoading(true)
@@ -223,6 +225,8 @@ const EditProfileScreen = () => {
   }
 
   return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#f9f9f9" }}>
+      <Header title="Edit Profile" />
     <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
       {errors?.message && <Text style={styles.errorText}>{errors.message}</Text>}
       <TextInput
@@ -319,6 +323,7 @@ const EditProfileScreen = () => {
         <Text style={styles.deleteBtnText ?? { color: '#b91c1c', fontWeight: '600' }}>Delete Account</Text>
       </TouchableOpacity>
     </ScrollView>
+    </SafeAreaView>
   )
 }
 
