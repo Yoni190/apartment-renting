@@ -3,7 +3,7 @@ import {StyleSheet} from 'react-native'
 export default StyleSheet.create({
   profileTop: {
     alignItems: "center",
-    paddingTop: 30,
+    paddingTop: 100,
     paddingBottom: 15,
   },
 
