@@ -26,15 +26,15 @@ const RegisterScreen = () => {
         setErrors({})
         setLoading(true)
         try {
-            const response = await axios.post(`${API_URL}/register`, {
-                name,
-                email,
-                password,
-                password_confirmation: passwordConfirmation,
-                device_name: `${Platform.OS} ${Platform.Version}`,
-                role: 0,
-                phone
-            }, {
+      const response = await axios.post(`${API_URL}/register`, {
+        name,
+        email,
+        password,
+        password_confirmation: passwordConfirmation,
+        device_name: `${Platform.OS} ${Platform.Version}`,
+        role: 0,
+        phone_number: phone
+      }, {
                 headers: {
                     Accept: "application/json"
                 }
