@@ -3,14 +3,14 @@ import React from 'react'
 import { Text, StyleSheet, Image } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
-const Header = ({ title }) => {
+const Header = ({ title, short }) => {
   return (
-    <SafeAreaView edges={['top']} style={styles.header}>
+    <SafeAreaView edges={['top']} style={[styles.header, short ? styles.headerShort : null]}>
       <Image
         source={require('../assets/logo.png')}
-        style={styles.logo}
+        style={[styles.logo, short ? styles.logoShort : null]}
       />
-      <Text style={styles.title}>{title}</Text>
+      <Text style={[styles.title, short ? styles.titleShort : null]}>{title}</Text>
     </SafeAreaView>
   )
 }
@@ -30,6 +30,11 @@ const styles = StyleSheet.create({
     zIndex: 1000,
   },
 
+  headerShort: {
+    height: 64,
+    paddingTop: 6,
+  },
+
   logo: {
     position: 'absolute',
     top: 30,
@@ -39,9 +44,19 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
 
+  logoShort: {
+    top: 12,
+    width: 44,
+    height: 44,
+  },
+
   title: {
     fontSize: 18,
     fontWeight: '600',
     color: 'white',
+  },
+
+  titleShort: {
+    fontSize: 16,
   },
 })

@@ -34,6 +34,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/home', [HomeController::class, 'home'])
         ->name('user.renter.home');
     Route::post('/logout', [HomeController::class, 'logout'])->name('logout');
+    // Owner area
+    Route::get('/owner/dashboard', [App\Http\Controllers\OwnerController::class, 'dashboard'])->name('owner.dashboard');
+        Route::get('/owner/listing/{apartment}', [App\Http\Controllers\OwnerController::class, 'showListing'])->name('owner.listing.show');
+        Route::get('/owner/booking/{booking}/client', [App\Http\Controllers\OwnerController::class, 'clientProfile'])->name('owner.booking.client');
+    // Tour booking routes (clients)
+    Route::get('/apartments/{apartment}/book-tour', [App\Http\Controllers\TourBookingController::class, 'create'])->name('bookings.create');
+    Route::post('/apartments/{apartment}/book-tour', [App\Http\Controllers\TourBookingController::class, 'store'])->name('bookings.store');
 });
 
 Route::prefix('admin')->group(function () {

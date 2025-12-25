@@ -1,9 +1,52 @@
-import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native'
-import React from 'react'
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, FlatList, Image, ActivityIndicator } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import Header from '../../components/Header'
 import { ArrowUpDown, SlidersHorizontal, Search } from 'lucide-react-native'
+import axios from 'axios'
+import * as SecureStore from 'expo-secure-store'
+import { useNavigation } from '@react-navigation/native'
+
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8000'
 
 const SearchScreen = () => {
+  const navigation = useNavigation()
+  const [bookings, setBookings] = useState([])
+  const [loadingBookings, setLoadingBookings] = useState(false)
+
+  useEffect(() => {
+    (async () => {
+      const token = await SecureStore.getItemAsync('token')
+      if (!token) return
+      setLoadingBookings(true)
+      try {
+        const res = await axios.get(`${API_URL}/owner/bookings`, { headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } })
+        setBookings(res.data.bookings || [])
+      } catch (e) {
+        console.warn('Failed to fetch owner bookings', e.message)
+      } finally {
+        setLoadingBookings(false)
+      }
+    })()
+  }, [])
+
+  const renderBookingItem = ({ item }) => {
+    const scheduled = item.scheduled_at ? new Date(item.scheduled_at) : null
+    const listing = item.listing || {}
+    const client = item.user || {}
+    return (
+      <TouchableOpacity style={styles.bookingCard} onPress={() => navigation.navigate('ApartmentDetails', { listingId: listing.id })}>
+        {listing.images && listing.images[0] && (
+          <Image source={{ uri: listing.images[0].url || `${API_URL}/storage/${listing.images[0].path}` }} style={styles.bookingThumb} />
+        )}
+        <View style={{ flex: 1 }}>
+          <Text style={styles.bookingTitle}>{listing.title || 'Listing'}</Text>
+          <Text style={styles.bookingMeta}>{client.name || client.email || 'Client'} • {scheduled ? scheduled.toLocaleString() : 'n/a' }</Text>
+          <Text style={styles.bookingStatus}>{item.status ? item.status.toUpperCase() : 'PENDING'}</Text>
+        </View>
+      </TouchableOpacity>
+    )
+  }
+
   return (
     <View style={{ flex: 1, backgroundColor: '#f9f9f9' }}>
       <Header title="Search" />
@@ -30,6 +73,25 @@ const SearchScreen = () => {
           <ArrowUpDown size={20} color="#333" />
         </TouchableOpacity>
 
+      </View>
+
+      {/* Owner bookings: Requested Tours */}
+      <View style={{ paddingHorizontal: 16, paddingTop: 12 }}>
+        <Text style={{ fontSize: 18, fontWeight: '700', marginBottom: 8 }}>Requested Tours</Text>
+        {loadingBookings ? (
+          <ActivityIndicator />
+        ) : bookings.length === 0 ? (
+          <Text style={{ color: '#6b7280' }}>No tour requests yet.</Text>
+        ) : (
+          <FlatList
+            data={bookings}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            keyExtractor={(b) => String(b.id)}
+            renderItem={renderBookingItem}
+            contentContainerStyle={{ paddingBottom: 8 }}
+          />
+        )}
       </View>
 
       <View style={styles.emptyState}>
@@ -110,4 +172,37 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 20,
   },
+  bookingCard: {
+    width: 280,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 12,
+    marginRight: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    elevation: 2,
+  },
+  bookingThumb: {
+    width: 64,
+    height: 64,
+    borderRadius: 8,
+    marginRight: 12,
+    backgroundColor: '#e5e7eb'
+  },
+  bookingTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#0f172a'
+  },
+  bookingMeta: {
+    fontSize: 13,
+    color: '#6b7280',
+    marginTop: 4,
+  },
+  bookingStatus: {
+    marginTop: 6,
+    fontSize: 12,
+    color: '#1778f2',
+    fontWeight: '700'
+  }
 })

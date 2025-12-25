@@ -404,4 +404,60 @@ export default StyleSheet.create({
     fontWeight: '700',
     color: '#1778f2',
   },
+  // Tour panel styles (date pills + time pills)
+  tourPanelOverlay: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 16,
+  },
+  tourPanel: {
+    width: '100%',
+    maxWidth: 720,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+  },
+  datePillsRow: {
+    paddingBottom: 8,
+    alignItems: 'center',
+    gap: 8,
+  },
+  datePill: {
+    backgroundColor: '#f8fafc',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    marginRight: 8,
+  },
+  datePillActive: {
+    backgroundColor: '#1778f2',
+    color: '#fff',
+  },
+  showMoreButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  showMoreText: {
+    color: '#1778f2',
+    fontWeight: '700',
+  },
+  timePillsWrap: {
+    marginTop: 12,
+  },
+  timePill: {
+    backgroundColor: '#f1f5f9',
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 10,
+    marginRight: 8,
+    marginBottom: 8,
+  },
 })

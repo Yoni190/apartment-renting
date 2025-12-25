@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use App\Models\Apartment;
+use App\Models\ListingOpenHour;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Rules;
@@ -184,6 +186,61 @@ Route::middleware('auth:sanctum')->post('/apartments', function (Request $reques
         }
     }
 
+    // If owner provided open_for_tour metadata, create listing_open_hours entries.
+    // Expected shape: open_for_tour: { date_from, date_to, time_from, time_to }
+    if (!empty($meta['open_for_tour'])) {
+        $oft = $meta['open_for_tour'];
+        if (is_string($oft)) {
+            $oft = json_decode($oft, true);
+        }
+        if (is_array($oft)) {
+            $timeFrom = $oft['time_from'] ?? null;
+            $timeTo = $oft['time_to'] ?? null;
+            $dateFrom = $oft['date_from'] ?? null;
+            $dateTo = $oft['date_to'] ?? null;
+
+            if ($timeFrom && $timeTo) {
+                // normalize to HH:MM:SS
+                $fmtTimeFrom = strlen($timeFrom) === 5 ? $timeFrom . ':00' : $timeFrom;
+                $fmtTimeTo = strlen($timeTo) === 5 ? $timeTo . ':00' : $timeTo;
+
+                $days = [];
+                if ($dateFrom && $dateTo) {
+                    try {
+                        $start = Carbon::parse($dateFrom);
+                        $end = Carbon::parse($dateTo);
+                        for ($d = $start->copy(); $d->lte($end); $d->addDay()) {
+                            $days[] = $d->dayOfWeek;
+                        }
+                        $days = array_values(array_unique($days));
+                    } catch (\Exception $e) {
+                        // fallback: make available all days
+                        $days = range(0,6);
+                    }
+                } else {
+                    // if no dates provided, assume owner meant all days of the week
+                    $days = range(0,6);
+                }
+
+                foreach ($days as $dow) {
+                    $exists = ListingOpenHour::where('listing_id', $apartment->id)
+                        ->where('day_of_week', $dow)
+                        ->where('start_time', $fmtTimeFrom)
+                        ->where('end_time', $fmtTimeTo)
+                        ->exists();
+                    if (!$exists) {
+                        ListingOpenHour::create([
+                            'listing_id' => $apartment->id,
+                            'day_of_week' => $dow,
+                            'start_time' => $fmtTimeFrom,
+                            'end_time' => $fmtTimeTo,
+                        ]);
+                    }
+                }
+            }
+        }
+    }
+
     $apartment->load('images');
 
     return response()->json($apartment, 201);
@@ -283,3 +340,9 @@ Route::middleware('auth:sanctum')->get('/favorites', function (Request $request)
     
     return $apartments;
 });
+
+// Tour booking API (mobile clients)
+Route::get('/apartments/{apartment}/open-hours', [App\Http\Controllers\Api\TourBookingApiController::class, 'openHours']);
+Route::middleware('auth:sanctum')->post('/apartments/{apartment}/book-tour', [App\Http\Controllers\Api\TourBookingApiController::class, 'store']);
+// Owner bookings (authenticated)
+Route::middleware('auth:sanctum')->get('/owner/bookings', [App\Http\Controllers\Api\TourBookingApiController::class, 'ownerBookings']);

@@ -19,6 +19,7 @@ import axios from 'axios'
 import * as SecureStore from 'expo-secure-store'
 import Header from '../../components/Header'
 import styles from './ApartmentDetailsStyle'
+import DateTimePickerModal from 'react-native-modal-datetime-picker'
 
 const { width } = Dimensions.get('window')
 const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8000'
@@ -40,6 +41,18 @@ export default function ApartmentDetails() {
   const [imageIndex, setImageIndex] = useState(0)
   const [isFavourite, setIsFavourite] = useState(false)
   const [favouriteLoading, setFavouriteLoading] = useState(false)
+  const [openHours, setOpenHours] = useState([])
+  const [isDatePickerVisible, setDatePickerVisible] = useState(false)
+  const [isTimePickerVisible, setTimePickerVisible] = useState(false)
+  const [selectedDate, setSelectedDate] = useState(null)
+  const [selectedTime, setSelectedTime] = useState(null)
+  const [timeSlotsModalVisible, setTimeSlotsModalVisible] = useState(false)
+  const [timeSlots, setTimeSlots] = useState([])
+  const [tourPanelVisible, setTourPanelVisible] = useState(false)
+  const [availableDates, setAvailableDates] = useState([])
+  const [showAllDates, setShowAllDates] = useState(false)
+  const [selectedDateIndex, setSelectedDateIndex] = useState(0)
+  const [bookingLoading, setBookingLoading] = useState(false)
   const flatListRef = useRef(null)
 
   useEffect(() => {
@@ -70,6 +83,21 @@ export default function ApartmentDetails() {
           } catch (e) {
             // ignore; user remains null
           }
+              // use open_for_tour from listing meta (authoritative)
+              try {
+                const oftRaw = res.data?.meta?.open_for_tour || res.data?.meta?.openForTour || null
+                let oft = null
+                if (oftRaw) {
+                  oft = typeof oftRaw === 'string' ? JSON.parse(oftRaw) : oftRaw
+                }
+                if (oft) {
+                  setOpenHours([oft]) // store single meta object for simplicity
+                } else {
+                  setOpenHours([])
+                }
+              } catch (e) {
+                setOpenHours([])
+              }
         }
       } catch (e) {
         console.warn('Failed to load listing', e.message)
@@ -254,8 +282,201 @@ export default function ApartmentDetails() {
   }
 
   const handleTour = () => {
-    Alert.alert('Request Tour', 'Tour request feature coming soon')
+    (async () => {
+      const token = await SecureStore.getItemAsync('token')
+      if (!token) {
+        Alert.alert('Login required', 'Please log in to request a tour')
+        return
+      }
+
+      if (!openHours || openHours.length === 0) {
+        Alert.alert('Not available', 'This listing does not have open hours set by the owner')
+        return
+      }
+
+      // build available dates and show the tour panel (date pills + time pills)
+      const oft = getMetaOpenForTour()
+      const dates = buildAvailableDates(oft)
+      setAvailableDates(dates)
+      setSelectedDateIndex(0)
+      setShowAllDates(false)
+      setTourPanelVisible(true)
+    })()
   }
+
+  const getMetaOpenForTour = () => {
+    try {
+      const oftRaw = listing?.meta?.open_for_tour || listing?.meta?.openForTour || null
+      if (!oftRaw) return null
+      return typeof oftRaw === 'string' ? JSON.parse(oftRaw) : oftRaw
+    } catch (e) {
+      return null
+    }
+  }
+
+  const generateTimeSlots = (timeFrom, timeTo, intervalMinutes = 30) => {
+    // timeFrom/timeTo are strings like '09:00' or '09:00:00'
+    const normalize = t => {
+      const parts = String(t).split(':')
+      const hh = parseInt(parts[0] || '0', 10)
+      const mm = parseInt(parts[1] || '0', 10)
+      return { hh, mm }
+    }
+    const from = normalize(timeFrom)
+    const to = normalize(timeTo)
+    const slots = []
+    let cur = new Date()
+    cur.setHours(from.hh, from.mm, 0, 0)
+    const end = new Date()
+    end.setHours(to.hh, to.mm, 0, 0)
+    while (cur <= end) {
+      slots.push(new Date(cur))
+      cur = new Date(cur.getTime() + intervalMinutes * 60000)
+    }
+    return slots
+  }
+
+  // Build an array of available date objects (Date) from meta.open_for_tour
+  const buildAvailableDates = (oft, maxDays = 14) => {
+    const dates = []
+    if (!oft) return dates
+    try {
+      const from = oft.date_from ? new Date(oft.date_from) : null
+      const to = oft.date_to ? new Date(oft.date_to) : null
+      if (from && to) {
+        // clamp to maxDays to avoid huge lists
+        let cur = new Date(from)
+        let added = 0
+        while (cur <= to && added < maxDays) {
+          dates.push(new Date(cur))
+          cur = new Date(cur.getTime() + 24 * 60 * 60 * 1000)
+          added++
+        }
+      } else if (from && !to) {
+        let cur = new Date(from)
+        for (let i = 0; i < maxDays; i++) {
+          dates.push(new Date(cur))
+          cur = new Date(cur.getTime() + 24 * 60 * 60 * 1000)
+        }
+      } else if (!from && to) {
+        let cur = new Date()
+        let added = 0
+        while (cur <= to && added < maxDays) {
+          dates.push(new Date(cur))
+          cur = new Date(cur.getTime() + 24 * 60 * 60 * 1000)
+          added++
+        }
+      } else {
+        // fallback: next maxDays days
+        let cur = new Date()
+        for (let i = 0; i < maxDays; i++) {
+          dates.push(new Date(cur))
+          cur = new Date(cur.getTime() + 24 * 60 * 60 * 1000)
+        }
+      }
+    } catch (e) {
+      return []
+    }
+    return dates
+  }
+
+  const formatDateShort = (d) => {
+    if (!d) return ''
+    const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
+    return `${days[d.getDay()]} ${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`
+  }
+
+  const onSelectDate = (index) => {
+    setSelectedDateIndex(index)
+  }
+
+  const submitBookingForPill = async (timeStr) => {
+    // timeStr like '09:00'
+    const dateObj = availableDates[selectedDateIndex]
+    if (!dateObj) return Alert.alert('Error', 'No date selected')
+    const combined = new Date(dateObj)
+    const parts = timeStr.split(':')
+    combined.setHours(parseInt(parts[0],10), parseInt(parts[1],10), 0, 0)
+
+    try {
+      setBookingLoading(true)
+      const token = await SecureStore.getItemAsync('token')
+      const dateStr = combined.toISOString().slice(0,10)
+      const timeOnly = combined.toTimeString().slice(0,5)
+      await axios.post(`${API_URL}/apartments/${listingId}/book-tour`, { date: dateStr, time: timeOnly }, {
+        headers: { Accept: 'application/json', Authorization: `Bearer ${token}` }
+      })
+      Alert.alert('Success', 'Tour requested — the owner will receive a notification.')
+      setTourPanelVisible(false)
+    } catch (err) {
+      console.warn('Booking failed', err.response?.data || err.message)
+      const message = err.response?.data?.message || 'Failed to request tour'
+      Alert.alert('Error', message)
+    } finally {
+      setBookingLoading(false)
+    }
+  }
+
+  const onConfirmDate = (date) => {
+    const oft = getMetaOpenForTour()
+    if (!oft) {
+      setDatePickerVisible(false)
+      Alert.alert('Not available', 'This listing does not have open for tour information set by the owner.')
+      return
+    }
+    // validate date within date_from..date_to if provided
+    if (oft.date_from || oft.date_to) {
+      const from = oft.date_from ? new Date(oft.date_from) : null
+      const to = oft.date_to ? new Date(oft.date_to) : null
+      if (from && date < new Date(from.toDateString())) {
+        Alert.alert('Invalid date', 'Selected date is before allowed window.')
+        setDatePickerVisible(true)
+        return
+      }
+      if (to && date > new Date(to.toDateString())) {
+        Alert.alert('Invalid date', 'Selected date is after allowed window.')
+        setDatePickerVisible(true)
+        return
+      }
+    }
+
+    setSelectedDate(date)
+    setDatePickerVisible(false)
+    // create timeslots from meta time range and show modal
+    const oftObj = getMetaOpenForTour()
+    const slots = generateTimeSlots(oftObj.time_from || oftObj.timeFrom, oftObj.time_to || oftObj.timeTo, 30)
+    setTimeSlots(slots)
+    setTimeSlotsModalVisible(true)
+  }
+
+  const selectTimeSlot = async (slot) => {
+    setTimeSlotsModalVisible(false)
+    if (!selectedDate) return
+    // combine selectedDate and slot time
+    const combined = new Date(selectedDate)
+    combined.setHours(slot.getHours(), slot.getMinutes(), 0, 0)
+
+    // submit booking
+    try {
+      setBookingLoading(true)
+      const token = await SecureStore.getItemAsync('token')
+      const dateStr = combined.toISOString().slice(0,10)
+      const timeStr = combined.toTimeString().slice(0,5)
+      const res = await axios.post(`${API_URL}/apartments/${listingId}/book-tour`, { date: dateStr, time: timeStr }, {
+        headers: { Accept: 'application/json', Authorization: `Bearer ${token}` }
+      })
+      Alert.alert('Success', 'Tour requested — the owner will receive a notification.')
+    } catch (err) {
+      console.warn('Booking failed', err.response?.data || err.message)
+      const message = err.response?.data?.message || 'Failed to request tour'
+      Alert.alert('Error', message)
+    } finally {
+      setBookingLoading(false)
+    }
+  }
+
+  const onCancelDate = () => setDatePickerVisible(false)
+  const onCancelTime = () => setTimePickerVisible(false)
 
   const handleMessage = () => {
     navigation.navigate('Messages', { apartmentId: listingId })
@@ -391,6 +612,18 @@ export default function ApartmentDetails() {
 
         {/* Pricing and Floor Plans Section */}
         <View style={styles.section}>
+          {/* Unique features (owner provided) - show as bullets above floor plans */}
+          {Array.isArray(listing.meta?.unique_features) && listing.meta.unique_features.length > 0 ? (
+            <>
+              <Text style={styles.sectionTitle}>Unique features</Text>
+              <View style={{ marginBottom: 8 }}>
+                {listing.meta.unique_features.map((f, i) => (
+                  <Text key={i} style={{ marginBottom: 4 }}>• {f}</Text>
+                ))}
+              </View>
+            </>
+          ) : null}
+
           <Text style={styles.sectionTitle}>Pricing & Floor Plans</Text>
           <View style={styles.floorPlanCard}>
             {floorPlan.image && (
@@ -565,6 +798,93 @@ export default function ApartmentDetails() {
           </TouchableOpacity>
         )}
       </View>
+      {/* Date & Time pickers for booking */}
+      <DateTimePickerModal
+        isVisible={isDatePickerVisible}
+        mode="date"
+        onConfirm={onConfirmDate}
+        onCancel={onCancelDate}
+        minimumDate={(() => {
+          const oft = listing?.meta?.open_for_tour ? (typeof listing.meta.open_for_tour === 'string' ? JSON.parse(listing.meta.open_for_tour) : listing.meta.open_for_tour) : null
+          return oft && oft.date_from ? new Date(oft.date_from) : undefined
+        })()}
+        maximumDate={(() => {
+          const oft = listing?.meta?.open_for_tour ? (typeof listing.meta.open_for_tour === 'string' ? JSON.parse(listing.meta.open_for_tour) : listing.meta.open_for_tour) : null
+          return oft && oft.date_to ? new Date(oft.date_to) : undefined
+        })()}
+      />
+      {/* time is selected from generated slots modal; no free-form time picker shown */}
+
+      {/* Modal list of generated time slots (strict) */}
+      {timeSlotsModalVisible && (
+        <View style={{ position: 'absolute', left: 0, right: 0, top: 120, bottom: 0, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', alignItems: 'center' }}>
+          <View style={{ width: '90%', maxHeight: '60%', backgroundColor: '#fff', borderRadius: 8, padding: 12 }}>
+            <Text style={{ fontWeight: '600', marginBottom: 8 }}>Select a time</Text>
+            <ScrollView>
+              {timeSlots.map((s, idx) => (
+                <TouchableOpacity key={idx} onPress={() => selectTimeSlot(s)} style={{ padding: 10, borderBottomWidth: 1, borderBottomColor: '#eee' }}>
+                  <Text>{s.toTimeString().slice(0,5)}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+            <TouchableOpacity onPress={() => setTimeSlotsModalVisible(false)} style={{ marginTop: 8, padding: 8 }}>
+              <Text style={{ textAlign: 'center', color: '#d00' }}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
+
+      {/* Apartments.com-like Tour Panel: date pills + time pills */}
+      {tourPanelVisible && (
+        <View style={styles.tourPanelOverlay}>
+          <View style={styles.tourPanel}>
+            <Text style={{ fontSize: 18, fontWeight: '700', marginBottom: 8 }}>Request a tour</Text>
+            <Text style={{ color: '#6b7280', marginBottom: 12 }}>Choose a date and available time</Text>
+
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.datePillsRow}>
+              {(showAllDates ? availableDates : availableDates.slice(0,7)).map((d, i) => (
+                <TouchableOpacity
+                  key={i}
+                  style={[styles.datePill, i === selectedDateIndex && styles.datePillActive]}
+                  onPress={() => onSelectDate(i)}
+                >
+                  <Text style={[{ fontWeight: '700' }, i === selectedDateIndex && { color: '#fff' }]}>{formatDateShort(d)}</Text>
+                </TouchableOpacity>
+              ))}
+              {availableDates.length > 7 && (
+                <TouchableOpacity style={styles.showMoreButton} onPress={() => setShowAllDates(prev => !prev)}>
+                  <Text style={styles.showMoreText}>{showAllDates ? 'Show less' : `+${availableDates.length - 7} more`}</Text>
+                </TouchableOpacity>
+              )}
+            </ScrollView>
+
+            <View style={styles.timePillsWrap}>
+              {/* generate time pills from meta */}
+              {(() => {
+                const oft = getMetaOpenForTour()
+                if (!oft) return <Text style={{ color: '#6b7280' }}>No time range set</Text>
+                const slots = generateTimeSlots(oft.time_from || oft.timeFrom, oft.time_to || oft.timeTo, 30)
+                // render as 'HH:MM' pills
+                return (
+                  <ScrollView contentContainerStyle={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                    {slots.map((s, idx) => (
+                      <TouchableOpacity key={idx} style={styles.timePill} onPress={() => submitBookingForPill(`${String(s.getHours()).padStart(2,'0')}:${String(s.getMinutes()).padStart(2,'0')}`)}>
+                        <Text style={{ fontWeight: '600' }}>{`${String(s.getHours()).padStart(2,'0')}:${String(s.getMinutes()).padStart(2,'0')}`}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                )
+              })()}
+            </View>
+
+            <View style={{ marginTop: 12 }}>
+              <TouchableOpacity onPress={() => setTourPanelVisible(false)} style={{ padding: 10 }}>
+                <Text style={{ textAlign: 'center', color: '#d00' }}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      )}
     </SafeAreaView>
   )
 }

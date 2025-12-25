@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import {
   View,
   Text,
@@ -8,7 +8,10 @@ import {
   Alert,
   Image,
   Platform,
-  Modal
+  Keyboard,
+  Modal,
+  KeyboardAvoidingView,
+  findNodeHandle
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Header from '../../components/Header'
@@ -31,6 +34,22 @@ const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8000'
 
 const AddListing = () => {
   const navigation = useNavigation()
+  const scrollRef = useRef(null)
+  const HEADER_SHORT_HEIGHT = 64 // must match Header.headerShort.height
+  // input refs for auto-scroll
+  const titleRef = useRef(null)
+  const subCityRef = useRef(null)
+  const areaRef = useRef(null)
+  const landmarkRef = useRef(null)
+  const priceRef = useRef(null)
+  const depositRef = useRef(null)
+  const bedroomsRef = useRef(null)
+  const bathroomsRef = useRef(null)
+  const sizeRef = useRef(null)
+  const floorRef = useRef(null)
+  const descriptionRef = useRef(null)
+  const contactPhoneRef = useRef(null)
+  const uniqueFeatureInputRef = useRef(null)
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState([])
 
@@ -66,6 +85,18 @@ const AddListing = () => {
 
   // Description & media
   const [description, setDescription] = useState('')
+  // Unique features - owner-entered bullet points
+  const [uniqueFeatures, setUniqueFeatures] = useState([])
+  const [uniqueFeatureInput, setUniqueFeatureInput] = useState('')
+
+  const addUniqueFeature = () => {
+    const val = uniqueFeatureInput.trim()
+    if (!val) return
+    // Dismiss keyboard first to ensure input is committed
+    Keyboard.dismiss()
+    setUniqueFeatures(prev => [...prev, val])
+    setUniqueFeatureInput('')
+  }
   const [images, setImages] = useState([])
   const [premiumMessage, setPremiumMessage] = useState('')
 
@@ -95,6 +126,21 @@ const AddListing = () => {
     AMENITIES.forEach(a => (map[a] = false))
     setAmenities(map)
   }, [])
+
+  // rely on KeyboardAvoidingView to manage offsets; listeners removed to avoid extra padding
+
+  const scrollToInput = (ref) => {
+    try {
+      if (!ref || !ref.current || !scrollRef.current) return
+      const node = findNodeHandle(ref.current)
+      if (!node) return
+      // extra offset to place field comfortably above keyboard
+      const extraOffset = 5
+      scrollRef.current.getScrollResponder().scrollResponderScrollNativeHandleToKeyboard(node, HEADER_SHORT_HEIGHT + extraOffset, true)
+    } catch (e) {
+      // ignore
+    }
+  }
 
   const pickImage = async () => {
     try {
@@ -176,11 +222,15 @@ const AddListing = () => {
     // ensure we have an address string for backend (backend requires `address` non-null)
     const computedAddress = landmark.trim() ? `${area.trim()} - ${landmark.trim()}` : (area.trim() || `${subCity.trim()}, ${city}`)
     if (!computedAddress.trim()) err.push('Address is required')
-    if (!price || isNaN(Number(price))) err.push('Valid price is required')
+    const sanitizedPrice = typeof price === 'string' ? price.replace(/,/g, '') : price
+    if (!sanitizedPrice || isNaN(Number(sanitizedPrice))) err.push('Valid price is required')
     if (!bedrooms || isNaN(Number(bedrooms))) err.push('Valid number of bedrooms is required')
     if (!bathrooms || isNaN(Number(bathrooms))) err.push('Valid number of bathrooms is required')
     if (!floor || isNaN(Number(floor))) err.push('Valid floor number is required')
-    if (depositRequired && (!depositAmount || isNaN(Number(depositAmount)))) err.push('Valid deposit amount required')
+    if (depositRequired) {
+      const sanitizedDeposit = typeof depositAmount === 'string' ? depositAmount.replace(/,/g, '') : depositAmount
+      if (!sanitizedDeposit || isNaN(Number(sanitizedDeposit))) err.push('Valid deposit amount required')
+    }
     if (!description.trim()) err.push('Description is required')
     if (!contactPhone.trim()) err.push('Contact phone number is required')
     setErrors(err)
@@ -201,10 +251,11 @@ const AddListing = () => {
       formData.append('address', addressString)
       formData.append('property_type', propertyType)
       formData.append('purpose', purpose)
-      formData.append('price', String(price))
+  // remove comma thousand separators before sending
+  formData.append('price', String(price).replace(/,/g, ''))
       formData.append('payment_period', paymentPeriod)
       formData.append('deposit_required', depositRequired ? '1' : '0')
-      formData.append('deposit_amount', depositRequired ? String(Number(depositAmount)) : '0')
+  formData.append('deposit_amount', depositRequired ? String(Number(String(depositAmount).replace(/,/g, ''))) : '0')
       formData.append('bedrooms', String(Number(bedrooms)))
       formData.append('bathrooms', String(Number(bathrooms)))
       if (size) formData.append('size', String(Number(size)))
@@ -235,6 +286,11 @@ const AddListing = () => {
         time_from: tourTimeFrom ? tourTimeFrom.toTimeString().slice(0,5) : null,
         time_to: tourTimeTo ? tourTimeTo.toTimeString().slice(0,5) : null
       }))
+
+      // unique features as an array of strings
+      if (Array.isArray(uniqueFeatures) && uniqueFeatures.length > 0) {
+        formData.append('unique_features', JSON.stringify(uniqueFeatures))
+      }
 
       // Attach images as files (FormData). For PHP/Laravel, use field name "images[]"
       for (let i = 0; i < images.length; i++) {
@@ -276,8 +332,10 @@ const AddListing = () => {
 
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['top']}>
-      <ScrollView contentContainerStyle={styles.container}>
-        <Header title="Post a New Listing" />
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={'padding'} keyboardVerticalOffset={HEADER_SHORT_HEIGHT}>
+        <ScrollView ref={scrollRef} contentContainerStyle={[styles.container, { paddingBottom: 2, flexGrow: 1 }]} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag"> 
+  <Header title="Post a New Listing" short />
+  <View style={[styles.formCard, { marginTop: HEADER_SHORT_HEIGHT - 8 }]}>
 
         {errors.length > 0 && (
           <View style={styles.errorBox}>
@@ -289,8 +347,8 @@ const AddListing = () => {
 
         {/* Basic Details */}
         <Text style={styles.sectionTitle}>Basic Property Details</Text>
-        <Text style={styles.label}>Property title</Text>
-        <TextInput style={styles.input} value={title} onChangeText={setTitle} placeholder="e.g. Spacious 2-bedroom apartment" />
+  <Text style={styles.label}>Property title</Text>
+  <TextInput ref={titleRef} onFocus={() => scrollToInput(titleRef)} style={styles.input} value={title} onChangeText={setTitle} placeholder="e.g. Spacious 2-bedroom apartment" />
 
         <Text style={styles.label}>Property type</Text>
         <View style={styles.rowOptions}>
@@ -315,19 +373,19 @@ const AddListing = () => {
         <Text style={styles.label}>City</Text>
         <TextInput style={styles.input} value={city} onChangeText={setCity} />
 
-        <Text style={styles.label}>Sub-city</Text>
-        <TextInput style={styles.input} value={subCity} onChangeText={setSubCity} placeholder="e.g. Bole" />
+  <Text style={styles.label}>Sub-city</Text>
+  <TextInput ref={subCityRef} onFocus={() => scrollToInput(subCityRef)} style={styles.input} value={subCity} onChangeText={setSubCity} placeholder="e.g. Bole" />
 
-        <Text style={styles.label}>Area / Neighborhood</Text>
-        <TextInput style={styles.input} value={area} onChangeText={setArea} placeholder="e.g. Around XYZ" />
+  <Text style={styles.label}>Area / Neighborhood</Text>
+  <TextInput ref={areaRef} onFocus={() => scrollToInput(areaRef)} style={styles.input} value={area} onChangeText={setArea} placeholder="e.g. Around XYZ" />
 
-        <Text style={styles.label}>Street or landmark (optional)</Text>
-        <TextInput style={styles.input} value={landmark} onChangeText={setLandmark} placeholder="Nearby landmark or street" />
+  <Text style={styles.label}>Street or landmark (optional)</Text>
+  <TextInput ref={landmarkRef} onFocus={() => scrollToInput(landmarkRef)} style={styles.input} value={landmark} onChangeText={setLandmark} placeholder="Nearby landmark or street" />
 
         <Text style={styles.label}>Map location</Text>
         <View style={{ marginBottom: 12 }}>
-          <TouchableOpacity style={styles.optionPill} onPress={() => setShowMapModal(true)}>
-            <Text style={styles.optionText}>Open map to pick location</Text>
+          <TouchableOpacity style={[styles.optionPill, styles.mapBtn]} onPress={() => setShowMapModal(true)}>
+            <Text style={[styles.optionText, styles.mapBtnText]}>Open map to pick location</Text>
           </TouchableOpacity>
           <Text style={{ marginTop: 8, color: '#555' }}>{mapMarker ? `Selected: ${mapMarker.latitude.toFixed(5)}, ${mapMarker.longitude.toFixed(5)}` : (latitude && longitude ? `${latitude}, ${longitude}` : 'No location selected')}</Text>
         </View>
@@ -352,8 +410,8 @@ const AddListing = () => {
 
         {/* Pricing & Terms */}
         <Text style={styles.sectionTitle}>Pricing & Terms</Text>
-        <Text style={styles.label}>Price</Text>
-        <TextInput style={styles.input} value={price} onChangeText={setPrice} placeholder="Numeric amount" keyboardType={Platform.OS === 'web' ? 'default' : 'numeric'} />
+  <Text style={styles.label}>Price</Text>
+  <TextInput ref={priceRef} onFocus={() => scrollToInput(priceRef)} style={styles.input} value={price} onChangeText={setPrice} placeholder="Numeric amount" keyboardType={Platform.OS === 'web' ? 'default' : 'numeric'} />
 
         <Text style={styles.label}>Payment period</Text>
         <View style={styles.rowOptions}>
@@ -374,7 +432,7 @@ const AddListing = () => {
         {depositRequired && (
           <>
             <Text style={styles.label}>Deposit amount</Text>
-            <TextInput style={styles.input} value={depositAmount} onChangeText={setDepositAmount} keyboardType={Platform.OS === 'web' ? 'default' : 'numeric'} placeholder="e.g. 5000" />
+            <TextInput ref={depositRef} onFocus={() => scrollToInput(depositRef)} style={styles.input} value={depositAmount} onChangeText={setDepositAmount} keyboardType={Platform.OS === 'web' ? 'default' : 'numeric'} placeholder="e.g. 5000" />
           </>
         )}
 
@@ -389,17 +447,17 @@ const AddListing = () => {
 
         {/* Specifications */}
         <Text style={styles.sectionTitle}>Property Specifications</Text>
-        <Text style={styles.label}>Number of bedrooms</Text>
-        <TextInput style={styles.input} value={bedrooms} onChangeText={setBedrooms} keyboardType={Platform.OS === 'web' ? 'default' : 'numeric'} />
+  <Text style={styles.label}>Number of bedrooms</Text>
+  <TextInput ref={bedroomsRef} onFocus={() => scrollToInput(bedroomsRef)} style={styles.input} value={bedrooms} onChangeText={setBedrooms} keyboardType={Platform.OS === 'web' ? 'default' : 'numeric'} />
 
-        <Text style={styles.label}>Number of bathrooms</Text>
-        <TextInput style={styles.input} value={bathrooms} onChangeText={setBathrooms} keyboardType={Platform.OS === 'web' ? 'default' : 'numeric'} />
+  <Text style={styles.label}>Number of bathrooms</Text>
+  <TextInput ref={bathroomsRef} onFocus={() => scrollToInput(bathroomsRef)} style={styles.input} value={bathrooms} onChangeText={setBathrooms} keyboardType={Platform.OS === 'web' ? 'default' : 'numeric'} />
 
-        <Text style={styles.label}>Total size (sqm) — optional</Text>
-        <TextInput style={styles.input} value={size} onChangeText={setSize} keyboardType={Platform.OS === 'web' ? 'default' : 'numeric'} />
+  <Text style={styles.label}>Total size (sqm) — optional</Text>
+  <TextInput ref={sizeRef} onFocus={() => scrollToInput(sizeRef)} style={styles.input} value={size} onChangeText={setSize} keyboardType={Platform.OS === 'web' ? 'default' : 'numeric'} />
 
-        <Text style={styles.label}>Floor number</Text>
-        <TextInput style={styles.input} value={floor} onChangeText={setFloor} keyboardType={Platform.OS === 'web' ? 'default' : 'numeric'} />
+  <Text style={styles.label}>Floor number</Text>
+  <TextInput ref={floorRef} onFocus={() => scrollToInput(floorRef)} style={styles.input} value={floor} onChangeText={setFloor} keyboardType={Platform.OS === 'web' ? 'default' : 'numeric'} />
 
         <Text style={styles.label}>Furnishing status</Text>
         <View style={styles.rowOptions}>
@@ -420,10 +478,47 @@ const AddListing = () => {
           ))}
         </View>
 
+        {/* Unique features - bullet list input */}
+        <Text style={styles.sectionTitle}>Unique features</Text>
+        <Text style={styles.label}>Add a feature (single short line)</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+          <TextInput
+              ref={uniqueFeatureInputRef}
+              style={[styles.input, styles.featureInput, { flex: 1 }]}
+              value={uniqueFeatureInput}
+              onChangeText={setUniqueFeatureInput}
+              placeholder="e.g. Panoramic city view"
+              returnKeyType="done"
+              onFocus={() => scrollToInput(uniqueFeatureInputRef)}
+              onSubmitEditing={addUniqueFeature}
+            />
+          <TouchableOpacity
+            style={[styles.addFeatureBtn]}
+            onPress={addUniqueFeature}
+            activeOpacity={0.85}
+            accessibilityLabel="Add unique feature"
+          >
+            <Text style={styles.addFeatureBtnText}>+ Add</Text>
+          </TouchableOpacity>
+        </View>
+
+        {uniqueFeatures.length > 0 && (
+          <View style={{ marginBottom: 12 }}>
+            {uniqueFeatures.map((f, i) => (
+              <View key={i} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                <Text>• {f}</Text>
+                <TouchableOpacity onPress={() => setUniqueFeatures(prev => prev.filter((_, idx) => idx !== i))}>
+                  <Text style={{ color: '#a00' }}>Remove</Text>
+                </TouchableOpacity>
+              </View>
+            ))}
+          </View>
+        )}
+
         {/* Description & Media */}
         <Text style={styles.sectionTitle}>Description & Media</Text>
-        <Text style={styles.label}>Detailed description</Text>
-        <TextInput style={[styles.input, { height: 120 }]} value={description} onChangeText={setDescription} multiline placeholder="Describe the property, nearby facilities, transport, etc." />
+  <Text style={styles.label}>Detailed description</Text>
+  <TextInput ref={descriptionRef} onFocus={() => scrollToInput(descriptionRef)} style={[styles.input, { height: 120 }]} value={description} onChangeText={setDescription} multiline placeholder="Describe the property, nearby facilities, transport, etc." />
 
         <Text style={styles.label}>Images</Text>
         <ScrollView style={{ marginBottom: 8 }} horizontal showsHorizontalScrollIndicator={false}>
@@ -482,22 +577,29 @@ const AddListing = () => {
           ))}
         </View>
 
-        <Text style={styles.label}>Contact phone number</Text>
-        <TextInput style={styles.input} value={contactPhone} onChangeText={setContactPhone} keyboardType={Platform.OS === 'web' ? 'default' : 'phone-pad'} placeholder="e.g. +2519xxxxxxx" />
+  <Text style={styles.label}>Contact phone number</Text>
+  <TextInput ref={contactPhoneRef} onFocus={() => scrollToInput(contactPhoneRef)} style={styles.input} value={contactPhone} onChangeText={setContactPhone} keyboardType={Platform.OS === 'web' ? 'default' : 'phone-pad'} placeholder="e.g. +2519xxxxxxx" />
 
         <Text style={styles.label}>Preferred contact method</Text>
-        <View style={styles.rowOptions}>
-          {['In-app messaging only', 'Phone allowed'].map(cm => (
-            <TouchableOpacity key={cm} style={[styles.radio, contactMethod === cm && styles.radioActive]} onPress={() => setContactMethod(cm)}>
-              <Text style={contactMethod === cm ? styles.radioTextActive : styles.radioText}>{cm}</Text>
+        <View style={styles.fieldRow}>
+          <View style={styles.fieldHalf}>
+            <TouchableOpacity style={[styles.radio, contactMethod === 'In-app messaging only' && styles.radioActive, { width: '100%' }]} onPress={() => setContactMethod('In-app messaging only')}>
+              <Text style={contactMethod === 'In-app messaging only' ? styles.radioTextActive : styles.radioText}>In-app messaging only</Text>
             </TouchableOpacity>
-          ))}
+          </View>
+          <View style={styles.fieldHalf}>
+            <TouchableOpacity style={[styles.radio, contactMethod === 'Phone allowed' && styles.radioActive, { width: '100%' }]} onPress={() => setContactMethod('Phone allowed')}>
+              <Text style={contactMethod === 'Phone allowed' ? styles.radioTextActive : styles.radioText}>Phone allowed</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
+        </View>
         <TouchableOpacity style={[styles.btn, loading && { opacity: 0.6 }]} onPress={handleSubmit} disabled={loading}>
           <Text style={styles.btnText}>{loading ? 'Posting...' : 'Post Listing'}</Text>
         </TouchableOpacity>
-      </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   )
 }

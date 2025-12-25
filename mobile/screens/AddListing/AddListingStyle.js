@@ -2,9 +2,10 @@ import { StyleSheet } from 'react-native'
 
 export default StyleSheet.create({
   container: {
-    padding: 16,
-    paddingTop: 100,
+    padding: 18,
+    paddingTop: 12,
     paddingBottom: 40,
+    backgroundColor: '#f3f8ff',
   },
   label: {
     fontSize: 14,
@@ -17,15 +18,20 @@ export default StyleSheet.create({
     borderColor: '#e6e6e6',
     padding: 12,
     borderRadius: 8,
-    marginBottom: 12,
+    marginBottom: 14,
     backgroundColor: '#fff'
   },
   btn: {
-    backgroundColor: '#9fc5f8',
+    backgroundColor: '#0b69ff',
     paddingVertical: 14,
-    borderRadius: 10,
-    marginTop: 8,
-    alignItems: 'center'
+    borderRadius: 12,
+    marginTop: 18,
+    alignItems: 'center',
+    shadowColor: '#0b69ff',
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 2
   },
   btnText: {
     color: '#fff',
@@ -33,11 +39,11 @@ export default StyleSheet.create({
   }
   ,
   sectionTitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '700',
-    marginTop: 18,
+    marginTop: 12,
     marginBottom: 8,
-    color: '#222'
+    color: '#123a66'
   },
   rowOptions: {
     flexDirection: 'row',
@@ -47,13 +53,13 @@ export default StyleSheet.create({
   optionPill: {
     paddingVertical: 8,
     paddingHorizontal: 12,
-    backgroundColor: '#f2f6fb',
+    backgroundColor: '#eef6ff',
     borderRadius: 20,
     marginRight: 8,
     marginBottom: 8
   },
   optionPillActive: {
-    backgroundColor: '#9fc5f8'
+    backgroundColor: '#6ea8ff'
   },
   optionText: {
     color: '#333'
@@ -70,7 +76,7 @@ export default StyleSheet.create({
     backgroundColor: '#f7f7f7'
   },
   radioActive: {
-    backgroundColor: '#5aa0f6'
+    backgroundColor: '#2d74d6'
   },
   radioText: {
     color: '#333'
@@ -128,6 +134,75 @@ export default StyleSheet.create({
   amenityPillActive: { backgroundColor: '#9fc5f8' },
   amenityText: { color: '#333' },
   amenityTextActive: { color: '#fff' },
+  /* Unique feature UI */
+  featureInput: {
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#e6eefb',
+    backgroundColor: '#fff'
+  },
+  addFeatureBtn: {
+    marginLeft: 8,
+    backgroundColor: '#0477c9',
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  addFeatureBtnText: {
+    color: '#fff',
+    fontWeight: '700'
+  },
+  /* Form layout helpers */
+  formCard: {
+    width: '100%',
+    maxWidth: 900,
+    alignSelf: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 14,
+    padding: 18,
+    shadowColor: '#000',
+    shadowOpacity: 0.03,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: '#f0f4f8'
+  },
+  /* subtle spacing to separate header */
+  formCardTopSpacer: { marginTop: 8 },
+  sectionCard: {
+    backgroundColor: '#fafcff',
+    padding: 14,
+    borderRadius: 10,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#eef6ff'
+  },
+  fieldRow: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 10,
+  },
+  fieldHalf: {
+    flex: 1,
+  },
+  /* Map button styling */
+  mapBtn: {
+    backgroundColor: '#012a6b',
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  mapBtnText: {
+    color: '#fff',
+    fontWeight: '700'
+  },
   imagesRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
   thumb: { width: 72, height: 72, borderRadius: 8, marginRight: 8 },
   imageAdd: { width: 72, height: 72, borderRadius: 8, borderWidth: 1, borderColor: '#ddd', alignItems: 'center', justifyContent: 'center' },
@@ -135,3 +210,4 @@ export default StyleSheet.create({
   errorBox: { backgroundColor: '#fff4f4', padding: 10, borderRadius: 8, marginBottom: 12, borderWidth: 1, borderColor: '#ffd6d6' },
   errorText: { color: '#a10e0e' }
 })
+

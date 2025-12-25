@@ -36,4 +36,14 @@ class Apartment extends Model
         return $this->hasMany(ApartmentImage::class);
     }
 
+    public function openHours()
+    {
+        return $this->hasMany(ListingOpenHour::class, 'listing_id');
+    }
+
+    public function bookings()
+    {
+        return $this->hasMany(TourBooking::class, 'listing_id');
+    }
+
 }
