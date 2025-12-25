@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import { View, Text, ScrollView, TouchableOpacity, Image, Alert } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Platform } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { Ionicons } from '@expo/vector-icons'
 import Header from '../../components/Header'
 import styles from './HomeForPOStyle'
 import axios from 'axios'
@@ -46,48 +47,96 @@ const HomeForPO = () => {
   }, [isFocused])
 
   const handleAdd = () => {
-    // navigate to an Add Listing screen if you have one; placeholder for now
     if (navigation && navigation.navigate) navigation.navigate('AddListing')
   }
 
   const handleEdit = (apt) => {
-    // navigate to edit screen
-    console.log('edit', apt.id)
+    navigation.navigate('EditListing', { listingId: apt.id })
   }
+
   const handleDeactivate = (apt) => {
-    // call server to change status
     console.log('deactivate', apt.id)
   }
 
+  const activeListings = listings.filter(l => l.status === 1 || l.status === true).length
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <ScrollView contentContainerStyle={styles.content}>
-        <Header title="My Listings" />
-        <Text style={styles.sectionTitle}>Current Listings</Text>
+      <Header title="My Listings" />
+      <ScrollView 
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Stats Header Section */}
+        <View style={styles.statsContainer}>
+          <View style={styles.statCard}>
+            <View style={styles.statIconContainer}>
+              <Ionicons name="home-outline" size={24} color="#1778f2" />
+            </View>
+            <View style={styles.statContent}>
+              <Text style={styles.statNumber}>{listings.length}</Text>
+              <Text style={styles.statLabel}>Total Listings</Text>
+            </View>
+          </View>
+          <View style={styles.statCard}>
+            <View style={[styles.statIconContainer, styles.statIconActive]}>
+              <Ionicons name="checkmark-circle-outline" size={24} color="#10b981" />
+            </View>
+            <View style={styles.statContent}>
+              <Text style={[styles.statNumber, styles.statNumberActive]}>{activeListings}</Text>
+              <Text style={styles.statLabel}>Active</Text>
+            </View>
+          </View>
+        </View>
 
-        {!loading && listings.length === 0 ? (
+        {/* Section Header */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Your Properties</Text>
+          {listings.length > 0 && (
+            <Text style={styles.sectionSubtitle}>{listings.length} {listings.length === 1 ? 'property' : 'properties'}</Text>
+          )}
+        </View>
+
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#1778f2" />
+            <Text style={styles.loadingText}>Loading your listings...</Text>
+          </View>
+        ) : listings.length === 0 ? (
           <View style={styles.emptyState}>
+            <View style={styles.emptyIconContainer}>
+              <Ionicons name="home-outline" size={64} color="#cbd5e1" />
+            </View>
             <Text style={styles.emptyTitle}>No listings yet</Text>
-            <Text style={styles.emptySubtitle}>You haven't posted any listings.</Text>
-            <TouchableOpacity style={styles.addButton} onPress={handleAdd} activeOpacity={0.85}>
-              <Text style={styles.addButtonText}>ADD LISTING</Text>
+            <Text style={styles.emptySubtitle}>
+              Start by adding your first property listing. It only takes a few minutes!
+            </Text>
+            <TouchableOpacity 
+              style={styles.addButton} 
+              onPress={handleAdd} 
+              activeOpacity={0.85}
+            >
+              <Ionicons name="add-circle" size={24} color="#fff" style={styles.addButtonIcon} />
+              <Text style={styles.addButtonText}>Add Your First Listing</Text>
             </TouchableOpacity>
           </View>
         ) : (
-          <View style={{ alignItems: 'center', paddingVertical: 8 }}>
+          <View style={styles.listingsContainer}>
             {listings.map((item) => {
-              const images = (item.images || []).map(img => img.url || (img.path ? `${API_URL}/storage/${img.path}` : null)).filter(Boolean)
+              const images = (item.images || []).map(img => 
+                img.url || (img.path ? `${API_URL}/storage/${img.path}` : null)
+              ).filter(Boolean)
               const meta = item.meta || {}
 
               return (
                 <ListingCard
                   key={item.id}
                   images={images.length ? images : undefined}
-                  priceRange={item.price}
-                  bedroomRange={item.bedrooms ? `${item.bedrooms} bd` : undefined}
+                  priceRange={item.price ? `$${Number(item.price).toLocaleString()}` : undefined}
+                  bedroomRange={item.bedrooms ? `${item.bedrooms} Bed${item.bedrooms !== 1 ? 's' : ''}` : undefined}
                   title={item.title}
-                  address={item.address}
-                  amenities={meta.amenities}
+                  address={item.address || (meta.location ? `${meta.location.area || ''} ${meta.location.city || ''}`.trim() : undefined)}
+                  amenities={Array.isArray(meta.amenities) ? meta.amenities : undefined}
                   isOwnerMode={true}
                   onEdit={() => handleEdit(item)}
                   onDeactivate={() => handleDeactivate(item)}
@@ -98,6 +147,17 @@ const HomeForPO = () => {
           </View>
         )}
       </ScrollView>
+
+      {/* Floating Action Button */}
+      {!loading && (
+        <TouchableOpacity 
+          style={styles.fab} 
+          onPress={handleAdd}
+          activeOpacity={0.9}
+        >
+          <Ionicons name="add" size={32} color="#fff" />
+        </TouchableOpacity>
+      )}
     </SafeAreaView>
   )
 }
