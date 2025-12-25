@@ -689,18 +689,39 @@ export default function ApartmentDetails() {
                   </View>
                 ))
               ) : typeof listing.meta.unique_features === 'string' ? (
-                listing.meta.unique_features.split('\n').map((feature, index) => {
-                  const trimmed = feature.trim()
-                  if (!trimmed) return null
-                  // Remove bullet if already present
-                  const cleanFeature = trimmed.replace(/^[•\-\*]\s*/, '')
-                  return (
-                    <View key={index} style={styles.bulletPoint}>
-                      <Text style={styles.bullet}>•</Text>
-                      <Text style={styles.bulletText}>{cleanFeature}</Text>
-                    </View>
-                  )
-                })
+                (() => {
+                  const raw = listing.meta.unique_features
+                  // If string looks like JSON array (e.g. "[\"a\",\"b\"]"), try parse
+                  try {
+                    const maybe = raw.trim()
+                    if ((maybe.startsWith('[') && maybe.endsWith(']')) || (maybe.startsWith('{') && maybe.endsWith('}'))) {
+                      const parsed = JSON.parse(maybe)
+                      if (Array.isArray(parsed)) {
+                        return parsed.map((feature, index) => (
+                          <View key={index} style={styles.bulletPoint}>
+                            <Text style={styles.bullet}>•</Text>
+                            <Text style={styles.bulletText}>{String(feature).trim()}</Text>
+                          </View>
+                        ))
+                      }
+                    }
+                  } catch (e) {
+                    // fall through to newline split
+                  }
+
+                  return raw.split('\n').map((feature, index) => {
+                    const trimmed = feature.trim()
+                    if (!trimmed) return null
+                    // Remove bullet if already present
+                    const cleanFeature = trimmed.replace(/^[•\-\*]\s*/, '')
+                    return (
+                      <View key={index} style={styles.bulletPoint}>
+                        <Text style={styles.bullet}>•</Text>
+                        <Text style={styles.bulletText}>{cleanFeature}</Text>
+                      </View>
+                    )
+                  })
+                })()
               ) : null}
             </View>
           )}
