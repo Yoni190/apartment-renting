@@ -604,6 +604,11 @@ export default function ApartmentDetails() {
             <Text style={styles.mapButtonText}>View Map</Text>
           </TouchableOpacity>
 
+          {/* Last updated date */}
+          {listing?.updated_at && (
+            <Text style={styles.updatedText}>Last Updated: {formatDate(listing.updated_at)}</Text>
+          )}
+
           <View style={styles.ownerSection}>
             <Text style={styles.ownerLabel}>OWNED/MANAGED BY:</Text>
             <Text style={styles.ownerName}>{ownerName}</Text>

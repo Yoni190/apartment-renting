@@ -100,6 +100,12 @@ export default StyleSheet.create({
   ownerSection: {
     marginTop: 16,
   },
+  updatedText: {
+    fontSize: 12,
+    color: '#9ca3af',
+    marginTop: 8,
+    marginLeft: 2,
+  },
   ownerLabel: {
     fontSize: 12,
     fontWeight: '600',
