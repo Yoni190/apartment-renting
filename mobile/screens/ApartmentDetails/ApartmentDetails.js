@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react'
+import React, { useEffect, useState, useMemo, useRef } from 'react'
 import {
   View,
   Text,
@@ -10,9 +10,11 @@ import {
   Alert,
   Linking,
   Platform,
+  FlatList,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useRoute, useNavigation } from '@react-navigation/native'
+import { Ionicons } from '@expo/vector-icons'
 import axios from 'axios'
 import * as SecureStore from 'expo-secure-store'
 import Header from '../../components/Header'
@@ -34,8 +36,10 @@ export default function ApartmentDetails() {
   const [loading, setLoading] = useState(true)
   const [listing, setListing] = useState(null)
   const [user, setUser] = useState(null)
-  const [activeTab, setActiveTab] = useState('All')
-  const [heroIndex, setHeroIndex] = useState(0)
+  const [owner, setOwner] = useState(null)
+  const [imageIndex, setImageIndex] = useState(0)
+  const [isFavourite, setIsFavourite] = useState(false)
+  const flatListRef = useRef(null)
 
   useEffect(() => {
     if (!listingId) return
@@ -50,6 +54,11 @@ export default function ApartmentDetails() {
           headers: { Accept: 'application/json', Authorization: token ? `Bearer ${token}` : undefined },
         })
         setListing(res.data)
+
+        // Owner data should be included in the listing response
+        if (res.data.owner) {
+          setOwner(res.data.owner)
+        }
 
         // fetch user if token available (to determine owner controls)
         if (token) {
@@ -73,24 +82,8 @@ export default function ApartmentDetails() {
 
   const isOwner = useMemo(() => {
     if (!listing || !user) return false
-    // API may return user_id or owner.id
     return listing.user_id === user.id || (listing.user && listing.user.id === user.id)
   }, [listing, user])
-
-  // floor plan filtering helpers
-  const floorPlans = listing?.floor_plans || []
-
-  const filteredPlans = useMemo(() => {
-    if (activeTab === 'All') return floorPlans
-    if (activeTab === 'Studio') return floorPlans.filter(p => (p.beds === 0) || (p.name && p.name.toLowerCase().includes('studio')))
-    if (activeTab === '1 Bed') return floorPlans.filter(p => p.beds === 1)
-    if (activeTab === '2 Beds') return floorPlans.filter(p => p.beds === 2)
-    if (activeTab === '3+ Beds') return floorPlans.filter(p => p.beds >= 3)
-    return floorPlans
-  }, [floorPlans, activeTab])
-
-  const overallPriceRange = listing?.price_range
-  const overallBedroomRange = listing?.bedroom_range
 
   function getImageUrl(img) {
     if (!img) return null
@@ -99,59 +92,25 @@ export default function ApartmentDetails() {
     return img
   }
 
-  // Format date string as dd-MM-yyyy (fallback to input if invalid)
+  // Get all images from listing
+  const images = useMemo(() => {
+    if (!listing?.images || !Array.isArray(listing.images)) return []
+    return listing.images.map(img => getImageUrl(img)).filter(Boolean)
+  }, [listing])
+
+  // Format date string as dd-MM-yyyy
   const formatDate = (input) => {
     if (!input) return ''
     const d = new Date(input)
-    if (isNaN(d)) return input
+    if (isNaN(d.getTime())) return input
     const dd = String(d.getDate()).padStart(2, '0')
     const mm = String(d.getMonth() + 1).padStart(2, '0')
     const yyyy = d.getFullYear()
     return `${dd}-${mm}-${yyyy}`
   }
 
-  const formatTime = (input) => {
-    if (!input) return ''
-    // assume input is HH:MM or ISO time
-    if (/^\d{2}:\d{2}/.test(input)) return input.slice(0,5)
-    const d = new Date(input)
-    if (isNaN(d)) return input
-    const hh = String(d.getHours()).padStart(2, '0')
-    const mi = String(d.getMinutes()).padStart(2, '0')
-    return `${hh}:${mi}`
-  }
-
-  // Build human-friendly tour string if meta contains tour info
-  const tourInfoText = (() => {
-    const meta = listing?.meta || {}
-    if (!meta) return null
-    // Accept several patterns: meta.open_for_tour true + dates in meta.open_for_tour_dates or separate keys
-    const tour = meta.open_for_tour
-    if (!tour && !meta.open_for_tour_dates && !meta.tour_from_date && !meta.open_for_tour_from_date) return null
-
-    // Collect date/time values from common keys
-    const fromDate = meta.open_for_tour_dates?.from || meta.tour_from_date || meta.open_for_tour_from_date || meta.open_for_tour_from || meta.open_for_tour?.from_date
-    const toDate = meta.open_for_tour_dates?.to || meta.tour_to_date || meta.open_for_tour_to_date || meta.open_for_tour?.to_date
-    const fromTime = meta.open_for_tour_dates?.start_time || meta.tour_from_time || meta.open_for_tour_from_time || meta.open_for_tour?.from_time || meta.open_for_tour?.start_time
-    const toTime = meta.open_for_tour_dates?.end_time || meta.tour_to_time || meta.open_for_tour_to_time || meta.open_for_tour?.to_time || meta.open_for_tour?.end_time
-
-    if (fromDate || toDate || fromTime || toTime) {
-      const fd = formatDate(fromDate) || ''
-      const td = formatDate(toDate) || ''
-      const ft = formatTime(fromTime) || ''
-      const tt = formatTime(toTime) || ''
-      const datePart = fd && td ? `${fd} to ${td}` : fd || td || ''
-      const timePart = ft && tt ? `from ${ft} to ${tt}` : ft || tt ? `from ${ft || tt}` : ''
-      return `${datePart}${datePart && timePart ? ' ' : ''}${timePart}`.trim()
-    }
-
-    // If meta.open_for_tour is boolean true but no dates, show 'Open for tours'
-    if (tour === true || tour === 'true') return 'Open for tours'
-    return null
-  })()
-
   // Address composition: prefer structured meta.location fields when present
-  const addressFromMeta = (() => {
+  const addressText = useMemo(() => {
     const loc = listing?.meta?.location || listing?.location || {}
     const parts = []
     if (loc.city) parts.push(loc.city)
@@ -160,96 +119,162 @@ export default function ApartmentDetails() {
     if (loc.landmark) parts.push(loc.landmark)
     if (parts.length > 0) return parts.join(', ')
     return listing?.address || ''
-  })()
+  }, [listing])
 
-  // Map coordinates (if provided in meta.location)
-  const coords = (() => {
+  // Map coordinates
+  const coords = useMemo(() => {
     const loc = listing?.meta?.location || listing?.location || {}
     const lat = loc.lat || loc.latitude || loc.lat_dd || null
     const lng = loc.lng || loc.longitude || loc.lon || loc.lng_dd || null
     if (lat && lng) return { lat, lng }
     return null
-  })()
+  }, [listing])
 
-  const openDirections = async () => {
-    if (!coords) return Alert.alert('No location', 'No coordinates available')
-    const { lat, lng } = coords
-    const url = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`
-    try {
-      await Linking.openURL(url)
-    } catch (e) {
-      Alert.alert('Error', 'Could not open maps')
+  // Owner name - try multiple sources
+  const ownerName = useMemo(() => {
+    if (owner?.name) return owner.name
+    if (listing?.owner?.name) return listing.owner.name
+    if (listing?.user?.name) return listing.user.name
+    return 'N/A'
+  }, [owner, listing])
+
+  // Owner phone
+  const ownerPhone = useMemo(() => {
+    return listing?.meta?.contact_phone || listing?.contact_phone || owner?.phone_number || listing?.owner?.phone_number || listing?.user?.phone_number || null
+  }, [listing, owner])
+
+  const openMap = async () => {
+    if (coords) {
+      const { lat, lng } = coords
+      const url = Platform.select({
+        ios: `maps://maps.apple.com/?daddr=${lat},${lng}&dirflg=d`,
+        android: `google.navigation:q=${lat},${lng}`,
+        default: `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`,
+      })
+      try {
+        const canOpen = await Linking.canOpenURL(url)
+        if (canOpen) {
+          await Linking.openURL(url)
+        } else {
+          // Fallback to Google Maps web
+          await Linking.openURL(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`)
+        }
+      } catch (e) {
+        console.warn('Error opening maps', e)
+        Alert.alert('Error', 'Could not open maps application')
+      }
+    } else if (addressText) {
+      // Use address for search if coordinates not available
+      const encodedAddress = encodeURIComponent(addressText)
+      const url = Platform.select({
+        ios: `maps://maps.apple.com/?q=${encodedAddress}`,
+        android: `geo:0,0?q=${encodedAddress}`,
+        default: `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`,
+      })
+      try {
+        const canOpen = await Linking.canOpenURL(url)
+        if (canOpen) {
+          await Linking.openURL(url)
+        } else {
+          await Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`)
+        }
+      } catch (e) {
+        console.warn('Error opening maps', e)
+        Alert.alert('Error', 'Could not open maps application')
+      }
+    } else {
+      Alert.alert('No location', 'No location information available for this property')
     }
   }
 
+  // Parse utilities - handle both array and string
+  const utilitiesList = useMemo(() => {
+    const utils = listing?.meta?.utilities
+    if (!utils) return []
+    if (Array.isArray(utils)) return utils
+    if (typeof utils === 'string') {
+      try {
+        const parsed = JSON.parse(utils)
+        return Array.isArray(parsed) ? parsed : []
+      } catch {
+        return [utils]
+      }
+    }
+    return []
+  }, [listing])
+
+  // Parse amenities - handle both array and string
+  const amenitiesList = useMemo(() => {
+    const amens = listing?.meta?.amenities
+    if (!amens) return []
+    if (Array.isArray(amens)) return amens
+    if (typeof amens === 'string') {
+      try {
+        const parsed = JSON.parse(amens)
+        return Array.isArray(parsed) ? parsed : []
+      } catch {
+        return [amens]
+      }
+    }
+    return []
+  }, [listing])
+
+  const handleFavourite = () => {
+    setIsFavourite(!isFavourite)
+    // TODO: Implement API call to save/unsave favourite
+    // For now, just toggle state
+  }
+
   const handleTour = () => {
-    Alert.alert('Tour', 'Request a tour — not yet implemented')
+    Alert.alert('Request Tour', 'Tour request feature coming soon')
   }
 
   const handleMessage = () => {
-    // navigate to in-app Messages
     navigation.navigate('Messages', { apartmentId: listingId })
   }
 
   const handleCall = () => {
-    const phone = listing?.meta?.contact_phone || listing?.contact_phone
-    if (!phone) return Alert.alert('No phone', 'No contact phone provided')
-    // For mobile you can use Linking.openURL(`tel:${phone}`)
-    Alert.alert('Call', phone)
-  }
-
-  const handleEdit = () => {
-    navigation.navigate('EditListing', { listingId })
-  }
-
-  const handleDeactivate = async () => {
-    Alert.alert('Deactivate', 'Deactivate listing? (not implemented)')
-  }
-
-  // Helper: pretty format keys from snake_case or camelCase to Title Case
-  const formatKey = (key) => {
-    if (!key) return ''
-    // replace underscores and dashes, split camelCase
-    const spaced = key
-      .replace(/[_-]+/g, ' ')
-      .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
-    return spaced
-      .split(' ')
-      .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
-      .join(' ')
-  }
-
-  // Recursive renderer for owner-provided meta values
-  const renderMetaValue = (value) => {
-    if (value === null || value === undefined) return <Text style={styles.metaValue}>—</Text>
-    if (Array.isArray(value)) {
-      return (
-        <View>
-          {value.map((v, i) => (
-            <Text key={i} style={styles.metaValue}>- {typeof v === 'object' ? JSON.stringify(v) : String(v)}</Text>
-          ))}
-        </View>
-      )
+    if (!ownerPhone) {
+      Alert.alert('No phone', 'No contact phone provided')
+      return
     }
-    if (typeof value === 'object') {
-      return (
-        <View>
-          {Object.entries(value).map(([k, v]) => (
-            <View key={k} style={{ marginBottom: 6 }}>
-              <Text style={[styles.metaKey, { width: '100%', fontWeight: '600' }]}>{formatKey(k)}</Text>
-              <Text style={styles.metaValue}>{typeof v === 'object' ? JSON.stringify(v) : String(v)}</Text>
-            </View>
-          ))}
-        </View>
-      )
-    }
-    return <Text style={styles.metaValue}>{String(value)}</Text>
+    const phoneUrl = `tel:${ownerPhone}`
+    Linking.openURL(phoneUrl).catch(() => {
+      Alert.alert('Error', 'Could not make phone call')
+    })
   }
+
+  // Get floor plan data (first one or default values)
+  const floorPlan = useMemo(() => {
+    const plans = listing?.floor_plans || []
+    if (plans.length > 0) {
+      const plan = plans[0]
+      return {
+        name: plan.name || 'No name',
+        beds: plan.beds ?? plan.bedrooms ?? 0,
+        baths: plan.baths ?? plan.bathrooms ?? 0,
+        price: plan.price_range || plan.price || listing?.price || listing?.meta?.price_range || 'N/A',
+        available_from: plan.available_from || plan.available_units || listing?.meta?.available_from || listing?.meta?.availability || null,
+        image: plan.image || (images.length > 0 ? images[0] : null),
+      }
+    }
+    // If no floor plans, use listing data
+    const price = listing?.price || listing?.meta?.price_range || 'N/A'
+    const formattedPrice = typeof price === 'number' ? `$${price.toLocaleString()}` : price
+    return {
+      name: listing?.title || 'No name',
+      beds: listing?.bedrooms || 0,
+      baths: listing?.bathrooms || 0,
+      price: formattedPrice,
+      available_from: listing?.meta?.available_from || listing?.meta?.availability || null,
+      image: images.length > 0 ? images[0] : null,
+    }
+  }, [listing, images])
 
   if (loading) {
     return (
       <SafeAreaView style={{ flex: 1 }}>
-        <Header title="Listing" />
+        <Header title="Listing Details" />
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <ActivityIndicator size="large" />
         </View>
@@ -260,7 +285,7 @@ export default function ApartmentDetails() {
   if (!listing) {
     return (
       <SafeAreaView style={{ flex: 1 }}>
-        <Header title="Listing" />
+        <Header title="Listing Details" />
         <View style={{ padding: 20 }}>
           <Text>Listing not found.</Text>
         </View>
@@ -268,183 +293,249 @@ export default function ApartmentDetails() {
     )
   }
 
-  // Helper: render units table rows
-  const renderUnits = (units) => {
-    if (!Array.isArray(units) || units.length === 0) return null
-    return (
-      <View style={styles.unitsTable}>
-        <View style={[styles.unitsRow, styles.unitsHeader]}>
-          <Text style={styles.unitCell}>Unit</Text>
-          <Text style={styles.unitCell}>Price</Text>
-          <Text style={styles.unitCell}>Sqft</Text>
-          <Text style={styles.unitCell}>Availability</Text>
-        </View>
-        {units.map((u) => (
-          <View key={u.unit_number || u.id} style={styles.unitsRow}>
-            <Text style={styles.unitCell}>{u.unit_number}</Text>
-            <Text style={styles.unitCell}>{u.base_price}</Text>
-            <Text style={styles.unitCell}>{u.sqft}</Text>
-            <Text style={styles.unitCell}>{u.availability || u.available_from || '—'}</Text>
-          </View>
-        ))}
-      </View>
-    )
-  }
-
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#f8fafc' }}>
-      <Header title={listing.title || 'Listing'} />
+      <Header title={listing.title || 'Listing Details'} />
 
-      {/* Hero image */}
-      {Array.isArray(listing?.images) && listing.images.length > 0 ? (
-        <View>
-          <Image source={{ uri: getImageUrl(listing.images[heroIndex]) }} style={styles.apartmentImage} />
-        </View>
-      ) : null}
-
-      {/* Owner controls */}
-      {isOwner && (
-        <View style={styles.ownerControls}>
-          <TouchableOpacity style={styles.ownerBtn} onPress={handleEdit}><Text style={styles.ownerBtnText}>Edit</Text></TouchableOpacity>
-          <TouchableOpacity style={[styles.ownerBtn, styles.deactivate]} onPress={handleDeactivate}><Text style={[styles.ownerBtnText, { color: '#333' }]}>Deactivate</Text></TouchableOpacity>
-        </View>
-      )}
-
-      <ScrollView contentContainerStyle={{ paddingBottom: 140 }}>
-        {/* Header section: title + last updated */}
-        <View style={styles.content}>
-          {listing.title ? <Text style={styles.title}>{listing.title}</Text> : null}
-          {overallPriceRange ? <Text style={styles.price}>{overallPriceRange}</Text> : null}
-          {listing.updated_at ? <Text style={styles.updated}>Last updated: {new Date(listing.updated_at).toLocaleString()}</Text> : null}
-
-          {/* Location */}
-          {listing.address ? (
-            <View style={styles.locationRow}>
-              <Text style={styles.locationText}>{listing.address}</Text>
-            </View>
-          ) : null}
-
-          {/* Badges */}
-          <View style={{ flexDirection: 'row', marginTop: 8, marginBottom: 8, flexWrap: 'wrap' }}>
-            {tourInfoText ? <View style={styles.badge}><Text style={styles.badgeText}>{tourInfoText}</Text></View> : null}
-            {listing.meta?.allow_phone ? <View style={styles.badge}><Text style={styles.badgeText}>Phone enabled</Text></View> : null}
-          </View>
-
-          {/* Location */}
-          <View style={styles.divider} />
-          <Text style={styles.sectionTitle}>Location</Text>
-          {addressFromMeta ? <Text style={styles.locationText}>{addressFromMeta}</Text> : null}
-          {coords ? (
-            <View style={{ marginTop: 8 }}>
-              <View style={styles.mapBox}>
-                <Text style={styles.mapText}>Map location: {coords.lat}, {coords.lng}</Text>
-              </View>
-              <View style={{ marginTop: 8 }}>
-                <TouchableOpacity style={styles.directionsBtn} onPress={openDirections} accessibilityRole="button">
-                  <Text style={styles.directionsText}>Directions</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          ) : null}
-
-          {/* Pricing & Floor Plans */}
-          <View style={styles.divider} />
-          <Text style={styles.sectionTitle}>Pricing & Floor Plans</Text>
-
-          {/* Tabs */}
-          <View style={styles.tabsRow}>
-            {['All', 'Studio', '1 Bed', '2 Beds', '3+ Beds'].map((t) => (
-              <TouchableOpacity key={t} onPress={() => setActiveTab(t)} style={[styles.tab, activeTab === t && styles.tabActive]}>
-                <Text style={[styles.tabText, activeTab === t && styles.tabTextActive]}>{t}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-
-          {/* Floor plans list */}
-          {filteredPlans.length === 0 ? (
-            <Text style={{ marginTop: 12 }}>No floor plans provided.</Text>
-          ) : (
-            filteredPlans.map((plan) => (
-              <View key={plan.id} style={styles.floorPlanCard}>
-                <View style={styles.floorHeader}>
-                  <View style={{ flex: 1 }}>
-                    {plan.name ? <Text style={styles.floorName}>{plan.name}</Text> : null}
-                    {plan.price_range ? <Text style={styles.floorPrice}>{plan.price_range}</Text> : null}
-                    <Text style={styles.floorMeta}>{plan.beds != null ? `${plan.beds} bd` : ''}{plan.baths != null ? ` • ${plan.baths} ba` : ''}{plan.sqft ? ` • ${plan.sqft} sqft` : ''}</Text>
-                    {typeof plan.available_units === 'number' ? <Text style={styles.small}>{plan.available_units} units available</Text> : null}
-                  </View>
-
-                  {plan.image ? (
-                    <Image source={{ uri: plan.image }} style={styles.floorImage} />
-                  ) : null}
-                </View>
-
-                <View style={styles.floorActions}>
-                  <TouchableOpacity onPress={() => navigation.navigate('FloorPlanDetails', { planId: plan.id })} style={styles.linkBtn}>
-                    <Text style={styles.linkText}>Floor Plan Details</Text>
-                  </TouchableOpacity>
-                </View>
-
-                {/* Units table for this plan */}
-                {renderUnits(plan.units)}
-              </View>
-            ))
-          )}
-
-          {/* Amenities (owner-provided only) - comma-separated */}
-          {Array.isArray(listing.meta?.amenities) && listing.meta.amenities.length > 0 ? (
-            <>
-              <View style={styles.divider} />
-              <Text style={styles.sectionTitle}>Amenities</Text>
-              <Text style={{ color: '#374151', marginTop: 6 }}>{listing.meta.amenities.join(', ')}</Text>
-            </>
-          ) : null}
-
-          {/* Utilities (owner-provided) - comma-separated if present */}
-          {Array.isArray(listing.meta?.utilities) && listing.meta.utilities.length > 0 ? (
-            <>
-              <View style={styles.divider} />
-              <Text style={styles.sectionTitle}>Utilities</Text>
-              <Text style={{ color: '#374151', marginTop: 6 }}>{listing.meta.utilities.join(', ')}</Text>
-            </>
-          ) : null}
-
-          {/* Owner provided raw/meta data - show everything owner entered */}
-          {listing.meta && Object.keys(listing.meta).length > 0 ? (
-            <>
-              <View style={styles.divider} />
-              <Text style={styles.sectionTitle}>Owner provided data</Text>
-              <View style={styles.metaBox}>
-                {Object.entries(listing.meta).map(([k, v]) => (
-                  <View key={k} style={styles.metaRow}>
-                    <Text style={styles.metaKey}>{formatKey(k)}</Text>
-                    <View style={{ flex: 1 }}>{renderMetaValue(v)}</View>
-                  </View>
+      <ScrollView 
+        contentContainerStyle={{ paddingBottom: 100 }}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Image Slider */}
+        {images.length > 0 && (
+          <View style={styles.imageContainer}>
+            <FlatList
+              ref={flatListRef}
+              data={images}
+              horizontal
+              pagingEnabled
+              showsHorizontalScrollIndicator={false}
+              keyExtractor={(_, index) => String(index)}
+              onMomentumScrollEnd={(e) => {
+                const contentOffsetX = e.nativeEvent.contentOffset.x
+                const index = Math.round(contentOffsetX / width)
+                setImageIndex(index)
+              }}
+              renderItem={({ item }) => (
+                <Image source={{ uri: item }} style={styles.heroImage} resizeMode="cover" />
+              )}
+            />
+            {images.length > 1 && (
+              <View style={styles.imageDots}>
+                {images.map((_, index) => (
+                  <View
+                    key={index}
+                    style={[styles.dot, index === imageIndex && styles.activeDot]}
+                  />
                 ))}
               </View>
-            </>
+            )}
+          </View>
+        )}
+
+        {/* Header Section */}
+        <View style={styles.headerSection}>
+          <View style={styles.headerTop}>
+            <Text style={styles.listingTitle}>{listing.title || 'No Title'}</Text>
+            {!isOwner && (
+              <TouchableOpacity onPress={handleFavourite} style={styles.favouriteButton}>
+                <Ionicons 
+                  name={isFavourite ? 'heart' : 'heart-outline'} 
+                  size={28} 
+                  color={isFavourite ? '#e0245e' : '#666'} 
+                />
+              </TouchableOpacity>
+            )}
+          </View>
+
+          {addressText ? <Text style={styles.headerAddress}>{addressText}</Text> : null}
+
+          <TouchableOpacity style={styles.mapButton} onPress={openMap}>
+            <Ionicons name="map-outline" size={20} color="#fff" />
+            <Text style={styles.mapButtonText}>View Map</Text>
+          </TouchableOpacity>
+
+          <View style={styles.ownerSection}>
+            <Text style={styles.ownerLabel}>OWNED/MANAGED BY:</Text>
+            <Text style={styles.ownerName}>{ownerName}</Text>
+          </View>
+        </View>
+
+        {/* Pricing and Floor Plans Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Pricing & Floor Plans</Text>
+          <View style={styles.floorPlanCard}>
+            {floorPlan.image && (
+              <Image source={{ uri: floorPlan.image }} style={styles.floorPlanImage} resizeMode="cover" />
+            )}
+            <View style={styles.floorPlanContent}>
+              <Text style={styles.floorPlanName}>{floorPlan.name || 'No name'}</Text>
+              <View style={styles.floorPlanDetails}>
+                <Text style={styles.floorPlanMeta}>
+                  {floorPlan.beds || 0} Bed{floorPlan.beds !== 1 ? 's' : ''}
+                </Text>
+                <Text style={styles.floorPlanSeparator}>•</Text>
+                <Text style={styles.floorPlanMeta}>
+                  {floorPlan.baths || 0} Bath{floorPlan.baths !== 1 ? 's' : ''}
+                </Text>
+              </View>
+              <Text style={styles.floorPlanPrice}>{floorPlan.price}</Text>
+              {floorPlan.available_from && (
+                <Text style={styles.availableDate}>
+                  Available on: {formatDate(floorPlan.available_from)}
+                </Text>
+              )}
+            </View>
+          </View>
+        </View>
+
+        {/* About Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>About</Text>
+          {addressText ? <Text style={styles.aboutText}>{addressText}</Text> : null}
+          <View style={styles.propertyInfoRow}>
+            <Text style={styles.propertyInfoLabel}>Property ID:</Text>
+            <Text style={styles.propertyInfoValue}>{listing.id || 'N/A'}</Text>
+          </View>
+          <View style={styles.propertyInfoRow}>
+            <Text style={styles.propertyInfoLabel}>Purpose:</Text>
+            <Text style={styles.propertyInfoValue}>
+              {listing.meta?.purpose || listing.purpose || 'Rent'}
+            </Text>
+          </View>
+          {listing.description ? (
+            <Text style={styles.descriptionText}>{listing.description}</Text>
           ) : null}
+        </View>
+
+        {/* Unique Features Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Unique Features</Text>
+          
+          {/* Owner's unique features description with bullets */}
+          {listing.meta?.unique_features && (
+            <View style={styles.uniqueFeaturesDescription}>
+              {Array.isArray(listing.meta.unique_features) ? (
+                listing.meta.unique_features.map((feature, index) => (
+                  <View key={index} style={styles.bulletPoint}>
+                    <Text style={styles.bullet}>•</Text>
+                    <Text style={styles.bulletText}>{feature}</Text>
+                  </View>
+                ))
+              ) : typeof listing.meta.unique_features === 'string' ? (
+                listing.meta.unique_features.split('\n').map((feature, index) => {
+                  const trimmed = feature.trim()
+                  if (!trimmed) return null
+                  // Remove bullet if already present
+                  const cleanFeature = trimmed.replace(/^[•\-\*]\s*/, '')
+                  return (
+                    <View key={index} style={styles.bulletPoint}>
+                      <Text style={styles.bullet}>•</Text>
+                      <Text style={styles.bulletText}>{cleanFeature}</Text>
+                    </View>
+                  )
+                })
+              ) : null}
+            </View>
+          )}
+
+          {/* Structured unique features */}
+          <View style={styles.featuresGrid}>
+            {listing.meta?.floor && (
+              <View style={styles.featureItem}>
+                <Text style={styles.featureLabel}>Floor</Text>
+                <Text style={styles.featureValue}>{listing.meta.floor}</Text>
+              </View>
+            )}
+            {(listing.meta?.furnishing_status || listing.meta?.furnishing) && (
+              <View style={styles.featureItem}>
+                <Text style={styles.featureLabel}>Furnishing Status</Text>
+                <Text style={styles.featureValue}>{listing.meta.furnishing_status || listing.meta.furnishing}</Text>
+              </View>
+            )}
+            {(listing.meta?.availability || listing.meta?.available_from) && (
+              <View style={styles.featureItem}>
+                <Text style={styles.featureLabel}>Availability</Text>
+                <Text style={styles.featureValue}>
+                  {listing.meta.availability || formatDate(listing.meta.available_from)}
+                </Text>
+              </View>
+            )}
+            {listing.meta?.min_stay && (
+              <View style={styles.featureItem}>
+                <Text style={styles.featureLabel}>Min Stay</Text>
+                <Text style={styles.featureValue}>{listing.meta.min_stay}</Text>
+              </View>
+            )}
+            {utilitiesList.length > 0 && (
+              <View style={styles.featureItem}>
+                <Text style={styles.featureLabel}>Utilities</Text>
+                <Text style={styles.featureValue}>{utilitiesList.join(', ')}</Text>
+              </View>
+            )}
+            {listing.meta?.payment_period && (
+              <View style={styles.featureItem}>
+                <Text style={styles.featureLabel}>Payment Period</Text>
+                <Text style={styles.featureValue}>{listing.meta.payment_period}</Text>
+              </View>
+            )}
+          </View>
+        </View>
+
+        {/* Amenities Section */}
+        {amenitiesList.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Amenities</Text>
+            <View style={styles.amenitiesContainer}>
+              {amenitiesList.map((amenity, index) => (
+                <View key={index} style={styles.amenityChip}>
+                  <Ionicons name="checkmark-circle" size={18} color="#0ea5a4" style={styles.amenityIcon} />
+                  <Text style={styles.amenityText}>{amenity}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
+
+        {/* Contacts Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Contacts</Text>
+          {ownerPhone ? (
+            <Text style={styles.contactPhone}>{ownerPhone}</Text>
+          ) : (
+            <Text style={styles.contactPhone}>No phone number provided</Text>
+          )}
+          <View style={styles.contactButtons}>
+            <TouchableOpacity style={styles.contactButtonPrimary} onPress={handleTour}>
+              <Text style={styles.contactButtonText}>Request Tour</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.contactButtonSecondary} onPress={handleMessage}>
+              <Text style={styles.contactButtonTextSecondary}>Message</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.ownerContactSection}>
+            <Text style={styles.ownerContactLabel}>Owned/Managed by:</Text>
+            <Text style={styles.ownerContactName}>{ownerName}</Text>
+          </View>
         </View>
       </ScrollView>
 
-      {/* Bottom sticky action bar */}
-      <View style={styles.stickyBar}>
-        <View style={styles.barInfo}>
-          {overallPriceRange ? <Text style={styles.barPrice}>{overallPriceRange}</Text> : null}
-          {overallBedroomRange ? <Text style={styles.barBed}>{overallBedroomRange}</Text> : null}
-        </View>
-
-        <View style={styles.barActions}>
-          {listing.meta?.open_for_tour ? (
-            <TouchableOpacity style={styles.barBtn} onPress={handleTour}><Text style={styles.barBtnText}>Tour</Text></TouchableOpacity>
-          ) : null}
-
-          <TouchableOpacity style={styles.barBtn} onPress={handleMessage}><Text style={styles.barBtnText}>Message</Text></TouchableOpacity>
-
-          {(listing.meta?.allow_phone || listing.allow_phone) && (listing.meta?.contact_phone || listing.contact_phone) ? (
-            <TouchableOpacity style={[styles.barBtn, styles.callBtn]} onPress={handleCall}><Text style={styles.barBtnText}>Call</Text></TouchableOpacity>
-          ) : null}
-        </View>
+      {/* Bottom Navigation Bar */}
+      <View style={styles.bottomNavBar}>
+        <TouchableOpacity style={styles.bottomNavButton} onPress={handleTour}>
+          <Ionicons name="calendar-outline" size={22} color="#1778f2" />
+          <Text style={styles.bottomNavButtonText}>Tour</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.bottomNavButton} onPress={handleMessage}>
+          <Ionicons name="chatbubble-outline" size={22} color="#1778f2" />
+          <Text style={styles.bottomNavButtonText}>Message</Text>
+        </TouchableOpacity>
+        {ownerPhone && (
+          <TouchableOpacity style={styles.bottomNavButton} onPress={handleCall}>
+            <Ionicons name="call-outline" size={22} color="#1778f2" />
+            <Text style={styles.bottomNavButtonText}>Call</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </SafeAreaView>
   )

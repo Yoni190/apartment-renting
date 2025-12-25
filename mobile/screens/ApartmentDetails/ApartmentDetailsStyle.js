@@ -1,365 +1,407 @@
-import { StyleSheet, Dimensions } from 'react-native'
+import { StyleSheet, Dimensions, Platform } from 'react-native'
 
 const { width } = Dimensions.get('window')
 
 export default StyleSheet.create({
-  apartmentImage: {
-    width,
+  // Image Slider
+  imageContainer: {
+    width: width,
     height: 320,
-    resizeMode: 'cover',
+    position: 'relative',
+    backgroundColor: '#000',
   },
-
-  dotsContainer: {
+  heroImage: {
+    width: width,
+    height: 320,
+  },
+  imageDots: {
     position: 'absolute',
-    bottom: 10,
-    width: '100%',
+    bottom: 16,
+    left: 0,
+    right: 0,
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 6,
+    alignItems: 'center',
+    gap: 8,
   },
-
   dot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: 'rgba(255,255,255,0.5)',
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
   },
-
   activeDot: {
-    backgroundColor: '#2563EB',
-    width: 10,
+    backgroundColor: '#fff',
+    width: 12,
+    height: 8,
+    borderRadius: 4,
   },
 
-  content: {
+  // Header Section
+  headerSection: {
+    backgroundColor: '#fff',
     padding: 20,
-    backgroundColor: '#ffffff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
   },
-
-  title: {
-    fontSize: 26,
-    fontWeight: '800',
-    color: '#0f172a',
-    marginBottom: 6,
-  },
-
-  price: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: '#0ea5a4',
-    marginBottom: 10,
-  },
-
-  locationRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginBottom: 12,
-  },
-
-  locationText: {
-    color: '#666',
-    fontSize: 14,
-  },
-
-  infoRow: {
+  headerTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 18,
+    alignItems: 'flex-start',
+    marginBottom: 16,
   },
-
-  infoItem: {
-    alignItems: 'center',
-    gap: 4,
+  listingTitle: {
+    fontSize: 28,
+    fontWeight: '800',
+    color: '#0f172a',
     flex: 1,
+    marginRight: 12,
+    lineHeight: 34,
   },
-
-  infoText: {
-    fontSize: 12,
-    color: '#333',
+  favouriteButton: {
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: '#f8fafc',
   },
-
-  divider: {
-    height: 1,
-    backgroundColor: '#E5E7EB',
-    marginVertical: 14,
-  },
-  ownerControls: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    paddingHorizontal: 20,
-    marginTop: 8,
-    gap: 8,
-  },
-
-  ownerBtn: {
-    backgroundColor: '#fff',
-    borderColor: '#e5e7eb',
-    borderWidth: 1,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-  },
-
-  deactivate: {
-    backgroundColor: '#fff0f0',
-  },
-
-  updated: {
+  headerAddress: {
+    fontSize: 16,
     color: '#6b7280',
-    fontSize: 12,
-    marginBottom: 6,
+    marginTop: 8,
+    marginBottom: 12,
+    lineHeight: 22,
   },
-
-  floorPlanCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 14,
-    marginVertical: 10,
-    // shadow
-    shadowColor: '#000',
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 3,
-  },
-
-  floorHeader: {
+  mapButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    backgroundColor: '#1778f2',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    alignSelf: 'flex-start',
+    gap: 8,
+    marginBottom: 24,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#1778f2',
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 4 },
+      },
+      android: {
+        elevation: 4,
+      },
+    }),
   },
-
-  floorName: {
+  mapButtonText: {
+    color: '#fff',
     fontSize: 16,
+    fontWeight: '700',
+  },
+  ownerSection: {
+    marginTop: 16,
+  },
+  ownerLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#6b7280',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 4,
+  },
+  ownerName: {
+    fontSize: 18,
     fontWeight: '700',
     color: '#0f172a',
   },
 
-  floorPrice: {
+  // Section Styles
+  section: {
+    backgroundColor: '#fff',
+    padding: 20,
+    marginTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#e5e7eb',
+  },
+  sectionTitle: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: '#0f172a',
+    marginBottom: 16,
+  },
+
+  // Floor Plan Card
+  floorPlanCard: {
+    backgroundColor: '#f8fafc',
+    borderRadius: 16,
+    padding: 16,
+    flexDirection: 'row',
+    gap: 16,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOpacity: 0.05,
+        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 2 },
+      },
+      android: {
+        elevation: 2,
+      },
+    }),
+  },
+  floorPlanImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 12,
+    backgroundColor: '#e5e7eb',
+  },
+  floorPlanContent: {
+    flex: 1,
+  },
+  floorPlanName: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#0f172a',
+    marginBottom: 8,
+  },
+  floorPlanDetails: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+    gap: 8,
+  },
+  floorPlanMeta: {
     fontSize: 14,
+    color: '#6b7280',
+    fontWeight: '600',
+  },
+  floorPlanSeparator: {
+    fontSize: 14,
+    color: '#9ca3af',
+  },
+  floorPlanPrice: {
+    fontSize: 24,
+    fontWeight: '800',
     color: '#0ea5a4',
+    marginBottom: 8,
+  },
+  availableDate: {
+    fontSize: 14,
+    color: '#6b7280',
     marginTop: 4,
   },
 
-  floorMeta: {
-    color: '#6b7280',
-    marginTop: 6,
-    fontSize: 13,
-  },
-
-  small: {
-    color: '#6b7280',
-    fontSize: 12,
-    marginTop: 6,
-  },
-
-  floorImage: {
-    width: 110,
-    height: 80,
-    borderRadius: 8,
-  },
-
-  floorActions: {
-    marginTop: 8,
-  },
-
-  linkBtn: {
-    paddingVertical: 6,
-  },
-
-  linkText: {
-    color: '#2563EB',
-    fontWeight: '700',
-  },
-
-  unitsTable: {
-    marginTop: 10,
-    borderRadius: 8,
-    overflow: 'hidden',
-    borderColor: '#e6e6e6',
-    borderWidth: 1,
-  },
-
-  unitsRow: {
-    flexDirection: 'row',
-    paddingVertical: 10,
-    paddingHorizontal: 8,
-    alignItems: 'center',
-  },
-
-  unitsHeader: {
-    backgroundColor: '#f8fafc',
-  },
-
-  unitCell: {
-    flex: 1,
-    fontSize: 13,
-    color: '#111',
-  },
-
-  badge: {
-    backgroundColor: '#f1f5f9',
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 999,
-    marginRight: 8,
-    marginBottom: 8,
-  },
-
-  badgeText: {
-    color: '#0f172a',
-    fontSize: 13,
-  },
-  mapBox: {
-    height: 120,
-    borderRadius: 8,
-    backgroundColor: '#e6eef8',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderColor: '#dbeafe',
-    borderWidth: 1,
-    padding: 8,
-  },
-  mapText: {
-    color: '#035388',
-    fontSize: 13,
-  },
-  directionsBtn: {
-    backgroundColor: '#0369a1',
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  directionsText: {
-    color: '#fff',
-    fontWeight: '700',
-  },
-  metaLabelInline: {
-    color: '#374151',
-    fontWeight: '700',
-    marginRight: 6,
-  },
-
-  stickyBar: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: '#fff',
-    borderTopColor: '#e6e6e6',
-    borderTopWidth: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-
-  barInfo: {
-    flex: 1,
-  },
-
-  barPrice: {
+  // About Section
+  aboutText: {
     fontSize: 16,
-    fontWeight: '800',
-    color: '#0ea5a4',
-  },
-
-  barBed: {
-    color: '#6b7280',
-  },
-
-  barActions: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-
-  barBtn: {
-    backgroundColor: '#1778f2',
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 10,
-  },
-
-  barBtnText: {
-    color: '#fff',
-    fontWeight: '700',
-  },
-  callBtn: {
-    backgroundColor: '#fff',
-    borderColor: '#e6e6e6',
-    borderWidth: 1,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 10,
-  },
-
-  ownerBtnText: {
-    color: '#0369a1',
-    fontWeight: '700',
-  },
-  tabsRow: {
-    flexDirection: 'row',
-    gap: 8,
-    marginBottom: 8,
-  },
-  tab: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 999,
-    backgroundColor: '#f3f4f6',
-  },
-  tabActive: {
-    backgroundColor: '#e0f2fe',
-  },
-  tabText: {
     color: '#374151',
+    lineHeight: 24,
+    marginBottom: 16,
+  },
+  propertyInfoRow: {
+    flexDirection: 'row',
+    marginBottom: 12,
+    alignItems: 'center',
+  },
+  propertyInfoLabel: {
+    fontSize: 15,
     fontWeight: '600',
+    color: '#6b7280',
+    width: 110,
   },
-  tabTextActive: {
-    color: '#0369a1',
-  },
-  /* Owner-provided meta display */
-  metaBox: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 12,
-    borderColor: '#e6e6e6',
-    borderWidth: 1,
-    marginTop: 8,
-  },
-  metaRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    paddingVertical: 8,
-    borderBottomColor: '#f1f5f9',
-    borderBottomWidth: 1,
-  },
-  metaKey: {
-    width: 130,
-    color: '#374151',
-    fontWeight: '700',
-    fontSize: 13,
-  },
-  metaValue: {
+  propertyInfoValue: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#0f172a',
     flex: 1,
-    color: '#111827',
-    fontSize: 13,
-    lineHeight: 18,
+  },
+  descriptionText: {
+    fontSize: 15,
+    color: '#374151',
+    lineHeight: 24,
+    marginTop: 12,
   },
 
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#111',
+  // Unique Features Section
+  uniqueFeaturesDescription: {
+    marginBottom: 20,
+    paddingBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+  },
+  bulletPoint: {
+    flexDirection: 'row',
+    marginBottom: 10,
+    alignItems: 'flex-start',
+  },
+  bullet: {
+    fontSize: 18,
+    color: '#0ea5a4',
+    marginRight: 10,
+    marginTop: 2,
+  },
+  bulletText: {
+    fontSize: 15,
+    color: '#374151',
+    lineHeight: 22,
+    flex: 1,
+  },
+  featuresGrid: {
+    gap: 16,
+  },
+  featureItem: {
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f1f5f9',
+  },
+  featureLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#6b7280',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
     marginBottom: 6,
   },
-
-  description: {
+  featureValue: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#0f172a',
+    lineHeight: 22,
+  },
+  // Amenities Section
+  amenitiesContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  amenityChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f0fdfa',
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#ccfbf1',
+  },
+  amenityIcon: {
+    marginRight: 6,
+  },
+  amenityText: {
     fontSize: 14,
-    color: '#555',
-    lineHeight: 20,
+    fontWeight: '600',
+    color: '#0f172a',
+  },
+
+  // Contacts Section
+  contactPhone: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#0f172a',
+    marginBottom: 16,
+  },
+  contactButtons: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 20,
+  },
+  contactButtonPrimary: {
+    flex: 1,
+    backgroundColor: '#1778f2',
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#1778f2',
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 4 },
+      },
+      android: {
+        elevation: 4,
+      },
+    }),
+  },
+  contactButtonSecondary: {
+    flex: 1,
+    backgroundColor: '#fff',
+    borderWidth: 2,
+    borderColor: '#1778f2',
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  contactButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  contactButtonTextSecondary: {
+    color: '#1778f2',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  ownerContactSection: {
+    marginTop: 8,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#e5e7eb',
+  },
+  ownerContactLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#6b7280',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 4,
+  },
+  ownerContactName: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#0f172a',
+  },
+
+  // Bottom Navigation Bar
+  bottomNavBar: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#e5e7eb',
+    flexDirection: 'row',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        shadowOffset: { width: 0, height: -2 },
+      },
+      android: {
+        elevation: 8,
+      },
+    }),
+  },
+  bottomNavButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 10,
+  },
+  bottomNavButtonText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#1778f2',
   },
 })

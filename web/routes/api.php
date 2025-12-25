@@ -74,7 +74,7 @@ Route::get('/apartment-list', function () {
 
 // get single apartment details
 Route::get('/apartments/{apartment}', function (Apartment $apartment) {
-    $apartment->load('images');
+    $apartment->load('images', 'owner');
     return $apartment;
 });
 
