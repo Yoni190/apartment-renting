@@ -246,6 +246,61 @@ Route::middleware('auth:sanctum')->post('/apartments', function (Request $reques
     return response()->json($apartment, 201);
 });
 
+// Update an apartment (owner)
+Route::middleware('auth:sanctum')->patch('/apartments/{apartment}', function (Request $request, Apartment $apartment) {
+    $user = $request->user();
+    if (!$user || $apartment->user_id !== $user->id) {
+        return response()->json(['message' => 'Forbidden'], 403);
+    }
+
+    $data = $request->only(['title','address','price','description','bedrooms','bathrooms','size','property_type','purpose','floor','furnishing','available_from','min_stay','contact_phone','contact_method']);
+
+    // merge meta fields if provided
+    $meta = $apartment->meta ?? [];
+    $incomingMeta = $request->input('meta', []);
+    if (is_string($incomingMeta)) {
+        try { $incomingMeta = json_decode($incomingMeta, true) ?? []; } catch (\Exception $e) { $incomingMeta = []; }
+    }
+    $meta = array_merge($meta, $incomingMeta ?: []);
+
+    if (!empty($meta)) $data['meta'] = $meta;
+
+    $apartment->fill($data);
+    $apartment->save();
+
+    return response()->json($apartment);
+});
+
+// Delete an apartment (owner)
+Route::middleware('auth:sanctum')->delete('/apartments/{apartment}', function (Request $request, Apartment $apartment) {
+    $user = $request->user();
+    if (!$user || $apartment->user_id !== $user->id) {
+        return response()->json(['message' => 'Forbidden'], 403);
+    }
+
+    // Remove images (DB records). Storage cleanup left to a later pass.
+    try {
+        \App\Models\ApartmentImage::where('apartment_id', $apartment->id)->delete();
+    } catch (\Exception $e) {
+        // ignore
+    }
+
+    $apartment->delete();
+    return response()->json(['message' => 'Deleted']);
+});
+
+// Deactivate / set status for an apartment (owner)
+Route::middleware('auth:sanctum')->post('/apartments/{apartment}/deactivate', function (Request $request, Apartment $apartment) {
+    $user = $request->user();
+    if (!$user || $apartment->user_id !== $user->id) {
+        return response()->json(['message' => 'Forbidden'], 403);
+    }
+    $active = $request->input('active');
+    $apartment->status = $active ? 1 : 0;
+    $apartment->save();
+    return response()->json(['message' => 'Status updated', 'status' => $apartment->status]);
+});
+
 
 Route::post('/login', function (Request $request) {
     $request->validate([

@@ -48,7 +48,7 @@ const OwnerTabs = () => {
         component={SearchScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <Ionicons name={focused ? 'search' : 'search-outline'} size={24} />
+            <Ionicons name={focused ? 'calendar' : 'calendar-outline'} size={24} />
           )
         }}
       />

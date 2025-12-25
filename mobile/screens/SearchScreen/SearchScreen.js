@@ -49,7 +49,7 @@ const SearchScreen = () => {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#f9f9f9' }}>
-      <Header title="Search" />
+      <Header title="Requested Tours" />
 
       <View style={styles.searchContainer}>
         
@@ -75,9 +75,8 @@ const SearchScreen = () => {
 
       </View>
 
-      {/* Owner bookings: Requested Tours */}
-      <View style={{ paddingHorizontal: 16, paddingTop: 12 }}>
-        <Text style={{ fontSize: 18, fontWeight: '700', marginBottom: 8 }}>Requested Tours</Text>
+      {/* Owner bookings: Requested Tours (vertical list) */}
+      <View style={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 24 }}>
         {loadingBookings ? (
           <ActivityIndicator />
         ) : bookings.length === 0 ? (
@@ -85,22 +84,13 @@ const SearchScreen = () => {
         ) : (
           <FlatList
             data={bookings}
-            horizontal
-            showsHorizontalScrollIndicator={false}
             keyExtractor={(b) => String(b.id)}
             renderItem={renderBookingItem}
             contentContainerStyle={{ paddingBottom: 8 }}
+            ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
           />
         )}
       </View>
-
-      <View style={styles.emptyState}>
-            <Search size={60} color="#ccc" />
-            <Text style={styles.emptyTitle}>Start Searching</Text>
-            <Text style={styles.emptySubtitle}>
-                Type something in the search box to find results.
-            </Text>
-        </View>
 
     </View>
   )

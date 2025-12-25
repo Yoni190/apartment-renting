@@ -70,6 +70,7 @@ export default function ListingCard({
   isOwnerMode = false,
   onEdit,
   onDeactivate,
+  onDelete,
   style,
 }) {
   // Normalize images to an array of URL strings (if image objects are provided)
@@ -270,6 +271,11 @@ export default function ListingCard({
               {onDeactivate ? (
                 <TouchableOpacity style={[styles.ownerBtn, { backgroundColor: '#f5f5f5' }]} onPress={onDeactivate}>
                   <Text style={[styles.ownerBtnText, { color: '#333' }]}>Deactivate</Text>
+                </TouchableOpacity>
+              ) : null}
+              {onDelete ? (
+                <TouchableOpacity style={[styles.ownerBtn, { backgroundColor: '#ffecec' }]} onPress={onDelete}>
+                  <Text style={[styles.ownerBtnText, { color: '#b91c1c' }]}>Delete</Text>
                 </TouchableOpacity>
               ) : null}
             </View>

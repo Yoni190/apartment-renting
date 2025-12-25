@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Platform } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Platform, Alert } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
 import Header from '../../components/Header'
@@ -51,11 +51,60 @@ const HomeForPO = () => {
   }
 
   const handleEdit = (apt) => {
-    navigation.navigate('EditListing', { listingId: apt.id })
+    navigation.navigate('AddListing', { listingId: apt.id })
   }
 
   const handleDeactivate = (apt) => {
-    console.log('deactivate', apt.id)
+    (async () => {
+      try {
+        const token = await SecureStore.getItemAsync('token')
+        if (!token) return
+        await axios.post(`${API_URL}/apartments/${apt.id}/deactivate`, { active: apt.status ? 0 : 1 }, { headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' } })
+        // refresh listings
+        setLoading(true)
+        const res = await axios.get(`${API_URL}/my-apartments`, { headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' } })
+        setListings(res.data || [])
+      } catch (e) {
+        console.warn('Failed to toggle deactivate', e.message)
+      } finally {
+        setLoading(false)
+      }
+    })()
+  }
+
+  const handleDelete = (apt) => {
+    (async () => {
+      try {
+        const ok = await new Promise((resolve) => {
+          // simple confirm dialog
+          const res = confirm ? true : true
+          resolve(true)
+        })
+        // We will show a native alert instead of confirm to be cross-platform
+      } catch (e) {
+        // ignore
+      }
+      // use Alert since confirm() is not available in RN
+      const { Alert } = require('react-native')
+      Alert.alert('Delete listing', 'Are you sure you want to delete this listing?', [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Delete', style: 'destructive', onPress: async () => {
+          try {
+            const token = await SecureStore.getItemAsync('token')
+            if (!token) return
+            await axios.delete(`${API_URL}/apartments/${apt.id}`, { headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' } })
+            // refresh
+            setLoading(true)
+            const res = await axios.get(`${API_URL}/my-apartments`, { headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' } })
+            setListings(res.data || [])
+          } catch (e) {
+            console.warn('Failed to delete listing', e.message)
+          } finally {
+            setLoading(false)
+          }
+        }}
+      ])
+    })()
   }
 
   const activeListings = listings.filter(l => l.status === 1 || l.status === true).length
@@ -140,6 +189,7 @@ const HomeForPO = () => {
                   isOwnerMode={true}
                   onEdit={() => handleEdit(item)}
                   onDeactivate={() => handleDeactivate(item)}
+                  onDelete={() => handleDelete(item)}
                   onPress={() => navigation.navigate('ApartmentDetails', { listingId: item.id })}
                 />
               )

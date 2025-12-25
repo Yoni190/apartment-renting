@@ -18,7 +18,7 @@ import Header from '../../components/Header'
 import styles from './AddListingStyle'
 import axios from 'axios'
 import * as SecureStore from 'expo-secure-store'
-import { useNavigation } from '@react-navigation/native'
+import { useNavigation, useRoute } from '@react-navigation/native'
 import * as ImagePicker from 'expo-image-picker'
 import MapView, { Marker } from 'react-native-maps'
 import DateTimePickerModal from 'react-native-modal-datetime-picker'
@@ -35,6 +35,8 @@ const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8000'
 const AddListing = () => {
   const navigation = useNavigation()
   const scrollRef = useRef(null)
+  const route = useRoute()
+  const listingId = route.params?.listingId || null
   const HEADER_SHORT_HEIGHT = 64 // must match Header.headerShort.height
   // input refs for auto-scroll
   const titleRef = useRef(null)
@@ -52,6 +54,8 @@ const AddListing = () => {
   const uniqueFeatureInputRef = useRef(null)
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState([])
+
+  const [isEditMode, setIsEditMode] = useState(false)
 
   // Basic property details
   const [title, setTitle] = useState('')
@@ -126,6 +130,71 @@ const AddListing = () => {
     AMENITIES.forEach(a => (map[a] = false))
     setAmenities(map)
   }, [])
+
+  useEffect(() => {
+    // If listingId is provided, load existing listing for edit
+    if (!listingId) return
+    setIsEditMode(true)
+    ;(async () => {
+      try {
+        const token = await SecureStore.getItemAsync('token')
+        if (!token) return
+        const res = await axios.get(`${API_URL}/apartments/${listingId}`, { headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } })
+        const apt = res.data
+        // populate fields defensively
+        setTitle(apt.title || '')
+        setPropertyType(apt.property_type || propertyType)
+        setPurpose(apt.purpose || purpose)
+        const m = apt.meta || {}
+        setCity(m.location?.city || city)
+        setSubCity(m.location?.sub_city || subCity)
+        setArea(m.location?.area || area)
+        setLandmark(m.location?.landmark || landmark)
+        setLatitude(m.location?.latitude || m.location?.lat || latitude)
+        setLongitude(m.location?.longitude || m.location?.lng || longitude)
+        setPrice(apt.price || m.price || price)
+        setPaymentPeriod(m.payment_period || paymentPeriod)
+        setDepositRequired(!!m.deposit_required)
+        setDepositAmount(m.deposit_amount || depositAmount)
+        setBedrooms(String(apt.bedrooms || m.bedrooms || bedrooms))
+        setBathrooms(String(apt.bathrooms || m.bathrooms || bathrooms))
+        setSize(m.size || apt.size || size)
+        setFloor(String(m.floor || apt.floor || floor))
+        setFurnishing(m.furnishing || apt.furnishing || furnishing)
+        setDescription(apt.description || '')
+        setUniqueFeatures(Array.isArray(m.unique_features) ? m.unique_features : (typeof m.unique_features === 'string' ? (m.unique_features ? JSON.parse(m.unique_features) : []) : uniqueFeatures))
+        setAvailableFrom(m.available_from || availableFrom)
+        setContactPhone(m.contact_phone || apt.contact_phone || contactPhone)
+        setContactMethod(m.contact_method || contactMethod)
+        // amenities/utilities
+        if (Array.isArray(m.amenities)) {
+          const amap = {}
+          AMENITIES.forEach(a => (amap[a] = m.amenities.includes(a)))
+          setAmenities(amap)
+        }
+        if (Array.isArray(m.utilities)) {
+          const umat = { Water: false, Electricity: false, Internet: false }
+          Object.keys(umat).forEach(k => (umat[k] = m.utilities.includes(k)))
+          setUtilities(umat)
+        }
+        // open_for_tour
+        try {
+          const oftRaw = m.open_for_tour || m.openForTour || null
+          const oft = oftRaw ? (typeof oftRaw === 'string' ? JSON.parse(oftRaw) : oftRaw) : null
+          if (oft) {
+            setTourDateFrom(oft.date_from ? new Date(oft.date_from) : null)
+            setTourDateTo(oft.date_to ? new Date(oft.date_to) : null)
+            setTourTimeFrom(oft.time_from ? new Date(`1970-01-01T${oft.time_from}:00`) : null)
+            setTourTimeTo(oft.time_to ? new Date(`1970-01-01T${oft.time_to}:00`) : null)
+          }
+        } catch (e) {
+          // ignore
+        }
+      } catch (e) {
+        console.warn('Failed to load listing for edit', e.message)
+      }
+    })()
+  }, [listingId])
 
   // rely on KeyboardAvoidingView to manage offsets; listeners removed to avoid extra padding
 
@@ -243,88 +312,110 @@ const AddListing = () => {
     try {
       const token = await SecureStore.getItemAsync('token')
       if (!token) throw new Error('Not authenticated')
-      // Build multipart/form-data payload so images are uploaded to the server
-      const formData = new FormData()
+
+      // Build payload. For edit we send JSON (simpler); for create we use multipart as before.
       const addressString = (landmark.trim() ? `${area.trim()} - ${landmark.trim()}` : (area.trim() || `${subCity.trim()}, ${city}`))
 
-      formData.append('title', title.trim())
-      formData.append('address', addressString)
-      formData.append('property_type', propertyType)
-      formData.append('purpose', purpose)
-  // remove comma thousand separators before sending
-  formData.append('price', String(price).replace(/,/g, ''))
-      formData.append('payment_period', paymentPeriod)
-      formData.append('deposit_required', depositRequired ? '1' : '0')
-  formData.append('deposit_amount', depositRequired ? String(Number(String(depositAmount).replace(/,/g, ''))) : '0')
-      formData.append('bedrooms', String(Number(bedrooms)))
-      formData.append('bathrooms', String(Number(bathrooms)))
-      if (size) formData.append('size', String(Number(size)))
-      formData.append('floor', String(Number(floor)))
-      formData.append('furnishing', furnishing)
-      formData.append('description', description.trim())
-      formData.append('available_from', availableFrom || (availableFromDate ? availableFromDate.toISOString().slice(0,10) : ''))
-      formData.append('min_stay', minStay)
-      formData.append('contact_phone', contactPhone.trim())
-      formData.append('contact_method', contactMethod)
-
-      // complex objects -> stringify
-      const location = {
-        city,
-        sub_city: subCity.trim(),
-        area: area.trim(),
-        landmark: landmark.trim(),
-        latitude: mapMarker ? String(mapMarker.latitude) : latitude.trim(),
-        longitude: mapMarker ? String(mapMarker.longitude) : longitude.trim()
-      }
-      formData.append('location', JSON.stringify(location))
-
-      formData.append('utilities', JSON.stringify(Object.keys(utilities).filter(k => utilities[k])))
-      formData.append('amenities', JSON.stringify(Object.keys(amenities).filter(k => amenities[k])))
-      formData.append('open_for_tour', JSON.stringify({
-        date_from: tourDateFrom ? tourDateFrom.toISOString().slice(0,10) : null,
-        date_to: tourDateTo ? tourDateTo.toISOString().slice(0,10) : null,
-        time_from: tourTimeFrom ? tourTimeFrom.toTimeString().slice(0,5) : null,
-        time_to: tourTimeTo ? tourTimeTo.toTimeString().slice(0,5) : null
-      }))
-
-      // unique features as an array of strings
-      if (Array.isArray(uniqueFeatures) && uniqueFeatures.length > 0) {
-        formData.append('unique_features', JSON.stringify(uniqueFeatures))
+      const metaObj = {
+        location: {
+          city,
+          sub_city: subCity.trim(),
+          area: area.trim(),
+          landmark: landmark.trim(),
+          latitude: mapMarker ? String(mapMarker.latitude) : latitude.trim(),
+          longitude: mapMarker ? String(mapMarker.longitude) : longitude.trim()
+        },
+        utilities: Object.keys(utilities).filter(k => utilities[k]),
+        amenities: Object.keys(amenities).filter(k => amenities[k]),
+        open_for_tour: {
+          date_from: tourDateFrom ? tourDateFrom.toISOString().slice(0,10) : null,
+          date_to: tourDateTo ? tourDateTo.toISOString().slice(0,10) : null,
+          time_from: tourTimeFrom ? tourTimeFrom.toTimeString().slice(0,5) : null,
+          time_to: tourTimeTo ? tourTimeTo.toTimeString().slice(0,5) : null
+        },
+        unique_features: Array.isArray(uniqueFeatures) ? uniqueFeatures : [],
+        payment_period: paymentPeriod,
+        deposit_required: depositRequired ? 1 : 0,
+        deposit_amount: depositRequired ? String(Number(String(depositAmount).replace(/,/g, ''))) : 0,
+        available_from: availableFrom || (availableFromDate ? availableFromDate.toISOString().slice(0,10) : null),
+        min_stay: minStay,
+        contact_phone: contactPhone.trim(),
+        contact_method: contactMethod
       }
 
-      // Attach images as files (FormData). For PHP/Laravel, use field name "images[]"
-      for (let i = 0; i < images.length; i++) {
-        let uri = images[i]
-        // images[] may contain objects or strings; normalize to string
-        if (!uri) continue
-        if (typeof uri === 'object' && uri.uri) uri = uri.uri
-
-        // Extract filename safely
-        const filename = typeof uri === 'string' ? uri.split('/').pop() : `image_${i}.jpg`
-
-        // Try to determine mime type
-        const match = /\.([0-9a-z]+)(?:\?.*)?$/i.exec(filename || '')
-        const ext = match ? match[1] : 'jpg'
-        const type = `image/${ext === 'jpg' ? 'jpeg' : ext}`
-
-        // In Expo, the uri is already a file:// path that can be uploaded
-        try {
-          formData.append('images[]', { uri, name: filename, type })
-        } catch (e) {
-          // fallback: skip problematic image
-          console.log('Failed to append image to FormData', e)
+      if (isEditMode && listingId) {
+        // PATCH with JSON payload (no image handling on edit for now)
+        const payload = {
+          title: title.trim(),
+          address: addressString,
+          price: String(price).replace(/,/g, ''),
+          description: description.trim(),
+          bedrooms: String(Number(bedrooms)),
+          bathrooms: String(Number(bathrooms)),
+          size: size ? String(Number(size)) : null,
+          floor: String(Number(floor)),
+          furnishing,
+          property_type: propertyType,
+          purpose,
+          meta: metaObj
         }
+        await axios.patch(`${API_URL}/apartments/${listingId}`, payload, { headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } })
+        Alert.alert('Success', 'Listing updated')
+        navigation.goBack()
+      } else {
+        // Create path (existing multipart form flow). Keep image upload as before.
+        const formData = new FormData()
+        formData.append('title', title.trim())
+        formData.append('address', addressString)
+        formData.append('property_type', propertyType)
+        formData.append('purpose', purpose)
+        formData.append('price', String(price).replace(/,/g, ''))
+        formData.append('payment_period', paymentPeriod)
+        formData.append('deposit_required', depositRequired ? '1' : '0')
+        formData.append('deposit_amount', depositRequired ? String(Number(String(depositAmount).replace(/,/g, ''))) : '0')
+        formData.append('bedrooms', String(Number(bedrooms)))
+        formData.append('bathrooms', String(Number(bathrooms)))
+        if (size) formData.append('size', String(Number(size)))
+        formData.append('floor', String(Number(floor)))
+        formData.append('furnishing', furnishing)
+        formData.append('description', description.trim())
+        formData.append('available_from', availableFrom || (availableFromDate ? availableFromDate.toISOString().slice(0,10) : ''))
+        formData.append('min_stay', minStay)
+        formData.append('contact_phone', contactPhone.trim())
+        formData.append('contact_method', contactMethod)
+
+        formData.append('location', JSON.stringify(metaObj.location))
+        formData.append('utilities', JSON.stringify(metaObj.utilities))
+        formData.append('amenities', JSON.stringify(metaObj.amenities))
+        formData.append('open_for_tour', JSON.stringify(metaObj.open_for_tour))
+        if (Array.isArray(metaObj.unique_features) && metaObj.unique_features.length > 0) {
+          formData.append('unique_features', JSON.stringify(metaObj.unique_features))
+        }
+
+        for (let i = 0; i < images.length; i++) {
+          let uri = images[i]
+          if (!uri) continue
+          if (typeof uri === 'object' && uri.uri) uri = uri.uri
+          const filename = typeof uri === 'string' ? uri.split('/').pop() : `image_${i}.jpg`
+          const match = /\.([0-9a-z]+)(?:\?.*)?$/i.exec(filename || '')
+          const ext = match ? match[1] : 'jpg'
+          const type = `image/${ext === 'jpg' ? 'jpeg' : ext}`
+          try {
+            formData.append('images[]', { uri, name: filename, type })
+          } catch (e) {
+            console.log('Failed to append image to FormData', e)
+          }
+        }
+
+        await axios.post(`${API_URL}/apartments`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data', Accept: 'application/json', Authorization: `Bearer ${token}` }
+        })
+        Alert.alert('Success', 'Listing posted')
+        navigation.goBack()
       }
-
-      const res = await axios.post(`${API_URL}/apartments`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data', Accept: 'application/json', Authorization: `Bearer ${token}` }
-      })
-
-  Alert.alert('Success', 'Listing posted')
-  navigation.goBack()
     } catch (err) {
       console.log(err.response?.data || err.message)
-      Alert.alert('Error', err.response?.data?.message || err.message || 'Failed to post listing')
+      Alert.alert('Error', err.response?.data?.message || err.message || (isEditMode ? 'Failed to update listing' : 'Failed to post listing'))
     } finally {
       setLoading(false)
     }
@@ -596,7 +687,7 @@ const AddListing = () => {
 
         </View>
         <TouchableOpacity style={[styles.btn, loading && { opacity: 0.6 }]} onPress={handleSubmit} disabled={loading}>
-          <Text style={styles.btnText}>{loading ? 'Posting...' : 'Post Listing'}</Text>
+          <Text style={styles.btnText}>{loading ? (isEditMode ? 'Updating...' : 'Posting...') : (isEditMode ? 'Update Listing' : 'Post Listing')}</Text>
         </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
