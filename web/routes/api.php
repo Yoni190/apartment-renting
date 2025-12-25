@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use App\Models\Apartment;
 use Illuminate\Support\Facades\Hash;
@@ -64,17 +65,57 @@ Route::middleware('auth:sanctum')->delete('/user', function (Request $request) {
     return response()->json(['message' => 'User deleted']);
 });
 
-Route::get('/apartment-list', function () {
+Route::get('/apartment-list', function (Request $request) {
     $apartments = Apartment::all();
 
     $apartments->load('images');
+    
+    // Check if authenticated user has favorited each apartment
+    $token = $request->bearerToken();
+    if ($token) {
+        try {
+            $user = \Laravel\Sanctum\PersonalAccessToken::findToken($token)?->tokenable;
+            if ($user) {
+                $favoriteIds = DB::table('favorites')
+                    ->where('user_id', $user->id)
+                    ->pluck('apartment_id')
+                    ->toArray();
+                
+                foreach ($apartments as $apartment) {
+                    $apartment->is_favorite = in_array($apartment->id, $favoriteIds);
+                }
+            }
+        } catch (\Exception $e) {
+            // Ignore token errors
+        }
+    }
 
     return $apartments;
 });
 
 // get single apartment details
-Route::get('/apartments/{apartment}', function (Apartment $apartment) {
+Route::get('/apartments/{apartment}', function (Request $request, Apartment $apartment) {
     $apartment->load('images', 'owner');
+    
+    // Check if authenticated user has favorited this apartment
+    $token = $request->bearerToken();
+    if ($token) {
+        try {
+            $user = \Laravel\Sanctum\PersonalAccessToken::findToken($token)?->tokenable;
+            if ($user) {
+                $apartment->is_favorite = DB::table('favorites')
+                    ->where('user_id', $user->id)
+                    ->where('apartment_id', $apartment->id)
+                    ->exists();
+            }
+        } catch (\Exception $e) {
+            // Ignore token errors
+            $apartment->is_favorite = false;
+        }
+    } else {
+        $apartment->is_favorite = false;
+    }
+    
     return $apartment;
 });
 
@@ -193,4 +234,52 @@ Route::post('/register', function(Request $request) {
     return response()->json([
         'token' => $user->createToken($request->device_name)->plainTextToken
     ]);
+});
+
+// Favorites endpoints
+Route::middleware('auth:sanctum')->post('/apartments/{apartment}/favorite', function (Request $request, Apartment $apartment) {
+    $user = $request->user();
+    
+    $exists = DB::table('favorites')
+        ->where('user_id', $user->id)
+        ->where('apartment_id', $apartment->id)
+        ->exists();
+    
+    if ($exists) {
+        return response()->json(['message' => 'Already favorited'], 400);
+    }
+    
+    DB::table('favorites')->insert([
+        'user_id' => $user->id,
+        'apartment_id' => $apartment->id,
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+    
+    return response()->json(['message' => 'Added to favorites', 'favorited' => true]);
+});
+
+Route::middleware('auth:sanctum')->delete('/apartments/{apartment}/favorite', function (Request $request, Apartment $apartment) {
+    $user = $request->user();
+    
+    DB::table('favorites')
+        ->where('user_id', $user->id)
+        ->where('apartment_id', $apartment->id)
+        ->delete();
+    
+    return response()->json(['message' => 'Removed from favorites', 'favorited' => false]);
+});
+
+Route::middleware('auth:sanctum')->get('/favorites', function (Request $request) {
+    $user = $request->user();
+    
+    $favoriteIds = DB::table('favorites')
+        ->where('user_id', $user->id)
+        ->pluck('apartment_id');
+    
+    $apartments = Apartment::whereIn('id', $favoriteIds)
+        ->with('images', 'owner')
+        ->get();
+    
+    return $apartments;
 });

@@ -55,13 +55,15 @@ const HomeScreen = () => {
     useEffect(() => {
       const getApartments = async () => {
         try {
+          const token = await SecureStore.getItemAsync('token')
           const response = await axios.get(`${API_URL}/apartment-list`, {
             headers: {
-              Accept: 'application/json'
+              Accept: 'application/json',
+              Authorization: token ? `Bearer ${token}` : undefined
             }
           })
 
-          setApartments(response.data)
+          setApartments(response.data || [])
         } catch (error) {
           console.log(error)
         }
@@ -114,12 +116,39 @@ const HomeScreen = () => {
     }
 
     // ListingCard handlers used by the card component
-    const handleSave = (apartment) => {
-      setApartments(prev => prev.map(a => a.id === apartment.id ? { ...a, fav: true } : a))
+    const handleSave = async (apartment) => {
+      try {
+        const token = await SecureStore.getItemAsync('token')
+        if (!token) {
+          Alert.alert('Error', 'Please log in to save favorites')
+          return
+        }
+        
+        await axios.post(`${API_URL}/apartments/${apartment.id}/favorite`, {}, {
+          headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
+        })
+        
+        setApartments(prev => prev.map(a => a.id === apartment.id ? { ...a, fav: true, is_favorite: true } : a))
+      } catch (error) {
+        console.warn('Failed to save favorite', error)
+        Alert.alert('Error', 'Failed to save favorite')
+      }
     }
 
-    const handleUnsave = (apartment) => {
-      setApartments(prev => prev.map(a => a.id === apartment.id ? { ...a, fav: false } : a))
+    const handleUnsave = async (apartment) => {
+      try {
+        const token = await SecureStore.getItemAsync('token')
+        if (!token) return
+        
+        await axios.delete(`${API_URL}/apartments/${apartment.id}/favorite`, {
+          headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
+        })
+        
+        setApartments(prev => prev.map(a => a.id === apartment.id ? { ...a, fav: false, is_favorite: false } : a))
+      } catch (error) {
+        console.warn('Failed to unsave favorite', error)
+        Alert.alert('Error', 'Failed to remove favorite')
+      }
     }
 
     const handleMessage = (apartment) => openMessage(apartment)
@@ -190,7 +219,7 @@ const HomeScreen = () => {
                 amenities={meta.amenities || undefined}
                 phoneEnabled={!!meta.allow_phone}
                 contactPhone={meta.contact_phone || a.contact_phone || undefined}
-                saved={a.fav || a.is_favorite || false}
+                saved={a.is_favorite || a.fav || false}
                 onSave={() => handleSave(a)}
                 onUnsave={() => handleUnsave(a)}
                 onMessage={() => openMessage(a)}

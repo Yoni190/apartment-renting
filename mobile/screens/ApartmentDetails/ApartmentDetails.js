@@ -39,6 +39,7 @@ export default function ApartmentDetails() {
   const [owner, setOwner] = useState(null)
   const [imageIndex, setImageIndex] = useState(0)
   const [isFavourite, setIsFavourite] = useState(false)
+  const [favouriteLoading, setFavouriteLoading] = useState(false)
   const flatListRef = useRef(null)
 
   useEffect(() => {
@@ -54,6 +55,7 @@ export default function ApartmentDetails() {
           headers: { Accept: 'application/json', Authorization: token ? `Bearer ${token}` : undefined },
         })
         setListing(res.data)
+        setIsFavourite(res.data.is_favorite || false)
 
         // Owner data should be included in the listing response
         if (res.data.owner) {
@@ -219,10 +221,36 @@ export default function ApartmentDetails() {
     return []
   }, [listing])
 
-  const handleFavourite = () => {
-    setIsFavourite(!isFavourite)
-    // TODO: Implement API call to save/unsave favourite
-    // For now, just toggle state
+  const handleFavourite = async () => {
+    if (!user || !listingId) return
+    
+    setFavouriteLoading(true)
+    try {
+      const token = await SecureStore.getItemAsync('token')
+      if (!token) {
+        Alert.alert('Error', 'Please log in to save favorites')
+        return
+      }
+
+      if (isFavourite) {
+        // Remove from favorites
+        await axios.delete(`${API_URL}/apartments/${listingId}/favorite`, {
+          headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
+        })
+        setIsFavourite(false)
+      } else {
+        // Add to favorites
+        await axios.post(`${API_URL}/apartments/${listingId}/favorite`, {}, {
+          headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
+        })
+        setIsFavourite(true)
+      }
+    } catch (error) {
+      console.warn('Failed to toggle favorite', error)
+      Alert.alert('Error', 'Failed to update favorite')
+    } finally {
+      setFavouriteLoading(false)
+    }
   }
 
   const handleTour = () => {
