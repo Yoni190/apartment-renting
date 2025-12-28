@@ -64,7 +64,6 @@ export default function ApartmentDetails() {
         const token = await SecureStore.getItemAsync('token')
 
         // fetch listing
-        
         const res = await axios.get(`${API_URL}/apartments/${listingId}`, {
           headers: { Accept: 'application/json', Authorization: token ? `Bearer ${token}` : undefined },
         })
