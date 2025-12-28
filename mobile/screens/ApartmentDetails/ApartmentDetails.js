@@ -70,7 +70,6 @@ export default function ApartmentDetails() {
         //pull
         //pull2
         //pull3
-        //pull4
         const res = await axios.get(`${API_URL}/apartments/${listingId}`, {
           headers: { Accept: 'application/json', Authorization: token ? `Bearer ${token}` : undefined },
         })
