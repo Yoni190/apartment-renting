@@ -72,7 +72,7 @@ export default function ApartmentDetails() {
         //pull3
         //pull4
         //pull5
-        //
+        //pull7
         //
         //
         const res = await axios.get(`${API_URL}/apartments/${listingId}`, {
