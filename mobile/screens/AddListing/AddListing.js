@@ -115,7 +115,6 @@ const AddListing = () => {
   // Availability & contact
   //here
   //and
-  //there
   //therefore
   const [availableFrom, setAvailableFrom] = useState('')
   const [availableFromDate, setAvailableFromDate] = useState(null)
