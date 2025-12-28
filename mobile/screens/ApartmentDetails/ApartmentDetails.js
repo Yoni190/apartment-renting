@@ -67,7 +67,7 @@ export default function ApartmentDetails() {
         //add
         //add2
         //add3
-        //
+        //pull
         //
         //
         //
