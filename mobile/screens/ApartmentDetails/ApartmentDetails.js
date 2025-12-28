@@ -64,6 +64,12 @@ export default function ApartmentDetails() {
         const token = await SecureStore.getItemAsync('token')
 
         // fetch listing
+        //add
+        //
+        //
+        //
+        //
+        //
         //
         //
         //
