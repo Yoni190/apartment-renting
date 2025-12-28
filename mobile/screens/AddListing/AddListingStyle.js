@@ -1,49 +1,82 @@
-import { StyleSheet } from 'react-native'
+import { StyleSheet, Platform } from 'react-native'
 
 export default StyleSheet.create({
   container: {
-    padding: 18,
+    padding: 20,
     paddingTop: 12,
     paddingBottom: 40,
-    backgroundColor: '#f3f8ff',
+    backgroundColor: '#f8fafc',
   },
   label: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '600',
-    marginBottom: 6,
-    color: '#333'
+    marginBottom: 8,
+    marginTop: 4,
+    color: '#1e293b',
+    letterSpacing: 0.2
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#e6e6e6',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 14,
-    backgroundColor: '#fff'
+    borderWidth: 1.5,
+    borderColor: '#e2e8f0',
+    padding: 14,
+    borderRadius: 12,
+    marginBottom: 16,
+    backgroundColor: '#ffffff',
+    fontSize: 15,
+    color: '#1e293b',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 2,
+      },
+      android: {
+        elevation: 1,
+      },
+    }),
+  },
+  inputFocused: {
+    borderColor: '#3b82f6',
+    borderWidth: 2,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#3b82f6',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.15,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 2,
+      },
+    }),
   },
   btn: {
-    backgroundColor: '#0b69ff',
-    paddingVertical: 14,
-    borderRadius: 12,
-    marginTop: 18,
+    backgroundColor: '#3b82f6',
+    paddingVertical: 16,
+    borderRadius: 14,
+    marginTop: 24,
     alignItems: 'center',
-    shadowColor: '#0b69ff',
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 2
+    shadowColor: '#3b82f6',
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 4,
+    borderWidth: 0,
   },
   btnText: {
     color: '#fff',
-    fontWeight: '700'
-  }
-  ,
-  sectionTitle: {
-    fontSize: 15,
     fontWeight: '700',
-    marginTop: 12,
-    marginBottom: 8,
-    color: '#123a66'
+    fontSize: 16,
+    letterSpacing: 0.5
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginTop: 20,
+    marginBottom: 12,
+    color: '#0f172a',
+    letterSpacing: 0.3
   },
   rowOptions: {
     flexDirection: 'row',
@@ -51,38 +84,96 @@ export default StyleSheet.create({
     marginBottom: 12
   },
   optionPill: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    backgroundColor: '#eef6ff',
-    borderRadius: 20,
-    marginRight: 8,
-    marginBottom: 8
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 24,
+    marginRight: 10,
+    marginBottom: 10,
+    backgroundColor: '#f1f5f9',
+    borderWidth: 1.5,
+    borderColor: '#e2e8f0',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 2,
+      },
+      android: {
+        elevation: 1,
+      },
+    }),
   },
   optionPillActive: {
-    backgroundColor: '#6ea8ff'
+    backgroundColor: '#3b82f6',
+    borderColor: '#3b82f6',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#3b82f6',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 3,
+      },
+    }),
   },
   optionText: {
-    color: '#333'
+    color: '#475569',
+    fontWeight: '600',
+    fontSize: 14
   },
   optionTextActive: {
-    color: '#fff'
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 14
   },
   radio: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 20,
-    marginRight: 8,
-    marginBottom: 8,
-    backgroundColor: '#f7f7f7'
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 24,
+    marginRight: 10,
+    marginBottom: 10,
+    backgroundColor: '#f1f5f9',
+    borderWidth: 1.5,
+    borderColor: '#e2e8f0',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 2,
+      },
+      android: {
+        elevation: 1,
+      },
+    }),
   },
   radioActive: {
-    backgroundColor: '#2d74d6'
+    backgroundColor: '#3b82f6',
+    borderColor: '#3b82f6',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#3b82f6',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 3,
+      },
+    }),
   },
   radioText: {
-    color: '#333'
+    color: '#475569',
+    fontWeight: '600',
+    fontSize: 14
   },
   radioTextActive: {
-    color: '#fff'
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 14
   },
   rowBetween: {
     flexDirection: 'row',
@@ -91,16 +182,48 @@ export default StyleSheet.create({
     marginBottom: 12
   },
   toggle: {
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 20,
-    backgroundColor: '#eee'
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 24,
+    backgroundColor: '#f1f5f9',
+    borderWidth: 1.5,
+    borderColor: '#e2e8f0',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 2,
+      },
+      android: {
+        elevation: 1,
+      },
+    }),
   },
   toggleOn: {
-    backgroundColor: '#9fc5f8'
+    backgroundColor: '#3b82f6',
+    borderColor: '#3b82f6',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#3b82f6',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 3,
+      },
+    }),
   },
   toggleText: {
-    color: '#222'
+    color: '#475569',
+    fontWeight: '600',
+    fontSize: 14
+  },
+  toggleTextOn: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 14
   },
   rowOptionsWrap: {
     flexDirection: 'row',
@@ -108,69 +231,153 @@ export default StyleSheet.create({
     marginBottom: 12
   },
   checkbox: {
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    marginRight: 8,
-    marginBottom: 8,
-    backgroundColor: '#fff'
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 20,
+    borderWidth: 1.5,
+    borderColor: '#e2e8f0',
+    marginRight: 10,
+    marginBottom: 10,
+    backgroundColor: '#ffffff',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 2,
+      },
+      android: {
+        elevation: 1,
+      },
+    }),
   },
   checkboxChecked: {
-    backgroundColor: '#9fc5f8',
-    borderColor: '#9fc5f8'
+    backgroundColor: '#3b82f6',
+    borderColor: '#3b82f6',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#3b82f6',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 3,
+      },
+    }),
   },
-  checkboxText: { color: '#333' },
-  checkboxTextChecked: { color: '#fff' },
+  checkboxText: { 
+    color: '#475569',
+    fontWeight: '600',
+    fontSize: 14
+  },
+  checkboxTextChecked: { 
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 14
+  },
   amenityPill: {
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    borderRadius: 8,
-    backgroundColor: '#f5f7fa',
-    marginRight: 8,
-    marginBottom: 8
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 20,
+    backgroundColor: '#ffffff',
+    borderWidth: 1.5,
+    borderColor: '#e2e8f0',
+    marginRight: 10,
+    marginBottom: 10,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 2,
+      },
+      android: {
+        elevation: 1,
+      },
+    }),
   },
-  amenityPillActive: { backgroundColor: '#9fc5f8' },
-  amenityText: { color: '#333' },
-  amenityTextActive: { color: '#fff' },
+  amenityPillActive: { 
+    backgroundColor: '#3b82f6',
+    borderColor: '#3b82f6',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#3b82f6',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 3,
+      },
+    }),
+  },
+  amenityText: { 
+    color: '#475569',
+    fontWeight: '600',
+    fontSize: 14
+  },
+  amenityTextActive: { 
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 14
+  },
   /* Unique feature UI */
   featureInput: {
     paddingVertical: 12,
     paddingHorizontal: 14,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#e6eefb',
-    backgroundColor: '#fff'
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: '#e2e8f0',
+    backgroundColor: '#ffffff',
+    fontSize: 15,
+    color: '#1e293b',
   },
   addFeatureBtn: {
-    marginLeft: 8,
-    backgroundColor: '#0477c9',
+    marginLeft: 10,
+    backgroundColor: '#3b82f6',
     paddingVertical: 12,
-    paddingHorizontal: 14,
-    borderRadius: 10,
+    paddingHorizontal: 18,
+    borderRadius: 12,
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#3b82f6',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 3,
+      },
+    }),
   },
   addFeatureBtnText: {
     color: '#fff',
-    fontWeight: '700'
+    fontWeight: '700',
+    fontSize: 14
   },
   /* Form layout helpers */
   formCard: {
     width: '100%',
     maxWidth: 900,
     alignSelf: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 14,
-    padding: 18,
-    shadowColor: '#000',
-    shadowOpacity: 0.03,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 3,
-    borderWidth: 1,
-    borderColor: '#f0f4f8'
+    backgroundColor: '#ffffff',
+    borderRadius: 20,
+    padding: 24,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOpacity: 0.08,
+        shadowRadius: 20,
+        shadowOffset: { width: 0, height: 8 },
+      },
+      android: {
+        elevation: 4,
+      },
+    }),
+    borderWidth: 0,
   },
   /* subtle spacing to separate header */
   formCardTopSpacer: { marginTop: 8 },
@@ -192,22 +399,103 @@ export default StyleSheet.create({
   },
   /* Map button styling */
   mapBtn: {
-    backgroundColor: '#012a6b',
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    borderRadius: 10,
+    backgroundColor: '#3b82f6',
+    paddingVertical: 12,
+    paddingHorizontal: 18,
+    borderRadius: 12,
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#3b82f6',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 4,
+      },
+    }),
   },
   mapBtnText: {
     color: '#fff',
-    fontWeight: '700'
+    fontWeight: '700',
+    fontSize: 15
   },
-  imagesRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
-  thumb: { width: 72, height: 72, borderRadius: 8, marginRight: 8 },
-  imageAdd: { width: 72, height: 72, borderRadius: 8, borderWidth: 1, borderColor: '#ddd', alignItems: 'center', justifyContent: 'center' },
-  imageAddText: { color: '#333' },
-  errorBox: { backgroundColor: '#fff4f4', padding: 10, borderRadius: 8, marginBottom: 12, borderWidth: 1, borderColor: '#ffd6d6' },
-  errorText: { color: '#a10e0e' }
+  imagesRow: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    marginBottom: 12 
+  },
+  thumb: { 
+    width: 80, 
+    height: 80, 
+    borderRadius: 12, 
+    marginRight: 10,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 2,
+      },
+    }),
+  },
+  imageAdd: { 
+    width: 80, 
+    height: 80, 
+    borderRadius: 12, 
+    borderWidth: 2, 
+    borderColor: '#e2e8f0',
+    borderStyle: 'dashed',
+    alignItems: 'center', 
+    justifyContent: 'center',
+    backgroundColor: '#f8fafc'
+  },
+  imageAddText: { 
+    color: '#64748b',
+    fontWeight: '600',
+    fontSize: 14
+  },
+  errorBox: { 
+    backgroundColor: '#fef2f2', 
+    padding: 14, 
+    borderRadius: 12, 
+    marginBottom: 16, 
+    borderWidth: 1.5, 
+    borderColor: '#fecaca',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#ef4444',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 2,
+      },
+    }),
+  },
+  errorText: { 
+    color: '#dc2626',
+    fontSize: 14,
+    fontWeight: '500'
+  },
+  datePickerButton: {
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+  },
+  datePickerText: {
+    fontSize: 15,
+    color: '#1e293b',
+    fontWeight: '500'
+  },
+  datePickerPlaceholder: {
+    color: '#94a3b8',
+    fontWeight: '400'
+  }
 })
 

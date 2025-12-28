@@ -54,6 +54,7 @@ const AddListing = () => {
   const uniqueFeatureInputRef = useRef(null)
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState([])
+  const [focusedInput, setFocusedInput] = useState(null)
 
   const [isEditMode, setIsEditMode] = useState(false)
 
@@ -147,24 +148,65 @@ const AddListing = () => {
         setPurpose(apt.purpose || purpose)
         const m = apt.meta || {}
         setCity(m.location?.city || city)
-        setSubCity(m.location?.sub_city || subCity)
-        setArea(m.location?.area || area)
-        setLandmark(m.location?.landmark || landmark)
-        setLatitude(m.location?.latitude || m.location?.lat || latitude)
-        setLongitude(m.location?.longitude || m.location?.lng || longitude)
-        setPrice(apt.price || m.price || price)
+        // Preserve empty strings if they exist in meta, otherwise use empty string
+        setSubCity(m.location?.sub_city !== undefined && m.location?.sub_city !== null ? m.location.sub_city : '')
+        setArea(m.location?.area !== undefined && m.location?.area !== null ? m.location.area : '')
+        setLandmark(m.location?.landmark !== undefined && m.location?.landmark !== null ? m.location.landmark : '')
+        const lat = m.location?.latitude !== undefined && m.location?.latitude !== null ? m.location.latitude : (m.location?.lat !== undefined && m.location?.lat !== null ? m.location.lat : '')
+        const lng = m.location?.longitude !== undefined && m.location?.longitude !== null ? m.location.longitude : (m.location?.lng !== undefined && m.location?.lng !== null ? m.location.lng : '')
+        setLatitude(lat)
+        setLongitude(lng)
+        // Set map marker if coordinates exist
+        if (lat && lng) {
+          try {
+            const latNum = parseFloat(lat)
+            const lngNum = parseFloat(lng)
+            if (!isNaN(latNum) && !isNaN(lngNum)) {
+              setMapMarker({ latitude: latNum, longitude: lngNum })
+            }
+          } catch (e) {
+            // ignore
+          }
+        }
+        setPrice(apt.price || m.price || price || '')
         setPaymentPeriod(m.payment_period || paymentPeriod)
-        setDepositRequired(!!m.deposit_required)
-        setDepositAmount(m.deposit_amount || depositAmount)
-        setBedrooms(String(apt.bedrooms || m.bedrooms || bedrooms))
-        setBathrooms(String(apt.bathrooms || m.bathrooms || bathrooms))
-        setSize(m.size || apt.size || size)
-        setFloor(String(m.floor || apt.floor || floor))
+        // Preserve deposit_required: load from meta if available
+        if (m.deposit_required !== undefined && m.deposit_required !== null) {
+          // Convert to boolean: 1, true, '1' = true; 0, false, '0', null, undefined = false
+          const depositReqValue = m.deposit_required
+          setDepositRequired(depositReqValue === 1 || depositReqValue === true || depositReqValue === '1')
+        } else {
+          // If not in meta, default to false (preserve initial state)
+          setDepositRequired(false)
+        }
+        setDepositAmount(m.deposit_amount || depositAmount || '')
+        setBedrooms(String(apt.bedrooms || m.bedrooms || bedrooms || '1'))
+        setBathrooms(String(apt.bathrooms || m.bathrooms || bathrooms || '1'))
+        // Preserve size if it exists, even if it's 0 or empty
+        const sizeValue = m.size !== undefined && m.size !== null ? m.size : (apt.size !== undefined && apt.size !== null ? apt.size : '')
+        setSize(sizeValue !== '' ? String(sizeValue) : '')
+        setFloor(String(m.floor || apt.floor || floor || '1'))
         setFurnishing(m.furnishing || apt.furnishing || furnishing)
         setDescription(apt.description || '')
         setUniqueFeatures(Array.isArray(m.unique_features) ? m.unique_features : (typeof m.unique_features === 'string' ? (m.unique_features ? JSON.parse(m.unique_features) : []) : uniqueFeatures))
-        setAvailableFrom(m.available_from || availableFrom)
-        setContactPhone(m.contact_phone || apt.contact_phone || contactPhone)
+        // Handle available_from date - preserve if it exists, even if empty string
+        const availFrom = m.available_from !== undefined && m.available_from !== null ? m.available_from : ''
+        setAvailableFrom(availFrom)
+        if (availFrom && availFrom.trim() !== '') {
+          try {
+            const date = new Date(availFrom)
+            if (!isNaN(date.getTime())) {
+              setAvailableFromDate(date)
+            } else {
+              setAvailableFromDate(null)
+            }
+          } catch (e) {
+            setAvailableFromDate(null)
+          }
+        } else {
+          setAvailableFromDate(null)
+        }
+        setContactPhone(m.contact_phone || apt.contact_phone || contactPhone || '')
         setContactMethod(m.contact_method || contactMethod)
         // amenities/utilities
         if (Array.isArray(m.amenities)) {
@@ -189,6 +231,16 @@ const AddListing = () => {
           }
         } catch (e) {
           // ignore
+        }
+        // Load images
+        if (apt.images && Array.isArray(apt.images) && apt.images.length > 0) {
+          const imageUris = apt.images.map(img => {
+            // Handle both URL and path formats
+            if (img.url) return img.url
+            if (img.path) return `${API_URL}/storage/${img.path}`
+            return null
+          }).filter(Boolean)
+          setImages(imageUris)
         }
       } catch (e) {
         console.warn('Failed to load listing for edit', e.message)
@@ -423,8 +475,18 @@ const AddListing = () => {
 
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['top']}>
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={'padding'} keyboardVerticalOffset={HEADER_SHORT_HEIGHT}>
-        <ScrollView ref={scrollRef} contentContainerStyle={[styles.container, { paddingBottom: 2, flexGrow: 1 }]} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag"> 
+      <KeyboardAvoidingView 
+        style={{ flex: 1 }} 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+        keyboardVerticalOffset={Platform.OS === 'ios' ? HEADER_SHORT_HEIGHT : 0}
+      >
+        <ScrollView 
+          ref={scrollRef} 
+          contentContainerStyle={[styles.container, { paddingBottom: 20, flexGrow: 1 }]} 
+          keyboardShouldPersistTaps="handled" 
+          keyboardDismissMode="on-drag"
+          showsVerticalScrollIndicator={false}
+        > 
   <Header title="Post a New Listing" short />
   <View style={[styles.formCard, { marginTop: HEADER_SHORT_HEIGHT - 8 }]}>
 
@@ -439,7 +501,16 @@ const AddListing = () => {
         {/* Basic Details */}
         <Text style={styles.sectionTitle}>Basic Property Details</Text>
   <Text style={styles.label}>Property title</Text>
-  <TextInput ref={titleRef} onFocus={() => scrollToInput(titleRef)} style={styles.input} value={title} onChangeText={setTitle} placeholder="e.g. Spacious 2-bedroom apartment" />
+  <TextInput 
+    ref={titleRef} 
+    onFocus={() => { setFocusedInput('title'); scrollToInput(titleRef); }} 
+    onBlur={() => setFocusedInput(null)}
+    style={[styles.input, focusedInput === 'title' && styles.inputFocused]} 
+    value={title} 
+    onChangeText={setTitle} 
+    placeholder="e.g. Spacious 2-bedroom apartment"
+    placeholderTextColor="#94a3b8"
+  />
 
         <Text style={styles.label}>Property type</Text>
         <View style={styles.rowOptions}>
@@ -462,16 +533,50 @@ const AddListing = () => {
         {/* Location */}
         <Text style={styles.sectionTitle}>Location</Text>
         <Text style={styles.label}>City</Text>
-        <TextInput style={styles.input} value={city} onChangeText={setCity} />
+        <TextInput 
+          style={[styles.input, focusedInput === 'city' && styles.inputFocused]} 
+          value={city} 
+          onChangeText={setCity}
+          onFocus={() => setFocusedInput('city')}
+          onBlur={() => setFocusedInput(null)}
+          placeholderTextColor="#94a3b8"
+        />
 
   <Text style={styles.label}>Sub-city</Text>
-  <TextInput ref={subCityRef} onFocus={() => scrollToInput(subCityRef)} style={styles.input} value={subCity} onChangeText={setSubCity} placeholder="e.g. Bole" />
+  <TextInput 
+    ref={subCityRef} 
+    onFocus={() => { setFocusedInput('subCity'); scrollToInput(subCityRef); }} 
+    onBlur={() => setFocusedInput(null)}
+    style={[styles.input, focusedInput === 'subCity' && styles.inputFocused]} 
+    value={subCity} 
+    onChangeText={setSubCity} 
+    placeholder="e.g. Bole"
+    placeholderTextColor="#94a3b8"
+  />
 
   <Text style={styles.label}>Area / Neighborhood</Text>
-  <TextInput ref={areaRef} onFocus={() => scrollToInput(areaRef)} style={styles.input} value={area} onChangeText={setArea} placeholder="e.g. Around XYZ" />
+  <TextInput 
+    ref={areaRef} 
+    onFocus={() => { setFocusedInput('area'); scrollToInput(areaRef); }} 
+    onBlur={() => setFocusedInput(null)}
+    style={[styles.input, focusedInput === 'area' && styles.inputFocused]} 
+    value={area} 
+    onChangeText={setArea} 
+    placeholder="e.g. Around XYZ"
+    placeholderTextColor="#94a3b8"
+  />
 
   <Text style={styles.label}>Street or landmark (optional)</Text>
-  <TextInput ref={landmarkRef} onFocus={() => scrollToInput(landmarkRef)} style={styles.input} value={landmark} onChangeText={setLandmark} placeholder="Nearby landmark or street" />
+  <TextInput 
+    ref={landmarkRef} 
+    onFocus={() => { setFocusedInput('landmark'); scrollToInput(landmarkRef); }} 
+    onBlur={() => setFocusedInput(null)}
+    style={[styles.input, focusedInput === 'landmark' && styles.inputFocused]} 
+    value={landmark} 
+    onChangeText={setLandmark} 
+    placeholder="Nearby landmark or street"
+    placeholderTextColor="#94a3b8"
+  />
 
         <Text style={styles.label}>Map location</Text>
         <View style={{ marginBottom: 12 }}>
@@ -502,7 +607,17 @@ const AddListing = () => {
         {/* Pricing & Terms */}
         <Text style={styles.sectionTitle}>Pricing & Terms</Text>
   <Text style={styles.label}>Price</Text>
-  <TextInput ref={priceRef} onFocus={() => scrollToInput(priceRef)} style={styles.input} value={price} onChangeText={setPrice} placeholder="Numeric amount" keyboardType={Platform.OS === 'web' ? 'default' : 'numeric'} />
+  <TextInput 
+    ref={priceRef} 
+    onFocus={() => { setFocusedInput('price'); scrollToInput(priceRef); }} 
+    onBlur={() => setFocusedInput(null)}
+    style={[styles.input, focusedInput === 'price' && styles.inputFocused]} 
+    value={price} 
+    onChangeText={setPrice} 
+    placeholder="Numeric amount" 
+    keyboardType={Platform.OS === 'web' ? 'default' : 'numeric'}
+    placeholderTextColor="#94a3b8"
+  />
 
         <Text style={styles.label}>Payment period</Text>
         <View style={styles.rowOptions}>
@@ -516,14 +631,24 @@ const AddListing = () => {
         <View style={styles.rowBetween}>
           <Text style={styles.label}>Deposit required</Text>
           <TouchableOpacity style={[styles.toggle, depositRequired && styles.toggleOn]} onPress={() => setDepositRequired(!depositRequired)}>
-            <Text style={styles.toggleText}>{depositRequired ? 'Yes' : 'No'}</Text>
+            <Text style={depositRequired ? styles.toggleTextOn : styles.toggleText}>{depositRequired ? 'Yes' : 'No'}</Text>
           </TouchableOpacity>
         </View>
 
         {depositRequired && (
           <>
             <Text style={styles.label}>Deposit amount</Text>
-            <TextInput ref={depositRef} onFocus={() => scrollToInput(depositRef)} style={styles.input} value={depositAmount} onChangeText={setDepositAmount} keyboardType={Platform.OS === 'web' ? 'default' : 'numeric'} placeholder="e.g. 5000" />
+            <TextInput 
+              ref={depositRef} 
+              onFocus={() => { setFocusedInput('deposit'); scrollToInput(depositRef); }} 
+              onBlur={() => setFocusedInput(null)}
+              style={[styles.input, focusedInput === 'deposit' && styles.inputFocused]} 
+              value={depositAmount} 
+              onChangeText={setDepositAmount} 
+              keyboardType={Platform.OS === 'web' ? 'default' : 'numeric'} 
+              placeholder="e.g. 5000"
+              placeholderTextColor="#94a3b8"
+            />
           </>
         )}
 
@@ -539,16 +664,52 @@ const AddListing = () => {
         {/* Specifications */}
         <Text style={styles.sectionTitle}>Property Specifications</Text>
   <Text style={styles.label}>Number of bedrooms</Text>
-  <TextInput ref={bedroomsRef} onFocus={() => scrollToInput(bedroomsRef)} style={styles.input} value={bedrooms} onChangeText={setBedrooms} keyboardType={Platform.OS === 'web' ? 'default' : 'numeric'} />
+  <TextInput 
+    ref={bedroomsRef} 
+    onFocus={() => { setFocusedInput('bedrooms'); scrollToInput(bedroomsRef); }} 
+    onBlur={() => setFocusedInput(null)}
+    style={[styles.input, focusedInput === 'bedrooms' && styles.inputFocused]} 
+    value={bedrooms} 
+    onChangeText={setBedrooms} 
+    keyboardType={Platform.OS === 'web' ? 'default' : 'numeric'}
+    placeholderTextColor="#94a3b8"
+  />
 
   <Text style={styles.label}>Number of bathrooms</Text>
-  <TextInput ref={bathroomsRef} onFocus={() => scrollToInput(bathroomsRef)} style={styles.input} value={bathrooms} onChangeText={setBathrooms} keyboardType={Platform.OS === 'web' ? 'default' : 'numeric'} />
+  <TextInput 
+    ref={bathroomsRef} 
+    onFocus={() => { setFocusedInput('bathrooms'); scrollToInput(bathroomsRef); }} 
+    onBlur={() => setFocusedInput(null)}
+    style={[styles.input, focusedInput === 'bathrooms' && styles.inputFocused]} 
+    value={bathrooms} 
+    onChangeText={setBathrooms} 
+    keyboardType={Platform.OS === 'web' ? 'default' : 'numeric'}
+    placeholderTextColor="#94a3b8"
+  />
 
   <Text style={styles.label}>Total size (sqm) — optional</Text>
-  <TextInput ref={sizeRef} onFocus={() => scrollToInput(sizeRef)} style={styles.input} value={size} onChangeText={setSize} keyboardType={Platform.OS === 'web' ? 'default' : 'numeric'} />
+  <TextInput 
+    ref={sizeRef} 
+    onFocus={() => { setFocusedInput('size'); scrollToInput(sizeRef); }} 
+    onBlur={() => setFocusedInput(null)}
+    style={[styles.input, focusedInput === 'size' && styles.inputFocused]} 
+    value={size} 
+    onChangeText={setSize} 
+    keyboardType={Platform.OS === 'web' ? 'default' : 'numeric'}
+    placeholderTextColor="#94a3b8"
+  />
 
   <Text style={styles.label}>Floor number</Text>
-  <TextInput ref={floorRef} onFocus={() => scrollToInput(floorRef)} style={styles.input} value={floor} onChangeText={setFloor} keyboardType={Platform.OS === 'web' ? 'default' : 'numeric'} />
+  <TextInput 
+    ref={floorRef} 
+    onFocus={() => { setFocusedInput('floor'); scrollToInput(floorRef); }} 
+    onBlur={() => setFocusedInput(null)}
+    style={[styles.input, focusedInput === 'floor' && styles.inputFocused]} 
+    value={floor} 
+    onChangeText={setFloor} 
+    keyboardType={Platform.OS === 'web' ? 'default' : 'numeric'}
+    placeholderTextColor="#94a3b8"
+  />
 
         <Text style={styles.label}>Furnishing status</Text>
         <View style={styles.rowOptions}>
@@ -573,14 +734,16 @@ const AddListing = () => {
         <Text style={styles.sectionTitle}>Unique features</Text>
         <Text style={styles.label}>Add a feature (single short line)</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-          <TextInput
+            <TextInput
               ref={uniqueFeatureInputRef}
-              style={[styles.input, styles.featureInput, { flex: 1 }]}
+              style={[styles.input, styles.featureInput, { flex: 1 }, focusedInput === 'uniqueFeature' && styles.inputFocused]}
               value={uniqueFeatureInput}
               onChangeText={setUniqueFeatureInput}
               placeholder="e.g. Panoramic city view"
+              placeholderTextColor="#94a3b8"
               returnKeyType="done"
-              onFocus={() => scrollToInput(uniqueFeatureInputRef)}
+              onFocus={() => { setFocusedInput('uniqueFeature'); scrollToInput(uniqueFeatureInputRef); }}
+              onBlur={() => setFocusedInput(null)}
               onSubmitEditing={addUniqueFeature}
             />
           <TouchableOpacity
@@ -609,7 +772,17 @@ const AddListing = () => {
         {/* Description & Media */}
         <Text style={styles.sectionTitle}>Description & Media</Text>
   <Text style={styles.label}>Detailed description</Text>
-  <TextInput ref={descriptionRef} onFocus={() => scrollToInput(descriptionRef)} style={[styles.input, { height: 120 }]} value={description} onChangeText={setDescription} multiline placeholder="Describe the property, nearby facilities, transport, etc." />
+  <TextInput 
+    ref={descriptionRef} 
+    onFocus={() => { setFocusedInput('description'); scrollToInput(descriptionRef); }} 
+    onBlur={() => setFocusedInput(null)}
+    style={[styles.input, { height: 120 }, focusedInput === 'description' && styles.inputFocused]} 
+    value={description} 
+    onChangeText={setDescription} 
+    multiline 
+    placeholder="Describe the property, nearby facilities, transport, etc."
+    placeholderTextColor="#94a3b8"
+  />
 
         <Text style={styles.label}>Images</Text>
         <ScrollView style={{ marginBottom: 8 }} horizontal showsHorizontalScrollIndicator={false}>
@@ -628,27 +801,37 @@ const AddListing = () => {
         {/* Availability & Contact */}
         <Text style={styles.sectionTitle}>Availability & Contact Preferences</Text>
         <Text style={styles.label}>Available from</Text>
-        <TouchableOpacity style={styles.input} onPress={() => showPicker('available')}>
-          <Text>{availableFromDate ? availableFromDate.toISOString().slice(0,10) : 'Select date'}</Text>
+        <TouchableOpacity style={[styles.input, styles.datePickerButton]} onPress={() => showPicker('available')}>
+          <Text style={[styles.datePickerText, !availableFromDate && styles.datePickerPlaceholder]}>
+            {availableFromDate ? availableFromDate.toISOString().slice(0,10) : 'Select date'}
+          </Text>
         </TouchableOpacity>
 
         <Text style={styles.label}>Open for tour (date range)</Text>
         <View style={{ flexDirection: 'row' }}>
-          <TouchableOpacity style={[styles.input, { flex: 1, marginRight: 8 }]} onPress={() => showPicker('tourFrom')}>
-            <Text>{tourDateFrom ? tourDateFrom.toISOString().slice(0,10) : 'From'}</Text>
+          <TouchableOpacity style={[styles.input, styles.datePickerButton, { flex: 1, marginRight: 8 }]} onPress={() => showPicker('tourFrom')}>
+            <Text style={[styles.datePickerText, !tourDateFrom && styles.datePickerPlaceholder]}>
+              {tourDateFrom ? tourDateFrom.toISOString().slice(0,10) : 'From'}
+            </Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.input, { flex: 1 }]} onPress={() => showPicker('tourTo')}>
-            <Text>{tourDateTo ? tourDateTo.toISOString().slice(0,10) : 'To'}</Text>
+          <TouchableOpacity style={[styles.input, styles.datePickerButton, { flex: 1 }]} onPress={() => showPicker('tourTo')}>
+            <Text style={[styles.datePickerText, !tourDateTo && styles.datePickerPlaceholder]}>
+              {tourDateTo ? tourDateTo.toISOString().slice(0,10) : 'To'}
+            </Text>
           </TouchableOpacity>
         </View>
 
         <Text style={styles.label}>Open for tour (time range)</Text>
         <View style={{ flexDirection: 'row' }}>
-          <TouchableOpacity style={[styles.input, { flex: 1, marginRight: 8 }]} onPress={() => showPicker('timeFrom')}>
-            <Text>{tourTimeFrom ? tourTimeFrom.toTimeString().slice(0,5) : 'From'}</Text>
+          <TouchableOpacity style={[styles.input, styles.datePickerButton, { flex: 1, marginRight: 8 }]} onPress={() => showPicker('timeFrom')}>
+            <Text style={[styles.datePickerText, !tourTimeFrom && styles.datePickerPlaceholder]}>
+              {tourTimeFrom ? tourTimeFrom.toTimeString().slice(0,5) : 'From'}
+            </Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.input, { flex: 1 }]} onPress={() => showPicker('timeTo')}>
-            <Text>{tourTimeTo ? tourTimeTo.toTimeString().slice(0,5) : 'To'}</Text>
+          <TouchableOpacity style={[styles.input, styles.datePickerButton, { flex: 1 }]} onPress={() => showPicker('timeTo')}>
+            <Text style={[styles.datePickerText, !tourTimeTo && styles.datePickerPlaceholder]}>
+              {tourTimeTo ? tourTimeTo.toTimeString().slice(0,5) : 'To'}
+            </Text>
           </TouchableOpacity>
         </View>
 
@@ -669,7 +852,17 @@ const AddListing = () => {
         </View>
 
   <Text style={styles.label}>Contact phone number</Text>
-  <TextInput ref={contactPhoneRef} onFocus={() => scrollToInput(contactPhoneRef)} style={styles.input} value={contactPhone} onChangeText={setContactPhone} keyboardType={Platform.OS === 'web' ? 'default' : 'phone-pad'} placeholder="e.g. +2519xxxxxxx" />
+  <TextInput 
+    ref={contactPhoneRef} 
+    onFocus={() => { setFocusedInput('contactPhone'); scrollToInput(contactPhoneRef); }} 
+    onBlur={() => setFocusedInput(null)}
+    style={[styles.input, focusedInput === 'contactPhone' && styles.inputFocused]} 
+    value={contactPhone} 
+    onChangeText={setContactPhone} 
+    keyboardType={Platform.OS === 'web' ? 'default' : 'phone-pad'} 
+    placeholder="e.g. +2519xxxxxxx"
+    placeholderTextColor="#94a3b8"
+  />
 
         <Text style={styles.label}>Preferred contact method</Text>
         <View style={styles.fieldRow}>

@@ -68,7 +68,8 @@ Route::middleware('auth:sanctum')->delete('/user', function (Request $request) {
 });
 
 Route::get('/apartment-list', function (Request $request) {
-    $apartments = Apartment::all();
+    // Only return active listings (status = 1) for clients
+    $apartments = Apartment::where('status', 1)->get();
 
     $apartments->load('images');
     
@@ -97,23 +98,36 @@ Route::get('/apartment-list', function (Request $request) {
 
 // get single apartment details
 Route::get('/apartments/{apartment}', function (Request $request, Apartment $apartment) {
-    $apartment->load('images', 'owner');
-    
-    // Check if authenticated user has favorited this apartment
+    // Check if listing is active and user permissions
     $token = $request->bearerToken();
+    $user = null;
+    $isOwner = false;
+    
     if ($token) {
         try {
             $user = \Laravel\Sanctum\PersonalAccessToken::findToken($token)?->tokenable;
             if ($user) {
-                $apartment->is_favorite = DB::table('favorites')
-                    ->where('user_id', $user->id)
-                    ->where('apartment_id', $apartment->id)
-                    ->exists();
+                // Allow owners to view their own listings even if inactive
+                $isOwner = $apartment->user_id === $user->id;
             }
         } catch (\Exception $e) {
             // Ignore token errors
-            $apartment->is_favorite = false;
         }
+    }
+    
+    // If listing is inactive and user is not the owner, return 404
+    if ($apartment->status != 1 && !$isOwner) {
+        return response()->json(['message' => 'Listing not found or unavailable'], 404);
+    }
+    
+    $apartment->load('images', 'owner');
+    
+    // Check if authenticated user has favorited this apartment
+    if ($user) {
+        $apartment->is_favorite = DB::table('favorites')
+            ->where('user_id', $user->id)
+            ->where('apartment_id', $apartment->id)
+            ->exists();
     } else {
         $apartment->is_favorite = false;
     }
@@ -389,7 +403,9 @@ Route::middleware('auth:sanctum')->get('/favorites', function (Request $request)
         ->where('user_id', $user->id)
         ->pluck('apartment_id');
     
+    // Only return active favorites (status = 1)
     $apartments = Apartment::whereIn('id', $favoriteIds)
+        ->where('status', 1)
         ->with('images', 'owner')
         ->get();
     
