@@ -250,14 +250,30 @@ const AddListing = () => {
 
   // rely on KeyboardAvoidingView to manage offsets; listeners removed to avoid extra padding
 
+  // Scroll to the focused input. Delay the scroll slightly so it happens after the keyboard
+  // animates in — this prevents the input jumping out of view when editing prefilled fields.
   const scrollToInput = (ref) => {
     try {
       if (!ref || !ref.current || !scrollRef.current) return
       const node = findNodeHandle(ref.current)
       if (!node) return
       // extra offset to place field comfortably above keyboard
-      const extraOffset = 5
-      scrollRef.current.getScrollResponder().scrollResponderScrollNativeHandleToKeyboard(node, HEADER_SHORT_HEIGHT + extraOffset, true)
+      const extraOffset = 8
+      // Small delay to wait for keyboard to appear (fixes edit-mode focus jump)
+      setTimeout(() => {
+        try {
+          if (scrollRef.current.getScrollResponder) {
+            scrollRef.current.getScrollResponder().scrollResponderScrollNativeHandleToKeyboard(node, HEADER_SHORT_HEIGHT + extraOffset, true)
+          } else if (scrollRef.current.scrollTo) {
+            // best-effort fallback: attempt to scroll to node using measureLayout
+            ref.current.measureLayout(findNodeHandle(scrollRef.current), (x, y) => {
+              scrollRef.current.scrollTo({ y: Math.max(0, y - HEADER_SHORT_HEIGHT - extraOffset), animated: true })
+            }, () => {})
+          }
+        } catch (e) {
+          // ignore inner errors
+        }
+      }, 260)
     } catch (e) {
       // ignore
     }
@@ -477,12 +493,12 @@ const AddListing = () => {
     <SafeAreaView style={{ flex: 1 }} edges={['top']}>
       <KeyboardAvoidingView 
         style={{ flex: 1 }} 
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
-        keyboardVerticalOffset={Platform.OS === 'ios' ? HEADER_SHORT_HEIGHT : 0}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={0}
       >
         <ScrollView 
           ref={scrollRef} 
-          contentContainerStyle={[styles.container, { paddingBottom: 20, flexGrow: 1 }]} 
+          contentContainerStyle={[styles.container, { paddingBottom: 12, flexGrow: 1 }]} 
           keyboardShouldPersistTaps="handled" 
           keyboardDismissMode="on-drag"
           showsVerticalScrollIndicator={false}
