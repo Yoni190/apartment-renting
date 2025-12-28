@@ -69,7 +69,7 @@ export default function ApartmentDetails() {
         //add3
         //pull
         //pull2
-        //
+        //pull3
         //
         //
         //
