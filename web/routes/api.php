@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Rules;
+use App\Services\RecommendationService;
 
 
 /*
@@ -421,3 +422,24 @@ Route::middleware('auth:sanctum')->get('/owner/bookings', [App\Http\Controllers\
 Route::middleware('auth:sanctum')->get('/my-tours', [App\Http\Controllers\Api\TourBookingApiController::class, 'clientBookings']);
 // Update booking status (owner only) - expects { status: 'approved'|'rejected'|'pending' }
 Route::middleware('auth:sanctum')->patch('/tour-bookings/{booking}', [App\Http\Controllers\Api\TourBookingApiController::class, 'updateStatus']);
+
+// Recommendations endpoint
+Route::get('/recommendations', function (Request $request) {
+    $filters = $request->only(['location','min_price','max_price','bedrooms','property_type','furnished','limit']);
+
+    $token = $request->bearerToken();
+    $user = null;
+    if ($token) {
+        try {
+            $user = \Laravel\Sanctum\PersonalAccessToken::findToken($token)?->tokenable;
+        } catch (\Exception $e) {
+            // ignore
+        }
+    }
+
+    $service = new RecommendationService();
+    $results = $service->recommend($filters, $user);
+
+    // Only return owner-provided fields (do not fabricate data). We already eager-loaded images/owner.
+    return response()->json($results);
+});
