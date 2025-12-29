@@ -9,7 +9,7 @@ import { Ionicons } from '@expo/vector-icons'
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8000'
 
-const SearchScreen = () => {
+const RequestedToursScreen = () => {
   const navigation = useNavigation()
   const [bookings, setBookings] = useState([])
   const [loadingBookings, setLoadingBookings] = useState(false)
@@ -164,7 +164,7 @@ const SearchScreen = () => {
   )
 }
 
-export default SearchScreen
+export default RequestedToursScreen
 
 const styles = StyleSheet.create({
   searchContainer: {

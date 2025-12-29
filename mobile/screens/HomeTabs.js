@@ -6,7 +6,7 @@ import LoginScreen from './LoginScreen/LoginScreen'
 import RegisterScreen from './RegisterScreen/RegisterScreen'
 import ProfileScreen from './ProfileScreen/ProfileScreen'
 import HomeScreen from './HomeScreen/HomeScreen'
-import SearchScreen from './SearchScreen/SearchScreen'
+import RequestedToursScreen from './RequestedToursScreen/RequestedToursScreen'
 import MessagesScreen from './MessagesScreen/MessagesScreen'
 import FavouritesScreen from './FavouritesScreen/FavouritesScreen'
 
@@ -40,7 +40,7 @@ const HomeTabs = () => {
       />
       <Tab.Screen 
         name="Search" 
-        component={SearchScreen}
+        component={RequestedToursScreen}
         options={{
           tabBarIcon: ({ focused }) => (
             <Ionicons 
