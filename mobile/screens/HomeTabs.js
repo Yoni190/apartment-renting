@@ -9,6 +9,7 @@ import HomeScreen from './HomeScreen/HomeScreen'
 import RequestedToursScreen from './RequestedToursScreen/RequestedToursScreen'
 import MessagesScreen from './MessagesScreen/MessagesScreen'
 import FavouritesScreen from './FavouritesScreen/FavouritesScreen'
+import SearchScreen from './SearchScreen/SearchScreen'
 
 const Tab = createBottomTabNavigator()
 
@@ -50,6 +51,20 @@ const HomeTabs = () => {
           )
         }}
       />
+
+      <Tab.Screen 
+        name="Search" 
+        component={SearchScreen}
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <Ionicons 
+              name={focused ? 'search' : 'search-outline'} 
+              size={24} 
+            />
+          )
+        }}
+      />
+
       <Tab.Screen 
         name="Messages" 
         component={MessagesScreen}

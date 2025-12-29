@@ -16,5 +16,9 @@
   "messages": "መልዕክቶች",
   "no_messages_yet": "እስካሁን መልዕክቶች የሉም",
   "no_messages_subtitle": "ማንኛውም ሰው መልዕክት ሲልክ፣ እዚህ ይታያል። ንግግር ይጀምሩ!",
-  "chooseYourRole": "ሚናዎን ይምረጡ"
+  "chooseYourRole": "ሚናዎን ይምረጡ",
+  "search": "ፈልግ",
+  "searchPlaceholder": "ለአፓርታማዎች፣ ስፍራዎች ይፈልጉ...",
+  "noResultsFound": "ውጤቶች አልተገኙም",
+  "searchSubtitle": "የፈለጉትን ለማግኘት ፍለጋዎን መለዋወጥ ይሞክሩ."
 }
