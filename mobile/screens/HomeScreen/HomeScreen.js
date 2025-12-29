@@ -192,8 +192,8 @@ const HomeScreen = () => {
               <TextInput placeholder="Max price" value={filters.max_price} onChangeText={(v) => setFilters(f => ({ ...f, max_price: v }))} style={[styles.textInput, { flex: 1 }]} />
             </View>
             <View style={{ flexDirection: 'row', marginTop: 8, gap: 8 }}>
-              <TextInput placeholder="Bedrooms" value={filters.bedrooms} onChangeText={(v) => setFilters(f => ({ ...f, bedrooms: v }))} style={[styles.textInput, { flex: 1 }]} />
-              <TextInput placeholder="Property type" value={filters.property_type} onChangeText={(v) => setFilters(f => ({ ...f, property_type: v }))} style={[styles.textInput, { flex: 1 }]} />
+              <TextInput placeholder="Bedrooms ex: 2" value={filters.bedrooms} onChangeText={(v) => setFilters(f => ({ ...f, bedrooms: v }))} style={[styles.textInput, { flex: 1 }]} />
+              <TextInput placeholder="Property type ex: apartment" value={filters.property_type} onChangeText={(v) => setFilters(f => ({ ...f, property_type: v }))} style={[styles.textInput, { flex: 1 }]} />
             </View>
             <View style={{ flexDirection: 'row', marginTop: 8, alignItems: 'center' }}>
               <TextInput placeholder="Furnished (yes/no)" value={filters.furnished} onChangeText={(v) => setFilters(f => ({ ...f, furnished: v }))} style={[styles.textInput, { flex: 1 }]} />

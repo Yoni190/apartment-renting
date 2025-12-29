@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, FlatList, Image, ActivityIndicator, Modal, Linking, Alert } from 'react-native'
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, FlatList, Image, ActivityIndicator, Modal, Linking, Alert, RefreshControl } from 'react-native'
 import Header from '../../components/Header'
 import { ArrowUpDown, SlidersHorizontal, Search } from 'lucide-react-native'
 import axios from 'axios'
 import * as SecureStore from 'expo-secure-store'
-import { useNavigation } from '@react-navigation/native'
+import { useNavigation, useIsFocused } from '@react-navigation/native'
 import { Ionicons } from '@expo/vector-icons'
 import styles from './TourScreenStyle'
 import TourRequestCard from '../../components/TourRequestCard'
@@ -18,33 +18,50 @@ const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8000'
 
 const OwnerTours = () => {
   const navigation = useNavigation()
+  const isFocused = useIsFocused()
   const [bookings, setBookings] = useState([])
   const [loadingBookings, setLoadingBookings] = useState(false)
+  const [refreshingBookings, setRefreshingBookings] = useState(false)
   const [selectedClient, setSelectedClient] = useState(null)
   const [modalVisible, setModalVisible] = useState(false)
   const [updatingBookingId, setUpdatingBookingId] = useState(null)
 
-  useEffect(() => {
-    let mounted = true
-    const fetchBookings = async () => {
-      try {
-        const token = await SecureStore.getItemAsync('token')
-        if (!token) return
-        setLoadingBookings(true)
-        const res = await axios.get(`${API_URL}/owner/bookings`, { headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } })
-        if (!mounted) return
-        setBookings(res.data.bookings || [])
-      } catch (e) {
-        console.warn('Failed to fetch owner bookings', e.message)
-      } finally {
-        if (mounted) setLoadingBookings(false)
-      }
+  // Fetch bookings once whenever the screen becomes focused. Manual refresh is supported.
+  const fetchBookings = async () => {
+    try {
+      const token = await SecureStore.getItemAsync('token')
+      if (!token) return
+      setLoadingBookings(true)
+      const res = await axios.get(`${API_URL}/owner/bookings`, { headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } })
+      if (!isFocused) return
+      setBookings(res.data.bookings || [])
+    } catch (e) {
+      console.warn('Failed to fetch owner bookings', e.message)
+    } finally {
+      if (isFocused) setLoadingBookings(false)
     }
+  }
 
-    fetchBookings()
-    const iv = setInterval(fetchBookings, 6000)
-    return () => { mounted = false; clearInterval(iv) }
-  }, [])
+  useEffect(() => {
+    if (isFocused) {
+      // single-shot refresh when the screen is revisited
+      fetchBookings()
+    }
+  }, [isFocused])
+
+  const onRefreshBookings = async () => {
+    setRefreshingBookings(true)
+    try {
+      const token = await SecureStore.getItemAsync('token')
+      if (!token) return
+      const res = await axios.get(`${API_URL}/owner/bookings`, { headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } })
+      setBookings(res.data.bookings || [])
+    } catch (e) {
+      console.warn('Failed to refresh owner bookings', e.message)
+    } finally {
+      setRefreshingBookings(false)
+    }
+  }
 
   const handleUpdateStatus = async (bookingId, status) => {
     try {
@@ -132,7 +149,7 @@ const OwnerTours = () => {
       </View>
 
       <View style={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 24 }}>
-        {loadingBookings ? (
+          {loadingBookings ? (
           <ActivityIndicator />
         ) : bookings.length === 0 ? (
           <Text style={{ color: '#6b7280' }}>No tour requests yet.</Text>
@@ -143,6 +160,7 @@ const OwnerTours = () => {
             renderItem={renderBookingItem}
             contentContainerStyle={{ paddingBottom: 8 }}
             ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+            refreshControl={<RefreshControl refreshing={refreshingBookings} onRefresh={onRefreshBookings} />}
           />
         )}
       </View>
@@ -154,32 +172,47 @@ const OwnerTours = () => {
 
 export function MyTours() {
   const navigation = useNavigation()
+  const isFocused = useIsFocused()
   const [bookings, setBookings] = useState([])
   const [loading, setLoading] = useState(false)
+  const [refreshing, setRefreshing] = useState(false)
   const [selectedOwner, setSelectedOwner] = useState(null)
   const [ownerModalVisible, setOwnerModalVisible] = useState(false)
 
-  useEffect(() => {
-    let mounted = true
-    const fetchMyTours = async () => {
-      try {
-        const token = await SecureStore.getItemAsync('token')
-        if (!token) return
-        setLoading(true)
-        const res = await axios.get(`${API_URL}/my-tours`, { headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } })
-        if (!mounted) return
-        setBookings(res.data.bookings || [])
-      } catch (e) {
-        console.warn('Failed to fetch my tours', e.message)
-      } finally {
-        if (mounted) setLoading(false)
-      }
+  const fetchMyTours = async () => {
+    try {
+      const token = await SecureStore.getItemAsync('token')
+      if (!token) return
+      setLoading(true)
+      const res = await axios.get(`${API_URL}/my-tours`, { headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } })
+      if (!isFocused) return
+      setBookings(res.data.bookings || [])
+    } catch (e) {
+      console.warn('Failed to fetch my tours', e.message)
+    } finally {
+      if (isFocused) setLoading(false)
     }
+  }
 
-    fetchMyTours()
-    const iv = setInterval(fetchMyTours, 6000)
-    return () => { mounted = false; clearInterval(iv) }
-  }, [])
+  useEffect(() => {
+    if (isFocused) {
+      fetchMyTours()
+    }
+  }, [isFocused])
+
+  const onRefreshMyTours = async () => {
+    setRefreshing(true)
+    try {
+      const token = await SecureStore.getItemAsync('token')
+      if (!token) return
+      const res = await axios.get(`${API_URL}/my-tours`, { headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } })
+      setBookings(res.data.bookings || [])
+    } catch (e) {
+      console.warn('Failed to refresh my tours', e.message)
+    } finally {
+      setRefreshing(false)
+    }
+  }
 
   const renderItem = ({ item }) => (
     <TourRequestCard
@@ -235,7 +268,7 @@ export function MyTours() {
       <Header title="My Tours" />
       <View style={{ paddingHorizontal: 16, paddingTop: 110, paddingBottom: 24 }}>
         {loading ? <ActivityIndicator /> : bookings.length === 0 ? <Text style={{ color: '#6b7280' }}>No tours found.</Text> : (
-          <FlatList data={bookings} keyExtractor={(b) => String(b.id)} renderItem={renderItem} ItemSeparatorComponent={() => <View style={{ height: 12 }} />} />
+          <FlatList data={bookings} keyExtractor={(b) => String(b.id)} renderItem={renderItem} ItemSeparatorComponent={() => <View style={{ height: 12 }} />} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefreshMyTours} />} />
         )}
       </View>
       {renderOwnerModal()}
