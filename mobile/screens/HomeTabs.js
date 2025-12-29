@@ -6,8 +6,8 @@ import LoginScreen from './LoginScreen/LoginScreen'
 import RegisterScreen from './RegisterScreen/RegisterScreen'
 import ProfileScreen from './ProfileScreen/ProfileScreen'
 import HomeScreen from './HomeScreen/HomeScreen'
-import RequestedToursScreen from './RequestedToursScreen/RequestedToursScreen'
-import SearchScreen from './SearchScreen/SearchScreen'
+// import RequestedToursScreen from './RequestedToursScreen/RequestedToursScreen'
+// import SearchScreen from './SearchScreen/SearchScreen'
 import { MyTours } from './TourScreen/TourScreen'
 import MessagesScreen from './MessagesScreen/MessagesScreen'
 import FavouritesScreen from './FavouritesScreen/FavouritesScreen'
@@ -40,7 +40,7 @@ const HomeTabs = () => {
           )
         }}
       />
-      <Tab.Screen 
+      {/* <Tab.Screen 
         name="Requested Tours" 
         component={RequestedToursScreen}
         options={{
@@ -51,9 +51,9 @@ const HomeTabs = () => {
             />
           )
         }}
-      />
+      /> */}
 
-      <Tab.Screen 
+      {/* <Tab.Screen 
         name="Search" 
         component={SearchScreen}
         options={{
@@ -64,7 +64,7 @@ const HomeTabs = () => {
             />
           )
         }}
-      />
+      /> */}
 
       <Tab.Screen 
         name="Messages" 
