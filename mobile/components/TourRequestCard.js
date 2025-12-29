@@ -5,7 +5,7 @@ import styles from '../screens/TourScreen/TourScreenStyle'
 
 const safeUri = (img) => img?.url || (img?.path ? `${process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8000'}/storage/${img.path}` : null)
 
-export default function TourRequestCard({ booking, isOwner=false, onOpenClient=()=>{}, onOpenOwner=()=>{}, onApprove=()=>{}, onReject=()=>{}, updatingBookingId=null, onViewDetails=()=>{} }){
+export default function TourRequestCard({ booking, isOwner=false, onOpenClient=()=>{}, onOpenOwner=()=>{}, onApprove=()=>{}, onReject=()=>{}, updatingBookingId=null, updatingBookingAction=null, onViewDetails=()=>{} }){
   const listing = booking.listing || {}
   const client = booking.user || {}
   const scheduled = booking.scheduled_at ? new Date(booking.scheduled_at) : null
@@ -78,10 +78,10 @@ export default function TourRequestCard({ booking, isOwner=false, onOpenClient=(
         {isOwner && (booking.status || '').toString().toLowerCase() === 'pending' ? (
           <View style={styles.pendingFooter}>
             <TouchableOpacity style={[styles.pendingBtnLeft, { backgroundColor: '#10b981' }]} onPress={() => onApprove(booking.id)}>
-              {updatingBookingId === booking.id ? <ActivityIndicator color="#fff" /> : <Text style={styles.splitBtnText}>Approve</Text>}
+              {updatingBookingId === booking.id && updatingBookingAction === 'approve' ? <ActivityIndicator color="#fff" /> : <Text style={styles.splitBtnText}>Approve</Text>}
             </TouchableOpacity>
             <TouchableOpacity style={[styles.pendingBtnRight, { backgroundColor: '#ef4444' }]} onPress={() => onReject(booking.id)}>
-              {updatingBookingId === booking.id ? <ActivityIndicator color="#fff" /> : <Text style={styles.splitBtnText}>Reject</Text>}
+              {updatingBookingId === booking.id && updatingBookingAction === 'reject' ? <ActivityIndicator color="#fff" /> : <Text style={styles.splitBtnText}>Reject</Text>}
             </TouchableOpacity>
           </View>
         ) : null}

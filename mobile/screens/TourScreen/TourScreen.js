@@ -25,6 +25,7 @@ const OwnerTours = () => {
   const [selectedClient, setSelectedClient] = useState(null)
   const [modalVisible, setModalVisible] = useState(false)
   const [updatingBookingId, setUpdatingBookingId] = useState(null)
+  const [updatingBookingAction, setUpdatingBookingAction] = useState(null)
 
   // Fetch bookings once whenever the screen becomes focused. Manual refresh is supported.
   const fetchBookings = async () => {
@@ -34,7 +35,9 @@ const OwnerTours = () => {
       setLoadingBookings(true)
       const res = await axios.get(`${API_URL}/owner/bookings`, { headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } })
       if (!isFocused) return
-      setBookings(res.data.bookings || [])
+      const list = res.data.bookings || []
+      setBookings(list)
+      return list
     } catch (e) {
       console.warn('Failed to fetch owner bookings', e.message)
     } finally {
@@ -64,17 +67,33 @@ const OwnerTours = () => {
   }
 
   const handleUpdateStatus = async (bookingId, status) => {
+    const action = status === 'approved' ? 'approve' : (status === 'rejected' ? 'reject' : null)
     try {
       setUpdatingBookingId(bookingId)
+      setUpdatingBookingAction(action)
       const token = await SecureStore.getItemAsync('token')
       if (!token) throw new Error('Unauthenticated')
       await axios.patch(`${API_URL}/tour-bookings/${bookingId}`, { status }, { headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' } })
+      // update locally
       setBookings(prev => prev.map(b => (b.id === bookingId ? { ...b, status } : b)))
     } catch (e) {
       console.warn('Failed to update booking status', e.message)
+      // Attempt to refresh bookings and check whether server actually updated the booking despite the error
+      try {
+        const fresh = await fetchBookings()
+        const list = Array.isArray(fresh) ? fresh : bookings
+        const updated = list.find(b => b.id === bookingId)
+        if (updated && updated.status && updated.status.toString().toLowerCase() === status.toString().toLowerCase()) {
+          // server already applied the change; treat as success silently
+          return
+        }
+      } catch (refreshErr) {
+        console.warn('Failed to refresh bookings after update error', refreshErr.message)
+      }
       Alert.alert('Error', 'Could not update booking status')
     } finally {
       setUpdatingBookingId(null)
+      setUpdatingBookingAction(null)
     }
   }
 
@@ -86,6 +105,7 @@ const OwnerTours = () => {
       onApprove={(id) => handleUpdateStatus(id, 'approved')}
       onReject={(id) => handleUpdateStatus(id, 'rejected')}
       updatingBookingId={updatingBookingId}
+      updatingBookingAction={updatingBookingAction}
       onViewDetails={(id) => navigation.navigate('ApartmentDetails', { listingId: id })}
     />
   )
