@@ -29,6 +29,15 @@ const HomeScreen = () => {
 
     const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
+    const safeImageUri = (img) => img?.url || (img?.path ? `${API_URL}/storage/${img.path}` : null)
+
+    const firstImageObject = (listing) => {
+      if (!listing) return null
+      if (Array.isArray(listing.images) && listing.images.length > 0) return listing.images[0]
+      if (listing.images && Array.isArray(listing.images.data) && listing.images.data.length > 0) return listing.images.data[0]
+      return null
+    }
+
     // NOTE: Home now fetches recommendations from the backend. No dummy data here.
 
 
@@ -219,9 +228,9 @@ const HomeScreen = () => {
               activeOpacity={0.8}
               onPress={() => navigation.navigate('ApartmentDetails', { listingId: a.id })}>
               <View>
-                { (a.images || []).length ? (
+                { firstImageObject(a) ? (
                   <Image 
-                    source={{ uri: (a.images[0].url || (a.images[0].path ? `${API_URL}/storage/${a.images[0].path}` : null)) }}
+                    source={{ uri: safeImageUri(firstImageObject(a)) }}
                     resizeMode='cover'
                     style={styles.recommendationsImage}
                   />
@@ -254,7 +263,8 @@ const HomeScreen = () => {
             </View>
           ) : (
             apartments.map((a) => {
-              const images = (a.images || []).map(img => img.url || (img.path ? `${API_URL}/storage/${img.path}` : null)).filter(Boolean)
+              const imgs = Array.isArray(a.images) ? a.images : (a.images && Array.isArray(a.images.data) ? a.images.data : [])
+              const images = (imgs || []).map(img => img.url || (img.path ? `${API_URL}/storage/${img.path}` : null)).filter(Boolean)
               const meta = a.meta || {}
 
               return (

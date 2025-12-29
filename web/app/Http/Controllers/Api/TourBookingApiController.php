@@ -27,7 +27,8 @@ class TourBookingApiController extends Controller
         if (!$user) return response()->json(['message' => 'Unauthenticated'], 401);
 
         $listings = Apartment::where('user_id', $user->id)->pluck('id');
-        $bookingQuery = TourBooking::whereIn('listing_id', $listings)->with(['user','listing'])->latest();
+    // eager-load listing images and owner so mobile can display thumbnails without extra requests
+    $bookingQuery = TourBooking::whereIn('listing_id', $listings)->with(['user','listing.images','listing.owner'])->latest();
         $bookings = $bookingQuery->get();
 
         return response()->json(['bookings' => $bookings]);
@@ -39,7 +40,8 @@ class TourBookingApiController extends Controller
         $user = $request->user();
         if (!$user) return response()->json(['message' => 'Unauthenticated'], 401);
 
-        $bookings = TourBooking::where('user_id', $user->id)->with(['listing','listing.owner'])->latest()->get();
+    // include listing images for client-side thumbnails
+    $bookings = TourBooking::where('user_id', $user->id)->with(['listing.images','listing.owner','user'])->latest()->get();
 
         return response()->json(['bookings' => $bookings]);
     }

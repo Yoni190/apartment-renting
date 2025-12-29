@@ -3,12 +3,62 @@ import { View, Text, TouchableOpacity, Image, ActivityIndicator, Alert, Linking 
 import { Ionicons } from '@expo/vector-icons'
 import styles from '../screens/TourScreen/TourScreenStyle'
 
-const safeUri = (img) => img?.url || (img?.path ? `${process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8000'}/storage/${img.path}` : null)
+const safeUri = (img) => {
+  const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8000'
+  if (!img) return null
+
+  // if the image is already a URL string
+  if (typeof img === 'string') {
+    if (img.startsWith('http')) return img
+    if (img.startsWith('/')) return `${API_URL}${img}`
+    // assume it's a storage path
+    return `${API_URL}/storage/${img}`
+  }
+
+  // If object, try several common fields
+  const url = img.url || img.uri || img.preview || img.thumb || img.thumbnail
+  if (url) {
+    if (typeof url === 'string') {
+      if (url.startsWith('http')) return url
+      if (url.startsWith('/')) return `${API_URL}${url}`
+      return `${API_URL}/storage/${url}`
+    }
+  }
+
+  const path = img.path || img.filename || img.file
+  if (path) {
+    if (typeof path === 'string') {
+      if (path.startsWith('http')) return path
+      if (path.startsWith('/')) return `${API_URL}${path}`
+      return `${API_URL}/storage/${path}`
+    }
+  }
+
+  return null
+}
 
 export default function TourRequestCard({ booking, isOwner=false, onOpenClient=()=>{}, onOpenOwner=()=>{}, onApprove=()=>{}, onReject=()=>{}, updatingBookingId=null, updatingBookingAction=null, onViewDetails=()=>{} }){
-  const listing = booking.listing || {}
+  // bookings from different endpoints may name the relation differently
+  const listing = booking.listing || booking.apartment || booking.property || {}
   const client = booking.user || {}
   const scheduled = booking.scheduled_at ? new Date(booking.scheduled_at) : null
+
+  // Support different shapes returned by the API: listing.images may be an array, an object with data, or images may be strings
+  const firstImage = (() => {
+    if (!listing) return null
+    // direct array of image objects or strings
+    if (Array.isArray(listing.images) && listing.images.length > 0) return listing.images[0]
+    // nested resource envelope { data: [...] }
+    if (listing.images && Array.isArray(listing.images.data) && listing.images.data.length > 0) return listing.images.data[0]
+    // single image field
+    if (listing.image) return listing.image
+    if (listing.thumbnail) return listing.thumbnail
+    // fallback to media/gallery
+    if (Array.isArray(listing.media) && listing.media.length > 0) return listing.media[0]
+    return null
+  })()
+
+  const imageUri = safeUri(firstImage)
 
   return (
     <View style={{ width: '100%' }}>
@@ -16,8 +66,8 @@ export default function TourRequestCard({ booking, isOwner=false, onOpenClient=(
         <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
           <View style={styles.bookingThumbWrap}>
             <TouchableOpacity onPress={() => onViewDetails(listing.id)}>
-              {listing.images && listing.images[0] ? (
-                <Image source={{ uri: safeUri(listing.images[0]) }} style={styles.bookingThumb} />
+                {imageUri ? (
+                <Image source={{ uri: imageUri }} style={styles.bookingThumb} />
               ) : (
                 <View style={[styles.bookingThumb, { justifyContent: 'center', alignItems: 'center' }]}> 
                   <Ionicons name="home-outline" size={28} color="#9ca3af" />
