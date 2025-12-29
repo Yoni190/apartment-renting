@@ -7,6 +7,7 @@ import * as SecureStore from 'expo-secure-store'
 import { useNavigation } from '@react-navigation/native'
 import { Ionicons } from '@expo/vector-icons'
 import styles from './TourScreenStyle'
+import TourRequestCard from '../../components/TourRequestCard'
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8000'
 
@@ -24,19 +25,25 @@ const OwnerTours = () => {
   const [updatingBookingId, setUpdatingBookingId] = useState(null)
 
   useEffect(() => {
-    ;(async () => {
-      const token = await SecureStore.getItemAsync('token')
-      if (!token) return
-      setLoadingBookings(true)
+    let mounted = true
+    const fetchBookings = async () => {
       try {
+        const token = await SecureStore.getItemAsync('token')
+        if (!token) return
+        setLoadingBookings(true)
         const res = await axios.get(`${API_URL}/owner/bookings`, { headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } })
+        if (!mounted) return
         setBookings(res.data.bookings || [])
       } catch (e) {
         console.warn('Failed to fetch owner bookings', e.message)
       } finally {
-        setLoadingBookings(false)
+        if (mounted) setLoadingBookings(false)
       }
-    })()
+    }
+
+    fetchBookings()
+    const iv = setInterval(fetchBookings, 6000)
+    return () => { mounted = false; clearInterval(iv) }
   }, [])
 
   const handleUpdateStatus = async (bookingId, status) => {
@@ -54,74 +61,17 @@ const OwnerTours = () => {
     }
   }
 
-  const renderBookingItem = ({ item }) => {
-    const scheduled = item.scheduled_at ? new Date(item.scheduled_at) : null
-    const listing = item.listing || {}
-    const client = item.user || {}
-
-    return (
-      <View style={{ width: '100%' }}>
-        <View style={styles.bookingCardAlt}>
-          <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
-            <View style={styles.bookingThumbWrap}>
-              <TouchableOpacity onPress={() => navigation.navigate('ApartmentDetails', { listingId: listing.id })}>
-                {listing.images && listing.images[0] ? (
-                  <Image source={{ uri: listing.images[0].url || `${API_URL}/storage/${listing.images[0].path}` }} style={styles.bookingThumb} />
-                ) : (
-                  <View style={[styles.bookingThumb, { justifyContent: 'center', alignItems: 'center' }]}> 
-                    <Ionicons name="home-outline" size={28} color="#9ca3af" />
-                  </View>
-                )}
-              </TouchableOpacity>
-
-              <View style={{ marginTop: 8, alignItems: 'center' }}>
-                <View style={[styles.statusBadge, item.status === 'pending' ? styles.statusPending : styles.statusPrimary]}>
-                  <Text style={styles.statusText}>{(item.status || 'pending').toUpperCase()}</Text>
-                </View>
-              </View>
-            </View>
-
-            <View style={{ flex: 1, paddingRight: 8 }}>
-              <Text style={styles.bookingTitle}>{listing.title || 'Listing'}</Text>
-              <Text style={styles.bookingMeta}>{client.name || client.email || 'Client'}</Text>
-              <Text style={styles.bookingTime}>{scheduled ? scheduled.toLocaleString() : 'No time set'}</Text>
-
-              <View style={{ flexDirection: 'row', marginTop: 8, alignItems: 'center' }}>
-                <TouchableOpacity style={styles.actionBtn} onPress={() => { setSelectedClient({ ...client, listingId: listing.id }); setModalVisible(true) }}>
-                  <Ionicons name="person-circle-outline" size={18} color="#0f172a" />
-                  <Text style={styles.actionText}>Client</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.actionBtn} onPress={() => { const phone = client.phone || client.phone_number || client.phoneNumber; if (phone) { Linking.openURL(`tel:${phone}`).catch(()=>{}) } else { Alert.alert('No phone number available') } }}>
-                  <Ionicons name="call-outline" size={18} color="#059669" />
-                  <Text style={styles.actionText}>Call</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.actionBtn} onPress={() => navigation.navigate('Messages', { apartmentId: listing.id, userId: client.id })}>
-                  <Ionicons name="chatbubble-ellipses-outline" size={18} color="#2563eb" />
-                  <Text style={styles.actionText}>Message</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-
-          </View>
-
-          {/* Full-width approve/reject buttons inside the card (footer) */}
-          {item.status === 'pending' ? (
-            <View style={styles.pendingFooter}>
-              <TouchableOpacity style={[styles.pendingBtnLeft, { backgroundColor: '#10b981' }]} onPress={() => handleUpdateStatus(item.id, 'approved')}>
-                {updatingBookingId === item.id ? <ActivityIndicator color="#fff" /> : <Text style={styles.splitBtnText}>Approve</Text>}
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.pendingBtnRight, { backgroundColor: '#ef4444' }]} onPress={() => handleUpdateStatus(item.id, 'rejected')}>
-                {updatingBookingId === item.id ? <ActivityIndicator color="#fff" /> : <Text style={styles.splitBtnText}>Reject</Text>}
-              </TouchableOpacity>
-            </View>
-          ) : null}
-
-        </View>
-      </View>
-    )
-  }
+  const renderBookingItem = ({ item }) => (
+    <TourRequestCard
+      booking={item}
+      isOwner={true}
+      onOpenClient={(c) => { setSelectedClient(c); setModalVisible(true) }}
+      onApprove={(id) => handleUpdateStatus(id, 'approved')}
+      onReject={(id) => handleUpdateStatus(id, 'rejected')}
+      updatingBookingId={updatingBookingId}
+      onViewDetails={(id) => navigation.navigate('ApartmentDetails', { listingId: id })}
+    />
+  )
 
   const renderClientModal = () => {
     const c = selectedClient || {}
@@ -210,77 +160,35 @@ export function MyTours() {
   const [ownerModalVisible, setOwnerModalVisible] = useState(false)
 
   useEffect(() => {
-    ;(async () => {
-      const token = await SecureStore.getItemAsync('token')
-      if (!token) return
-      setLoading(true)
+    let mounted = true
+    const fetchMyTours = async () => {
       try {
+        const token = await SecureStore.getItemAsync('token')
+        if (!token) return
+        setLoading(true)
         const res = await axios.get(`${API_URL}/my-tours`, { headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } })
+        if (!mounted) return
         setBookings(res.data.bookings || [])
       } catch (e) {
         console.warn('Failed to fetch my tours', e.message)
       } finally {
-        setLoading(false)
+        if (mounted) setLoading(false)
       }
-    })()
+    }
+
+    fetchMyTours()
+    const iv = setInterval(fetchMyTours, 6000)
+    return () => { mounted = false; clearInterval(iv) }
   }, [])
 
-  const renderItem = ({ item }) => {
-    const scheduled = item.scheduled_at ? new Date(item.scheduled_at) : null
-    const listing = item.listing || {}
-    const owner = listing.owner || {}
-    return (
-      <View style={styles.card}>
-        <TouchableOpacity style={styles.thumbWrap} onPress={() => navigation.navigate('ApartmentDetails', { listingId: listing.id })}>
-          {listing.images && listing.images[0] ? (
-            <Image source={{ uri: listing.images[0].url || `${API_URL}/storage/${listing.images[0].path}` }} style={styles.thumb} />
-          ) : (
-            <View style={[styles.thumb, { justifyContent: 'center', alignItems: 'center' }]}>
-              <Ionicons name="home-outline" size={28} color="#9ca3af" />
-            </View>
-          )}
-        </TouchableOpacity>
-
-        <View style={{ flex: 1, paddingRight: 8 }}>
-          <Text style={styles.title}>{listing.title || 'Listing'}</Text>
-          <TouchableOpacity onPress={() => { setSelectedOwner({ ...owner, listingId: listing.id }); setOwnerModalVisible(true) }}>
-            <Text style={styles.meta}>Owner: {owner.name || owner.email || 'Owner'}</Text>
-          </TouchableOpacity>
-          <Text style={styles.time}>{scheduled ? scheduled.toLocaleString() : 'No time set'}</Text>
-          <View style={{ flexDirection: 'row', marginTop: 8, alignItems: 'center' }}>
-            <View style={[styles.statusBadge, item.status === 'pending' ? styles.statusPending : styles.statusPrimary]}>
-              <Text style={styles.statusText}>{(item.status || 'pending').toUpperCase()}</Text>
-            </View>
-            <View style={{ flex: 1 }} />
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              {owner.phone || owner.phone_number ? (
-                <View style={{ flexDirection: 'row', width: 160, borderRadius: 8, overflow: 'hidden' }}>
-                  <TouchableOpacity style={[styles.splitBtn, { backgroundColor: '#2563eb' }]} onPress={() => navigation.navigate('Messages', { apartmentId: listing.id, userId: owner.id })}>
-                    <Ionicons name="chatbubble-ellipses-outline" size={16} color="#fff" />
-                    <Text style={styles.splitBtnText}>Message</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={[styles.splitBtn, { backgroundColor: '#10b981' }]} onPress={() => { const phone = owner.phone || owner.phone_number; if (phone) { Linking.openURL(`tel:${phone}`).catch(()=>{}) } else { Alert.alert('No phone available') } }}>
-                    <Ionicons name="call" size={16} color="#fff" />
-                    <Text style={styles.splitBtnText}>Call</Text>
-                  </TouchableOpacity>
-                </View>
-              ) : (
-                <TouchableOpacity style={[styles.splitBtn, { backgroundColor: '#2563eb' }]} onPress={() => navigation.navigate('Messages', { apartmentId: listing.id, userId: owner.id })}>
-                  <Ionicons name="chatbubble-ellipses-outline" size={16} color="#fff" />
-                  <Text style={styles.splitBtnText}>Message</Text>
-                </TouchableOpacity>
-              )}
-
-              <TouchableOpacity style={styles.viewBtn} onPress={() => navigation.navigate('ApartmentDetails', { listingId: listing.id })}>
-                <Ionicons name="information-circle-outline" size={16} color="#fff" />
-                <Text style={[styles.splitBtnText, { color: '#fff' }]}>View</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </View>
-    )
-  }
+  const renderItem = ({ item }) => (
+    <TourRequestCard
+      booking={item}
+      isOwner={false}
+      onOpenOwner={(o) => { setSelectedOwner(o); setOwnerModalVisible(true) }}
+      onViewDetails={(id) => navigation.navigate('ApartmentDetails', { listingId: id })}
+    />
+  )
 
   const renderOwnerModal = () => {
     const o = selectedOwner || {}
