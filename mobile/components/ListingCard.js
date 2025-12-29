@@ -246,19 +246,35 @@ export default function ListingCard({
 
         {/* actions row */}
         <View style={styles.actionsRow}>
-          {/* Message + Call side-by-side for clients */}
-          {onMessage ? (
-            <TouchableOpacity style={[styles.primaryBtn]} onPress={onMessage} accessibilityRole="button" accessibilityLabel="Message">
-              <Text style={styles.primaryBtnText}>Message</Text>
-            </TouchableOpacity>
-          ) : null}
-
-          {phoneEnabled && contactPhone && onCall ? (
-            <TouchableOpacity style={[styles.callBtn]} onPress={() => onCall(contactPhone)} accessibilityRole="button" accessibilityLabel={`Call ${contactPhone}`}>
-              <Ionicons name="call-outline" size={16} color="#1778f2" style={{ marginRight: 8 }} />
-              <Text style={styles.callBtnText}>Call</Text>
-            </TouchableOpacity>
-          ) : null}
+          {/* If both message and call are available, show two equal-width primary buttons */}
+          {onMessage && contactPhone && onCall ? (
+            <>
+              <TouchableOpacity style={[styles.primaryBtn, styles.splitBtn, { marginRight: 8 }]} onPress={onMessage} accessibilityRole="button" accessibilityLabel="Message">
+                <Ionicons name="chatbubble-ellipses-outline" size={16} color="#fff" style={{ marginRight: 8 }} />
+                <Text style={styles.primaryBtnText}>Message</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.primaryBtn, styles.splitBtn]} onPress={() => onCall(contactPhone)} accessibilityRole="button" accessibilityLabel={`Call ${contactPhone}`}>
+                <Ionicons name="call-outline" size={16} color="#fff" style={{ marginRight: 8 }} />
+                <Text style={styles.primaryBtnText}>Call</Text>
+              </TouchableOpacity>
+            </>
+          ) : (
+            // Fallback: render whichever action is present (preserve previous styles)
+            <>
+              {onMessage ? (
+                <TouchableOpacity style={[styles.primaryBtn]} onPress={onMessage} accessibilityRole="button" accessibilityLabel="Message">
+                  <Ionicons name="chatbubble-ellipses-outline" size={16} color="#fff" style={{ marginRight: 8 }} />
+                  <Text style={styles.primaryBtnText}>Message</Text>
+                </TouchableOpacity>
+              ) : null}
+              {contactPhone && onCall ? (
+                <TouchableOpacity style={[styles.callBtn]} onPress={() => onCall(contactPhone)} accessibilityRole="button" accessibilityLabel={`Call ${contactPhone}`}>
+                  <Ionicons name="call-outline" size={16} color="#1778f2" style={{ marginRight: 8 }} />
+                  <Text style={styles.callBtnText}>Call</Text>
+                </TouchableOpacity>
+              ) : null}
+            </>
+          )}
 
           {/* Owner-only actions */}
           {isOwnerMode && (
@@ -424,10 +440,13 @@ const styles = StyleSheet.create({
   },
   primaryBtn: {
     backgroundColor: '#1778f2',
-    paddingVertical: 10,
+    paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 10,
     marginRight: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   primaryBtnText: {
     color: '#fff',
@@ -475,5 +494,8 @@ const styles = StyleSheet.create({
   ownerBtnText: {
     color: '#1778f2',
     fontWeight: '700',
+  },
+  splitBtn: {
+    flex: 1,
   },
 })
