@@ -85,6 +85,7 @@ export default StyleSheet.create({
     shadowColor: '#000',
     shadowOpacity: 0.06,
     shadowRadius: 8,
+    marginTop: 30
   },
   bookingThumbWrap: {
     marginRight: 12,
