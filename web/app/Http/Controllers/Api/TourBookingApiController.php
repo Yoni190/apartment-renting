@@ -33,6 +33,50 @@ class TourBookingApiController extends Controller
         return response()->json(['bookings' => $bookings]);
     }
 
+    // Authenticated client: return bookings made by the authenticated user
+    public function clientBookings(Request $request)
+    {
+        $user = $request->user();
+        if (!$user) return response()->json(['message' => 'Unauthenticated'], 401);
+
+        $bookings = TourBooking::where('user_id', $user->id)->with(['listing','listing.owner'])->latest()->get();
+
+        return response()->json(['bookings' => $bookings]);
+    }
+
+    // Owner can update a booking status (approve/reject)
+    public function updateStatus(Request $request, TourBooking $booking)
+    {
+        $user = $request->user();
+        if (!$user) return response()->json(['message' => 'Unauthenticated'], 401);
+
+        // Only listing owner may update status
+        $listing = $booking->listing;
+        if (!$listing || $listing->user_id !== $user->id) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        $request->validate([
+            'status' => 'required|in:approved,rejected,pending'
+        ]);
+
+        $booking->status = $request->input('status');
+        $booking->save();
+
+        // Notify the requester about status change
+        try {
+            $requester = $booking->user;
+            if ($requester) {
+                // use Laravel notifications if available; send a simple notification
+                $requester->notify(new \App\Notifications\TourStatusUpdated($booking));
+            }
+        } catch (\Exception $e) {
+            // ignore notification failures
+        }
+
+        return response()->json(['booking' => $booking]);
+    }
+
     // Authenticated: create booking (JSON)
     public function store(Request $request, Apartment $apartment)
     {

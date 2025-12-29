@@ -6,9 +6,9 @@ import LoginScreen from './LoginScreen/LoginScreen'
 import RegisterScreen from './RegisterScreen/RegisterScreen'
 import ProfileScreen from './ProfileScreen/ProfileScreen'
 import HomeScreen from './HomeScreen/HomeScreen'
-import SearchScreen from './SearchScreen/SearchScreen'
 import MessagesScreen from './MessagesScreen/MessagesScreen'
 import FavouritesScreen from './FavouritesScreen/FavouritesScreen'
+import { MyTours } from './TourScreen/TourScreen'
 
 const Tab = createBottomTabNavigator()
 
@@ -38,18 +38,7 @@ const HomeTabs = () => {
           )
         }}
       />
-      <Tab.Screen 
-        name="Search" 
-        component={SearchScreen}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <Ionicons 
-              name={focused ? 'search' : 'search-outline'} 
-              size={24} 
-            />
-          )
-        }}
-      />
+      {/* Search tab removed for client side */}
       <Tab.Screen 
         name="Messages" 
         component={MessagesScreen}
@@ -57,6 +46,18 @@ const HomeTabs = () => {
           tabBarIcon: ({ focused }) => (
             <Ionicons 
               name={focused ? 'chatbubble' : 'chatbubble-outline'} 
+              size={24}
+            />
+          )
+        }}
+      />
+      <Tab.Screen 
+        name="MyTours" 
+        component={MyTours}
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <Ionicons 
+              name={focused ? 'calendar' : 'calendar-outline'} 
               size={24}
             />
           )

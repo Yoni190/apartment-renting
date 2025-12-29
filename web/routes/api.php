@@ -417,3 +417,7 @@ Route::get('/apartments/{apartment}/open-hours', [App\Http\Controllers\Api\TourB
 Route::middleware('auth:sanctum')->post('/apartments/{apartment}/book-tour', [App\Http\Controllers\Api\TourBookingApiController::class, 'store']);
 // Owner bookings (authenticated)
 Route::middleware('auth:sanctum')->get('/owner/bookings', [App\Http\Controllers\Api\TourBookingApiController::class, 'ownerBookings']);
+// Client bookings (authenticated) - list tours requested by the authenticated user
+Route::middleware('auth:sanctum')->get('/my-tours', [App\Http\Controllers\Api\TourBookingApiController::class, 'clientBookings']);
+// Update booking status (owner only) - expects { status: 'approved'|'rejected'|'pending' }
+Route::middleware('auth:sanctum')->patch('/tour-bookings/{booking}', [App\Http\Controllers\Api\TourBookingApiController::class, 'updateStatus']);

@@ -3,7 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { Ionicons } from '@expo/vector-icons'
 import HomeForPO from './HomeForPO/HomeForPO'
 import AddListing from './AddListing/AddListing'
-import SearchScreen from './SearchScreen/SearchScreen'
+import OwnerTours from './TourScreen/TourScreen'
 import MessagesScreen from './MessagesScreen/MessagesScreen'
 import ProfileScreen from './ProfileScreen/ProfileScreen'
 
@@ -45,7 +45,7 @@ const OwnerTabs = () => {
 
       <Tab.Screen
         name="OwnerSearch"
-        component={SearchScreen}
+        component={OwnerTours}
         options={{
           tabBarIcon: ({ focused }) => (
             <Ionicons name={focused ? 'calendar' : 'calendar-outline'} size={24} />
