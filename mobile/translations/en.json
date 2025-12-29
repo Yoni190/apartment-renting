@@ -16,5 +16,9 @@
   "messages": "Messages",
   "no_messages_yet": "No messages yet",
   "no_messages_subtitle": "When someone sends you a message, it will appear here. Start a conversation to get things going!",
-  "chooseYourRole": "Choose Your Role"
+  "chooseYourRole": "Choose Your Role",
+  "search": "Search",
+  "searchPlaceholder": "Search for apartments, locations...",
+  "noResultsFound": "No Results Found",
+  "searchSubtitle": "Try adjusting your search to find what you're looking for."
 }

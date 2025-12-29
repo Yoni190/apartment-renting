@@ -1,13 +1,16 @@
-import { StyleSheet, Text, View, Image, TextInput } from 'react-native'
-import React from 'react'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, FlatList, Image, ActivityIndicator, Modal, Linking, Alert } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import Header from '../../components/Header'
-import { useTranslation } from 'react-i18next'
-import Ionicons from '@expo/vector-icons/Ionicons'
-import styles from './SearchScreenStyle'
+import { ArrowUpDown, SlidersHorizontal, Search } from 'lucide-react-native'
+import axios from 'axios'
+import * as SecureStore from 'expo-secure-store'
+import { useNavigation } from '@react-navigation/native'
+import { Ionicons } from '@expo/vector-icons'
+import styles from './RequestedToursScreenStyle'
 
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8000'
 
-const SearchScreen = () => {
+const RequestedToursScreen = () => {
   const navigation = useNavigation()
   const [bookings, setBookings] = useState([])
   const [loadingBookings, setLoadingBookings] = useState(false)
@@ -162,4 +165,5 @@ const SearchScreen = () => {
   )
 }
 
-export default SearchScreen
+export default RequestedToursScreen
+
