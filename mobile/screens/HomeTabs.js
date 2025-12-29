@@ -39,12 +39,12 @@ const HomeTabs = () => {
         }}
       />
       <Tab.Screen 
-        name="Search" 
+        name="Requested Tours" 
         component={RequestedToursScreen}
         options={{
           tabBarIcon: ({ focused }) => (
             <Ionicons 
-              name={focused ? 'search' : 'search-outline'} 
+              name={focused ? 'calendar' : 'calendar-outline'} 
               size={24} 
             />
           )

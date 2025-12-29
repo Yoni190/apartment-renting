@@ -44,7 +44,7 @@ const OwnerTabs = () => {
       />
 
       <Tab.Screen
-        name="OwnerSearch"
+        name="OwnerRequestedTours"
         component={RequestedToursScreen}
         options={{
           tabBarIcon: ({ focused }) => (
