@@ -169,7 +169,7 @@ const HomeScreen = () => {
     }
 
     return (
-  <SafeAreaView style={{ flex: 1, backgroundColor: '#fff', paddingTop: 100 }}>
+  <SafeAreaView style={{ flex: 1, backgroundColor: '#fff', paddingTop: 50 }}>
       {/* Add top padding so the absolute-positioned Header doesn't cover content */}
       <Header 
           title='Home'

@@ -161,7 +161,8 @@ export default FavouritesScreen
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff'
+    backgroundColor: '#fff',
+    paddingTop: 50, // ensure Header (absolute) does not cover content
   },
   loadingContainer: {
     flex: 1,
