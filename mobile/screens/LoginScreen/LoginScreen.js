@@ -29,6 +29,7 @@ const LoginScreen = () => {
       const response = await axios.post(`${API_URL}/login`, {
         email,
         password,
+        role: selectedRoleParam,
         device_name: `${Platform.OS} ${Platform.Version}`
       }, {
         headers: {
@@ -36,6 +37,7 @@ const LoginScreen = () => {
         }
       })
 
+      console.log(`Role: ${selectedRoleParam}`)
       const access_token = response.data
       console.log('login token', access_token)
 

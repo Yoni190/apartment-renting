@@ -321,7 +321,8 @@ Route::post('/login', function (Request $request) {
     $request->validate([
         'email' => 'required|email',
         'password' => 'required',
-        'device_name' => 'required'
+        'device_name' => 'required',
+        'role' => 'required|in:0,1'
     ]);
 
     $user = User::where('email', $request->email)->first();
@@ -330,6 +331,13 @@ Route::post('/login', function (Request $request) {
         throw ValidationException::withMessages([
             'email' => ['The provided credentials are incorrect.'],
         ]);
+    }
+
+    // Role mismatch
+    if ((int) $user->role !== (int) $request->role) {
+        return response()->json([
+            'message' => 'You are not allowed to login with this role.'
+        ], 403);
     }
 
     return $user->createToken($request->device_name)->plainTextToken;
