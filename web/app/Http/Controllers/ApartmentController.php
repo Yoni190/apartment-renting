@@ -7,6 +7,7 @@ use App\Models\Apartment;
 use App\Models\ApartmentImage;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 
 class ApartmentController extends Controller
@@ -82,15 +83,17 @@ class ApartmentController extends Controller
 
             return view('web.admin.apartment.apartments', compact('apartments', 'max_price', 'max_size'));
         } catch (\Exception $e) {
-            \Log::error('Admin apartments index error: ' . $e->getMessage());
-            \Log::error($e->getTraceAsString());
+            Log::error('Admin apartments index error: ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
             // Return an empty paginator to keep the view happy instead of calling paginate() on a collection
             $emptyPaginator = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 10);
             return view('web.admin.apartment.apartments', [
                 'apartments' => $emptyPaginator,
                 'max_price' => 1000000,
-                'max_size' => 1000
-            ])->withErrors(['error' => 'Error loading apartments: ' . $e->getMessage()]);
+                'max_size' => 1000,
+                // provide a load_error variable to the view instead of chaining withErrors
+                'load_error' => 'Error loading apartments: ' . $e->getMessage(),
+                ]);
         }
     }
 
@@ -115,7 +118,7 @@ class ApartmentController extends Controller
         $apartment->rejection_reason = null;
         $apartment->save();
 
-        return redirect()->back()->with('message', "$apartment->title has been approved");
+        return redirect()->back()->with('message', $apartment->title . ' has been approved');
     }
 
     public function reject(Request $request, Apartment $apartment) {
@@ -129,7 +132,7 @@ class ApartmentController extends Controller
         $apartment->rejection_reason = $request->input('rejection_reason');
         $apartment->save();
 
-        return redirect()->back()->with('message', "$apartment->title has been rejected");
+        return redirect()->back()->with('message', $apartment->title . ' has been rejected');
     }
 
     public function addApartmentView() {
