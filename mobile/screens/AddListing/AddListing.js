@@ -146,16 +146,26 @@ const AddListing = () => {
         setTitle(apt.title || '')
         setPropertyType(apt.property_type || propertyType)
         setPurpose(apt.purpose || purpose)
-        const m = apt.meta || {}
-        setCity(m.location?.city || city)
-        // Preserve empty strings if they exist in meta, otherwise use empty string
-        setSubCity(m.location?.sub_city !== undefined && m.location?.sub_city !== null ? m.location.sub_city : '')
-        setArea(m.location?.area !== undefined && m.location?.area !== null ? m.location.area : '')
-        setLandmark(m.location?.landmark !== undefined && m.location?.landmark !== null ? m.location.landmark : '')
-        const lat = m.location?.latitude !== undefined && m.location?.latitude !== null ? m.location.latitude : (m.location?.lat !== undefined && m.location?.lat !== null ? m.location.lat : '')
-        const lng = m.location?.longitude !== undefined && m.location?.longitude !== null ? m.location.longitude : (m.location?.lng !== undefined && m.location?.lng !== null ? m.location.lng : '')
-        setLatitude(lat)
-        setLongitude(lng)
+  const m = apt.meta || {}
+  // Prefer structured location in meta, then top-level listing fields, then preserve current state
+  const loc = m.location || apt.location || {}
+
+  setCity(loc.city ?? apt.city ?? city)
+
+  // Sub-city: try several common field names then keep existing state if none present
+  const sc = loc.sub_city ?? loc.subcity ?? apt.sub_city ?? apt.subCity ?? subCity
+  setSubCity(sc !== undefined && sc !== null ? String(sc) : subCity)
+
+  const areaVal = loc.area ?? apt.area ?? area
+  setArea(areaVal !== undefined && areaVal !== null ? String(areaVal) : area)
+
+  const lm = loc.landmark ?? apt.landmark ?? landmark
+  setLandmark(lm !== undefined && lm !== null ? String(lm) : landmark)
+
+  const lat = loc.latitude ?? loc.lat ?? apt.latitude ?? apt.lat ?? ''
+  const lng = loc.longitude ?? loc.lng ?? apt.longitude ?? apt.lng ?? ''
+  setLatitude(lat !== undefined && lat !== null && lat !== '' ? String(lat) : latitude)
+  setLongitude(lng !== undefined && lng !== null && lng !== '' ? String(lng) : longitude)
         // Set map marker if coordinates exist
         if (lat && lng) {
           try {
