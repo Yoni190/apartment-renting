@@ -12,7 +12,13 @@ use Illuminate\Support\Facades\Storage;
 class ApartmentController extends Controller
 {
     function index(Request $request) {
-        $query = Apartment::query();
+        try {
+            $query = Apartment::query();
+            
+            // Filter by verification status if provided
+            if($request->filled('verification_status')) {
+                $query->where('verification_status', $request->verification_status);
+            }
 
 
         if($request->filled('owner')) {
@@ -59,29 +65,71 @@ class ApartmentController extends Controller
             $query->where('status', $request->status);
         }
 
-        $max_price = $request->max_price ? $request->max_price : (clone $query)->max('price');
+        // Get max values before pagination
+        $max_price_query = clone $query;
+        $max_price = $request->max_price ? $request->max_price : ($max_price_query->max('price') ?? 1000000);
+        
+        $max_size_query = clone $query;
+        $max_size = $request->max_size ? $request->max_size : ($max_size_query->max('size') ?? 1000);
 
-        $max_size = $request->max_size ? $request->max_size : (clone $query)->max('size');
-
-        $apartments = $query->orderBy('id', 'desc')->paginate(10)->withQueryString();
+        $apartments = $query->with(['images', 'owner'])
+            ->whereNotNull('user_id')
+            ->orderBy('id', 'desc')
+            ->paginate(10)
+            ->withQueryString();
         
         
 
-        return view('web.admin.apartment.apartments', compact('apartments', 'max_price', 'max_size'));
+            return view('web.admin.apartment.apartments', compact('apartments', 'max_price', 'max_size'));
+        } catch (\Exception $e) {
+            \Log::error('Admin apartments index error: ' . $e->getMessage());
+            \Log::error($e->getTraceAsString());
+            // Return an empty paginator to keep the view happy instead of calling paginate() on a collection
+            $emptyPaginator = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 10);
+            return view('web.admin.apartment.apartments', [
+                'apartments' => $emptyPaginator,
+                'max_price' => 1000000,
+                'max_size' => 1000
+            ])->withErrors(['error' => 'Error loading apartments: ' . $e->getMessage()]);
+        }
     }
 
     public function toggleStatus(Apartment $apartment){
         $apartment->status = $apartment->status === 1 ? 0 : 1;
         $apartment->save();
 
-        return redirect()->back()->with('message', "$apartment->title's status updated successfully");
+        return redirect()->back()->with('message', $apartment->title . "'s status updated successfully");
     }
 
     public function toggleFeatured(Apartment $apartment) {
         $apartment->is_featured = $apartment->is_featured === 1 ? 0 : 1;
         $apartment->save();
 
-        return redirect()->back()->with('message', "$apartment->title's featured status updated successfully");
+        return redirect()->back()->with('message', $apartment->title . "'s featured status updated successfully");
+    }
+
+    public function approve(Apartment $apartment) {
+        $apartment->verification_status = 'approved';
+        $apartment->verified_at = now();
+        $apartment->verified_by = auth('admin')->id();
+        $apartment->rejection_reason = null;
+        $apartment->save();
+
+        return redirect()->back()->with('message', "$apartment->title has been approved");
+    }
+
+    public function reject(Request $request, Apartment $apartment) {
+        $request->validate([
+            'rejection_reason' => 'required|string|max:1000'
+        ]);
+
+        $apartment->verification_status = 'rejected';
+        $apartment->verified_at = now();
+        $apartment->verified_by = auth('admin')->id();
+        $apartment->rejection_reason = $request->input('rejection_reason');
+        $apartment->save();
+
+        return redirect()->back()->with('message', "$apartment->title has been rejected");
     }
 
     public function addApartmentView() {

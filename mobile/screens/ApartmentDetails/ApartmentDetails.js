@@ -235,16 +235,38 @@ export default function ApartmentDetails() {
 
   // Parse amenities - handle both array and string
   const amenitiesList = useMemo(() => {
-    const amens = listing?.meta?.amenities
+    // Accept amenities from several possible locations/shapes for backward compatibility
+    const candidates = [
+      listing?.meta?.amenities,
+      listing?.amenities,
+      listing?.meta?.amenity,
+      listing?.amenity,
+      listing?.meta?.amenities_list,
+    ]
+
+    let amens = null
+    for (const c of candidates) {
+      if (c !== undefined && c !== null) {
+        amens = c
+        break
+      }
+    }
+
     if (!amens) return []
     if (Array.isArray(amens)) return amens
     if (typeof amens === 'string') {
+      const s = amens.trim()
+      // Try JSON first (e.g. '["a","b"]')
       try {
-        const parsed = JSON.parse(amens)
-        return Array.isArray(parsed) ? parsed : []
-      } catch {
-        return [amens]
+        const parsed = JSON.parse(s)
+        if (Array.isArray(parsed)) return parsed
+      } catch (e) {
+        // not JSON — fallthrough to splitting
       }
+
+      // Split common delimiters (newlines or commas), trim and filter empties
+      const parts = s.split(/\r?\n|,/).map(p => p.trim()).filter(Boolean)
+      return parts.length > 0 ? parts : [s]
     }
     return []
   }, [listing])
@@ -617,18 +639,6 @@ export default function ApartmentDetails() {
 
         {/* Pricing and Floor Plans Section */}
         <View style={styles.section}>
-          {/* Unique features (owner provided) - show as bullets above floor plans */}
-          {Array.isArray(listing.meta?.unique_features) && listing.meta.unique_features.length > 0 ? (
-            <>
-              <Text style={styles.sectionTitle}>Unique features</Text>
-              <View style={{ marginBottom: 8 }}>
-                {listing.meta.unique_features.map((f, i) => (
-                  <Text key={i} style={{ marginBottom: 4 }}>• {f}</Text>
-                ))}
-              </View>
-            </>
-          ) : null}
-
           <Text style={styles.sectionTitle}>Pricing & Floor Plans</Text>
           <View style={styles.floorPlanCard}>
             {floorPlan.image && (

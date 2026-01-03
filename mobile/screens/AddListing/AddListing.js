@@ -893,14 +893,18 @@ const AddListing = () => {
             </TouchableOpacity>
           </View>
         </View>
-
+        
+        {/* Submit button */}
+        <View style={{ marginTop: 12, marginBottom: 24 }}>
+          <TouchableOpacity style={styles.btn} onPress={handleSubmit} disabled={loading}>
+            <Text style={styles.btnText}>{loading ? 'Please wait...' : (isEditMode ? 'Update listing' : 'Post listing')}</Text>
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity style={[styles.btn, loading && { opacity: 0.6 }]} onPress={handleSubmit} disabled={loading}>
-          <Text style={styles.btnText}>{loading ? (isEditMode ? 'Updating...' : 'Posting...') : (isEditMode ? 'Update Listing' : 'Post Listing')}</Text>
-        </TouchableOpacity>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+
+      </View>
+    </ScrollView>
+  </KeyboardAvoidingView>
+</SafeAreaView>
   )
 }
 
