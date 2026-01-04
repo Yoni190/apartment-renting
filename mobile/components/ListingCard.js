@@ -71,6 +71,8 @@ export default function ListingCard({
   onEdit,
   onDeactivate,
   onDelete,
+  verificationStatus,
+  rejectionReason,
   style,
 }) {
   // Normalize images to an array of URL strings (if image objects are provided)
@@ -149,6 +151,24 @@ export default function ListingCard({
       disabled={!onPress}
       accessibilityRole={onPress ? 'button' : undefined}
     >
+      {/* Absolute badge sits on top-left of the card (over image when present) */}
+      {isOwnerMode && (
+        <View style={styles.badgeAbsoluteContainer} pointerEvents="none">
+          {verificationStatus === 'approved' ? (
+            <View style={[styles.statusBadge, styles.statusBadgeVerified]}>
+              <Text style={styles.statusBadgeText}>Verified</Text>
+            </View>
+          ) : verificationStatus === 'rejected' ? (
+            <View style={[styles.statusBadge, styles.statusBadgeRejected]}>
+              <Text style={styles.statusBadgeText}>Rejected</Text>
+            </View>
+          ) : (
+            <View style={[styles.statusBadge, styles.statusBadgePending]}>
+              <Text style={styles.statusBadgeText}>Pending Verification</Text>
+            </View>
+          )}
+        </View>
+      )}
       {/* Image carousel (only render if owner provided images) */}
       {normalizedImages.length > 0 && (
         <View style={styles.imageContainer}>
@@ -216,6 +236,7 @@ export default function ListingCard({
 
       {/* Content area */}
       <View style={styles.body}>
+        {/* (Badge moved to absolute overlay on top-left) */}
         {/* top row: price + save (if not owner) */}
         <View style={styles.topRow}>
           {priceRange ? <Text style={styles.priceText}>{priceRange}</Text> : null}
@@ -421,6 +442,42 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     color: '#111',
+  },
+  statusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  badgeAbsoluteContainer: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    zIndex: 40,
+  },
+  statusBadge: {
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 16,
+    marginRight: 8,
+  },
+  statusBadgeText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 12,
+  },
+  statusBadgeVerified: {
+    backgroundColor: '#10b981',
+  },
+  statusBadgePending: {
+    backgroundColor: '#f59e0b',
+  },
+  statusBadgeRejected: {
+    backgroundColor: '#ef4444',
+  },
+  rejectionText: {
+    color: '#b91c1c',
+    fontSize: 12,
+    flex: 1,
   },
   addressText: {
     marginTop: 6,

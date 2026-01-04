@@ -108,6 +108,7 @@
     <h1>Apartments</h1>
     <div>
         <button class="btn btn-secondary" id="toggleFilterBtn">Filter</button>
+    <a href="{{ route('admin.apartments', ['verification_status' => 'pending']) }}" class="btn btn-warning">Pending verification</a>
         <a href="{{ route('admin.apartments.add') }}" class="btn btn-primary">
                 Add Apartment
         </a>
@@ -290,7 +291,7 @@
                                 @endif
                             </td>
                             <td>{{ $apartment->title }}</td>
-                            <td>{{ $apartment->owner->name }}</td>
+                            <td>{{ optional($apartment->owner)->name ?? '—' }}</td>
                             <td>{{ $apartment->description }}</td>
                             <td>{{ $apartment->price }}
                                 <svg width="15" height="15" viewBox="0 0 1143 1278" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 ml-1 text-gray-600" data-state="closed"><path d="M738.75 0.0653076C832.888 0.0653076 909.376 17.128 968.213 51.2533C1028.23 84.2019 1072.35 133.036 1100.59 197.757C1128.84 261.301 1142.96 338.965 1142.96 430.75V1278H920.555V439.576C920.555 358.381 906.434 296.603 878.193 254.24C849.951 210.701 801.705 188.931 733.454 188.931C686.385 188.931 649.318 199.522 622.253 220.703C595.188 241.884 575.772 271.303 564.004 308.958C553.414 346.614 548.118 390.741 548.118 441.341V1278H325.715V427.22C325.715 342.495 339.836 268.361 368.078 204.817C397.496 140.097 442.212 90.0856 502.226 54.7836C562.239 18.3048 641.08 0.0653076 738.75 0.0653076Z" fill="currentColor"></path><path d="M726.148 822.07L71.3848 809.729L123.657 926.784L778.421 939.125L726.148 822.07Z" fill="currentColor"></path><path d="M654.763 616.216L0 603.875L52.2726 720.93L707.036 733.271L654.763 616.216Z" fill="currentColor"></path></svg>
@@ -352,6 +353,46 @@
                                             <i class="bi bi-pen"></i>
                                         </button>
                                     </form>
+
+                                                                            @if($apartment->verification_status === 'pending')
+                                                                                    {{-- Approve --}}
+                                                                                    <form action="{{ route('admin.apartments.approve', $apartment) }}" method="POST">
+                                                                                            @csrf
+                                                                                            <button type="submit" class="btn btn-sm btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Approve Listing">
+                                                                                                    <i class="bi bi-check-lg"></i>
+                                                                                            </button>
+                                                                                    </form>
+
+                                                                                    {{-- Reject: open modal to capture reason --}}
+                                                                                    <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal{{ $apartment->id }}" title="Reject Listing">
+                                                                                            <i class="bi bi-x-lg"></i>
+                                                                                    </button>
+
+                                                                                    <!-- Reject Modal -->
+                                                                                    <div class="modal fade" id="rejectModal{{ $apartment->id }}" tabindex="-1" aria-labelledby="rejectModalLabel{{ $apartment->id }}" aria-hidden="true">
+                                                                                        <div class="modal-dialog">
+                                                                                            <div class="modal-content">
+                                                                                                <div class="modal-header">
+                                                                                                    <h5 class="modal-title" id="rejectModalLabel{{ $apartment->id }}">Reject Listing #{{ $apartment->id }}</h5>
+                                                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                                                </div>
+                                                                                                <form action="{{ route('admin.apartments.reject', $apartment) }}" method="POST">
+                                                                                                    @csrf
+                                                                                                    <div class="modal-body">
+                                                                                                        <div class="mb-3">
+                                                                                                            <label for="rejection_reason{{ $apartment->id }}" class="form-label">Rejection Reason</label>
+                                                                                                            <textarea id="rejection_reason{{ $apartment->id }}" name="rejection_reason" class="form-control" rows="4" required></textarea>
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                    <div class="modal-footer">
+                                                                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                                                                        <button type="submit" class="btn btn-danger">Reject Listing</button>
+                                                                                                    </div>
+                                                                                                </form>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                            @endif
 
                                 </div>
                             </td>

@@ -8,6 +8,9 @@ use App\Models\ApartmentImage;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use App\Notifications\ListingApproved;
+use App\Notifications\ListingRejected;
+use App\Notifications\ListingMoreInfoRequested;
 
 
 class ApartmentController extends Controller
@@ -118,6 +121,15 @@ class ApartmentController extends Controller
         $apartment->rejection_reason = null;
         $apartment->save();
 
+        // Notify owner (non-blocking)
+        try {
+            if ($apartment->owner) {
+                $apartment->owner->notify(new ListingApproved($apartment));
+            }
+        } catch (\Exception $e) {
+            Log::error('Failed to send listing approved notification: ' . $e->getMessage());
+        }
+
         return redirect()->back()->with('message', $apartment->title . ' has been approved');
     }
 
@@ -132,7 +144,39 @@ class ApartmentController extends Controller
         $apartment->rejection_reason = $request->input('rejection_reason');
         $apartment->save();
 
+        // Notify owner (non-blocking) including rejection reason
+        try {
+            if ($apartment->owner) {
+                $apartment->owner->notify(new ListingRejected($apartment, $apartment->rejection_reason));
+            }
+        } catch (\Exception $e) {
+            Log::error('Failed to send listing rejected notification: ' . $e->getMessage());
+        }
+
         return redirect()->back()->with('message', $apartment->title . ' has been rejected');
+    }
+
+    /**
+     * Admin requests more info from owner about a listing.
+     * This will send a notification to the owner with the admin message.
+     */
+    public function requestMoreInfo(Request $request, Apartment $apartment)
+    {
+        $request->validate([
+            'message' => 'required|string|max:1000'
+        ]);
+
+        $msg = $request->input('message');
+
+        try {
+            if ($apartment->owner) {
+                $apartment->owner->notify(new ListingMoreInfoRequested($apartment, $msg, auth('admin')->id()));
+            }
+        } catch (\Exception $e) {
+            Log::error('Failed to send listing more-info notification: ' . $e->getMessage());
+        }
+
+        return redirect()->back()->with('message', 'Request for more information sent to owner.');
     }
 
     public function addApartmentView() {
@@ -159,6 +203,9 @@ class ApartmentController extends Controller
             'owner' => 'required|exists:users,id',
             'images.*' => 'sometimes|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
         ]);
+
+        // Capture previous verification status so we can reset verification fields
+        $wasPreviouslyApproved = $apartment->verification_status === 'approved';
 
         $apartment->update([
             'title' => $request->name,
@@ -205,8 +252,17 @@ class ApartmentController extends Controller
             }
         }
 
+        // If this apartment was previously approved, mark it pending again and clear verification metadata
+        if ($wasPreviouslyApproved) {
+            $apartment->verification_status = 'pending';
+            $apartment->verified_at = null;
+            $apartment->verified_by = null;
+            // Keep any rejection_reason untouched (should be null for approved), do not alter images or other fields
+            $apartment->save();
+        }
+
         return redirect()->route('admin.apartments')
-        ->with('message', 'Apartment edited successfully!');
+        ->with('message', 'Apartment edited successfully! The listing will be re-verified by an admin.');
     }
 
     public function addApartment(Request $request) {

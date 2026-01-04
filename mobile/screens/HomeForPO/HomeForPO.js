@@ -107,7 +107,8 @@ const HomeForPO = () => {
     })()
   }
 
-  const activeListings = listings.filter(l => l.status === 1 || l.status === true).length
+  // Count active listings as those that are both status=1 and have been verified by admin
+  const activeListings = listings.filter(l => (l.status === 1 || l.status === true) && (l.verification_status === 'approved')).length
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -186,6 +187,9 @@ const HomeForPO = () => {
                   title={item.title}
                   address={item.address || (meta.location ? `${meta.location.area || ''} ${meta.location.city || ''}`.trim() : undefined)}
                   amenities={Array.isArray(meta.amenities) ? meta.amenities : undefined}
+                  // Pass verification status and rejection reason for owner badge/UI
+                  verificationStatus={item.verification_status}
+                  rejectionReason={item.rejection_reason}
                   isOwnerMode={true}
                   onEdit={() => handleEdit(item)}
                   onDeactivate={() => handleDeactivate(item)}

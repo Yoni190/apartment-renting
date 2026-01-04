@@ -19,8 +19,9 @@ class RecommendationService
     {
         $limit = isset($filters['limit']) ? intval($filters['limit']) : 10;
 
-        // Base query: only active listings
-        $query = Apartment::where('status', 1);
+        // Base query: only active and admin-approved listings
+        $query = Apartment::where('status', 1)
+            ->where('verification_status', 'approved');
 
         // Apply strict filters to reduce candidate set (DB side)
         if (!empty($filters['bedrooms'])) {

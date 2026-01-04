@@ -69,8 +69,10 @@ Route::middleware('auth:sanctum')->delete('/user', function (Request $request) {
 });
 
 Route::get('/apartment-list', function (Request $request) {
-    // Only return active listings (status = 1) for clients
-    $apartments = Apartment::where('status', 1)->get();
+    // Only return active and admin-approved listings for clients
+    $apartments = Apartment::where('status', 1)
+        ->where('verification_status', 'approved')
+        ->get();
 
     $apartments->load('images');
     
@@ -139,8 +141,12 @@ Route::get('/apartments/{apartment}', function (Request $request, Apartment $apa
 // get apartments for authenticated owner
 Route::middleware('auth:sanctum')->get('/my-apartments', function (Request $request) {
     $user = $request->user();
-    $apartments = Apartment::where('user_id', $user->id)->get();
-    $apartments->load('images');
+    // Return all listings belonging to the authenticated user. Do NOT filter by
+    // verification_status here — owners should see pending / rejected / approved.
+    $apartments = Apartment::where('user_id', $user->id)->with('images')->get();
+
+    // Ensure the client receives verification_status and rejection_reason.
+    // The Apartment model exposes rejection_reason (from column or meta) via an accessor.
     return $apartments;
 });
 
@@ -171,6 +177,8 @@ Route::middleware('auth:sanctum')->post('/apartments', function (Request $reques
         'size' => $request->input('size'),
         'user_id' => $user->id,
         'status' => 1,
+        // mark new listings as pending verification for admin review
+        'verification_status' => 'pending',
     ];
 
     // Capture any extra fields into meta (utilities, amenities, deposit, open_for_tour, location, etc.)
@@ -258,7 +266,13 @@ Route::middleware('auth:sanctum')->post('/apartments', function (Request $reques
 
     $apartment->load('images');
 
-    return response()->json($apartment, 201);
+    // Return a friendly message to the owner — listing is visible to owner but pending admin verification
+    // Also return the created apartment payload so existing owner UI (mobile/web) that expects the created
+    // apartment can continue to function without changes.
+    return response()->json([
+        'message' => 'Listing submitted and awaiting admin verification.',
+        'apartment' => $apartment
+    ], 201);
 });
 
 // Update an apartment (owner)
@@ -280,10 +294,26 @@ Route::middleware('auth:sanctum')->patch('/apartments/{apartment}', function (Re
 
     if (!empty($meta)) $data['meta'] = $meta;
 
+    // Determine if this apartment was previously approved by admin
+    $wasPreviouslyApproved = $apartment->verification_status === 'approved';
+
     $apartment->fill($data);
     $apartment->save();
 
-    return response()->json($apartment);
+    // If it was approved before, reset verification state so admin re-verifies the update
+    if ($wasPreviouslyApproved) {
+        $apartment->verification_status = 'pending';
+        $apartment->verified_at = null;
+        $apartment->verified_by = null;
+        // Do not modify images or other fields
+        $apartment->save();
+    }
+
+    // Return a friendly message plus the apartment payload so owner UI can continue to function
+    return response()->json([
+        'message' => 'Listing Update submitted and awaiting admin verification.',
+        'apartment' => $apartment->fresh()->load('images')
+    ]);
 });
 
 // Delete an apartment (owner)

@@ -125,6 +125,22 @@ const AddListing = () => {
   const [contactPhone, setContactPhone] = useState('')
   const [contactMethod, setContactMethod] = useState('In-app messaging only')
 
+  // Verification / identity (optional) - visible only to admins on the server
+  const [ownerFullName, setOwnerFullName] = useState('')
+  const [ownerPhoneNumber, setOwnerPhoneNumber] = useState('')
+  const [nationalIdImage, setNationalIdImage] = useState(null)
+
+  // Ownership / authority documents (optional)
+  const [ownershipCertificate, setOwnershipCertificate] = useState(null)
+  const [utilityBill, setUtilityBill] = useState(null)
+  const [rentalAuthorizationLetter, setRentalAuthorizationLetter] = useState(null)
+
+  // Agent fields (if poster is an agent)
+  const [isAgent, setIsAgent] = useState(false)
+  const [agentId, setAgentId] = useState('')
+  const [agentPhone, setAgentPhone] = useState('')
+  const [agentAuthorizationLetter, setAgentAuthorizationLetter] = useState(null)
+
   useEffect(() => {
     // init amenities map
     const map = {}
@@ -329,6 +345,54 @@ const AddListing = () => {
     }
   }
 
+  // Document picker (uses same image picker to allow taking/uploading photos of documents)
+  const pickDocument = async (type) => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync()
+      if (status !== 'granted') {
+        Alert.alert('Permission required', 'Permission to access images is required to attach documents.')
+        return
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, allowsMultipleSelection: false, quality: 0.7 })
+      let pickedUri = null
+      if (result) {
+        if (result.assets && Array.isArray(result.assets) && result.assets.length > 0) pickedUri = result.assets[0].uri
+        else if (result.uri) pickedUri = result.uri
+        else if (result.cancelled === false && result[0] && result[0].uri) pickedUri = result[0].uri
+      }
+
+      if (!pickedUri) return
+
+      const filename = pickedUri.split('/').pop()
+      const match = /\.([0-9a-z]+)(?:\?.*)?$/i.exec(filename || '')
+      const ext = match ? match[1] : 'jpg'
+      const fileObj = { uri: pickedUri, name: filename || `doc.${ext}`, type: `image/${ext === 'jpg' ? 'jpeg' : ext}` }
+
+      switch (type) {
+        case 'nationalId':
+          setNationalIdImage(fileObj)
+          break
+        case 'ownershipCertificate':
+          setOwnershipCertificate(fileObj)
+          break
+        case 'utilityBill':
+          setUtilityBill(fileObj)
+          break
+        case 'rentalAuthorizationLetter':
+          setRentalAuthorizationLetter(fileObj)
+          break
+        case 'agentAuthorizationLetter':
+          setAgentAuthorizationLetter(fileObj)
+          break
+        default:
+          break
+      }
+    } catch (err) {
+      console.log('Document picker error', err)
+    }
+  }
+
   const showPicker = target => {
     setDatePickerTarget(target)
     setIsDatePickerVisible(true)
@@ -437,9 +501,10 @@ const AddListing = () => {
           purpose,
           meta: metaObj
         }
-        await axios.patch(`${API_URL}/apartments/${listingId}`, payload, { headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } })
-        Alert.alert('Success', 'Listing updated')
-        navigation.goBack()
+  const res = await axios.patch(`${API_URL}/apartments/${listingId}`, payload, { headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } })
+  const serverMsg = res?.data?.message || 'Listing Update submitted and awaiting admin verification.'
+  Alert.alert('Success', serverMsg)
+  navigation.goBack()
       } else {
         // Create path (existing multipart form flow). Keep image upload as before.
         const formData = new FormData()
@@ -470,6 +535,30 @@ const AddListing = () => {
           formData.append('unique_features', JSON.stringify(metaObj.unique_features))
         }
 
+        // Append optional owner / verification fields (they are optional and only visible to admins)
+        if (ownerFullName && ownerFullName.trim() !== '') formData.append('owner_name', ownerFullName.trim())
+        if (ownerPhoneNumber && ownerPhoneNumber.trim() !== '') formData.append('owner_phone', ownerPhoneNumber.trim())
+        formData.append('is_agent', isAgent ? '1' : '0')
+        if (isAgent && agentId) formData.append('agent_id', agentId)
+        if (isAgent && agentPhone) formData.append('agent_phone', agentPhone)
+
+        // Append verification document files if present. Server should store these in a private/admin-only area.
+        if (nationalIdImage) {
+          try { formData.append('national_id', nationalIdImage) } catch (e) { console.log('append national id failed', e) }
+        }
+        if (ownershipCertificate) {
+          try { formData.append('ownership_certificate', ownershipCertificate) } catch (e) { console.log('append ownership certificate failed', e) }
+        }
+        if (utilityBill) {
+          try { formData.append('utility_bill', utilityBill) } catch (e) { console.log('append utility bill failed', e) }
+        }
+        if (rentalAuthorizationLetter) {
+          try { formData.append('rental_authorization_letter', rentalAuthorizationLetter) } catch (e) { console.log('append rental auth failed', e) }
+        }
+        if (agentAuthorizationLetter) {
+          try { formData.append('agent_authorization_letter', agentAuthorizationLetter) } catch (e) { console.log('append agent auth failed', e) }
+        }
+
         for (let i = 0; i < images.length; i++) {
           let uri = images[i]
           if (!uri) continue
@@ -485,10 +574,11 @@ const AddListing = () => {
           }
         }
 
-        await axios.post(`${API_URL}/apartments`, formData, {
+        const res = await axios.post(`${API_URL}/apartments`, formData, {
           headers: { 'Content-Type': 'multipart/form-data', Accept: 'application/json', Authorization: `Bearer ${token}` }
         })
-        Alert.alert('Success', 'Listing posted')
+        const serverMsg = res?.data?.message || 'Listing posted'
+        Alert.alert('Success', serverMsg)
         navigation.goBack()
       }
     } catch (err) {
@@ -904,6 +994,101 @@ const AddListing = () => {
           </View>
         </View>
         
+        {/* Optional verification / identity (these are optional and only visible to admins in the server) */}
+        <Text style={styles.sectionTitle}>Optional verification & identity (optional)</Text>
+        <Text style={styles.label}>Owner full name (optional)</Text>
+        <TextInput
+          style={[styles.input, focusedInput === 'ownerFullName' && styles.inputFocused]}
+          value={ownerFullName}
+          onChangeText={setOwnerFullName}
+          onFocus={() => { setFocusedInput('ownerFullName'); scrollToInput(null); }}
+          placeholder="Owner full name"
+          placeholderTextColor="#94a3b8"
+        />
+
+        <Text style={styles.label}>Owner phone (optional)</Text>
+        <TextInput
+          style={[styles.input, focusedInput === 'ownerPhone' && styles.inputFocused]}
+          value={ownerPhoneNumber}
+          onChangeText={setOwnerPhoneNumber}
+          onFocus={() => { setFocusedInput('ownerPhone'); scrollToInput(null); }}
+          placeholder="e.g. +2519xxxxxxx"
+          placeholderTextColor="#94a3b8"
+          keyboardType={Platform.OS === 'web' ? 'default' : 'phone-pad'}
+        />
+
+        <Text style={styles.label}>National ID (optional)</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+          <TouchableOpacity style={[styles.btn, { flex: 1, marginRight: 8 }]} onPress={() => pickDocument('nationalId')}>
+            <Text style={styles.btnText}>{nationalIdImage ? 'Replace national ID' : 'Upload national ID'}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.btn, { flex: 1 }]} onPress={() => setNationalIdImage(null)} disabled={!nationalIdImage}>
+            <Text style={[styles.btnText, !nationalIdImage && { opacity: 0.6 }]}>{nationalIdImage ? 'Remove' : 'Not attached'}</Text>
+          </TouchableOpacity>
+        </View>
+        <Text style={{ color: '#666', fontSize: 12, marginBottom: 8 }}>Upload a photo of the owner's national ID or passport (optional).</Text>
+
+        <Text style={styles.label}>Ownership / authority documents (optional)</Text>
+        <View style={{ marginBottom: 8 }}>
+          <Text style={{ color: '#333', fontStyle: 'italic', marginBottom: 6 }}>Upload ONE of the following documents to verify ownership or authority:</Text>
+          <View style={{ marginLeft: 10, marginBottom: 8 }}>
+            <Text style={{ color: '#333', fontStyle: 'italic', marginBottom: 6 }}>• Property ownership certificate</Text>
+            <Text style={{ color: '#333', fontStyle: 'italic', marginBottom: 6 }}>• Utility bill in owner’s name</Text>
+            <Text style={{ color: '#333', fontStyle: 'italic', marginBottom: 6 }}>• Rental authorization letter (if agent)</Text>
+          </View>
+          <TouchableOpacity style={[styles.optionPill, ownershipCertificate && styles.optionPillActive]} onPress={() => pickDocument('ownershipCertificate')}>
+            <Text style={ownershipCertificate ? styles.optionTextActive : styles.optionText}>{ownershipCertificate ? 'Replace ownership certificate' : 'Upload ownership certificate'}</Text>
+          </TouchableOpacity>
+          <Text style={{ color: '#666', fontSize: 12, marginTop: 6 }}>Use this if you own the property (e.g. title deed).</Text>
+          <TouchableOpacity style={[styles.optionPill, utilityBill && styles.optionPillActive, { marginTop: 8 }]} onPress={() => pickDocument('utilityBill')}>
+            <Text style={utilityBill ? styles.optionTextActive : styles.optionText}>{utilityBill ? 'Replace utility bill' : 'Upload utility bill'}</Text>
+          </TouchableOpacity>
+          <Text style={{ color: '#666', fontSize: 12, marginTop: 6 }}>Upload a recent utility bill in the owner's name (electricity/water) to prove residency/ownership.</Text>
+          <TouchableOpacity style={[styles.optionPill, rentalAuthorizationLetter && styles.optionPillActive, { marginTop: 8 }]} onPress={() => pickDocument('rentalAuthorizationLetter')}>
+            <Text style={rentalAuthorizationLetter ? styles.optionTextActive : styles.optionText}>{rentalAuthorizationLetter ? 'Replace rental authorization letter' : 'Upload rental authorization letter'}</Text>
+          </TouchableOpacity>
+          <Text style={{ color: '#666', fontSize: 12, marginTop: 6 }}>If you're an agent, upload a signed authorization letter from the owner permitting you to list this property.</Text>
+        </View>
+
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+          <Text style={{ marginRight: 8 }}>Posting as agent?</Text>
+          <TouchableOpacity style={[styles.toggle, isAgent && styles.toggleOn]} onPress={() => setIsAgent(!isAgent)}>
+            <Text style={isAgent ? styles.toggleTextOn : styles.toggleText}>{isAgent ? 'Yes' : 'No'}</Text>
+          </TouchableOpacity>
+        </View>
+
+        {isAgent && (
+          <>
+            <Text style={styles.label}>Agent ID (optional)</Text>
+            <TextInput
+              style={[styles.input]}
+              value={agentId}
+              onChangeText={setAgentId}
+              placeholder="Agent ID"
+              placeholderTextColor="#94a3b8"
+            />
+            <Text style={styles.label}>Agent phone (optional)</Text>
+            <TextInput
+              style={[styles.input]}
+              value={agentPhone}
+              onChangeText={setAgentPhone}
+              placeholder="Agent phone"
+              placeholderTextColor="#94a3b8"
+              keyboardType={Platform.OS === 'web' ? 'default' : 'phone-pad'}
+            />
+            <Text style={styles.label}>Agent authorization letter (optional)</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+              <TouchableOpacity style={[styles.btn, { flex: 1, marginRight: 8 }]} onPress={() => pickDocument('agentAuthorizationLetter')}>
+                <Text style={styles.btnText}>{agentAuthorizationLetter ? 'Replace auth letter' : 'Upload auth letter'}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.btn, { flex: 1 }]} onPress={() => setAgentAuthorizationLetter(null)} disabled={!agentAuthorizationLetter}>
+                <Text style={[styles.btnText, !agentAuthorizationLetter && { opacity: 0.6 }]}>{agentAuthorizationLetter ? 'Remove' : 'Not attached'}</Text>
+              </TouchableOpacity>
+            </View>
+              <Text style={{ color: '#666', fontSize: 12, marginBottom: 8 }}>Agent: attach the owner's signed authorization letter if you're listing on behalf of the owner.</Text>
+          </>
+        )}
+
         {/* Submit button */}
         <View style={{ marginTop: 12, marginBottom: 24 }}>
           <TouchableOpacity style={styles.btn} onPress={handleSubmit} disabled={loading}>

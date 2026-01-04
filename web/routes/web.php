@@ -9,6 +9,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\ApartmentVerificationDocumentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -52,11 +53,19 @@ Route::prefix('admin')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
         Route::get('/users', [UserController::class, 'index'])->name('admin.users');
         Route::get('/apartments', [ApartmentController::class, 'index'])->name('admin.apartments');
+    Route::post('/apartments/{apartment}/approve', [ApartmentController::class, 'approve'])->name('admin.apartments.approve');
+    Route::post('/apartments/{apartment}/reject', [ApartmentController::class, 'reject'])->name('admin.apartments.reject');
+    Route::post('/apartments/{apartment}/request-more-info', [ApartmentController::class, 'requestMoreInfo'])->name('admin.apartments.requestMoreInfo');
         Route::get('/apartment/add', [ApartmentController::class, 'addApartmentView'])->name('admin.apartments.add');
         Route::get('/apartment/edit/{apartment}', [ApartmentController::class, 'editApartmentView'])->name('admin.apartments.edit');
         Route::post('/apartment/edit-apartment/{apartment}', [ApartmentController::class, 'editApartment'])->name('admin.edit-apartment');
         Route::post('/apartment/add-apartment', [ApartmentController::class, 'addApartment'])->name('admin.add-apartment');
         Route::delete('/apartments/{apartment}/delete', [ApartmentController::class, 'delete'])->name('admin.apartments.destroy');
+    // Verification documents for apartments (admin only)
+    Route::get('/apartment/{apartment}/verification-docs', [ApartmentVerificationDocumentController::class, 'index'])->name('admin.apartments.verification.index');
+    Route::post('/apartment/{apartment}/verification-docs', [ApartmentVerificationDocumentController::class, 'store'])->name('admin.apartments.verification.store');
+    Route::get('/apartments/verification-docs/{doc}/download', [ApartmentVerificationDocumentController::class, 'download'])->name('admin.apartments.verification.download');
+    Route::delete('/apartments/verification-docs/{doc}', [ApartmentVerificationDocumentController::class, 'destroy'])->name('admin.apartments.verification.destroy');
         Route::get('/settings', [AdminController::class, 'settings'])->name('admin.settings');
         Route::post('/save-settings', [SettingController::class, 'saveAPI'])->name('admin.settings.save');
         Route::get('/admins', [AdminController::class, 'index'])->name('admin.admins.index');
