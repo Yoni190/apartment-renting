@@ -109,6 +109,7 @@ const HomeForPO = () => {
 
   // Count active listings as those that are both status=1 and have been verified by admin
   const activeListings = listings.filter(l => (l.status === 1 || l.status === true) && (l.verification_status === 'approved')).length
+  const [activeTab, setActiveTab] = useState('pending')
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -147,6 +148,39 @@ const HomeForPO = () => {
           )}
         </View>
 
+        {/* Tabs: Pending / Approved / Rejected */}
+        <View style={styles.tabBar}>
+          {(() => {
+            const pendingCount = listings.filter(l => (l.verification_status || '').toString().toLowerCase() === 'pending').length
+            const approvedCount = listings.filter(l => (l.verification_status || '').toString().toLowerCase() === 'approved').length
+            const rejectedCount = listings.filter(l => (l.verification_status || '').toString().toLowerCase() === 'rejected').length
+            return (
+              <>
+                <TouchableOpacity
+                  style={[styles.tabButton, activeTab === 'pending' ? styles.tabButtonActive : null]}
+                  onPress={() => setActiveTab('pending')}
+                >
+                  <Text style={[styles.tabButtonText, activeTab === 'pending' ? styles.tabButtonTextActive : null]}>Pending ({pendingCount})</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.tabButton, activeTab === 'approved' ? styles.tabButtonActive : null]}
+                  onPress={() => setActiveTab('approved')}
+                >
+                  <Text style={[styles.tabButtonText, activeTab === 'approved' ? styles.tabButtonTextActive : null]}>Approved ({approvedCount})</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.tabButton, activeTab === 'rejected' ? styles.tabButtonActive : null]}
+                  onPress={() => setActiveTab('rejected')}
+                >
+                  <Text style={[styles.tabButtonText, activeTab === 'rejected' ? styles.tabButtonTextActive : null]}>Rejected ({rejectedCount})</Text>
+                </TouchableOpacity>
+              </>
+            )
+          })()}
+        </View>
+
         {loading ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="#1778f2" />
@@ -172,32 +206,61 @@ const HomeForPO = () => {
           </View>
         ) : (
           <View style={styles.listingsContainer}>
-            {listings.map((item) => {
-              const images = (item.images || []).map(img => 
-                img.url || (img.path ? `${API_URL}/storage/${img.path}` : null)
-              ).filter(Boolean)
-              const meta = item.meta || {}
+            {/* Group listings by verification_status but keep all listings visible */}
+            {(() => {
+              const pending = listings.filter(l => (l.verification_status || '').toString().toLowerCase() === 'pending')
+              const approved = listings.filter(l => (l.verification_status || '').toString().toLowerCase() === 'approved')
+              const rejected = listings.filter(l => (l.verification_status || '').toString().toLowerCase() === 'rejected')
+
+              // Render only the active tab's listings
+              const selected = activeTab === 'pending' ? pending : (activeTab === 'approved' ? approved : rejected)
+              const selectedLabel = activeTab === 'pending' ? 'Pending Verification' : (activeTab === 'approved' ? 'Approved' : 'Rejected')
+              if (selected.length === 0) {
+                return (
+                  <View style={{ width: '100%', paddingVertical: 40, alignItems: 'center' }}>
+                    <Text style={styles.sectionSubtitle}>No {selectedLabel.toLowerCase()} listings</Text>
+                  </View>
+                )
+              }
 
               return (
-                <ListingCard
-                  key={item.id}
-                  images={images.length ? images : undefined}
-                  priceRange={item.price ? `$${Number(item.price).toLocaleString()}` : undefined}
-                  bedroomRange={item.bedrooms ? `${item.bedrooms} Bed${item.bedrooms !== 1 ? 's' : ''}` : undefined}
-                  title={item.title}
-                  address={item.address || (meta.location ? `${meta.location.area || ''} ${meta.location.city || ''}`.trim() : undefined)}
-                  amenities={Array.isArray(meta.amenities) ? meta.amenities : undefined}
-                  // Pass verification status and rejection reason for owner badge/UI
-                  verificationStatus={item.verification_status}
-                  rejectionReason={item.rejection_reason}
-                  isOwnerMode={true}
-                  onEdit={() => handleEdit(item)}
-                  onDeactivate={() => handleDeactivate(item)}
-                  onDelete={() => handleDelete(item)}
-                  onPress={() => navigation.navigate('ApartmentDetails', { listingId: item.id })}
-                />
+                <>
+                  <View style={{ width: '100%', marginBottom: 8 }}>
+                    <Text style={{ fontSize: 18, fontWeight: '700', color: '#0f172a', marginBottom: 6 }}>{selectedLabel} {`(${selected.length})`}</Text>
+                  </View>
+                  {selected.map((item) => {
+                    const images = (item.images || []).map(img => 
+                      img.url || (img.path ? `${API_URL}/storage/${img.path}` : null)
+                    ).filter(Boolean)
+                    const meta = item.meta || {}
+                    return (
+                      <React.Fragment key={`${activeTab}-${item.id}`}>
+                        <ListingCard
+                          images={images.length ? images : undefined}
+                          priceRange={item.price ? `$${Number(item.price).toLocaleString()}` : undefined}
+                          bedroomRange={item.bedrooms ? `${item.bedrooms} Bed${item.bedrooms !== 1 ? 's' : ''}` : undefined}
+                          title={item.title}
+                          address={item.address || (meta.location ? `${meta.location.area || ''} ${meta.location.city || ''}`.trim() : undefined)}
+                          amenities={Array.isArray(meta.amenities) ? meta.amenities : undefined}
+                          verificationStatus={item.verification_status}
+                          rejectionReason={item.rejection_reason}
+                          isOwnerMode={true}
+                          onEdit={() => handleEdit(item)}
+                          onDeactivate={() => handleDeactivate(item)}
+                          onDelete={() => handleDelete(item)}
+                          onPress={() => navigation.navigate('ApartmentDetails', { listingId: item.id })}
+                        />
+                        {item.rejection_reason && activeTab === 'rejected' ? (
+                          <View style={{ width: '100%', paddingHorizontal: 12, marginBottom: 12 }}>
+                            <Text style={{ color: '#b91c1c' }}>Rejection reason: {item.rejection_reason}</Text>
+                          </View>
+                        ) : null}
+                      </React.Fragment>
+                    )
+                  })}
+                </>
               )
-            })}
+            })()}
           </View>
         )}
       </ScrollView>

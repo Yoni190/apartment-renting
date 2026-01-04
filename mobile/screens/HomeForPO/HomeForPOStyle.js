@@ -86,6 +86,34 @@ export default StyleSheet.create({
     fontWeight: '500',
   },
 
+  // Tabs for filtering listings by verification status
+  tabBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 14,
+    gap: 8,
+  },
+  tabButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#e6e6e6',
+    backgroundColor: 'transparent',
+  },
+  tabButtonActive: {
+    backgroundColor: '#1778f2',
+    borderColor: '#1778f2',
+  },
+  tabButtonText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#0f172a',
+  },
+  tabButtonTextActive: {
+    color: '#ffffff',
+  },
+
   // Loading State
   loadingContainer: {
     flex: 1,
