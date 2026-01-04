@@ -23,7 +23,7 @@
                                 name="name" 
                                 class="form-control" 
                                 placeholder="Enter API name..." 
-                                value="{{ $paymentApi->name }}"
+                                value="{{ $paymentApi->name ?? '' }}"
                                 required
                             >
                     </div>
@@ -35,7 +35,7 @@
                                 name="key"
                                 id="key"
                                 class="form-control"
-                                value="{{ $paymentApi->masked_key }}"
+                                value="{{ $paymentApi->masked_key ?? '' }}"
                                 required
                             >
                             <button type="button" class="btn btn-outline-secondary" id="toggleKey">
@@ -51,7 +51,7 @@
                             id="provider"
                             class="form-control"
                             placeholder="Enter API Provider..."
-                            value="{{ $paymentApi->api_provider }}"
+                            value="{{ $paymentApi->api_provider ?? '' }}"
                             required
                             >
                     </div>
@@ -76,8 +76,8 @@
     const toggleButton = document.getElementById('toggleKey');
 
     // Store both values
-    const maskedKey = "{{ $paymentApi->masked_key }}";
-    const fullKey = "{{ $paymentApi->api_key }}";
+    const maskedKey = "{{ $paymentApi->masked_key ?? '' }}";
+    const fullKey = "{{ $paymentApi->api_key ?? '' }}";
     let showingFull = false;
 
     toggleButton.addEventListener('click', () => {
