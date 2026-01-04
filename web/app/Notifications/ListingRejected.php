@@ -34,6 +34,7 @@ class ListingRejected extends Notification
             'message' => 'Your listing has been rejected by admin.',
             'rejection_reason' => $this->reason ?? $this->apartment->rejection_reason,
             'verified_by' => $this->apartment->verified_by,
+            'verified_by_admin' => $this->apartment->meta['verified_by_admin'] ?? null,
             'verified_at' => optional($this->apartment->verified_at)->toDateTimeString(),
         ];
     }

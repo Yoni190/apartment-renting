@@ -30,7 +30,9 @@ class ListingApproved extends Notification
             'apartment_id' => $this->apartment->id,
             'title' => $this->apartment->title,
             'message' => 'Your listing has been approved by admin.',
+            // verified_by may be null (schema references users). Provide admin info from meta if available.
             'verified_by' => $this->apartment->verified_by,
+            'verified_by_admin' => $this->apartment->meta['verified_by_admin'] ?? null,
             'verified_at' => optional($this->apartment->verified_at)->toDateTimeString(),
         ];
     }

@@ -117,7 +117,21 @@ class ApartmentController extends Controller
     public function approve(Apartment $apartment) {
         $apartment->verification_status = 'approved';
         $apartment->verified_at = now();
-        $apartment->verified_by = auth('admin')->id();
+        // verified_by column references users.id in the schema. Admins are stored
+        // in a separate `admins` table, so writing the admin id here causes a
+        // foreign key violation. Instead, keep the DB FK untouched (set null)
+        // and record the approving admin inside the apartment meta for audit.
+        $apartment->verified_by = null;
+        $admin = auth('admin')->user();
+        if ($admin) {
+            $meta = is_array($apartment->meta) ? $apartment->meta : (array) ($apartment->meta ?? []);
+            $meta['verified_by_admin'] = [
+                'id' => $admin->id,
+                'name' => $admin->name ?? null,
+                'email' => $admin->email ?? null,
+            ];
+            $apartment->meta = $meta;
+        }
         $apartment->rejection_reason = null;
         $apartment->save();
 
@@ -140,8 +154,19 @@ class ApartmentController extends Controller
 
         $apartment->verification_status = 'rejected';
         $apartment->verified_at = now();
-        $apartment->verified_by = auth('admin')->id();
+        // see note in approve(): do not write admin id into verified_by (FK -> users)
+        $apartment->verified_by = null;
         $apartment->rejection_reason = $request->input('rejection_reason');
+        $admin = auth('admin')->user();
+        if ($admin) {
+            $meta = is_array($apartment->meta) ? $apartment->meta : (array) ($apartment->meta ?? []);
+            $meta['verified_by_admin'] = [
+                'id' => $admin->id,
+                'name' => $admin->name ?? null,
+                'email' => $admin->email ?? null,
+            ];
+            $apartment->meta = $meta;
+        }
         $apartment->save();
 
         // Notify owner (non-blocking) including rejection reason
