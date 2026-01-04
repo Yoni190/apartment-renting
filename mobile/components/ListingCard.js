@@ -24,6 +24,7 @@ import { Ionicons } from '@expo/vector-icons'
  * - title: string
  * - address: string (full address: street, area, city)
  * - amenities: array of strings
+ * - showAmenities: boolean (whether to render amenities below address). Default: false
  * - phoneEnabled: boolean (owner allowed phone contact)
  * - contactPhone: string (owner phone number) — used only if phoneEnabled true
  * - saved: boolean (is saved by current user) — controls heart state
@@ -74,6 +75,7 @@ export default function ListingCard({
   verificationStatus,
   rejectionReason,
   style,
+  showAmenities = false,
 }) {
   // Normalize images to an array of URL strings (if image objects are provided)
   const normalizedImages = Array.isArray(images)
@@ -262,8 +264,8 @@ export default function ListingCard({
         {/* address */}
   {address ? <Text style={styles.addressText} numberOfLines={2}>{address}</Text> : null}
 
-        {/* amenities */}
-  {amenitiesText ? <Text style={styles.amenitiesText} numberOfLines={2}>{amenitiesText}</Text> : null}
+    {/* amenities (optional) */}
+  {showAmenities && amenitiesText ? <Text style={styles.amenitiesText} numberOfLines={2}>{amenitiesText}</Text> : null}
 
         {/* actions row */}
         <View style={styles.actionsRow}>

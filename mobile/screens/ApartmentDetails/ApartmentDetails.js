@@ -253,23 +253,72 @@ export default function ApartmentDetails() {
     }
 
     if (!amens) return []
+
+    // If it's already an array, return it
     if (Array.isArray(amens)) return amens
-    if (typeof amens === 'string') {
-      const s = amens.trim()
-      // Try JSON first (e.g. '["a","b"]')
+
+    // If it's an object, use keys with truthy values or stringify values
+    if (typeof amens === 'object') {
       try {
-        const parsed = JSON.parse(s)
-        if (Array.isArray(parsed)) return parsed
+        const keys = Object.keys(amens)
+        if (keys.length > 0) return keys.filter(k => !!amens[k])
       } catch (e) {
-        // not JSON — fallthrough to splitting
+        // fallthrough
+      }
+      return []
+    }
+
+    // Now handle string shapes. Some rows store JSON-encoded arrays as strings,
+    // sometimes double-encoded. Try to JSON.parse up to two times, then fall
+    // back to splitting by comma/newline.
+    if (typeof amens === 'string') {
+      let s = amens.trim()
+
+      // Attempt up to two JSON parses to handle double-encoded strings
+      for (let i = 0; i < 2; i++) {
+        if ((s.startsWith('[') && s.endsWith(']')) || (s.startsWith('{') && s.endsWith('}'))) {
+          try {
+            const parsed = JSON.parse(s)
+            if (Array.isArray(parsed)) return parsed.map(p => String(p).trim()).filter(Boolean)
+            if (typeof parsed === 'object' && parsed !== null) {
+              const keys = Object.keys(parsed)
+              if (keys.length > 0) return keys.filter(k => !!parsed[k])
+            }
+            // If parsed to a primitive, set s to the parsed value and continue
+            s = typeof parsed === 'string' ? parsed : String(parsed)
+          } catch (e) {
+            // not JSON, break out
+            break
+          }
+        } else {
+          break
+        }
       }
 
-      // Split common delimiters (newlines or commas), trim and filter empties
+      // Final fallback: split on commas or newlines
       const parts = s.split(/\r?\n|,/).map(p => p.trim()).filter(Boolean)
       return parts.length > 0 ? parts : [s]
     }
     return []
   }, [listing])
+
+  // Map amenity text to a small emoji for quick visual recognition
+  const getAmenityEmoji = (amenity) => {
+    if (!amenity) return '✔️'
+    const s = String(amenity).toLowerCase()
+    if (s.includes('wifi') || s.includes('internet')) return '📶'
+    if (s.includes('park') || s.includes('parking')) return '🚗'
+    if (s.includes('pool')) return '🏊'
+    if (s.includes('ac') || s.includes('air')) return '❄️'
+    if (s.includes('tv') || s.includes('television')) return '📺'
+    if (s.includes('washer') || s.includes('laundry')) return '🧺'
+    if (s.includes('gym') || s.includes('fitness')) return '🏋️'
+    if (s.includes('kitchen')) return '🍽️'
+    if (s.includes('heating') || s.includes('heater')) return '🔥'
+    if (s.includes('security') || s.includes('guard')) return '🔒'
+    if (s.includes('pet')) return '🐶'
+    return '✔️'
+  }
 
   const handleFavourite = async () => {
     if (!user || !listingId) return
@@ -786,7 +835,7 @@ export default function ApartmentDetails() {
             <View style={styles.amenitiesContainer}>
               {amenitiesList.map((amenity, index) => (
                 <View key={index} style={styles.amenityChip}>
-                  <Ionicons name="checkmark-circle" size={18} color="#0ea5a4" style={styles.amenityIcon} />
+                  <Text style={styles.amenityEmoji}>{getAmenityEmoji(amenity)}</Text>
                   <Text style={styles.amenityText}>{amenity}</Text>
                 </View>
               ))}

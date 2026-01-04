@@ -11,6 +11,58 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Rules;
 use App\Services\RecommendationService;
+// Helper: normalize common meta fields so clients receive consistent shapes
+// e.g. amenities, utilities may be sent as JSON strings or comma lists — store as arrays
+function normalizeMetaFields(array $meta): array {
+    // Normalize amenities and utilities to arrays
+    foreach (['amenities', 'utilities'] as $k) {
+        if (array_key_exists($k, $meta)) {
+            $v = $meta[$k];
+            if (is_string($v)) {
+                $s = trim($v);
+                // try JSON decode
+                $decoded = null;
+                try { $decoded = json_decode($s, true); } catch (\Exception $e) { $decoded = null; }
+                if (is_array($decoded)) {
+                    $meta[$k] = array_values(array_filter(array_map('strval', $decoded)));
+                } else {
+                    // split by comma or newline
+                    $parts = preg_split('/\r?\n|,/', $s);
+                    $parts = array_map('trim', $parts);
+                    $parts = array_values(array_filter($parts, fn($x) => $x !== ''));
+                    $meta[$k] = $parts;
+                }
+            } elseif (is_array($v)) {
+                $meta[$k] = array_values(array_filter(array_map('strval', $v)));
+            } else {
+                // other types -> cast to string and split
+                $meta[$k] = [strval($v)];
+            }
+        }
+    }
+
+    // Normalize location JSON strings to arrays/objects
+    if (array_key_exists('location', $meta) && is_string($meta['location'])) {
+        try {
+            $decoded = json_decode($meta['location'], true);
+            if (is_array($decoded)) $meta['location'] = $decoded;
+        } catch (\Exception $e) {
+            // leave as-is
+        }
+    }
+
+    // Normalize open_for_tour
+    if (array_key_exists('open_for_tour', $meta) && is_string($meta['open_for_tour'])) {
+        try {
+            $decoded = json_decode($meta['open_for_tour'], true);
+            if (is_array($decoded)) $meta['open_for_tour'] = $decoded;
+        } catch (\Exception $e) {
+            // leave
+        }
+    }
+
+    return $meta;
+}
 
 
 /*
@@ -189,7 +241,9 @@ Route::middleware('auth:sanctum')->post('/apartments', function (Request $reques
         unset($meta['images']);
     }
 
+    // Normalize common meta fields for consistent client consumption
     if (!empty($meta)) {
+        $meta = normalizeMetaFields($meta);
         $apartmentData['meta'] = $meta;
     }
 
@@ -291,6 +345,8 @@ Route::middleware('auth:sanctum')->patch('/apartments/{apartment}', function (Re
         try { $incomingMeta = json_decode($incomingMeta, true) ?? []; } catch (\Exception $e) { $incomingMeta = []; }
     }
     $meta = array_merge($meta, $incomingMeta ?: []);
+    // normalize incoming meta so amenities/utilities are arrays etc.
+    $meta = normalizeMetaFields($meta);
 
     if (!empty($meta)) $data['meta'] = $meta;
 

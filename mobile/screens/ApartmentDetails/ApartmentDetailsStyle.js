@@ -299,6 +299,10 @@ export default StyleSheet.create({
     fontWeight: '600',
     color: '#0f172a',
   },
+  amenityEmoji: {
+    fontSize: 16,
+    marginRight: 8,
+  },
 
   // Contacts Section
   contactPhone: {
