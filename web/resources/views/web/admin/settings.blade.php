@@ -32,13 +32,19 @@
                         <label for="key" class="form-label fw-semibold">API Key</label>
                         <div class="input-group">
                             <input type="text"
-                                name="key"
-                                id="key"
+                                id="key_display"
                                 class="form-control"
                                 value="{{ $paymentApi->masked_key ?? '' }}"
-                                required
-                            >
-                            <button type="button" class="btn btn-outline-secondary" id="toggleKey">
+                                readonly>
+
+                            <input type="hidden"
+                                name="key"
+                                id="key_real"
+                                value="">
+
+                            <button type="button"
+                                    class="btn btn-outline-secondary"
+                                    id="toggleKey">
                                 👁️
                             </button>
                         </div>
@@ -72,23 +78,43 @@
 @push('scripts')
 
 <script>
-    const keyInput = document.getElementById('key');
-    const toggleButton = document.getElementById('toggleKey');
+const displayInput = document.getElementById('key_display');
+const realInput = document.getElementById('key_real');
+const toggleButton = document.getElementById('toggleKey');
 
-    // Store both values
-    const maskedKey = "{{ $paymentApi->masked_key ?? '' }}";
-    const fullKey = "{{ $paymentApi->api_key ?? '' }}";
-    let showingFull = false;
+const maskedKey = @json($paymentApi->masked_key ?? '');
+const fullKey = @json($paymentApi->api_key ?? '');
 
-    toggleButton.addEventListener('click', () => {
-        if (showingFull) {
-            keyInput.value = maskedKey;
-        } else {
-            keyInput.value = fullKey;
-        }
-        showingFull = !showingFull;
-    });
+let showing = false;
+
+toggleButton.addEventListener('click', () => {
+    if (!showing) {
+        // SHOW + ENABLE EDIT
+        displayInput.type = 'text';
+        displayInput.readOnly = false;
+        displayInput.value = fullKey;
+
+        realInput.value = fullKey;
+    } else {
+        // HIDE + LOCK
+        displayInput.type = 'password';
+        displayInput.readOnly = true;
+        displayInput.value = maskedKey;
+
+        realInput.value = '';
+    }
+    showing = !showing;
+});
+
+// Sync typing to hidden input
+displayInput.addEventListener('input', () => {
+    if (showing) {
+        realInput.value = displayInput.value;
+    }
+});
 </script>
+
+
 
 
 @endpush

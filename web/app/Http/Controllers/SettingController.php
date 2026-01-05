@@ -7,24 +7,29 @@ use App\Models\Api;
 
 class SettingController extends Controller
 {
-        public function saveAPI(Request $request) {
+        public function saveAPI(Request $request)
+        {
             $request->validate([
                 'name' => 'required|string|max:100',
-                'key' => 'required|string|max:255',
-                'provider' => 'required|string|max:100'
+                'key' => 'nullable|string|max:255',
+                'provider' => 'required|string|max:100',
             ]);
 
-            Api::updateOrCreate(
-                ['type' => 'payment'],
-                [
-                'name' => $request->name,
-                'api_key' => encrypt($request->key),
-                'api_provider' => $request->provider,
-                'type' => 'payment'
-                ]
-            );
+            $api = Api::firstOrNew(['type' => 'payment']);
 
-            return redirect()->route('admin.settings')
-            ->with('message', 'API Settings saved successfully!');
+            $api->name = $request->name;
+            $api->api_provider = $request->provider;
+            $api->type = 'payment';
+
+            if ($request->filled('key')) {
+                $api->api_key = encrypt($request->key);
+            }
+
+            $api->save();
+
+            return redirect()
+                ->route('admin.settings')
+                ->with('message', 'API Settings saved successfully!');
         }
+
 }
