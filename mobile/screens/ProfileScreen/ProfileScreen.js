@@ -126,7 +126,7 @@ const ProfileScreen = () => {
         </View>
       </View>
 
-      {/* Logout Button here1 */}
+      {/* Logout Button */}
       <TouchableOpacity
         style={styles.logoutBtn}
         onPress={() => setShowModal(true)}
