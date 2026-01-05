@@ -29,7 +29,15 @@
                     </div>
 
                     <div class="col-md-6">
-                        <label for="key" class="form-label fw-semibold">API Key</label>
+                        <div class="d-flex justify-content-between">
+                            <label for="key" class="form-label fw-semibold">API Key</label>
+                            <i
+                            class="bi bi-info-circle fs-4"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="top"
+                            title="Click the eye to view and edit the API key"
+                            ></i>
+                        </div>
                         <div class="input-group">
                             <input type="text"
                                 id="key_display"
@@ -43,10 +51,11 @@
                                 value="">
 
                             <button type="button"
-                                    class="btn btn-outline-secondary"
-                                    id="toggleKey">
-                                👁️
-                            </button>
+                                class="btn btn-outline-secondary"
+                                id="toggleKey"
+                                >
+                            👁️
+                        </button>
                         </div>
                     </div>
 
@@ -76,6 +85,19 @@
 @endsection
 
 @push('scripts')
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const tooltipTriggerList = [].slice.call(
+        document.querySelectorAll('[data-bs-toggle="tooltip"]')
+    );
+
+    tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+        new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+</script>
+
 
 <script>
 const displayInput = document.getElementById('key_display');
