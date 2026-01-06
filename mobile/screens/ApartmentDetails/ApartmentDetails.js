@@ -365,11 +365,13 @@ export default function ApartmentDetails() {
         return
       }
 
-      // build available dates and show the tour panel (date pills + time pills)
+      // build available dates and show the tour panel (date list + time list)
       const oft = getMetaOpenForTour()
       const dates = buildAvailableDates(oft)
       setAvailableDates(dates)
-      setSelectedDateIndex(0)
+      // Do not auto-select a date; user must pick one to view times
+      setSelectedDateIndex(null)
+      setSelectedTime(null)
       setShowAllDates(false)
       setTourPanelVisible(true)
     })()
@@ -455,6 +457,21 @@ export default function ApartmentDetails() {
     if (!d) return ''
     const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
     return `${days[d.getDay()]} ${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`
+  }
+
+  // Format date for pill: 'Sun, Jan 4'
+  const formatDatePill = (d) => {
+    if (!d) return ''
+    try {
+      const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+      const day = days[d.getDay()]
+      const month = months[d.getMonth()]
+      const dateNum = d.getDate()
+      return `${day}, ${month} ${dateNum}`
+    } catch (e) {
+      return String(d)
+    }
   }
 
   // Format a HH:MM (24-hour) string into 12-hour display like '1:30 PM'
@@ -947,64 +964,81 @@ export default function ApartmentDetails() {
       {tourPanelVisible && (
         <View style={styles.tourPanelOverlay}>
           <View style={styles.tourPanel}>
-            <Text style={{ fontSize: 18, fontWeight: '700', marginBottom: 8 }}>Request a tour</Text>
-            <Text style={{ color: '#6b7280', marginBottom: 12 }}>Choose a date and available time</Text>
-
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.datePillsRow}>
-              {(showAllDates ? availableDates : availableDates.slice(0,7)).map((d, i) => (
-                <TouchableOpacity
-                  key={i}
-                  style={[styles.datePill, i === selectedDateIndex && styles.datePillActive]}
-                  onPress={() => onSelectDate(i)}
-                >
-                  <Text style={[{ fontWeight: '700' }, i === selectedDateIndex && { color: '#fff' }]}>{formatDateShort(d)}</Text>
-                </TouchableOpacity>
-              ))}
-              {availableDates.length > 7 && (
-                <TouchableOpacity style={styles.showMoreButton} onPress={() => setShowAllDates(prev => !prev)}>
-                  <Text style={styles.showMoreText}>{showAllDates ? 'Show less' : `+${availableDates.length - 7} more`}</Text>
-                </TouchableOpacity>
-              )}
-            </ScrollView>
-
-            <View style={styles.timePillsWrap}>
-              {/* generate time pills from meta */}
-              {(() => {
-                const oft = getMetaOpenForTour()
-                if (!oft) return <Text style={{ color: '#6b7280' }}>No time range set</Text>
-                const slots = generateTimeSlots(oft.time_from || oft.timeFrom, oft.time_to || oft.timeTo, 30)
-                // render as 'HH:MM' pills
-                return (
-                  <ScrollView contentContainerStyle={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-                    {slots.map((s, idx) => {
-                      const timeStr = `${String(s.getHours()).padStart(2,'0')}:${String(s.getMinutes()).padStart(2,'0')}`
-                      return (
-                        <TouchableOpacity key={idx} style={[styles.timePill, selectedTime === timeStr && styles.timePillActive]} onPress={() => setSelectedTime(timeStr)}>
-                          <Text style={{ fontWeight: '600', color: selectedTime === timeStr ? '#fff' : '#111827' }}>{formatTime12FromHHMM(timeStr)}</Text>
-                        </TouchableOpacity>
-                      )
-                    })}
-                  </ScrollView>
-                )
-              })()}
+            <View style={styles.tourPanelHeader}>
+              <Text style={{ fontSize: 18, fontWeight: '700', marginBottom: 4 }}>Request a tour</Text>
+              <Text style={{ color: '#6b7280' }}>Choose a date and available time</Text>
             </View>
 
-            {/* Confirm selection CTA */}
-            {selectedTime ? (
-              <View style={{ marginTop: 14 }}>
+            <View style={styles.tourPanelBody}>
+              {/* Two-column vertical layout: dates (left) and times (right) */}
+              <View style={styles.tourPanelContent}>
+                <View style={styles.datesColumn}>
+                  <ScrollView contentContainerStyle={styles.dateList}>
+                    {(showAllDates ? availableDates : availableDates.slice(0, 3)).map((d, i) => (
+                      <TouchableOpacity
+                        key={i}
+                        style={[styles.dateListItem, i === selectedDateIndex && styles.dateListItemActive]}
+                        onPress={() => {
+                          onSelectDate(i)
+                          setSelectedTime(null)
+                        }}
+                      >
+                        <Text style={[styles.dateListItemText, i === selectedDateIndex && styles.dateListItemTextActive, { textAlign: 'center' }]}>{formatDatePill(d)}</Text>
+                        <Text style={[styles.dateListItemSub, { textAlign: 'center' }]}>{formatDate(d)}</Text>
+                      </TouchableOpacity>
+                    ))}
+
+                    {availableDates.length > 3 && (
+                      <TouchableOpacity style={styles.showMoreButton} onPress={() => setShowAllDates((p) => !p)}>
+                        <Text style={styles.showMoreText}>{showAllDates ? 'Show less' : 'Show more dates'}</Text>
+                      </TouchableOpacity>
+                    )}
+                  </ScrollView>
+                </View>
+
+                <View style={styles.timesColumn}>
+                  {selectedDateIndex === null ? (
+                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                      <Text style={{ color: '#6b7280' }}>Please pick a date above to see available times</Text>
+                    </View>
+                  ) : (
+                    (() => {
+                      const oft = getMetaOpenForTour()
+                      if (!oft) return <Text style={{ color: '#6b7280', textAlign: 'center' }}>No time range set</Text>
+                      const slots = generateTimeSlots(oft.time_from || oft.timeFrom, oft.time_to || oft.timeTo, 30)
+                      return (
+                        <ScrollView contentContainerStyle={styles.timeList}>
+                          {slots.map((s, idx) => {
+                            const timeStr = `${String(s.getHours()).padStart(2, '0')}:${String(s.getMinutes()).padStart(2, '0')}`
+                            return (
+                              <TouchableOpacity key={idx} style={[styles.timeListItem, selectedTime === timeStr && styles.timeListItemActive]} onPress={() => setSelectedTime(timeStr)}>
+                                <Text style={[styles.timeListItemText, selectedTime === timeStr && styles.timeListItemTextActive]}>{formatTime12FromHHMM(timeStr)}</Text>
+                              </TouchableOpacity>
+                            )
+                          })}
+                        </ScrollView>
+                      )
+                    })()
+                  )}
+                </View>
+              </View>
+            </View>
+
+            <View style={styles.tourPanelFooter}>
+              {selectedTime ? (
                 <TouchableOpacity style={styles.confirmBtn} onPress={() => submitBookingForPill(selectedTime)} disabled={bookingLoading}>
                   {bookingLoading ? (
                     <ActivityIndicator color="#fff" />
                   ) : (
-                    <Text style={styles.confirmBtnText}>Request tour — {availableDates[selectedDateIndex] ? `${formatDate(availableDates[selectedDateIndex])} ${selectedTime}` : selectedTime}</Text>
+                    <Text style={styles.confirmBtnText}>Request tour — {availableDates[selectedDateIndex] ? `${formatDate(availableDates[selectedDateIndex])} ${formatTime12FromHHMM(selectedTime)}` : formatTime12FromHHMM(selectedTime)}</Text>
                   )}
                 </TouchableOpacity>
-              </View>
-            ) : null}
+              ) : (
+                <View style={{ height: 0 }} />
+              )}
 
-            <View style={{ marginTop: 12 }}>
-              <TouchableOpacity onPress={() => setTourPanelVisible(false)} style={{ padding: 10 }}>
-                <Text style={{ textAlign: 'center', color: '#d00' }}>Cancel</Text>
+              <TouchableOpacity onPress={() => setTourPanelVisible(false)} style={styles.cancelBtnFooter}>
+                <Text style={styles.cancelBtnFooterText}>Cancel</Text>
               </TouchableOpacity>
             </View>
           </View>

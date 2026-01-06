@@ -432,6 +432,8 @@ export default StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 14,
     padding: 16,
+    // constrain height so body scroll areas can render correctly on small devices
+    maxHeight: '80%',
     ...Platform.select({
       ios: {
         shadowColor: '#000',
@@ -443,6 +445,106 @@ export default StyleSheet.create({
         elevation: 12,
       },
     }),
+  },
+  tourPanelHeader: {
+    marginBottom: 12,
+  },
+  tourPanelBody: {
+    // don't rely on flex:1 here since parent has no explicit height on some platforms
+    paddingVertical: 6,
+  },
+  tourPanelContent: {
+    // place dates and times side-by-side
+    flexDirection: 'row',
+    gap: 12,
+  },
+  tourPanelFooter: {
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#eef2f6',
+    alignItems: 'center',
+    gap: 8,
+    // ensure footer stays visible and separated from scrollable content
+    backgroundColor: '#fff',
+  },
+  datesColumn: {
+    flex: 1,
+    // limit height so scrollview is visible
+    maxHeight: 320,
+  },
+  timesColumn: {
+    flex: 1,
+    maxHeight: 320,
+  },
+  dateList: {
+    paddingBottom: 8,
+    paddingHorizontal: 4,
+  },
+  dateListItem: {
+    width: '100%',
+    paddingVertical: 14,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#eef2f6',
+    marginBottom: 8,
+  },
+  dateListItemActive: {
+    backgroundColor: '#1778f2',
+    borderColor: '#1778f2',
+  },
+  dateListItemText: {
+    fontWeight: '700',
+    color: '#0f172a',
+    marginBottom: 4,
+  },
+  dateListItemTextActive: {
+    color: '#fff',
+  },
+  dateListItemSub: {
+    color: '#6b7280',
+    fontSize: 12,
+  },
+  timeList: {
+    paddingBottom: 8,
+    paddingHorizontal: 4,
+  },
+  timeListItem: {
+    width: '100%',
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    backgroundColor: '#f1f5f9',
+    borderWidth: 1,
+    borderColor: '#eef2f6',
+    marginBottom: 8,
+    alignItems: 'center',
+  },
+  timeListItemActive: {
+    backgroundColor: '#0f172a',
+    borderColor: '#0f172a',
+  },
+  timeListItemText: {
+    fontWeight: '700',
+    color: '#111827',
+  },
+  timeListItemTextActive: {
+    color: '#fff',
+  },
+  cancelBtnFooter: {
+    marginTop: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 18,
+    borderRadius: 10,
+    backgroundColor: '#fff',
+    width: '100%',
+    alignItems: 'center',
+  },
+  cancelBtnFooterText: {
+    color: '#d00',
+    fontWeight: '700',
   },
   datePillsRow: {
     paddingBottom: 8,
