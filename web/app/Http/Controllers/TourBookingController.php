@@ -77,7 +77,7 @@ class TourBookingController extends Controller
             'listing_id' => $apartment->id,
             'user_id' => $user->id,
             'scheduled_at' => $scheduled,
-            'status' => 'pending',
+            'status' => \App\Models\TourBooking::STATUS_PENDING,
             'note' => $request->input('note'),
         ]);
 

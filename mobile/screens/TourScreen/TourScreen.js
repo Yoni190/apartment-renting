@@ -198,6 +198,8 @@ export function MyTours() {
   const [refreshing, setRefreshing] = useState(false)
   const [selectedOwner, setSelectedOwner] = useState(null)
   const [ownerModalVisible, setOwnerModalVisible] = useState(false)
+  const [updatingBookingId, setUpdatingBookingId] = useState(null)
+  const [updatingBookingAction, setUpdatingBookingAction] = useState(null)
 
   const fetchMyTours = async () => {
     try {
@@ -234,11 +236,32 @@ export function MyTours() {
     }
   }
 
+  const handleClientCancel = async (bookingId) => {
+    try {
+      setUpdatingBookingId(bookingId)
+      setUpdatingBookingAction('cancel')
+      const token = await SecureStore.getItemAsync('token')
+      if (!token) throw new Error('Unauthenticated')
+      await axios.patch(`${API_URL}/tour-bookings/${bookingId}`, { status: 'Canceled' }, { headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' } })
+      // update locally
+      setBookings(prev => prev.map(b => (b.id === bookingId ? { ...b, status: 'Canceled' } : b)))
+    } catch (e) {
+      console.warn('Failed to cancel booking', e.message)
+      Alert.alert('Error', 'Could not cancel booking')
+    } finally {
+      setUpdatingBookingId(null)
+      setUpdatingBookingAction(null)
+    }
+  }
+
   const renderItem = ({ item }) => (
     <TourRequestCard
       booking={item}
       isOwner={false}
       onOpenOwner={(o) => { setSelectedOwner(o); setOwnerModalVisible(true) }}
+      onCancel={(id) => handleClientCancel(id)}
+      updatingBookingId={updatingBookingId}
+      updatingBookingAction={updatingBookingAction}
       onViewDetails={(id) => navigation.navigate('ApartmentDetails', { listingId: id })}
     />
   )

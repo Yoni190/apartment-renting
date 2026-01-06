@@ -207,7 +207,32 @@ export default StyleSheet.create({
 				borderTopColor: '#eef2f6',
 				paddingTop: 10,
 				flexDirection: 'row',
-				width: '100%'
+				width: '100%',
+				paddingHorizontal: 12,
+				justifyContent: 'center'
+			},
+
+			/* Cancel button for clients when booking is pending */
+			cancelBtn: {
+				flexDirection: 'row',
+				alignItems: 'center',
+				justifyContent: 'center',
+				paddingVertical: 12,
+				paddingHorizontal: 16,
+				borderRadius: 10,
+				backgroundColor: '#ef4444',
+				width: '100%',
+				maxWidth: 420,
+				shadowColor: '#000',
+				shadowOpacity: 0.12,
+				shadowRadius: 8,
+				elevation: 4,
+			},
+
+			cancelBtnText: {
+				color: '#fff',
+				fontWeight: '700',
+				fontSize: 15
 			},
 
 	/* MyTours styles */

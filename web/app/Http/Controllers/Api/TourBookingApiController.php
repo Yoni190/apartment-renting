@@ -51,29 +51,69 @@ class TourBookingApiController extends Controller
     {
         $user = $request->user();
         if (!$user) return response()->json(['message' => 'Unauthenticated'], 401);
-
-        // Only listing owner may update status
+        // Determine role: listing owner or booking requester
         $listing = $booking->listing;
-        if (!$listing || $listing->user_id !== $user->id) {
+        $isListingOwner = $listing && $listing->user_id === $user->id;
+        $isRequester = $booking->user_id === $user->id;
+
+        $request->validate([
+            'status' => 'required|string'
+        ]);
+
+        // Normalize incoming status
+        $incoming = $request->input('status');
+        $normalized = TourBooking::normalizeStatus($incoming);
+        if (!in_array($normalized, TourBooking::allowedStatuses(), true)) {
+            return response()->json(['message' => 'Invalid status provided'], 422);
+        }
+
+        // Only allow specific transitions from Pending, per business rules:
+        // - Listing owner may change Pending -> Approved or Pending -> Rejected
+        // - Requester (client) may change Pending -> Canceled
+        // Disallow changes if booking is not currently Pending
+        $current = $booking->status;
+        if ($current !== TourBooking::STATUS_PENDING) {
+            return response()->json(['message' => 'Status can only be changed from Pending'], 422);
+        }
+
+        if ($isListingOwner) {
+            if (!in_array($normalized, [TourBooking::STATUS_APPROVED, TourBooking::STATUS_REJECTED], true)) {
+                return response()->json(['message' => 'Owners may only set status to Approved or Rejected'], 422);
+            }
+        } elseif ($isRequester) {
+            if ($normalized !== TourBooking::STATUS_CANCELED) {
+                return response()->json(['message' => 'Clients may only cancel bookings (status Canceled)'], 422);
+            }
+        } else {
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
-        $request->validate([
-            'status' => 'required|in:approved,rejected,pending'
-        ]);
-
-        $booking->status = $request->input('status');
+        $booking->status = $normalized;
         $booking->save();
 
-        // Notify the requester about status change
+        // Notify the relevant party about status change
         try {
-            $requester = $booking->user;
-            if ($requester) {
-                // use Laravel notifications if available; send a simple notification
+            $requester = $booking->user; // the client/requester
+            $owner = $booking->listing ? $booking->listing->owner : null;
+
+            // If the listing owner performed the action, notify the requester
+            if ($isListingOwner && $requester) {
                 $requester->notify(new \App\Notifications\TourStatusUpdated($booking));
             }
+
+            // If the requester (client) performed the action (e.g. canceled), notify the listing owner
+            if ($isRequester && $owner) {
+                // owners may be stored as collections or a single user; guard accordingly
+                if (is_iterable($owner)) {
+                    foreach ($owner as $o) {
+                        try { $o->notify(new \App\Notifications\TourStatusUpdated($booking)); } catch (\Exception $e) { }
+                    }
+                } else {
+                    try { $owner->notify(new \App\Notifications\TourStatusUpdated($booking)); } catch (\Exception $e) { }
+                }
+            }
         } catch (\Exception $e) {
-            // ignore notification failures
+            // ignore notification failures to avoid blocking the API
         }
 
         return response()->json(['booking' => $booking]);
@@ -130,7 +170,8 @@ class TourBookingApiController extends Controller
             'listing_id' => $apartment->id,
             'user_id' => $user->id,
             'scheduled_at' => $scheduled,
-            'status' => 'pending',
+            // Store canonical Pending status
+            'status' => \App\Models\TourBooking::STATUS_PENDING,
             'note' => $request->input('note'),
         ]);
 

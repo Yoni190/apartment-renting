@@ -37,7 +37,7 @@ const safeUri = (img) => {
   return null
 }
 
-export default function TourRequestCard({ booking, isOwner=false, onOpenClient=()=>{}, onOpenOwner=()=>{}, onApprove=()=>{}, onReject=()=>{}, updatingBookingId=null, updatingBookingAction=null, onViewDetails=()=>{} }){
+export default function TourRequestCard({ booking, isOwner=false, onOpenClient=()=>{}, onOpenOwner=()=>{}, onApprove=()=>{}, onReject=()=>{}, onCancel=()=>{}, updatingBookingId=null, updatingBookingAction=null, onViewDetails=()=>{} }){
   // bookings from different endpoints may name the relation differently
   const listing = booking.listing || booking.apartment || booking.property || {}
   const client = booking.user || {}
@@ -125,6 +125,26 @@ export default function TourRequestCard({ booking, isOwner=false, onOpenClient=(
                 </>
               )}
             </View>
+
+            {/* Client: show Cancel action when booking is Pending */}
+            {!isOwner && (booking.status || '').toString() === 'Pending' ? (
+              <View style={styles.pendingFooter}>
+                <TouchableOpacity
+                  style={styles.cancelBtn}
+                  onPress={() => onCancel ? onCancel(booking.id) : null}
+                  activeOpacity={0.85}
+                >
+                  {updatingBookingId === booking.id && updatingBookingAction === 'cancel' ? (
+                    <ActivityIndicator color="#fff" />
+                  ) : (
+                    <>
+                      <Ionicons name="close-circle" size={18} color="#fff" style={{ marginRight: 10 }} />
+                      <Text style={styles.cancelBtnText}>Cancel Tour</Text>
+                    </>
+                  )}
+                </TouchableOpacity>
+              </View>
+            ) : null}
           </View>
 
         </View>
