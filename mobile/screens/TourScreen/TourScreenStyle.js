@@ -99,6 +99,9 @@ export default StyleSheet.create({
 	statusPrimary: {
 		backgroundColor: '#e0f2fe'
 	},
+	statusFinal: {
+		backgroundColor: '#f1f5f9'
+	},
 	statusText: {
 		fontSize: 12,
 		fontWeight: '700',
@@ -125,6 +128,9 @@ export default StyleSheet.create({
 	},
 	modalBtnText: {
 		marginLeft: 8,
+		statusFinal: {
+			backgroundColor: '#aaa',
+		},
 		fontWeight: '700'
 	},
 	smallBtn: {

@@ -75,55 +75,79 @@ class TourBookingApiController extends Controller
         //     * If < 24 hours away, requester may request cancellation -> Cancellation Requested
         // All other transitions are disallowed.
         $current = $booking->status;
+        // Normalize current status to the canonical form for reliable comparisons
+        $currentNorm = TourBooking::normalizeStatus($current);
+
+        // Compute scheduled / now and a precise floating hours-until value
+        $scheduled = $booking->scheduled_at ? Carbon::parse($booking->scheduled_at) : null;
+        $now = Carbon::now();
+        $hoursUntil = null;
+        if ($scheduled) {
+            $hoursUntil = ($scheduled->getTimestamp() - $now->getTimestamp()) / 3600.0; // may be fractional
+        }
+
+        // Disallow changes from final states
+        $finalStates = [
+            TourBooking::STATUS_CANCELED,
+            TourBooking::STATUS_COMPLETED,
+            TourBooking::STATUS_NO_SHOW,
+            TourBooking::STATUS_REJECTED,
+        ];
+        if (in_array($currentNorm, $finalStates, true)) {
+            return response()->json(['message' => 'This booking is in a final state and cannot be modified'], 422);
+        }
+
+        // No-op: if incoming status is equal to current canonical status, return current booking
+        if ($currentNorm === $normalized) {
+            return response()->json(['message' => 'No status change', 'booking' => $booking]);
+        }
 
         if ($isListingOwner) {
             // Owners may act on Pending bookings (approve/reject) or on Cancellation Requested (approve cancellation / revert to Approved)
-            if ($current === TourBooking::STATUS_PENDING) {
+            if ($currentNorm === TourBooking::STATUS_PENDING) {
                 if (!in_array($normalized, [TourBooking::STATUS_APPROVED, TourBooking::STATUS_REJECTED], true)) {
                     return response()->json(['message' => 'Owners may only set status to Approved or Rejected for pending bookings'], 422);
                 }
-            } elseif ($current === TourBooking::STATUS_CANCELLATION_REQUESTED) {
+            } elseif ($currentNorm === TourBooking::STATUS_CANCELLATION_REQUESTED) {
                 if (!in_array($normalized, [TourBooking::STATUS_CANCELED, TourBooking::STATUS_APPROVED], true)) {
                     return response()->json(['message' => 'Owners may only Approve (Canceled) or Reject (revert to Approved) cancellation requests'], 422);
                 }
-                } elseif ($current === TourBooking::STATUS_APPROVED) {
-                    // If the booking is approved but the scheduled time has passed, allow owner to mark Completed or No Show
-                    $scheduled = $booking->scheduled_at ? Carbon::parse($booking->scheduled_at) : null;
-                    if (!$scheduled) {
-                        return response()->json(['message' => 'Scheduled time missing; cannot perform post-tour actions'], 422);
-                    }
+            } elseif ($currentNorm === TourBooking::STATUS_APPROVED) {
+                // If the booking is approved but the scheduled time has passed, allow owner to mark Completed or No Show
+                if (!$scheduled) {
+                    return response()->json(['message' => 'Scheduled time missing; cannot perform post-tour actions'], 422);
+                }
 
-                    $now = Carbon::now();
-                    if ($scheduled->gt($now)) {
-                        return response()->json(['message' => 'Post-tour actions are only allowed after the scheduled time has passed'], 422);
-                    }
+                if ($scheduled->gt($now)) {
+                    return response()->json(['message' => 'Post-tour actions are only allowed after the scheduled time has passed'], 422);
+                }
 
-                    if (!in_array($normalized, [TourBooking::STATUS_COMPLETED, TourBooking::STATUS_NO_SHOW], true)) {
-                        return response()->json(['message' => 'Owners may only set status to Completed or No Show after the tour time'], 422);
-                    }
-                } else {
-                return response()->json(['message' => 'Owners may only act on Pending or Cancellation Requested bookings'], 422);
+                if (!in_array($normalized, [TourBooking::STATUS_COMPLETED, TourBooking::STATUS_NO_SHOW], true)) {
+                    return response()->json(['message' => 'Owners may only set status to Completed or No Show after the tour time'], 422);
+                }
+            } else {
+                return response()->json(['message' => 'Owners may only act on Pending, Cancellation Requested, or post-tour Approved bookings'], 422);
             }
         } elseif ($isRequester) {
             // Client actions
-            if ($current === TourBooking::STATUS_PENDING) {
+            if ($currentNorm === TourBooking::STATUS_PENDING) {
                 if ($normalized !== TourBooking::STATUS_CANCELED) {
                     return response()->json(['message' => 'Clients may only cancel pending bookings (status Canceled)'], 422);
                 }
-            } elseif ($current === TourBooking::STATUS_APPROVED) {
-                // Determine how far away the scheduled time is
-                $scheduled = $booking->scheduled_at ? Carbon::parse($booking->scheduled_at) : null;
+            } elseif ($currentNorm === TourBooking::STATUS_APPROVED) {
                 if (!$scheduled) {
                     return response()->json(['message' => 'Cannot determine scheduled time for this booking'], 422);
                 }
 
-                $now = Carbon::now();
                 if ($scheduled->lte($now)) {
                     return response()->json(['message' => 'Cannot modify bookings at or after the scheduled time'], 422);
                 }
 
-                $hoursUntil = $now->diffInHours($scheduled);
-                if ($hoursUntil >= 24) {
+                if ($hoursUntil === null) {
+                    return response()->json(['message' => 'Unable to compute time until scheduled tour'], 422);
+                }
+
+                if ($hoursUntil >= 24.0) {
                     // Direct cancellation allowed
                     if ($normalized !== TourBooking::STATUS_CANCELED) {
                         return response()->json(['message' => 'Client may only cancel (status Canceled) when tour is >= 24 hours away'], 422);

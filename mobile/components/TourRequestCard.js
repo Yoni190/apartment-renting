@@ -61,6 +61,9 @@ export default function TourRequestCard({ booking, isOwner=false, onOpenClient=(
   })()
 
   const imageUri = safeUri(firstImage)
+  const statusLower = (booking.status || '').toString().toLowerCase()
+  const finalStatuses = ['canceled', 'completed', 'no show', 'no-show', 'rejected']
+  const isFinal = finalStatuses.includes(statusLower)
 
   return (
     <View style={{ width: '100%' }}>
@@ -78,7 +81,7 @@ export default function TourRequestCard({ booking, isOwner=false, onOpenClient=(
             </TouchableOpacity>
 
             <View style={{ marginTop: 8, alignItems: 'center' }}>
-              <View style={[styles.statusBadge, (booking.status || '').toString().toLowerCase() === 'pending' ? styles.statusPending : styles.statusPrimary]}>
+              <View style={[styles.statusBadge, (statusLower === 'pending' ? styles.statusPending : (isFinal ? styles.statusFinal : styles.statusPrimary))]}>
                 <Text style={styles.statusText}>{(booking.status || 'pending').toString().toUpperCase()}</Text>
               </View>
             </View>
@@ -129,7 +132,7 @@ export default function TourRequestCard({ booking, isOwner=false, onOpenClient=(
             </View>
 
             {/* Client: show Cancel action when booking is Pending */}
-            {!isOwner && (booking.status || '').toString().toLowerCase() === 'pending' ? (
+            {!isOwner && !isFinal && statusLower === 'pending' ? (
               <View style={styles.pendingFooter}>
                 <TouchableOpacity
                   style={styles.cancelBtn}
@@ -149,7 +152,7 @@ export default function TourRequestCard({ booking, isOwner=false, onOpenClient=(
             ) : null}
 
             {/* Client: for Approved bookings in the future, show cancel/request-cancel depending on time until tour */}
-            {!isOwner && (booking.status || '').toString().toLowerCase() === 'approved' && scheduled && scheduled.getTime() > Date.now() ? (
+            {!isOwner && !isFinal && statusLower === 'approved' && scheduled && scheduled.getTime() > Date.now() ? (
               <View style={styles.pendingFooter}>
                 <TouchableOpacity
                   style={styles.cancelBtn}
@@ -172,10 +175,10 @@ export default function TourRequestCard({ booking, isOwner=false, onOpenClient=(
         </View>
 
         {/* Owner actions: full-width split buttons under status for Pending, Cancellation Requested, or post-tour Approved */}
-        {isOwner && (
-          (booking.status || '').toString().toLowerCase() === 'pending'
-          || (booking.status || '').toString().toLowerCase() === 'cancellation requested'
-          || ((booking.status || '').toString().toLowerCase() === 'approved' && scheduled && scheduled.getTime() <= Date.now())
+        {isOwner && !isFinal && (
+          statusLower === 'pending'
+          || statusLower === 'cancellation requested'
+          || (statusLower === 'approved' && scheduled && scheduled.getTime() <= Date.now())
         ) ? (
           <View style={styles.pendingFooter}>
             {((booking.status || '').toString().toLowerCase() === 'pending') ? (
