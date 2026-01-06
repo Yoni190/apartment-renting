@@ -171,8 +171,12 @@ export default function TourRequestCard({ booking, isOwner=false, onOpenClient=(
 
         </View>
 
-        {/* Owner actions: full-width split buttons under status for Pending OR Cancellation Requested */}
-        {isOwner && ((booking.status || '').toString().toLowerCase() === 'pending' || (booking.status || '').toString().toLowerCase() === 'cancellation requested') ? (
+        {/* Owner actions: full-width split buttons under status for Pending, Cancellation Requested, or post-tour Approved */}
+        {isOwner && (
+          (booking.status || '').toString().toLowerCase() === 'pending'
+          || (booking.status || '').toString().toLowerCase() === 'cancellation requested'
+          || ((booking.status || '').toString().toLowerCase() === 'approved' && scheduled && scheduled.getTime() <= Date.now())
+        ) ? (
           <View style={styles.pendingFooter}>
             {((booking.status || '').toString().toLowerCase() === 'pending') ? (
               <>
@@ -183,7 +187,7 @@ export default function TourRequestCard({ booking, isOwner=false, onOpenClient=(
                   {updatingBookingId === booking.id && updatingBookingAction === 'reject' ? <ActivityIndicator color="#fff" /> : <Text style={styles.splitBtnText}>Reject</Text>}
                 </TouchableOpacity>
               </>
-            ) : (
+            ) : ((booking.status || '').toString().toLowerCase() === 'cancellation requested') ? (
               // Cancellation Requested: Approve Cancellation -> set Canceled; Reject Cancellation -> revert to Approved
               <>
                 <TouchableOpacity style={[styles.pendingBtnLeft, { backgroundColor: '#10b981' }]} onPress={() => onApprove(booking.id, 'Canceled')}>
@@ -191,6 +195,16 @@ export default function TourRequestCard({ booking, isOwner=false, onOpenClient=(
                 </TouchableOpacity>
                 <TouchableOpacity style={[styles.pendingBtnRight, { backgroundColor: '#ef4444' }]} onPress={() => onReject(booking.id, 'Approved')}>
                   {updatingBookingId === booking.id && updatingBookingAction === 'reject' ? <ActivityIndicator color="#fff" /> : <Text style={styles.splitBtnText}>Reject Cancellation</Text>}
+                </TouchableOpacity>
+              </>
+            ) : (
+              // Post-tour Approved: Owner marks Completed or No Show
+              <>
+                <TouchableOpacity style={[styles.pendingBtnLeft, { backgroundColor: '#10b981' }]} onPress={() => onApprove(booking.id, 'Completed')}>
+                  {updatingBookingId === booking.id && updatingBookingAction === 'approve' ? <ActivityIndicator color="#fff" /> : <Text style={styles.splitBtnText}>Mark as Completed</Text>}
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.pendingBtnRight, { backgroundColor: '#ef4444' }]} onPress={() => onReject(booking.id, 'No Show')}>
+                  {updatingBookingId === booking.id && updatingBookingAction === 'reject' ? <ActivityIndicator color="#fff" /> : <Text style={styles.splitBtnText}>Mark as No Show</Text>}
                 </TouchableOpacity>
               </>
             )}

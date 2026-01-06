@@ -86,7 +86,22 @@ class TourBookingApiController extends Controller
                 if (!in_array($normalized, [TourBooking::STATUS_CANCELED, TourBooking::STATUS_APPROVED], true)) {
                     return response()->json(['message' => 'Owners may only Approve (Canceled) or Reject (revert to Approved) cancellation requests'], 422);
                 }
-            } else {
+                } elseif ($current === TourBooking::STATUS_APPROVED) {
+                    // If the booking is approved but the scheduled time has passed, allow owner to mark Completed or No Show
+                    $scheduled = $booking->scheduled_at ? Carbon::parse($booking->scheduled_at) : null;
+                    if (!$scheduled) {
+                        return response()->json(['message' => 'Scheduled time missing; cannot perform post-tour actions'], 422);
+                    }
+
+                    $now = Carbon::now();
+                    if ($scheduled->gt($now)) {
+                        return response()->json(['message' => 'Post-tour actions are only allowed after the scheduled time has passed'], 422);
+                    }
+
+                    if (!in_array($normalized, [TourBooking::STATUS_COMPLETED, TourBooking::STATUS_NO_SHOW], true)) {
+                        return response()->json(['message' => 'Owners may only set status to Completed or No Show after the tour time'], 422);
+                    }
+                } else {
                 return response()->json(['message' => 'Owners may only act on Pending or Cancellation Requested bookings'], 422);
             }
         } elseif ($isRequester) {

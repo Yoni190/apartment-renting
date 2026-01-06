@@ -178,7 +178,7 @@ const OwnerTours = () => {
         </TouchableOpacity>
       </View>
 
-      <View style={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 24 }}>
+  <View style={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 140 }}>
           {loadingBookings ? (
           <ActivityIndicator />
         ) : bookings.length === 0 ? (
@@ -255,23 +255,31 @@ export function MyTours() {
 
       const booking = bookings.find(b => b.id === bookingId)
       if (!booking) throw new Error('Booking not found locally')
+      const currentStatus = booking.status ? booking.status.toString().toLowerCase() : null
 
-      const scheduled = booking.scheduled_at ? new Date(booking.scheduled_at) : null
-      if (!scheduled) throw new Error('Scheduled time not available')
+      // If booking is still Pending, allow direct cancellation regardless of scheduled time
+      if (currentStatus === 'pending') {
+        // direct cancel
+        var statusToSend = 'Canceled'
+        var showRequestNote = false
+      } else {
+        const scheduled = booking.scheduled_at ? new Date(booking.scheduled_at) : null
+        if (!scheduled) throw new Error('Scheduled time not available')
 
-      const now = new Date()
-      if (scheduled <= now) {
-        Alert.alert('Cannot cancel', 'This tour is at or past its scheduled time and cannot be canceled here.')
-        return
-      }
+        const now = new Date()
+        if (scheduled <= now) {
+          Alert.alert('Cannot cancel', 'This tour is at or past its scheduled time and cannot be canceled here.')
+          return
+        }
 
-      const hoursUntil = (scheduled - now) / (1000 * 60 * 60)
-      let statusToSend = 'Canceled'
-      let showRequestNote = false
-      if (hoursUntil < 24) {
-        // Less than 24 hours: request cancellation
-        statusToSend = 'Cancellation Requested'
-        showRequestNote = true
+        const hoursUntil = (scheduled - now) / (1000 * 60 * 60)
+        var statusToSend = 'Canceled'
+        var showRequestNote = false
+        if (hoursUntil < 24) {
+          // Less than 24 hours: request cancellation
+          statusToSend = 'Cancellation Requested'
+          showRequestNote = true
+        }
       }
 
       await axios.patch(`${API_URL}/tour-bookings/${bookingId}`, { status: statusToSend }, { headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' } })
@@ -283,8 +291,10 @@ export function MyTours() {
         Alert.alert('Cancellation requested', 'This tour is less than 24 hours away. A cancellation request has been sent to the owner for review.')
       }
     } catch (e) {
-      console.warn('Failed to cancel booking', e.message)
-      Alert.alert('Error', 'Could not cancel booking')
+      // Prefer server-provided message when available
+      const serverMsg = e?.response?.data?.message
+      console.warn('Failed to cancel booking', serverMsg || e.message)
+      Alert.alert('Error', serverMsg || 'Could not cancel booking')
     } finally {
       setUpdatingBookingId(null)
       setUpdatingBookingAction(null)
@@ -346,7 +356,7 @@ export function MyTours() {
   return (
     <View style={{ flex: 1, backgroundColor: '#f9f9f9' }}>
       <Header title="My Tours" />
-      <View style={{ paddingHorizontal: 16, paddingTop: 110, paddingBottom: 24 }}>
+  <View style={{ paddingHorizontal: 16, paddingTop: 110, paddingBottom: 140 }}>
         {loading ? <ActivityIndicator /> : bookings.length === 0 ? <Text style={{ color: '#6b7280' }}>No tours booked.</Text> : (
           <FlatList data={bookings} keyExtractor={(b) => String(b.id)} renderItem={renderItem} ItemSeparatorComponent={() => <View style={{ height: 12 }} />} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefreshMyTours} />} />
         )}
