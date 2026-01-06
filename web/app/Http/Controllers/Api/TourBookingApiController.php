@@ -67,22 +67,60 @@ class TourBookingApiController extends Controller
             return response()->json(['message' => 'Invalid status provided'], 422);
         }
 
-        // Only allow specific transitions from Pending, per business rules:
+        // Business rules for allowed transitions (supports Pending and Approved flows):
         // - Listing owner may change Pending -> Approved or Pending -> Rejected
         // - Requester (client) may change Pending -> Canceled
-        // Disallow changes if booking is not currently Pending
+        // - If booking is Approved and scheduled in the future:
+        //     * If >= 24 hours away, requester may cancel directly -> Canceled
+        //     * If < 24 hours away, requester may request cancellation -> Cancellation Requested
+        // All other transitions are disallowed.
         $current = $booking->status;
-        if ($current !== TourBooking::STATUS_PENDING) {
-            return response()->json(['message' => 'Status can only be changed from Pending'], 422);
-        }
 
         if ($isListingOwner) {
-            if (!in_array($normalized, [TourBooking::STATUS_APPROVED, TourBooking::STATUS_REJECTED], true)) {
-                return response()->json(['message' => 'Owners may only set status to Approved or Rejected'], 422);
+            // Owners may act on Pending bookings (approve/reject) or on Cancellation Requested (approve cancellation / revert to Approved)
+            if ($current === TourBooking::STATUS_PENDING) {
+                if (!in_array($normalized, [TourBooking::STATUS_APPROVED, TourBooking::STATUS_REJECTED], true)) {
+                    return response()->json(['message' => 'Owners may only set status to Approved or Rejected for pending bookings'], 422);
+                }
+            } elseif ($current === TourBooking::STATUS_CANCELLATION_REQUESTED) {
+                if (!in_array($normalized, [TourBooking::STATUS_CANCELED, TourBooking::STATUS_APPROVED], true)) {
+                    return response()->json(['message' => 'Owners may only Approve (Canceled) or Reject (revert to Approved) cancellation requests'], 422);
+                }
+            } else {
+                return response()->json(['message' => 'Owners may only act on Pending or Cancellation Requested bookings'], 422);
             }
         } elseif ($isRequester) {
-            if ($normalized !== TourBooking::STATUS_CANCELED) {
-                return response()->json(['message' => 'Clients may only cancel bookings (status Canceled)'], 422);
+            // Client actions
+            if ($current === TourBooking::STATUS_PENDING) {
+                if ($normalized !== TourBooking::STATUS_CANCELED) {
+                    return response()->json(['message' => 'Clients may only cancel pending bookings (status Canceled)'], 422);
+                }
+            } elseif ($current === TourBooking::STATUS_APPROVED) {
+                // Determine how far away the scheduled time is
+                $scheduled = $booking->scheduled_at ? Carbon::parse($booking->scheduled_at) : null;
+                if (!$scheduled) {
+                    return response()->json(['message' => 'Cannot determine scheduled time for this booking'], 422);
+                }
+
+                $now = Carbon::now();
+                if ($scheduled->lte($now)) {
+                    return response()->json(['message' => 'Cannot modify bookings at or after the scheduled time'], 422);
+                }
+
+                $hoursUntil = $now->diffInHours($scheduled);
+                if ($hoursUntil >= 24) {
+                    // Direct cancellation allowed
+                    if ($normalized !== TourBooking::STATUS_CANCELED) {
+                        return response()->json(['message' => 'Client may only cancel (status Canceled) when tour is >= 24 hours away'], 422);
+                    }
+                } else {
+                    // Less than 24 hours: only allow cancellation requests
+                    if ($normalized !== TourBooking::STATUS_CANCELLATION_REQUESTED) {
+                        return response()->json(['message' => 'Tour is less than 24 hours away; please request cancellation instead'], 422);
+                    }
+                }
+            } else {
+                return response()->json(['message' => 'Clients may only modify Pending or Approved bookings'], 422);
             }
         } else {
             return response()->json(['message' => 'Forbidden'], 403);

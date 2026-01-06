@@ -42,6 +42,8 @@ export default function TourRequestCard({ booking, isOwner=false, onOpenClient=(
   const listing = booking.listing || booking.apartment || booking.property || {}
   const client = booking.user || {}
   const scheduled = booking.scheduled_at ? new Date(booking.scheduled_at) : null
+  // compute hours until the scheduled time as a floating number (use timestamps to avoid rounding errors)
+  const hoursUntil = scheduled ? ((scheduled.getTime() - Date.now()) / (1000 * 60 * 60)) : null
 
   // Support different shapes returned by the API: listing.images may be an array, an object with data, or images may be strings
   const firstImage = (() => {
@@ -127,7 +129,7 @@ export default function TourRequestCard({ booking, isOwner=false, onOpenClient=(
             </View>
 
             {/* Client: show Cancel action when booking is Pending */}
-            {!isOwner && (booking.status || '').toString() === 'Pending' ? (
+            {!isOwner && (booking.status || '').toString().toLowerCase() === 'pending' ? (
               <View style={styles.pendingFooter}>
                 <TouchableOpacity
                   style={styles.cancelBtn}
@@ -145,19 +147,53 @@ export default function TourRequestCard({ booking, isOwner=false, onOpenClient=(
                 </TouchableOpacity>
               </View>
             ) : null}
+
+            {/* Client: for Approved bookings in the future, show cancel/request-cancel depending on time until tour */}
+            {!isOwner && (booking.status || '').toString().toLowerCase() === 'approved' && scheduled && scheduled.getTime() > Date.now() ? (
+              <View style={styles.pendingFooter}>
+                <TouchableOpacity
+                  style={styles.cancelBtn}
+                  onPress={() => onCancel ? onCancel(booking.id) : null}
+                  activeOpacity={0.85}
+                >
+                  {updatingBookingId === booking.id && updatingBookingAction === 'cancel' ? (
+                    <ActivityIndicator color="#fff" />
+                  ) : (
+                    <>
+                      <Ionicons name="close-circle" size={18} color="#fff" style={{ marginRight: 10 }} />
+                      <Text style={styles.cancelBtnText}>{(hoursUntil !== null && hoursUntil >= 24) ? 'Cancel Tour' : 'Request Cancellation'}</Text>
+                    </>
+                  )}
+                </TouchableOpacity>
+              </View>
+            ) : null}
           </View>
 
         </View>
 
-        {/* Owner actions: full-width split buttons under status */}
-        {isOwner && (booking.status || '').toString().toLowerCase() === 'pending' ? (
+        {/* Owner actions: full-width split buttons under status for Pending OR Cancellation Requested */}
+        {isOwner && ((booking.status || '').toString().toLowerCase() === 'pending' || (booking.status || '').toString().toLowerCase() === 'cancellation requested') ? (
           <View style={styles.pendingFooter}>
-            <TouchableOpacity style={[styles.pendingBtnLeft, { backgroundColor: '#10b981' }]} onPress={() => onApprove(booking.id)}>
-              {updatingBookingId === booking.id && updatingBookingAction === 'approve' ? <ActivityIndicator color="#fff" /> : <Text style={styles.splitBtnText}>Approve</Text>}
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.pendingBtnRight, { backgroundColor: '#ef4444' }]} onPress={() => onReject(booking.id)}>
-              {updatingBookingId === booking.id && updatingBookingAction === 'reject' ? <ActivityIndicator color="#fff" /> : <Text style={styles.splitBtnText}>Reject</Text>}
-            </TouchableOpacity>
+            {((booking.status || '').toString().toLowerCase() === 'pending') ? (
+              <>
+                <TouchableOpacity style={[styles.pendingBtnLeft, { backgroundColor: '#10b981' }]} onPress={() => onApprove(booking.id)}>
+                  {updatingBookingId === booking.id && updatingBookingAction === 'approve' ? <ActivityIndicator color="#fff" /> : <Text style={styles.splitBtnText}>Approve</Text>}
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.pendingBtnRight, { backgroundColor: '#ef4444' }]} onPress={() => onReject(booking.id)}>
+                  {updatingBookingId === booking.id && updatingBookingAction === 'reject' ? <ActivityIndicator color="#fff" /> : <Text style={styles.splitBtnText}>Reject</Text>}
+                </TouchableOpacity>
+              </>
+            ) : (
+              // Cancellation Requested: Approve Cancellation -> set Canceled; Reject Cancellation -> revert to Approved
+              <>
+                <TouchableOpacity style={[styles.pendingBtnLeft, { backgroundColor: '#10b981' }]} onPress={() => onApprove(booking.id, 'Canceled')}>
+                  {updatingBookingId === booking.id && updatingBookingAction === 'approve' ? <ActivityIndicator color="#fff" /> : <Text style={styles.splitBtnText}>Approve Cancellation</Text>}
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.pendingBtnRight, { backgroundColor: '#ef4444' }]} onPress={() => onReject(booking.id, 'Approved')}>
+                  {updatingBookingId === booking.id && updatingBookingAction === 'reject' ? <ActivityIndicator color="#fff" /> : <Text style={styles.splitBtnText}>Reject Cancellation</Text>}
+                </TouchableOpacity>
+              </>
+            )}
           </View>
         ) : null}
 

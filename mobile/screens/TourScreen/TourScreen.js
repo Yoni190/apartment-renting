@@ -67,7 +67,16 @@ const OwnerTours = () => {
   }
 
   const handleUpdateStatus = async (bookingId, status) => {
-    const action = status === 'approved' ? 'approve' : (status === 'rejected' ? 'reject' : null)
+    // derive a friendly action name for showing the loading state based on the target status
+    const booking = bookings.find(b => b.id === bookingId)
+    const currentStatusLower = booking && booking.status ? booking.status.toString().toLowerCase() : null
+    const targetLower = status ? status.toString().toLowerCase() : null
+
+    let action = null
+    if (targetLower === 'approved') action = (currentStatusLower === 'cancellation requested' ? 'reject' : 'approve')
+    else if (targetLower === 'rejected') action = 'reject'
+    else if (targetLower === 'canceled') action = (currentStatusLower === 'cancellation requested' ? 'approve' : 'cancel')
+
     try {
       setUpdatingBookingId(bookingId)
       setUpdatingBookingAction(action)
@@ -102,8 +111,9 @@ const OwnerTours = () => {
       booking={item}
       isOwner={true}
       onOpenClient={(c) => { setSelectedClient(c); setModalVisible(true) }}
-      onApprove={(id) => handleUpdateStatus(id, 'approved')}
-      onReject={(id) => handleUpdateStatus(id, 'rejected')}
+      // allow optional second parameter `status` so cancellation approvals/rejections can pass the target status
+      onApprove={(id, status = 'Approved') => handleUpdateStatus(id, status)}
+      onReject={(id, status = 'Rejected') => handleUpdateStatus(id, status)}
       updatingBookingId={updatingBookingId}
       updatingBookingAction={updatingBookingAction}
       onViewDetails={(id) => navigation.navigate('ApartmentDetails', { listingId: id })}
@@ -242,9 +252,36 @@ export function MyTours() {
       setUpdatingBookingAction('cancel')
       const token = await SecureStore.getItemAsync('token')
       if (!token) throw new Error('Unauthenticated')
-      await axios.patch(`${API_URL}/tour-bookings/${bookingId}`, { status: 'Canceled' }, { headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' } })
+
+      const booking = bookings.find(b => b.id === bookingId)
+      if (!booking) throw new Error('Booking not found locally')
+
+      const scheduled = booking.scheduled_at ? new Date(booking.scheduled_at) : null
+      if (!scheduled) throw new Error('Scheduled time not available')
+
+      const now = new Date()
+      if (scheduled <= now) {
+        Alert.alert('Cannot cancel', 'This tour is at or past its scheduled time and cannot be canceled here.')
+        return
+      }
+
+      const hoursUntil = (scheduled - now) / (1000 * 60 * 60)
+      let statusToSend = 'Canceled'
+      let showRequestNote = false
+      if (hoursUntil < 24) {
+        // Less than 24 hours: request cancellation
+        statusToSend = 'Cancellation Requested'
+        showRequestNote = true
+      }
+
+      await axios.patch(`${API_URL}/tour-bookings/${bookingId}`, { status: statusToSend }, { headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' } })
+
       // update locally
-      setBookings(prev => prev.map(b => (b.id === bookingId ? { ...b, status: 'Canceled' } : b)))
+      setBookings(prev => prev.map(b => (b.id === bookingId ? { ...b, status: statusToSend } : b)))
+
+      if (showRequestNote) {
+        Alert.alert('Cancellation requested', 'This tour is less than 24 hours away. A cancellation request has been sent to the owner for review.')
+      }
     } catch (e) {
       console.warn('Failed to cancel booking', e.message)
       Alert.alert('Error', 'Could not cancel booking')
@@ -310,7 +347,7 @@ export function MyTours() {
     <View style={{ flex: 1, backgroundColor: '#f9f9f9' }}>
       <Header title="My Tours" />
       <View style={{ paddingHorizontal: 16, paddingTop: 110, paddingBottom: 24 }}>
-        {loading ? <ActivityIndicator /> : bookings.length === 0 ? <Text style={{ color: '#6b7280' }}>No tours found.</Text> : (
+        {loading ? <ActivityIndicator /> : bookings.length === 0 ? <Text style={{ color: '#6b7280' }}>No tours booked.</Text> : (
           <FlatList data={bookings} keyExtractor={(b) => String(b.id)} renderItem={renderItem} ItemSeparatorComponent={() => <View style={{ height: 12 }} />} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefreshMyTours} />} />
         )}
       </View>
