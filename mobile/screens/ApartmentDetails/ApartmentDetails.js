@@ -51,7 +51,7 @@ export default function ApartmentDetails() {
   const [tourPanelVisible, setTourPanelVisible] = useState(false)
   const [availableDates, setAvailableDates] = useState([])
   const [showAllDates, setShowAllDates] = useState(false)
-  const [selectedDateIndex, setSelectedDateIndex] = useState(0)
+  const [selectedDateIndex, setSelectedDateIndex] = useState(null)
   const [bookingLoading, setBookingLoading] = useState(false)
   const flatListRef = useRef(null)
 
@@ -371,8 +371,10 @@ export default function ApartmentDetails() {
       setAvailableDates(dates)
       // Do not auto-select a date; user must pick one to view times
       setSelectedDateIndex(null)
+      setSelectedDate(null)
       setSelectedTime(null)
       setShowAllDates(false)
+      // Open tour panel even if there are no dates so we can show a helpful message
       setTourPanelVisible(true)
     })()
   }
@@ -387,7 +389,11 @@ export default function ApartmentDetails() {
     }
   }
 
-  const generateTimeSlots = (timeFrom, timeTo, intervalMinutes = 30) => {
+  // Generate Date objects for times between timeFrom and timeTo on a given date.
+  // If forDate is provided it will attach the time to that date. Otherwise the
+  // current date is used. Slots that have already passed (relative to now)
+  // are removed so callers always receive only current/future slots.
+  const generateTimeSlots = (timeFrom, timeTo, intervalMinutes = 30, forDate = null) => {
     // timeFrom/timeTo are strings like '09:00' or '09:00:00'
     const normalize = t => {
       const parts = String(t).split(':')
@@ -398,54 +404,61 @@ export default function ApartmentDetails() {
     const from = normalize(timeFrom)
     const to = normalize(timeTo)
     const slots = []
-    let cur = new Date()
+    const now = new Date()
+
+    // Start and end use the provided date (forDate) if present, otherwise today
+    const cur = forDate ? new Date(forDate) : new Date()
     cur.setHours(from.hh, from.mm, 0, 0)
-    const end = new Date()
+    const end = forDate ? new Date(forDate) : new Date()
     end.setHours(to.hh, to.mm, 0, 0)
+
     while (cur <= end) {
       slots.push(new Date(cur))
-      cur = new Date(cur.getTime() + intervalMinutes * 60000)
+      cur.setTime(cur.getTime() + intervalMinutes * 60000)
     }
-    return slots
+
+    // Remove any slots that are already in the past relative to now. This
+    // ensures today's early slots don't appear.
+    return slots.filter(s => s.getTime() >= now.getTime())
   }
 
   // Build an array of available date objects (Date) from meta.open_for_tour
+  // Build an array of available date objects (Date) from meta.open_for_tour
+  // but only include dates that have at least one future timeslot.
   const buildAvailableDates = (oft, maxDays = 14) => {
     const dates = []
     if (!oft) return dates
     try {
       const from = oft.date_from ? new Date(oft.date_from) : null
       const to = oft.date_to ? new Date(oft.date_to) : null
+
+      // Helper to push sequential dates between a start and end while
+      // ensuring we only include dates that have at least one future slot.
+      const pushDatesBetween = (start, end) => {
+        let cur = new Date(start)
+        let added = 0
+        while (cur <= end && added < maxDays) {
+          // generate slots for this date and only include the date if there
+          // is at least one future slot remaining
+          const slots = generateTimeSlots(oft.time_from || oft.timeFrom, oft.time_to || oft.timeTo, 30, cur)
+          if (slots.length > 0) {
+            dates.push(new Date(cur))
+            added++
+          }
+          cur = new Date(cur.getTime() + 24 * 60 * 60 * 1000)
+        }
+      }
+
       if (from && to) {
-        // clamp to maxDays to avoid huge lists
-        let cur = new Date(from)
-        let added = 0
-        while (cur <= to && added < maxDays) {
-          dates.push(new Date(cur))
-          cur = new Date(cur.getTime() + 24 * 60 * 60 * 1000)
-          added++
-        }
+        pushDatesBetween(from, to)
       } else if (from && !to) {
-        let cur = new Date(from)
-        for (let i = 0; i < maxDays; i++) {
-          dates.push(new Date(cur))
-          cur = new Date(cur.getTime() + 24 * 60 * 60 * 1000)
-        }
+        // next maxDays from 'from'
+        pushDatesBetween(from, new Date(from.getTime() + (maxDays - 1) * 24 * 60 * 60 * 1000))
       } else if (!from && to) {
-        let cur = new Date()
-        let added = 0
-        while (cur <= to && added < maxDays) {
-          dates.push(new Date(cur))
-          cur = new Date(cur.getTime() + 24 * 60 * 60 * 1000)
-          added++
-        }
+        pushDatesBetween(new Date(), to)
       } else {
-        // fallback: next maxDays days
-        let cur = new Date()
-        for (let i = 0; i < maxDays; i++) {
-          dates.push(new Date(cur))
-          cur = new Date(cur.getTime() + 24 * 60 * 60 * 1000)
-        }
+        // fallback: next maxDays days starting today
+        pushDatesBetween(new Date(), new Date(new Date().getTime() + (maxDays - 1) * 24 * 60 * 60 * 1000))
       }
     } catch (e) {
       return []
@@ -554,10 +567,10 @@ export default function ApartmentDetails() {
 
     setSelectedDate(date)
     setDatePickerVisible(false)
-    // create timeslots from meta time range and show modal
-    const oftObj = getMetaOpenForTour()
-    const slots = generateTimeSlots(oftObj.time_from || oftObj.timeFrom, oftObj.time_to || oftObj.timeTo, 30)
-    setTimeSlots(slots)
+  // create timeslots from meta time range for the selected date and show modal
+  const oftObj = getMetaOpenForTour()
+  const slots = generateTimeSlots(oftObj.time_from || oftObj.timeFrom, oftObj.time_to || oftObj.timeTo, 30, date)
+  setTimeSlots(slots)
     setTimeSlotsModalVisible(true)
   }
 
@@ -970,58 +983,74 @@ export default function ApartmentDetails() {
             </View>
 
             <View style={styles.tourPanelBody}>
-              {/* Two-column vertical layout: dates (left) and times (right) */}
-              <View style={styles.tourPanelContent}>
-                <View style={styles.datesColumn}>
-                  <ScrollView contentContainerStyle={styles.dateList}>
-                    {(showAllDates ? availableDates : availableDates.slice(0, 3)).map((d, i) => (
-                      <TouchableOpacity
-                        key={i}
-                        style={[styles.dateListItem, i === selectedDateIndex && styles.dateListItemActive]}
-                        onPress={() => {
-                          onSelectDate(i)
-                          setSelectedTime(null)
-                        }}
-                      >
-                        <Text style={[styles.dateListItemText, i === selectedDateIndex && styles.dateListItemTextActive, { textAlign: 'center' }]}>{formatDatePill(d)}</Text>
-                        <Text style={[styles.dateListItemSub, { textAlign: 'center' }]}>{formatDate(d)}</Text>
-                      </TouchableOpacity>
-                    ))}
+              {/* If there are no available dates show a friendly message */}
+              {(!availableDates || availableDates.length === 0) ? (
+                <View style={{ padding: 24, justifyContent: 'center', alignItems: 'center' }}>
+                  <Text style={{ color: '#6b7280', textAlign: 'center', marginBottom: 8 }}>No open slots available right now.</Text>
+                  <Text style={{ color: '#6b7280', textAlign: 'center' }}>Please try again later.</Text>
+                </View>
+              ) : (
+                // Two-column vertical layout: dates (left) and times (right)
+                <View style={styles.tourPanelContent}>
+                  <View style={styles.datesColumn}>
+                    <ScrollView contentContainerStyle={styles.dateList}>
+                      {(showAllDates ? availableDates : availableDates.slice(0, 3)).map((d, i) => (
+                        <TouchableOpacity
+                          key={i}
+                          style={[styles.dateListItem, i === selectedDateIndex && styles.dateListItemActive]}
+                          onPress={() => {
+                            onSelectDate(i)
+                            setSelectedDate(availableDates[i])
+                            setSelectedTime(null)
+                          }}
+                        >
+                          <Text style={[styles.dateListItemText, i === selectedDateIndex && styles.dateListItemTextActive, { textAlign: 'center' }]}>{formatDatePill(d)}</Text>
+                          <Text style={[styles.dateListItemSub, { textAlign: 'center' }]}>{formatDate(d)}</Text>
+                        </TouchableOpacity>
+                      ))}
 
-                    {availableDates.length > 3 && (
-                      <TouchableOpacity style={styles.showMoreButton} onPress={() => setShowAllDates((p) => !p)}>
-                        <Text style={styles.showMoreText}>{showAllDates ? 'Show less' : 'Show more dates'}</Text>
-                      </TouchableOpacity>
+                      {availableDates.length > 3 && (
+                        <TouchableOpacity style={styles.showMoreButton} onPress={() => setShowAllDates((p) => !p)}>
+                          <Text style={styles.showMoreText}>{showAllDates ? 'Show less' : 'Show more dates'}</Text>
+                        </TouchableOpacity>
+                      )}
+                    </ScrollView>
+                  </View>
+
+                  <View style={styles.timesColumn}>
+                    {selectedDateIndex === null ? (
+                      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                        <Text style={{ color: '#6b7280' }}>Please pick a date above to see available times</Text>
+                      </View>
+                    ) : (
+                      (() => {
+                        const oft = getMetaOpenForTour()
+                        if (!oft) return <Text style={{ color: '#6b7280', textAlign: 'center' }}>No time range set</Text>
+                        const slots = generateTimeSlots(oft.time_from || oft.timeFrom, oft.time_to || oft.timeTo, 30, availableDates[selectedDateIndex])
+                        if (!slots || slots.length === 0) {
+                          return (
+                            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 16 }}>
+                              <Text style={{ color: '#6b7280', textAlign: 'center' }}>No open times for this date. Please pick another date.</Text>
+                            </View>
+                          )
+                        }
+                        return (
+                          <ScrollView contentContainerStyle={styles.timeList}>
+                            {slots.map((s, idx) => {
+                              const timeStr = `${String(s.getHours()).padStart(2, '0')}:${String(s.getMinutes()).padStart(2, '0')}`
+                              return (
+                                <TouchableOpacity key={idx} style={[styles.timeListItem, selectedTime === timeStr && styles.timeListItemActive]} onPress={() => setSelectedTime(timeStr)}>
+                                  <Text style={[styles.timeListItemText, selectedTime === timeStr && styles.timeListItemTextActive]}>{formatTime12FromHHMM(timeStr)}</Text>
+                                </TouchableOpacity>
+                              )
+                            })}
+                          </ScrollView>
+                        )
+                      })()
                     )}
-                  </ScrollView>
+                  </View>
                 </View>
-
-                <View style={styles.timesColumn}>
-                  {selectedDateIndex === null ? (
-                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                      <Text style={{ color: '#6b7280' }}>Please pick a date above to see available times</Text>
-                    </View>
-                  ) : (
-                    (() => {
-                      const oft = getMetaOpenForTour()
-                      if (!oft) return <Text style={{ color: '#6b7280', textAlign: 'center' }}>No time range set</Text>
-                      const slots = generateTimeSlots(oft.time_from || oft.timeFrom, oft.time_to || oft.timeTo, 30)
-                      return (
-                        <ScrollView contentContainerStyle={styles.timeList}>
-                          {slots.map((s, idx) => {
-                            const timeStr = `${String(s.getHours()).padStart(2, '0')}:${String(s.getMinutes()).padStart(2, '0')}`
-                            return (
-                              <TouchableOpacity key={idx} style={[styles.timeListItem, selectedTime === timeStr && styles.timeListItemActive]} onPress={() => setSelectedTime(timeStr)}>
-                                <Text style={[styles.timeListItemText, selectedTime === timeStr && styles.timeListItemTextActive]}>{formatTime12FromHHMM(timeStr)}</Text>
-                              </TouchableOpacity>
-                            )
-                          })}
-                        </ScrollView>
-                      )
-                    })()
-                  )}
-                </View>
-              </View>
+              )}
             </View>
 
             <View style={styles.tourPanelFooter}>
