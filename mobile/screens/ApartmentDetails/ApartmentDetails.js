@@ -379,6 +379,33 @@ export default function ApartmentDetails() {
     })()
   }
 
+  // When the tour panel is open, refresh available dates periodically so slots
+  // that cross from future->past are removed dynamically while the user is
+  // looking at the panel. We refresh every 60 seconds.
+  useEffect(() => {
+    if (!tourPanelVisible) return undefined
+
+    const refresh = () => {
+      const oft = getMetaOpenForTour()
+      const dates = buildAvailableDates(oft)
+      setAvailableDates(dates)
+      // if selected date now has no slots, clear selection
+      if (selectedDateIndex !== null) {
+        const slots = generateTimeSlots(oft?.time_from || oft?.timeFrom, oft?.time_to || oft?.timeTo, 30, availableDates[selectedDateIndex])
+        if (!slots || slots.length === 0) {
+          setSelectedDateIndex(null)
+          setSelectedDate(null)
+          setSelectedTime(null)
+        }
+      }
+    }
+
+    // initial refresh
+    refresh()
+    const id = setInterval(refresh, 60 * 1000)
+    return () => clearInterval(id)
+  }, [tourPanelVisible, selectedDateIndex])
+
   const getMetaOpenForTour = () => {
     try {
       const oftRaw = listing?.meta?.open_for_tour || listing?.meta?.openForTour || null

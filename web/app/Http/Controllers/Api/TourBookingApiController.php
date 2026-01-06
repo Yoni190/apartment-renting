@@ -10,6 +10,7 @@ use App\Models\TourBooking;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use App\Notifications\TourRequested;
+use Illuminate\Support\Facades\DB;
 
 class TourBookingApiController extends Controller
 {
@@ -165,8 +166,8 @@ class TourBookingApiController extends Controller
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
-        $booking->status = $normalized;
-        $booking->save();
+    $booking->status = $normalized;
+    $booking->save();
 
         // Notify the relevant party about status change
         try {
@@ -243,21 +244,72 @@ class TourBookingApiController extends Controller
             return response()->json(['message' => 'Selected time is outside the listing open hours.'], 422);
         }
 
-        $booking = TourBooking::create([
-            'listing_id' => $apartment->id,
-            'user_id' => $user->id,
-            'scheduled_at' => $scheduled,
-            // Store canonical Pending status
-            'status' => \App\Models\TourBooking::STATUS_PENDING,
-            'note' => $request->input('note'),
-        ]);
-
-        // notify owner
-        $owner = $apartment->owner;
-        if ($owner) {
-            $owner->notify(new TourRequested($booking));
+        // Reject attempts to book slots in the past
+        $now = Carbon::now();
+        if ($scheduled->lte($now)) {
+            return response()->json(['message' => 'Selected time has already passed'], 422);
         }
 
-        return response()->json(['message' => 'Booking created', 'booking' => $booking], 201);
+        // To avoid race conditions where two clients book the same slot at the same time
+        // use a lightweight DB advisory lock per listing+timeslot. This prevents two
+        // concurrent requests from both succeeding. We also check for any existing
+        // non-final booking at the same scheduled time before creating.
+        $lockName = sprintf('tour_slot_%d_%s', $apartment->id, $scheduled->format('YmdHi'));
+        $got = DB::select('SELECT GET_LOCK(?, 5) as got', [$lockName]);
+        $acquired = false;
+        if (is_array($got) && count($got) > 0) {
+            $row = $got[0];
+            $val = null;
+            if (is_object($row)) {
+                $val = $row->got ?? null;
+            } elseif (is_array($row)) {
+                $val = $row['got'] ?? null;
+            }
+            $acquired = intval($val) === 1;
+        }
+
+        if (!$acquired) {
+            return response()->json(['message' => 'Server is busy; please try again shortly'], 503);
+        }
+
+        try {
+            // Check for existing non-final bookings at the same slot
+            $existing = TourBooking::where('listing_id', $apartment->id)
+                ->where('scheduled_at', $scheduled)
+                ->whereNotIn('status', [
+                    TourBooking::STATUS_CANCELED,
+                    TourBooking::STATUS_REJECTED,
+                    TourBooking::STATUS_COMPLETED,
+                    TourBooking::STATUS_NO_SHOW,
+                ])
+                ->exists();
+
+            if ($existing) {
+                return response()->json(['message' => 'Selected slot is no longer available'], 409);
+            }
+
+            $booking = TourBooking::create([
+                'listing_id' => $apartment->id,
+                'user_id' => $user->id,
+                'scheduled_at' => $scheduled,
+                // Store canonical Pending status
+                'status' => \App\Models\TourBooking::STATUS_PENDING,
+                'note' => $request->input('note'),
+            ]);
+
+            // notify owner
+            $owner = $apartment->owner;
+            if ($owner) {
+                $owner->notify(new TourRequested($booking));
+            }
+
+            return response()->json(['message' => 'Booking created', 'booking' => $booking], 201);
+        } finally {
+            try {
+                DB::select('SELECT RELEASE_LOCK(?)', [$lockName]);
+            } catch (\Exception $e) {
+                // ignore lock release failures
+            }
+        }
     }
 }
