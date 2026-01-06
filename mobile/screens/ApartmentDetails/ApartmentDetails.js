@@ -457,6 +457,30 @@ export default function ApartmentDetails() {
     return `${days[d.getDay()]} ${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`
   }
 
+  // Format a HH:MM (24-hour) string into 12-hour display like '1:30 PM'
+  const formatTime12FromHHMM = (hhmm) => {
+    if (!hhmm || typeof hhmm !== 'string') return hhmm
+    const parts = hhmm.split(':')
+    if (parts.length < 2) return hhmm
+    const hh = parseInt(parts[0], 10)
+    const mm = parseInt(parts[1], 10)
+    if (isNaN(hh) || isNaN(mm)) return hhmm
+    const ampm = hh < 12 ? 'AM' : 'PM'
+    const hour12 = hh % 12 === 0 ? 12 : hh % 12
+    return `${hour12}:${String(mm).padStart(2, '0')} ${ampm}`
+  }
+
+  const formatTime12FromDate = (d) => {
+    if (!d) return ''
+    try {
+      const hh = d.getHours()
+      const mm = d.getMinutes()
+      return formatTime12FromHHMM(`${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}`)
+    } catch (e) {
+      return ''
+    }
+  }
+
   const onSelectDate = (index) => {
     setSelectedDateIndex(index)
   }
@@ -903,12 +927,12 @@ export default function ApartmentDetails() {
       {/* Modal list of generated time slots (strict) */}
       {timeSlotsModalVisible && (
         <View style={{ position: 'absolute', left: 0, right: 0, top: 120, bottom: 0, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', alignItems: 'center' }}>
-          <View style={{ width: '90%', maxHeight: '60%', backgroundColor: '#fff', borderRadius: 8, padding: 12 }}>
+                <View style={{ width: '90%', maxHeight: '60%', backgroundColor: '#fff', borderRadius: 8, padding: 12 }}>
             <Text style={{ fontWeight: '600', marginBottom: 8 }}>Select a time</Text>
             <ScrollView>
               {timeSlots.map((s, idx) => (
                 <TouchableOpacity key={idx} onPress={() => selectTimeSlot(s)} style={{ padding: 10, borderBottomWidth: 1, borderBottomColor: '#eee' }}>
-                  <Text>{s.toTimeString().slice(0,5)}</Text>
+                  <Text>{formatTime12FromDate(s)}</Text>
                 </TouchableOpacity>
               ))}
             </ScrollView>
@@ -952,15 +976,31 @@ export default function ApartmentDetails() {
                 // render as 'HH:MM' pills
                 return (
                   <ScrollView contentContainerStyle={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-                    {slots.map((s, idx) => (
-                      <TouchableOpacity key={idx} style={styles.timePill} onPress={() => submitBookingForPill(`${String(s.getHours()).padStart(2,'0')}:${String(s.getMinutes()).padStart(2,'0')}`)}>
-                        <Text style={{ fontWeight: '600' }}>{`${String(s.getHours()).padStart(2,'0')}:${String(s.getMinutes()).padStart(2,'0')}`}</Text>
-                      </TouchableOpacity>
-                    ))}
+                    {slots.map((s, idx) => {
+                      const timeStr = `${String(s.getHours()).padStart(2,'0')}:${String(s.getMinutes()).padStart(2,'0')}`
+                      return (
+                        <TouchableOpacity key={idx} style={[styles.timePill, selectedTime === timeStr && styles.timePillActive]} onPress={() => setSelectedTime(timeStr)}>
+                          <Text style={{ fontWeight: '600', color: selectedTime === timeStr ? '#fff' : '#111827' }}>{formatTime12FromHHMM(timeStr)}</Text>
+                        </TouchableOpacity>
+                      )
+                    })}
                   </ScrollView>
                 )
               })()}
             </View>
+
+            {/* Confirm selection CTA */}
+            {selectedTime ? (
+              <View style={{ marginTop: 14 }}>
+                <TouchableOpacity style={styles.confirmBtn} onPress={() => submitBookingForPill(selectedTime)} disabled={bookingLoading}>
+                  {bookingLoading ? (
+                    <ActivityIndicator color="#fff" />
+                  ) : (
+                    <Text style={styles.confirmBtnText}>Request tour — {availableDates[selectedDateIndex] ? `${formatDate(availableDates[selectedDateIndex])} ${selectedTime}` : selectedTime}</Text>
+                  )}
+                </TouchableOpacity>
+              </View>
+            ) : null}
 
             <View style={{ marginTop: 12 }}>
               <TouchableOpacity onPress={() => setTourPanelVisible(false)} style={{ padding: 10 }}>

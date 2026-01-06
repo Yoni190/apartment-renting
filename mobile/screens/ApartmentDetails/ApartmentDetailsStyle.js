@@ -430,8 +430,19 @@ export default StyleSheet.create({
     width: '100%',
     maxWidth: 720,
     backgroundColor: '#fff',
-    borderRadius: 12,
+    borderRadius: 14,
     padding: 16,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOpacity: 0.08,
+        shadowRadius: 12,
+        shadowOffset: { width: 0, height: 8 },
+      },
+      android: {
+        elevation: 12,
+      },
+    }),
   },
   datePillsRow: {
     paddingBottom: 8,
@@ -440,14 +451,28 @@ export default StyleSheet.create({
   },
   datePill: {
     backgroundColor: '#f8fafc',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 20,
     marginRight: 8,
+    borderWidth: 1,
+    borderColor: '#eef2ff',
   },
   datePillActive: {
     backgroundColor: '#1778f2',
     color: '#fff',
+    borderColor: '#1778f2',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#1778f2',
+        shadowOpacity: 0.16,
+        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 4 },
+      },
+      android: {
+        elevation: 6,
+      },
+    }),
   },
   showMoreButton: {
     paddingVertical: 8,
@@ -466,8 +491,37 @@ export default StyleSheet.create({
     backgroundColor: '#f1f5f9',
     paddingVertical: 10,
     paddingHorizontal: 14,
-    borderRadius: 10,
+    borderRadius: 12,
     marginRight: 8,
     marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#eef2f6',
+  },
+  timePillActive: {
+    backgroundColor: '#0f172a',
+    borderColor: '#0f172a',
+  },
+  confirmBtn: {
+    backgroundColor: '#0f172a',
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#0f172a',
+        shadowOpacity: 0.12,
+        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 4 },
+      },
+      android: {
+        elevation: 4,
+      },
+    }),
+  },
+  confirmBtnText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 16,
   },
 })
