@@ -107,16 +107,21 @@ export default function TourRequestCard({ booking, isOwner=false, onOpenClient=(
                 </>
               ) : (
                 <>
-                  <TouchableOpacity style={[styles.splitBtn, { backgroundColor: '#2563eb' }]} onPress={() => onOpenOwner({ ...listing.owner, listingId: listing.id, navigateToMessages: true })}>
-                    <Ionicons name="chatbubble-ellipses-outline" size={16} color="#fff" />
-                    <Text style={styles.splitBtnText}>Message</Text>
+                  {/* Render owner actions in the compact style (same as owner sees client) */}
+                  <TouchableOpacity style={styles.actionBtn} onPress={() => onOpenOwner({ ...listing.owner, listingId: listing.id })}>
+                    <Ionicons name="person-circle-outline" size={18} color="#0f172a" />
+                    <Text style={styles.actionText}>Owner</Text>
                   </TouchableOpacity>
-                  {listing.owner && (listing.owner.phone || listing.owner.phone_number) ? (
-                    <TouchableOpacity style={[styles.splitBtn, { backgroundColor: '#10b981', marginLeft: 8 }]} onPress={() => { const phone = listing.owner.phone || listing.owner.phone_number; if (phone) { Linking.openURL(`tel:${phone}`).catch(()=>{}) } else { Alert.alert('No phone available') } }}>
-                      <Ionicons name="call" size={16} color="#fff" />
-                      <Text style={styles.splitBtnText}>Call</Text>
-                    </TouchableOpacity>
-                  ) : null}
+
+                  <TouchableOpacity style={styles.actionBtn} onPress={() => onOpenOwner({ ...listing.owner, listingId: listing.id, navigateToMessages: true })}>
+                    <Ionicons name="chatbubble-ellipses-outline" size={18} color="#2563eb" />
+                    <Text style={styles.actionText}>Message</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity style={styles.actionBtn} onPress={() => { const phone = listing.owner?.phone || listing.owner?.phone_number || listing.owner?.phoneNumber; if (phone) { Linking.openURL(`tel:${phone}`).catch(()=>{}) } else { Alert.alert('No phone available') } }}>
+                    <Ionicons name="call-outline" size={18} color="#059669" />
+                    <Text style={styles.actionText}>Call</Text>
+                  </TouchableOpacity>
                 </>
               )}
             </View>
