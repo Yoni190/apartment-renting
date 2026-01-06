@@ -76,7 +76,7 @@ class AdminController extends Controller
  
     function dashboard() {
         //Dummy Data
-        $totalUsers = 1200;
+        $totalUsers = User::count();
         $totalSales = 54000;
         $totalOrders = 320;
 
