@@ -276,10 +276,48 @@ Route::middleware('auth:sanctum')->post('/apartments', function (Request $reques
             $dateFrom = $oft['date_from'] ?? null;
             $dateTo = $oft['date_to'] ?? null;
 
+            // Server-side validation: only allow dates from today onward and reject past times
+            try {
+                $today = \Carbon\Carbon::today();
+                if ($dateFrom) {
+                    $dFrom = \Carbon\Carbon::parse($dateFrom)->startOfDay();
+                    if ($dFrom->lt($today)) {
+                        return response()->json(['message' => 'open_for_tour.date_from must be today or a future date'], 422);
+                    }
+                }
+                if ($dateTo) {
+                    $dTo = \Carbon\Carbon::parse($dateTo)->startOfDay();
+                    if ($dTo->lt($today)) {
+                        return response()->json(['message' => 'open_for_tour.date_to must be today or a future date'], 422);
+                    }
+                }
+                if ($dateFrom && $dateTo) {
+                    $dFrom = \Carbon\Carbon::parse($dateFrom)->startOfDay();
+                    $dTo = \Carbon\Carbon::parse($dateTo)->startOfDay();
+                    if ($dTo->lt($dFrom)) {
+                        return response()->json(['message' => 'open_for_tour.date_to must be the same or after date_from'], 422);
+                    }
+                }
+            } catch (\Exception $e) {
+                // ignore parse errors here; will handle downstream
+            }
+
             if ($timeFrom && $timeTo) {
                 // normalize to HH:MM:SS
                 $fmtTimeFrom = strlen($timeFrom) === 5 ? $timeFrom . ':00' : $timeFrom;
                 $fmtTimeTo = strlen($timeTo) === 5 ? $timeTo . ':00' : $timeTo;
+
+                // if the owner provided an explicit date range starting today, ensure the provided start time isn't already past
+                try {
+                    if ($dateFrom) {
+                        $startDateTime = \Carbon\Carbon::parse($dateFrom . ' ' . $fmtTimeFrom);
+                        if ($startDateTime->lt(\Carbon\Carbon::now())) {
+                            return response()->json(['message' => 'open_for_tour.time_from for the starting date must not be in the past'], 422);
+                        }
+                    }
+                } catch (\Exception $e) {
+                    // ignore parse failure
+                }
 
                 $days = [];
                 if ($dateFrom && $dateTo) {
@@ -347,6 +385,51 @@ Route::middleware('auth:sanctum')->patch('/apartments/{apartment}', function (Re
     $meta = array_merge($meta, $incomingMeta ?: []);
     // normalize incoming meta so amenities/utilities are arrays etc.
     $meta = normalizeMetaFields($meta);
+
+    // Server-side validation for open_for_tour in updates as well
+    if (!empty($meta['open_for_tour'])) {
+        $oft = $meta['open_for_tour'];
+        if (is_string($oft)) {
+            $oft = json_decode($oft, true) ?: [];
+        }
+        if (is_array($oft)) {
+            $dateFrom = $oft['date_from'] ?? null;
+            $dateTo = $oft['date_to'] ?? null;
+            $timeFrom = $oft['time_from'] ?? null;
+
+            try {
+                $today = \Carbon\Carbon::today();
+                if ($dateFrom) {
+                    $dFrom = \Carbon\Carbon::parse($dateFrom)->startOfDay();
+                    if ($dFrom->lt($today)) {
+                        return response()->json(['message' => 'open_for_tour.date_from must be today or a future date'], 422);
+                    }
+                }
+                if ($dateTo) {
+                    $dTo = \Carbon\Carbon::parse($dateTo)->startOfDay();
+                    if ($dTo->lt($today)) {
+                        return response()->json(['message' => 'open_for_tour.date_to must be today or a future date'], 422);
+                    }
+                }
+                if ($dateFrom && $dateTo) {
+                    $dFrom = \Carbon\Carbon::parse($dateFrom)->startOfDay();
+                    $dTo = \Carbon\Carbon::parse($dateTo)->startOfDay();
+                    if ($dTo->lt($dFrom)) {
+                        return response()->json(['message' => 'open_for_tour.date_to must be the same or after date_from'], 422);
+                    }
+                }
+                if ($timeFrom && $dateFrom) {
+                    $fmtTimeFrom = strlen($timeFrom) === 5 ? $timeFrom . ':00' : $timeFrom;
+                    $startDateTime = \Carbon\Carbon::parse($dateFrom . ' ' . $fmtTimeFrom);
+                    if ($startDateTime->lt(\Carbon\Carbon::now())) {
+                        return response()->json(['message' => 'open_for_tour.time_from for the starting date must not be in the past'], 422);
+                    }
+                }
+            } catch (\Exception $e) {
+                // ignore parse errors; downstream code may handle
+            }
+        }
+    }
 
     if (!empty($meta)) $data['meta'] = $meta;
 

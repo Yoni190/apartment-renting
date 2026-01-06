@@ -405,18 +405,96 @@ const AddListing = () => {
 
   const handleConfirm = date => {
     // date is a JS Date
+    const now = new Date()
+    // Date targets
     if (datePickerTarget === 'available') {
+      // availableFrom cannot be in the past
+      const pickedDate = new Date(date.toDateString())
+      const today = new Date(now.toDateString())
+      if (pickedDate < today) {
+        Alert.alert('Invalid date', 'Available from date cannot be in the past.')
+        return hidePicker()
+      }
       setAvailableFromDate(date)
       setAvailableFrom(date.toISOString().slice(0,10))
-    } else if (datePickerTarget === 'tourFrom') {
-      setTourDateFrom(date)
-    } else if (datePickerTarget === 'tourTo') {
-      setTourDateTo(date)
-    } else if (datePickerTarget === 'timeFrom') {
-      setTourTimeFrom(date)
-    } else if (datePickerTarget === 'timeTo') {
-      setTourTimeTo(date)
+      hidePicker()
+      return
     }
+
+    if (datePickerTarget === 'tourFrom') {
+      const pickedDate = new Date(date.toDateString())
+      const today = new Date(now.toDateString())
+      if (pickedDate < today) {
+        Alert.alert('Invalid date', 'Tour start date cannot be in the past.')
+        return hidePicker()
+      }
+      // if tourTo exists and is before picked date, clear tourTo
+      if (tourDateTo && new Date(tourDateTo.toDateString()) < pickedDate) {
+        setTourDateTo(null)
+      }
+      setTourDateFrom(date)
+      hidePicker()
+      return
+    }
+
+    if (datePickerTarget === 'tourTo') {
+      const pickedDate = new Date(date.toDateString())
+      const today = new Date(now.toDateString())
+      if (pickedDate < today) {
+        Alert.alert('Invalid date', 'Tour end date cannot be in the past.')
+        return hidePicker()
+      }
+      if (tourDateFrom && pickedDate < new Date(tourDateFrom.toDateString())) {
+        Alert.alert('Invalid date', 'End date cannot be before start date.')
+        return hidePicker()
+      }
+      setTourDateTo(date)
+      hidePicker()
+      return
+    }
+
+    // Time targets - ensure times on the selected start date are not in the past
+    if (datePickerTarget === 'timeFrom' || datePickerTarget === 'timeTo') {
+      // If a tour date is selected and it's today, ensure selected time is not earlier than now
+      const pickedTime = date
+      if (tourDateFrom) {
+        const pickedDateTime = new Date(tourDateFrom)
+        pickedDateTime.setHours(pickedTime.getHours(), pickedTime.getMinutes(), 0, 0)
+        if (new Date(tourDateFrom.toDateString()) <= new Date(now.toDateString()) && pickedDateTime < now) {
+          Alert.alert('Invalid time', 'Selected time is already in the past for the chosen start date.')
+          return hidePicker()
+        }
+      }
+
+      if (datePickerTarget === 'timeFrom') {
+        // if timeTo exists and is <= picked time, clear timeTo
+        if (tourTimeTo) {
+          const existingTo = new Date(tourTimeTo)
+          const picked = pickedTime
+          if (existingTo.getHours() < picked.getHours() || (existingTo.getHours() === picked.getHours() && existingTo.getMinutes() <= picked.getMinutes())) {
+            setTourTimeTo(null)
+          }
+        }
+        setTourTimeFrom(pickedTime)
+        hidePicker()
+        return
+      }
+
+      if (datePickerTarget === 'timeTo') {
+        if (tourTimeFrom) {
+          const from = new Date(tourTimeFrom)
+          const to = pickedTime
+          if (to.getHours() < from.getHours() || (to.getHours() === from.getHours() && to.getMinutes() <= from.getMinutes())) {
+            Alert.alert('Invalid time', 'End time must be after start time.')
+            return hidePicker()
+          }
+        }
+        setTourTimeTo(pickedTime)
+        hidePicker()
+        return
+      }
+    }
+
     hidePicker()
   }
 
@@ -956,6 +1034,15 @@ const AddListing = () => {
           mode={datePickerTarget && datePickerTarget.startsWith('time') ? 'time' : 'date'}
           onConfirm={handleConfirm}
           onCancel={hidePicker}
+          // enforce minimum dates on date pickers
+          minimumDate={(() => {
+            const today = new Date()
+            if (!datePickerTarget) return undefined
+            if (datePickerTarget === 'available' || datePickerTarget === 'tourFrom') return new Date(today.toDateString())
+            if (datePickerTarget === 'tourTo') return tourDateFrom ? new Date(tourDateFrom.toDateString()) : new Date(today.toDateString())
+            // for time pickers there's no strong minimumDate we can enforce across platforms
+            return undefined
+          })()}
         />
 
         <Text style={styles.label}>Minimum stay duration</Text>
