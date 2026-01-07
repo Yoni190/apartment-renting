@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    paddingTop: 50, // ensure Header (absolute) does not cover content
+    paddingTop: 50, // ensure Header (absolute) does not cover content favourites
   },
   loadingContainer: {
     flex: 1,
