@@ -178,7 +178,7 @@ const OwnerTours = () => {
         </TouchableOpacity>
       </View>
 
-  <View style={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 140 }}>
+  <View style={{ paddingHorizontal: 16, paddingTop: 30, paddingBottom: 70 }}>
           {loadingBookings ? (
           <ActivityIndicator />
         ) : bookings.length === 0 ? (
@@ -356,7 +356,7 @@ export function MyTours() {
   return (
     <View style={{ flex: 1, backgroundColor: '#f9f9f9' }}>
       <Header title="My Tours" />
-  <View style={{ paddingHorizontal: 16, paddingTop: 110, paddingBottom: 140 }}>
+  <View style={{ paddingHorizontal: 16, paddingTop: 90, paddingBottom: 20 }}>
         {loading ? <ActivityIndicator /> : bookings.length === 0 ? <Text style={{ color: '#6b7280' }}>No tours booked.</Text> : (
           <FlatList data={bookings} keyExtractor={(b) => String(b.id)} renderItem={renderItem} ItemSeparatorComponent={() => <View style={{ height: 12 }} />} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefreshMyTours} />} />
         )}
