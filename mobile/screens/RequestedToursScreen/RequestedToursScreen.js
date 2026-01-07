@@ -62,13 +62,13 @@ const RequestedToursScreen = () => {
               <Ionicons name="person-circle-outline" size={18} color="#0f172a" />
               <Text style={styles.actionText}>Client</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionBtn} onPress={() => { const phone = client.phone || client.phone_number || client.phoneNumber; if (phone) { Linking.openURL(`tel:${phone}`).catch(()=>{}) } else { Alert.alert('No phone number available') } }}>
-              <Ionicons name="call-outline" size={18} color="#059669" />
-              <Text style={styles.actionText}>Call</Text>
-            </TouchableOpacity>
             <TouchableOpacity style={styles.actionBtn} onPress={() => navigation.navigate('OwnerMessages', { apartmentId: listing.id, userId: client.id })}>
               <Ionicons name="chatbubble-ellipses-outline" size={18} color="#2563eb" />
               <Text style={styles.actionText}>Message</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionBtn} onPress={() => { const phone = client.phone || client.phone_number || client.phoneNumber; if (phone) { Linking.openURL(`tel:${phone}`).catch(()=>{}) } else { Alert.alert('No phone number available') } }}>
+              <Ionicons name="call-outline" size={18} color="#059669" />
+              <Text style={styles.actionText}>Call</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -96,13 +96,13 @@ const RequestedToursScreen = () => {
             </View>
 
             <View style={{ flexDirection: 'row', marginTop: 16, justifyContent: 'space-between' }}>
-              <TouchableOpacity style={[styles.modalBtn, { backgroundColor: '#10b981' }]} onPress={() => { const phone = c.phone || c.phone_number || c.phoneNumber; if (phone) { Linking.openURL(`tel:${phone}`).catch(()=>{}) } else { Alert.alert('No phone available') } }}>
-                <Ionicons name="call" size={18} color="#fff" />
-                <Text style={[styles.modalBtnText, { color: '#fff' }]}>Call</Text>
-              </TouchableOpacity>
               <TouchableOpacity style={[styles.modalBtn, { backgroundColor: '#2563eb' }]} onPress={() => { setModalVisible(false); navigation.navigate('OwnerMessages', { userId: c.id }) }}>
                 <Ionicons name="chatbubbles" size={18} color="#fff" />
                 <Text style={[styles.modalBtnText, { color: '#fff' }]}>Message</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.modalBtn, { backgroundColor: '#10b981' }]} onPress={() => { const phone = c.phone || c.phone_number || c.phoneNumber; if (phone) { Linking.openURL(`tel:${phone}`).catch(()=>{}) } else { Alert.alert('No phone available') } }}>
+                <Ionicons name="call" size={18} color="#fff" />
+                <Text style={[styles.modalBtnText, { color: '#fff' }]}>Call</Text>
               </TouchableOpacity>
               <TouchableOpacity style={[styles.modalBtn, { backgroundColor: '#f97316' }]} onPress={() => { setModalVisible(false); if (c.listingId) navigation.navigate('ApartmentDetails', { listingId: c.listingId }) }}>
                 <Ionicons name="information-circle" size={18} color="#fff" />

@@ -100,14 +100,14 @@ export default function TourRequestCard({ booking, isOwner=false, onOpenClient=(
                     <Text style={styles.actionText}>Client</Text>
                   </TouchableOpacity>
 
-                  <TouchableOpacity style={styles.actionBtn} onPress={() => { const phone = client.phone || client.phone_number || client.phoneNumber; if (phone) { Linking.openURL(`tel:${phone}`).catch(()=>{}) } else { Alert.alert('No phone number available') } }}>
-                    <Ionicons name="call-outline" size={18} color="#059669" />
-                    <Text style={styles.actionText}>Call</Text>
-                  </TouchableOpacity>
-
                   <TouchableOpacity style={styles.actionBtn} onPress={() => onOpenClient({ ...client, listingId: listing.id, navigateToMessages: true })}>
                     <Ionicons name="chatbubble-ellipses-outline" size={18} color="#2563eb" />
                     <Text style={styles.actionText}>Message</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity style={styles.actionBtn} onPress={() => { const phone = client.phone || client.phone_number || client.phoneNumber; if (phone) { Linking.openURL(`tel:${phone}`).catch(()=>{}) } else { Alert.alert('No phone number available') } }}>
+                    <Ionicons name="call-outline" size={18} color="#059669" />
+                    <Text style={styles.actionText}>Call</Text>
                   </TouchableOpacity>
                 </>
               ) : (
