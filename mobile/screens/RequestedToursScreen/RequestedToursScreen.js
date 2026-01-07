@@ -66,7 +66,7 @@ const RequestedToursScreen = () => {
               <Ionicons name="call-outline" size={18} color="#059669" />
               <Text style={styles.actionText}>Call</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionBtn} onPress={() => navigation.navigate('Messages', { apartmentId: listing.id, userId: client.id })}>
+            <TouchableOpacity style={styles.actionBtn} onPress={() => navigation.navigate('OwnerMessages', { apartmentId: listing.id, userId: client.id })}>
               <Ionicons name="chatbubble-ellipses-outline" size={18} color="#2563eb" />
               <Text style={styles.actionText}>Message</Text>
             </TouchableOpacity>
@@ -100,7 +100,7 @@ const RequestedToursScreen = () => {
                 <Ionicons name="call" size={18} color="#fff" />
                 <Text style={[styles.modalBtnText, { color: '#fff' }]}>Call</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.modalBtn, { backgroundColor: '#2563eb' }]} onPress={() => { setModalVisible(false); navigation.navigate('Messages', { userId: c.id }) }}>
+              <TouchableOpacity style={[styles.modalBtn, { backgroundColor: '#2563eb' }]} onPress={() => { setModalVisible(false); navigation.navigate('OwnerMessages', { userId: c.id }) }}>
                 <Ionicons name="chatbubbles" size={18} color="#fff" />
                 <Text style={[styles.modalBtnText, { color: '#fff' }]}>Message</Text>
               </TouchableOpacity>

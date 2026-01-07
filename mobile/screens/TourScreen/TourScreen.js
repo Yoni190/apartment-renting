@@ -110,7 +110,16 @@ const OwnerTours = () => {
     <TourRequestCard
       booking={item}
       isOwner={true}
-      onOpenClient={(c) => { setSelectedClient(c); setModalVisible(true) }}
+      onOpenClient={(c) => {
+        // If the card requested navigation to Messages, go there directly
+        if (c && c.navigateToMessages) {
+          // ensure any modals are closed and navigate
+          setModalVisible(false)
+          navigation.navigate('OwnerMessages', { userId: c.id })
+          return
+        }
+        setSelectedClient(c); setModalVisible(true)
+      }}
       // allow optional second parameter `status` so cancellation approvals/rejections can pass the target status
       onApprove={(id, status = 'Approved') => handleUpdateStatus(id, status)}
       onReject={(id, status = 'Rejected') => handleUpdateStatus(id, status)}
@@ -144,7 +153,7 @@ const OwnerTours = () => {
                 <Ionicons name="call" size={18} color="#fff" />
                 <Text style={[styles.modalBtnText, { color: '#fff' }]}>Call</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.modalBtn, { backgroundColor: '#2563eb' }]} onPress={() => { setModalVisible(false); navigation.navigate('Messages', { userId: c.id }) }}>
+              <TouchableOpacity style={[styles.modalBtn, { backgroundColor: '#2563eb' }]} onPress={() => { setModalVisible(false); navigation.navigate('OwnerMessages', { userId: c.id }) }}>
                 <Ionicons name="chatbubbles" size={18} color="#fff" />
                 <Text style={[styles.modalBtnText, { color: '#fff' }]}>Message</Text>
               </TouchableOpacity>
@@ -305,7 +314,14 @@ export function MyTours() {
     <TourRequestCard
       booking={item}
       isOwner={false}
-      onOpenOwner={(o) => { setSelectedOwner(o); setOwnerModalVisible(true) }}
+      onOpenOwner={(o) => {
+        if (o && o.navigateToMessages) {
+          setOwnerModalVisible(false)
+          navigation.navigate('Messages', { userId: o.id })
+          return
+        }
+        setSelectedOwner(o); setOwnerModalVisible(true)
+      }}
       onCancel={(id) => handleClientCancel(id)}
       updatingBookingId={updatingBookingId}
       updatingBookingAction={updatingBookingAction}
@@ -338,7 +354,7 @@ export function MyTours() {
                 <Ionicons name="call" size={18} color="#fff" />
                 <Text style={[styles.modalBtnText, { color: '#fff' }]}>Call</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.modalBtn, { backgroundColor: '#2563eb', marginLeft: 8 }]} onPress={() => { setOwnerModalVisible(false); navigation.navigate('Messages', { userId: o.id }) }}>
+              <TouchableOpacity style={[styles.modalBtn, { backgroundColor: '#2563eb', marginLeft: 8 }]} onPress={() => { setOwnerModalVisible(false); navigation.navigate('OwnerMessages', { userId: o.id }) }}>
                 <Ionicons name="chatbubbles" size={18} color="#fff" />
                 <Text style={[styles.modalBtnText, { color: '#fff' }]}>Message</Text>
               </TouchableOpacity>
