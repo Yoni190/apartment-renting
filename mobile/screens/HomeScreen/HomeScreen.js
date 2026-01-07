@@ -1,4 +1,4 @@
-import { Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Alert } from 'react-native'
+import { Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Alert, Linking } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import * as SecureStore from "expo-secure-store"
 import axios from 'axios'
@@ -103,7 +103,7 @@ const HomeScreen = () => {
     }
 
     const openContacts = (apartment) => {
-      Alert.alert('Contact', apartment.contact_phone ?? 'No contact')
+      Alert.alert('Contact', apartment.contact_phone ?? (apartment.meta?.contact_phone ?? 'No contact'))
     }
 
     const openMessage = (apartment) => {
@@ -149,8 +149,15 @@ const HomeScreen = () => {
     const handleMessage = (apartment) => openMessage(apartment)
 
     const handleCall = (phone) => {
-      // For mobile: use Linking.openURL(`tel:${phone}`) in production
-      Alert.alert('Call', phone ?? 'No phone number')
+      // For mobile: attempt to open the dialer. Fall back to an alert when not possible.
+      if (!phone) {
+        Alert.alert('No phone number', 'No phone number available')
+        return
+      }
+      const phoneUrl = `tel:${phone}`
+      Linking.openURL(phoneUrl).catch(() => {
+        Alert.alert('Call', phone)
+      })
     }
 
     const onSearchSubmit = () => {
@@ -284,7 +291,7 @@ const HomeScreen = () => {
                   onSave={() => handleSave(a)}
                   onUnsave={() => handleUnsave(a)}
                   onMessage={() => openMessage(a)}
-                  onCall={(phone) => openContacts(a)}
+                  onCall={(phone) => handleCall(phone)}
                   onPress={() => navigation.navigate('ApartmentDetails', { listingId: a.id })}
                 />
               )
