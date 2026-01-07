@@ -12,9 +12,9 @@ export default StyleSheet.create({
         width: 200,
         borderRadius: 12,
         borderWidth: 1,
-        borderColor: '#ddd',
-        marginRight: 10,
-        padding: 15,
+        borderColor: '#e6e6e6',
+        marginRight: 12,
+        padding: 12,
         backgroundColor: '#fff',
         },
     recommendationsContainer: {
@@ -41,15 +41,24 @@ export default StyleSheet.create({
         justifyContent: 'center'
     },
     apartmentTitle: {
-        fontSize: 18,
-        fontWeight: 'bold'
+        fontSize: 16,
+        fontWeight: '700',
+        color: '#0f172a',
+        marginBottom: 6,
+        lineHeight: 20,
     },
     location: {
         fontSize: 12,
     },
     apartmentInfo: {
         flexDirection: 'row',
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
+        alignItems: 'center'
+    },
+    recommendationPrice: {
+        fontSize: 14,
+        fontWeight: '700',
+        color: '#111',
     },
     apartmentsContainer: {
         flexDirection: 'row',

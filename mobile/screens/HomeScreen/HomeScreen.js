@@ -246,11 +246,9 @@ const HomeScreen = () => {
                 )}
               </View>
               <View>
-                <Text style={styles.apartmentTitle}>{a.title}</Text>
-                <View style={styles.apartmentInfo}>
-                  <Text style={styles.location}>{a.address || (a.meta?.location?.city ?? '')}</Text>
-                  <Text>{a.price}</Text>
-                </View>
+                <Text style={styles.apartmentTitle} numberOfLines={2}>{a.title}</Text>
+                <Text style={styles.location} numberOfLines={1}>{a.address || (a.meta?.location?.city ?? '')}</Text>
+                <Text style={styles.recommendationPrice} numberOfLines={1}>{a.price}</Text>
               </View>
             </TouchableOpacity>
           ))}
