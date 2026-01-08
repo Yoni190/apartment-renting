@@ -389,6 +389,98 @@ export default StyleSheet.create({
     borderWidth: 1,
     borderColor: '#eef6ff'
   },
+  /* Verification / identity */
+  verificationCard: {
+    backgroundColor: '#ffffff',
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#e6eefc',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOpacity: 0.04,
+        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 4 },
+      },
+      android: {
+        elevation: 2,
+      },
+    }),
+  },
+  docRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  docTile: {
+    flex: 1,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderStyle: 'dashed',
+    borderColor: '#e2e8f0',
+    backgroundColor: '#f8fafc',
+    padding: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 8,
+    minHeight: 170,
+  },
+  docTileLast: {
+    marginRight: 0,
+  },
+  docTileLabel: {
+    color: '#475569',
+    fontSize: 13,
+    fontWeight: '600',
+    marginBottom: 6,
+    textAlign: 'center'
+  },
+  docTileActions: {
+    flexDirection: 'row',
+    width: '100%',
+    justifyContent: 'flex-start',
+    marginTop: 8,
+  },
+  docActionButton: {
+    marginRight: 14,
+  },
+  docActionText: {
+    color: '#3b82f6',
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  docActionTextRemove: {
+    color: '#ef4444',
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  docSmallNote: {
+    color: '#64748b',
+    fontSize: 12,
+    marginTop: 6,
+  },
+  /* Agent-specific card (mirrors verification card) */
+  agentCard: {
+    backgroundColor: '#ffffff',
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#e6eefc',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOpacity: 0.04,
+        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 4 },
+      },
+      android: {
+        elevation: 2,
+      },
+    }),
+  },
   fieldRow: {
     flexDirection: 'row',
     gap: 12,

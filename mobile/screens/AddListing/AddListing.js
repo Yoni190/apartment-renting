@@ -1082,59 +1082,110 @@ const AddListing = () => {
         </View>
         
         {/* Optional verification / identity (these are optional and only visible to admins in the server) */}
-        <Text style={styles.sectionTitle}>Optional verification & identity (optional)</Text>
-        <Text style={styles.label}>Owner full name (optional)</Text>
-        <TextInput
-          style={[styles.input, focusedInput === 'ownerFullName' && styles.inputFocused]}
-          value={ownerFullName}
-          onChangeText={setOwnerFullName}
-          onFocus={() => { setFocusedInput('ownerFullName'); scrollToInput(null); }}
-          placeholder="Owner full name"
-          placeholderTextColor="#94a3b8"
-        />
+        <View style={styles.verificationCard}>
+          <Text style={styles.sectionTitle}>Optional verification & identity</Text>
+          <Text style={[styles.label, { marginTop: 6 }]}>Owner full name (optional)</Text>
+          <TextInput
+            style={[styles.input, focusedInput === 'ownerFullName' && styles.inputFocused]}
+            value={ownerFullName}
+            onChangeText={setOwnerFullName}
+            onFocus={() => { setFocusedInput('ownerFullName'); scrollToInput(null); }}
+            placeholder="Owner full name"
+            placeholderTextColor="#94a3b8"
+          />
 
-        <Text style={styles.label}>Owner phone (optional)</Text>
-        <TextInput
-          style={[styles.input, focusedInput === 'ownerPhone' && styles.inputFocused]}
-          value={ownerPhoneNumber}
-          onChangeText={setOwnerPhoneNumber}
-          onFocus={() => { setFocusedInput('ownerPhone'); scrollToInput(null); }}
-          placeholder="e.g. +2519xxxxxxx"
-          placeholderTextColor="#94a3b8"
-          keyboardType={Platform.OS === 'web' ? 'default' : 'phone-pad'}
-        />
+          <Text style={styles.label}>Owner phone (optional)</Text>
+          <TextInput
+            style={[styles.input, focusedInput === 'ownerPhone' && styles.inputFocused]}
+            value={ownerPhoneNumber}
+            onChangeText={setOwnerPhoneNumber}
+            onFocus={() => { setFocusedInput('ownerPhone'); scrollToInput(null); }}
+            placeholder="e.g. +2519xxxxxxx"
+            placeholderTextColor="#94a3b8"
+            keyboardType={Platform.OS === 'web' ? 'default' : 'phone-pad'}
+          />
 
-        <Text style={styles.label}>National ID (optional)</Text>
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-          <TouchableOpacity style={[styles.btn, { flex: 1, marginRight: 8 }]} onPress={() => pickDocument('nationalId')}>
-            <Text style={styles.btnText}>{nationalIdImage ? 'Replace national ID' : 'Upload national ID'}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.btn, { flex: 1 }]} onPress={() => setNationalIdImage(null)} disabled={!nationalIdImage}>
-            <Text style={[styles.btnText, !nationalIdImage && { opacity: 0.6 }]}>{nationalIdImage ? 'Remove' : 'Not attached'}</Text>
-          </TouchableOpacity>
-        </View>
-        <Text style={{ color: '#666', fontSize: 12, marginBottom: 8 }}>Upload a photo of the owner's national ID or passport (optional).</Text>
-
-        <Text style={styles.label}>Ownership / authority documents (optional)</Text>
-        <View style={{ marginBottom: 8 }}>
-          <Text style={{ color: '#333', fontStyle: 'italic', marginBottom: 6 }}>Upload ONE of the following documents to verify ownership or authority:</Text>
-          <View style={{ marginLeft: 10, marginBottom: 8 }}>
-            <Text style={{ color: '#333', fontStyle: 'italic', marginBottom: 6 }}>• Property ownership certificate</Text>
-            <Text style={{ color: '#333', fontStyle: 'italic', marginBottom: 6 }}>• Utility bill in owner’s name</Text>
-            <Text style={{ color: '#333', fontStyle: 'italic', marginBottom: 6 }}>• Rental authorization letter (if agent)</Text>
+          <Text style={[styles.label, { marginTop: 6 }]}>National ID (optional)</Text>
+          <View style={styles.docRow}>
+            <TouchableOpacity style={styles.docTile} onPress={() => pickDocument('nationalId')}>
+              {nationalIdImage ? (
+                <>
+                  <Image source={{ uri: nationalIdImage.uri || nationalIdImage }} style={styles.thumb} />
+                  <Text style={styles.docTileLabel}>National ID attached</Text>
+                  <View style={[styles.docTileActions, { justifyContent: 'space-between' }]}>
+                    <TouchableOpacity style={styles.docActionButton} onPress={() => pickDocument('nationalId')}>
+                      <Text style={styles.docActionText}>Replace</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => setNationalIdImage(null)}>
+                      <Text style={styles.docActionTextRemove}>Remove</Text>
+                    </TouchableOpacity>
+                  </View>
+                </>
+              ) : (
+                <>
+                  <Text style={styles.docTileLabel}>No ID attached</Text>
+                  <TouchableOpacity style={[styles.btn, { marginTop: 8 }]} onPress={() => pickDocument('nationalId')}>
+                    <Text style={styles.btnText}>Upload national ID</Text>
+                  </TouchableOpacity>
+                </>
+              )}
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity style={[styles.optionPill, ownershipCertificate && styles.optionPillActive]} onPress={() => pickDocument('ownershipCertificate')}>
-            <Text style={ownershipCertificate ? styles.optionTextActive : styles.optionText}>{ownershipCertificate ? 'Replace ownership certificate' : 'Upload ownership certificate'}</Text>
-          </TouchableOpacity>
-          <Text style={{ color: '#666', fontSize: 12, marginTop: 6 }}>Use this if you own the property (e.g. title deed).</Text>
-          <TouchableOpacity style={[styles.optionPill, utilityBill && styles.optionPillActive, { marginTop: 8 }]} onPress={() => pickDocument('utilityBill')}>
-            <Text style={utilityBill ? styles.optionTextActive : styles.optionText}>{utilityBill ? 'Replace utility bill' : 'Upload utility bill'}</Text>
-          </TouchableOpacity>
-          <Text style={{ color: '#666', fontSize: 12, marginTop: 6 }}>Upload a recent utility bill in the owner's name (electricity/water) to prove residency/ownership.</Text>
-          <TouchableOpacity style={[styles.optionPill, rentalAuthorizationLetter && styles.optionPillActive, { marginTop: 8 }]} onPress={() => pickDocument('rentalAuthorizationLetter')}>
-            <Text style={rentalAuthorizationLetter ? styles.optionTextActive : styles.optionText}>{rentalAuthorizationLetter ? 'Replace rental authorization letter' : 'Upload rental authorization letter'}</Text>
-          </TouchableOpacity>
-          <Text style={{ color: '#666', fontSize: 12, marginTop: 6 }}>If you're an agent, upload a signed authorization letter from the owner permitting you to list this property.</Text>
+          <Text style={styles.docSmallNote}>Upload a photo of the owner's national ID or passport (optional). Accepted types: JPG, PNG. Max 5MB.</Text>
+
+          <Text style={[styles.label, { marginTop: 12 }]}>Ownership / authority documents (optional)</Text>
+          <Text style={{ color: '#333', fontStyle: 'italic', marginBottom: 8 }}>Upload ONE of the following documents to verify ownership or authority:</Text>
+          <View style={styles.docRow}>
+            <TouchableOpacity style={styles.docTile} onPress={() => pickDocument('ownershipCertificate')}>
+              {ownershipCertificate ? (
+                <>
+                  <Image source={{ uri: ownershipCertificate.uri || ownershipCertificate }} style={styles.thumb} />
+                  <Text style={styles.docTileLabel}>Ownership certificate</Text>
+                  <View style={styles.docTileActions}>
+                    <TouchableOpacity style={styles.docActionButton} onPress={() => pickDocument('ownershipCertificate')}>
+                      <Text style={styles.docActionText}>Replace</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => setOwnershipCertificate(null)}>
+                      <Text style={styles.docActionTextRemove}>Remove</Text>
+                    </TouchableOpacity>
+                  </View>
+                </>
+              ) : (
+                <>
+                  <Text style={styles.docTileLabel}>Ownership certificate</Text>
+                  <TouchableOpacity style={[styles.optionPill, { marginTop: 8 }]} onPress={() => pickDocument('ownershipCertificate')}>
+                    <Text style={styles.optionText}>Upload</Text>
+                  </TouchableOpacity>
+                </>
+              )}
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.docTile, styles.docTileLast]} onPress={() => pickDocument('utilityBill')}>
+              {utilityBill ? (
+                <>
+                  <Image source={{ uri: utilityBill.uri || utilityBill }} style={styles.thumb} />
+                  <Text style={styles.docTileLabel}>Utility bill</Text>
+                  <View style={styles.docTileActions}>
+                    <TouchableOpacity style={styles.docActionButton} onPress={() => pickDocument('utilityBill')}>
+                      <Text style={styles.docActionText}>Replace</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => setUtilityBill(null)}>
+                      <Text style={styles.docActionTextRemove}>Remove</Text>
+                    </TouchableOpacity>
+                  </View>
+                </>
+              ) : (
+                <>
+                  <Text style={styles.docTileLabel}>Utility bill</Text>
+                  <TouchableOpacity style={[styles.optionPill, { marginTop: 8 }]} onPress={() => pickDocument('utilityBill')}>
+                    <Text style={styles.optionText}>Upload</Text>
+                  </TouchableOpacity>
+                </>
+              )}
+            </TouchableOpacity>
+          </View>
+          <Text style={styles.docSmallNote}>Use a recent utility bill in the owner's name (electricity/water) to prove residency/ownership.</Text>
+
+          
         </View>
 
         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
@@ -1145,8 +1196,9 @@ const AddListing = () => {
         </View>
 
         {isAgent && (
-          <>
-            <Text style={styles.label}>Agent ID (optional)</Text>
+          <View style={styles.agentCard}>
+            <Text style={styles.sectionTitle}>Agent details</Text>
+            <Text style={[styles.label, { marginTop: 6 }]}>Agent ID (optional)</Text>
             <TextInput
               style={[styles.input]}
               value={agentId}
@@ -1164,18 +1216,35 @@ const AddListing = () => {
               placeholderTextColor="#94a3b8"
               keyboardType={Platform.OS === 'web' ? 'default' : 'phone-pad'}
             />
-            
-            <Text style={styles.label}>Agent authorization letter (optional)</Text>
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-              <TouchableOpacity style={[styles.btn, { flex: 1, marginRight: 8 }]} onPress={() => pickDocument('agentAuthorizationLetter')}>
-                <Text style={styles.btnText}>{agentAuthorizationLetter ? 'Replace auth letter' : 'Upload auth letter'}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.btn, { flex: 1 }]} onPress={() => setAgentAuthorizationLetter(null)} disabled={!agentAuthorizationLetter}>
-                <Text style={[styles.btnText, !agentAuthorizationLetter && { opacity: 0.6 }]}>{agentAuthorizationLetter ? 'Remove' : 'Not attached'}</Text>
+
+            <Text style={[styles.label, { marginTop: 6 }]}>Agent authorization letter (optional)</Text>
+            <View style={styles.docRow}>
+              <TouchableOpacity style={styles.docTile} onPress={() => pickDocument('agentAuthorizationLetter')}>
+                {agentAuthorizationLetter ? (
+                  <>
+                    <Image source={{ uri: agentAuthorizationLetter.uri || agentAuthorizationLetter }} style={styles.thumb} />
+                    <Text style={styles.docTileLabel}>Authorization letter attached</Text>
+                    <View style={styles.docTileActions}>
+                      <TouchableOpacity style={styles.docActionButton} onPress={() => pickDocument('agentAuthorizationLetter')}>
+                        <Text style={styles.docActionText}>Replace</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={() => setAgentAuthorizationLetter(null)}>
+                        <Text style={styles.docActionTextRemove}>Remove</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </>
+                ) : (
+                  <>
+                    <Text style={styles.docTileLabel}>No authorization letter</Text>
+                    <TouchableOpacity style={[styles.btn, { marginTop: 8 }]} onPress={() => pickDocument('agentAuthorizationLetter')}>
+                      <Text style={styles.btnText}>Upload auth letter</Text>
+                    </TouchableOpacity>
+                  </>
+                )}
               </TouchableOpacity>
             </View>
-              <Text style={{ color: '#666', fontSize: 12, marginBottom: 8 }}>Agent: attach the owner's signed authorization letter if you're listing on behalf of the owner.</Text>
-          </>
+            <Text style={styles.docSmallNote}>Agent: attach the owner's signed authorization letter if you're listing on behalf of the owner.</Text>
+          </View>
         )}
 
         {/* Submit button */}
