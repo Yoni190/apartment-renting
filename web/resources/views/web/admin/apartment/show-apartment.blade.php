@@ -279,10 +279,15 @@
                                         <div class="verification-tile w-100">
                                         @if($mime && \Illuminate\Support\Str::startsWith($mime, 'image/'))
                                             <img src="{{ route('admin.apartments.verification.preview', $doc) }}" alt="{{ $label }}">
-                                        @elseif($mime === 'application/pdf')
-                                            <embed src="{{ route('admin.apartments.verification.preview', $doc) }}" type="application/pdf" width="100%" height="160" />
                                         @else
-                                            <div class="text-muted p-3">Preview not available.</div>
+                                            {{-- non-image: show file icon + filename --}}
+                                            <div class="file-icon">
+                                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                                    <path d="M14 2H6C4.89543 2 4 2.89543 4 4V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20V8L14 2Z" stroke="#6c757d" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                    <path d="M14 2V8H20" stroke="#6c757d" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                </svg>
+                                                <div class="file-meta text-muted small mt-2">{{ basename($doc->file_path ?? ($doc->path ?? 'document')) }}</div>
+                                            </div>
                                         @endif
                                         </div>
                                         <div class="mt-2 w-100 d-flex justify-content-between align-items-center">
@@ -300,10 +305,14 @@
                                         <div class="verification-tile w-100">
                                         @if($mime && \Illuminate\Support\Str::startsWith($mime, 'image/'))
                                             <img src="{{ $url }}" alt="{{ $label }}">
-                                        @elseif($mime === 'application/pdf')
-                                            <embed src="{{ $url }}" type="application/pdf" width="100%" height="160" />
                                         @else
-                                            <div class="text-muted p-3">Stored in meta.</div>
+                                            <div class="file-icon">
+                                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                                    <path d="M14 2H6C4.89543 2 4 2.89543 4 4V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20V8L14 2Z" stroke="#6c757d" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                    <path d="M14 2V8H20" stroke="#6c757d" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                </svg>
+                                                <div class="file-meta text-muted small mt-2">{{ basename($metaPath) }}</div>
+                                            </div>
                                         @endif
                                         </div>
                                         <div class="mt-2 w-100 d-flex justify-content-between align-items-center">
@@ -318,7 +327,13 @@
                                             $url = \Illuminate\Support\Str::startsWith($metaDocPath, ['http://','https://']) ? $metaDocPath : asset('storage/' . ltrim($metaDocPath, '/'));
                                         @endphp
                                         <div class="verification-tile w-100">
-                                            <div class="text-muted p-3">Stored in meta.</div>
+                                            <div class="file-icon">
+                                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                                    <path d="M14 2H6C4.89543 2 4 2.89543 4 4V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20V8L14 2Z" stroke="#6c757d" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                    <path d="M14 2V8H20" stroke="#6c757d" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                </svg>
+                                                <div class="file-meta text-muted small mt-2">{{ basename($metaDocPath) }}</div>
+                                            </div>
                                         </div>
                                         <div class="mt-2 w-100 d-flex justify-content-between align-items-center">
                                             <small class="text-muted">Stored in meta</small>
@@ -378,8 +393,11 @@
     .badge { font-size: 0.8rem; padding: 0.45em 0.6em; }
     /* Verification tile styling: fixed-height preview area with contained image/pdf */
     .verification-tile { height: 160px; display: flex; align-items: center; justify-content: center; background: #fff; border: 1px solid #e9ecef; border-radius: 6px; overflow: hidden; }
-    .verification-tile img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .verification-tile img { width: 100%; height: 100%; object-fit: contain; display: block; background: #f8f9fa; padding: 6px; }
     .verification-tile embed { width: 100%; height: 160px; }
+    .file-icon { display:flex; flex-direction:column; align-items:center; justify-content:center; color:#6c757d; }
+    .file-icon svg { opacity:0.9; }
+    .file-meta { max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 </style>
 @endpush
 

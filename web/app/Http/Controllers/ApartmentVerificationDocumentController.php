@@ -61,13 +61,19 @@ class ApartmentVerificationDocumentController extends Controller
     {
         abort_unless(Auth::guard('admin')->check(), 403);
 
-        // double-check the file exists
-        if (!Storage::disk('local')->exists($doc->file_path)) {
+        // Support files stored either on the local disk (storage/app/...) or the public disk (storage/app/public/...)
+        $disk = null;
+        if (Storage::disk('local')->exists($doc->file_path)) {
+            $disk = 'local';
+        } elseif (Storage::disk('public')->exists($doc->file_path)) {
+            $disk = 'public';
+        }
+
+        if (!$disk) {
             abort(404);
         }
 
-        // Use response()->streamDownload to avoid relying on Storage::download helper in all contexts
-        $stream = Storage::disk('local')->readStream($doc->file_path);
+        $stream = Storage::disk($disk)->readStream($doc->file_path);
         if ($stream === false) {
             abort(404);
         }
@@ -85,8 +91,11 @@ class ApartmentVerificationDocumentController extends Controller
     {
         abort_unless(Auth::guard('admin')->check(), 403);
 
+        // Delete from whichever disk the file lives on
         if (Storage::disk('local')->exists($doc->file_path)) {
             Storage::disk('local')->delete($doc->file_path);
+        } elseif (Storage::disk('public')->exists($doc->file_path)) {
+            Storage::disk('public')->delete($doc->file_path);
         }
 
         $doc->delete();
@@ -101,16 +110,22 @@ class ApartmentVerificationDocumentController extends Controller
     {
         abort_unless(Auth::guard('admin')->check(), 403);
 
-        if (!Storage::disk('local')->exists($doc->file_path)) {
+        // Try local then public disk
+        $fullPath = null;
+        $mime = null;
+
+        if (Storage::disk('local')->exists($doc->file_path)) {
+            $fullPath = storage_path('app/' . $doc->file_path);
+        } elseif (Storage::disk('public')->exists($doc->file_path)) {
+            // files stored via the public disk live under storage/app/public
+            $fullPath = storage_path('app/public/' . $doc->file_path);
+        }
+
+        if (!$fullPath || !file_exists($fullPath)) {
             abort(404);
         }
 
-        // Resolve absolute path within storage/app
-        $fullPath = storage_path('app/' . $doc->file_path);
-        $mime = null;
-        if (file_exists($fullPath)) {
-            $mime = @mime_content_type($fullPath) ?: 'application/octet-stream';
-        }
+        $mime = @mime_content_type($fullPath) ?: 'application/octet-stream';
 
         // For images and PDFs return inline display, otherwise force download
         $inlineTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
