@@ -1093,6 +1093,17 @@ const AddListing = () => {
           placeholderTextColor="#94a3b8"
         />
 
+        <Text style={styles.label}>Owner phone (optional)</Text>
+        <TextInput
+          style={[styles.input, focusedInput === 'ownerPhone' && styles.inputFocused]}
+          value={ownerPhoneNumber}
+          onChangeText={setOwnerPhoneNumber}
+          onFocus={() => { setFocusedInput('ownerPhone'); scrollToInput(null); }}
+          placeholder="e.g. +2519xxxxxxx"
+          placeholderTextColor="#94a3b8"
+          keyboardType={Platform.OS === 'web' ? 'default' : 'phone-pad'}
+        />
+
         <Text style={styles.label}>National ID (optional)</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
           <TouchableOpacity style={[styles.btn, { flex: 1, marginRight: 8 }]} onPress={() => pickDocument('nationalId')}>
@@ -1142,6 +1153,16 @@ const AddListing = () => {
               onChangeText={setAgentId}
               placeholder="Agent ID"
               placeholderTextColor="#94a3b8"
+            />
+
+            <Text style={styles.label}>Agent phone (optional)</Text>
+            <TextInput
+              style={[styles.input]}
+              value={agentPhone}
+              onChangeText={setAgentPhone}
+              placeholder="Agent phone"
+              placeholderTextColor="#94a3b8"
+              keyboardType={Platform.OS === 'web' ? 'default' : 'phone-pad'}
             />
             
             <Text style={styles.label}>Agent authorization letter (optional)</Text>
