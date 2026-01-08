@@ -57,6 +57,8 @@ Route::prefix('admin')->group(function () {
         Route::get('/apartments/{apartment}/view', [ApartmentController::class, 'show'])->name('admin.apartments.show');
         // Preview verification document (admin only, inline preview)
         Route::get('/apartments/verification-docs/{doc}/preview', [ApartmentVerificationDocumentController::class, 'preview'])->name('admin.apartments.verification.preview');
+            // Preview meta-stored files by path (admin only)
+            Route::get('/apartments/{apartment}/verification-preview', [ApartmentVerificationDocumentController::class, 'previewMeta'])->name('admin.apartments.verification.preview_meta');
     Route::post('/apartments/{apartment}/approve', [ApartmentController::class, 'approve'])->name('admin.apartments.approve');
     Route::post('/apartments/{apartment}/reject', [ApartmentController::class, 'reject'])->name('admin.apartments.reject');
     Route::post('/apartments/{apartment}/request-more-info', [ApartmentController::class, 'requestMoreInfo'])->name('admin.apartments.requestMoreInfo');
@@ -69,6 +71,7 @@ Route::prefix('admin')->group(function () {
     Route::get('/apartment/{apartment}/verification-docs', [ApartmentVerificationDocumentController::class, 'index'])->name('admin.apartments.verification.index');
     Route::post('/apartment/{apartment}/verification-docs', [ApartmentVerificationDocumentController::class, 'store'])->name('admin.apartments.verification.store');
     Route::get('/apartments/verification-docs/{doc}/download', [ApartmentVerificationDocumentController::class, 'download'])->name('admin.apartments.verification.download');
+    Route::get('/apartments/{apartment}/verification-download', [ApartmentVerificationDocumentController::class, 'downloadMeta'])->name('admin.apartments.verification.download_meta');
     Route::delete('/apartments/verification-docs/{doc}', [ApartmentVerificationDocumentController::class, 'destroy'])->name('admin.apartments.verification.destroy');
         Route::get('/settings', [AdminController::class, 'settings'])->name('admin.settings');
         Route::post('/save-settings', [SettingController::class, 'saveAPI'])->name('admin.settings.save');

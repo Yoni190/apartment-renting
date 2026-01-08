@@ -137,4 +137,64 @@ class ApartmentVerificationDocumentController extends Controller
         // Fallback to download for other types
         return response()->download($fullPath, basename($doc->file_path));
     }
+
+    /**
+     * Preview a file path stored in meta (admin only).
+     * Path is provided via query param 'p' (base64 encoded) to avoid exposing raw paths.
+     */
+    public function previewMeta(Apartment $apartment, Request $request)
+    {
+        abort_unless(Auth::guard('admin')->check(), 403);
+
+        $b64 = $request->query('p');
+        if (empty($b64)) abort(404);
+
+        $path = base64_decode($b64);
+        if ($path === false) abort(404);
+
+        // Basic sanitization: disallow traversal
+        if (strpos($path, '..') !== false) abort(403);
+
+        // Try public then local
+        $fullPath = null;
+        if (Storage::disk('public')->exists($path)) {
+            $fullPath = storage_path('app/public/' . $path);
+        } elseif (Storage::disk('local')->exists($path)) {
+            $fullPath = storage_path('app/' . $path);
+        }
+
+        if (!$fullPath || !file_exists($fullPath)) abort(404);
+
+        $mime = @mime_content_type($fullPath) ?: 'application/octet-stream';
+        $inlineTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
+        if (in_array($mime, $inlineTypes)) {
+            return response()->file($fullPath, ['Content-Type' => $mime]);
+        }
+
+        return response()->download($fullPath, basename($path));
+    }
+
+    /**
+     * Download a meta-stored path (admin only).
+     */
+    public function downloadMeta(Apartment $apartment, Request $request)
+    {
+        abort_unless(Auth::guard('admin')->check(), 403);
+
+        $b64 = $request->query('p');
+        if (empty($b64)) abort(404);
+        $path = base64_decode($b64);
+        if ($path === false) abort(404);
+        if (strpos($path, '..') !== false) abort(403);
+
+        if (Storage::disk('public')->exists($path)) {
+            $fullPath = storage_path('app/public/' . $path);
+        } elseif (Storage::disk('local')->exists($path)) {
+            $fullPath = storage_path('app/' . $path);
+        } else {
+            abort(404);
+        }
+
+        return response()->download($fullPath, basename($path));
+    }
 }

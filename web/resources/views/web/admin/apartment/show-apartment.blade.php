@@ -9,6 +9,65 @@
     </div>
 </div>
 
+{{-- Ensure global helper exists early so inline onclick handlers always work --}}
+<script>
+    window.openVerificationLightbox = function(src, alt) {
+        try {
+            var lightbox = document.getElementById('verificationLightbox');
+            var lightboxImg = document.getElementById('verificationLightboxImg');
+            if (!lightbox || !lightboxImg) return;
+
+            function show(url) {
+                lightboxImg.src = url || '';
+                lightboxImg.alt = alt || 'Preview';
+                lightbox.classList.add('active');
+                lightbox.setAttribute('aria-hidden', 'false');
+                lightbox.querySelector('.inner').focus();
+                lightboxImg.classList.remove('zoomed');
+            }
+
+            // Probe the URL first to detect tracking-prevention blocking
+            var probe = new Image();
+            probe.crossOrigin = 'anonymous';
+            probe.onload = function() { show(src); };
+            probe.onerror = function() {
+                // Try fetching the resource via same-origin fetch and create a blob URL
+                fetch(src, { credentials: 'same-origin' }).then(function(res) {
+                    if (!res.ok) throw new Error('fetch failed');
+                    return res.blob();
+                }).then(function(blob) {
+                    var blobUrl = URL.createObjectURL(blob);
+                    show(blobUrl);
+                }).catch(function(err) {
+                    console.error('verification preview failed', err);
+                    // last-resort: still attempt to show the original src
+                    show(src);
+                });
+            };
+            probe.src = src;
+        } catch (e) {
+            console.error('openVerificationLightbox error', e);
+        }
+    };
+    // global close helper
+    window.closeVerificationLightbox = function() {
+        try {
+            var lightbox = document.getElementById('verificationLightbox');
+            var lightboxImg = document.getElementById('verificationLightboxImg');
+            if (!lightbox || !lightboxImg) return;
+            lightbox.classList.remove('active');
+            lightbox.setAttribute('aria-hidden', 'true');
+            if (lightboxImg.src && lightboxImg.src.startsWith('blob:')) {
+                try { URL.revokeObjectURL(lightboxImg.src); } catch(e) {}
+            }
+            lightboxImg.src = '';
+            lightboxImg.alt = '';
+        } catch (e) {
+            console.error('closeVerificationLightbox error', e);
+        }
+    };
+</script>
+
 <div class="row justify-content-center">
     <div class="col-md-10">
         <div class="card mb-3">
@@ -107,7 +166,7 @@
                             <li>{{ $dayLabel }}: {{ $oh->start_time ?? $oh->from_time ?? '—' }} - {{ $oh->end_time ?? $oh->to_time ?? '—' }}</li>
                         @endforeach
                     </ul>
-                @else
+ 
                     <div class="text-muted">Not open for tour</div>
                 @endif
 
@@ -115,6 +174,147 @@
                 <h5 class="card-title">Bookings</h5>
                 @if($apartment->bookings && $apartment->bookings->count())
                     <table class="table table-sm">
+
+                    @push('scripts')
+                    <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const lightbox = document.getElementById('verificationLightbox');
+                        const inner = lightbox.querySelector('.inner');
+                        const lightboxImg = document.getElementById('verificationLightboxImg');
+                        const closeBtn = lightbox.querySelector('.close-btn');
+
+                        let scale = 1;
+                        let translate = { x: 0, y: 0 };
+                        let isDragging = false;
+                        let dragStart = { x: 0, y: 0 };
+                        let prevTranslate = { x: 0, y: 0 };
+
+                        function applyTransform() {
+                            lightboxImg.style.transform = `translate(${translate.x}px, ${translate.y}px) scale(${scale})`;
+                        }
+
+                        function resetTransform() {
+                            scale = 1;
+                            translate = { x: 0, y: 0 };
+                            prevTranslate = { x: 0, y: 0 };
+                            lightboxImg.style.transform = '';
+                            lightboxImg.style.cursor = '';
+                            inner.style.overflow = 'auto';
+                        }
+
+                        function openLightbox(src, alt) {
+                            resetTransform();
+                            lightboxImg.src = src;
+                            lightboxImg.alt = alt || 'Preview';
+                            lightbox.classList.add('active');
+                            lightbox.setAttribute('aria-hidden', 'false');
+                            inner.focus();
+                        }
+
+                        function closeLightbox() {
+                            lightbox.classList.remove('active');
+                            lightbox.setAttribute('aria-hidden', 'true');
+                            // revoke any object URL created previously
+                            try { if (lightboxImg.src && lightboxImg.src.startsWith('blob:')) URL.revokeObjectURL(lightboxImg.src); } catch(e){}
+                            lightboxImg.src = '';
+                            lightboxImg.alt = '';
+                            resetTransform();
+                        }
+
+                        // toggle zoom: single click toggles between 1 and 2
+                        function toggleZoom() {
+                            if (scale === 1) {
+                                scale = 2;
+                                inner.style.overflow = 'hidden';
+                                lightboxImg.style.cursor = 'grab';
+                            } else {
+                                resetTransform();
+                            }
+                            applyTransform();
+                        }
+
+                        // pointer / mouse handlers for panning when zoomed
+                        lightboxImg.addEventListener('mousedown', function(e) {
+                            if (scale <= 1) return;
+                            isDragging = true;
+                            dragStart = { x: e.clientX, y: e.clientY };
+                            prevTranslate = { x: translate.x, y: translate.y };
+                            lightboxImg.style.cursor = 'grabbing';
+                            e.preventDefault();
+                        });
+
+                        document.addEventListener('mousemove', function(e) {
+                            if (!isDragging) return;
+                            const dx = e.clientX - dragStart.x;
+                            const dy = e.clientY - dragStart.y;
+                            translate.x = prevTranslate.x + dx;
+                            translate.y = prevTranslate.y + dy;
+                            applyTransform();
+                        });
+
+                        document.addEventListener('mouseup', function() {
+                            if (!isDragging) return;
+                            isDragging = false;
+                            lightboxImg.style.cursor = 'grab';
+                        });
+
+                        // touch events for mobile panning
+                        lightboxImg.addEventListener('touchstart', function(e) {
+                            if (scale <= 1) return;
+                            if (e.touches.length === 1) {
+                                isDragging = true;
+                                dragStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                                prevTranslate = { x: translate.x, y: translate.y };
+                            }
+                        }, { passive: true });
+
+                        lightboxImg.addEventListener('touchmove', function(e) {
+                            if (!isDragging || e.touches.length !== 1) return;
+                            const dx = e.touches[0].clientX - dragStart.x;
+                            const dy = e.touches[0].clientY - dragStart.y;
+                            translate.x = prevTranslate.x + dx;
+                            translate.y = prevTranslate.y + dy;
+                            applyTransform();
+                            e.preventDefault();
+                        }, { passive: false });
+
+                        lightboxImg.addEventListener('touchend', function(e) {
+                            isDragging = false;
+                        });
+
+                        // click handlers
+                        document.querySelectorAll('img.verification-preview-img').forEach(img => {
+                            img.style.cursor = 'zoom-in';
+                            img.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                const src = this.src;
+                                const alt = this.alt || '';
+                                openLightbox(src, alt);
+                            });
+                        });
+
+                        // overlay and close button
+                        lightbox.addEventListener('click', function(e) {
+                            if (e.target === lightbox) closeLightbox();
+                        });
+                        closeBtn.addEventListener('click', function(e) { e.stopPropagation(); closeLightbox(); });
+
+                        // image click toggles zoom
+                        lightboxImg.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            // If clicking after dragging, ignore (to avoid immediate toggle)
+                            if (isDragging) return;
+                            toggleZoom();
+                        });
+
+                        // ESC to close
+                        document.addEventListener('keydown', function(e) {
+                            if (e.key === 'Escape' && lightbox.classList.contains('active')) closeLightbox();
+                        });
+                    });
+                    </script>
+                    @endpush
                         <thead>
                             <tr><th>ID</th><th>Client</th><th>Scheduled At</th><th>Status</th></tr>
                         </thead>
@@ -278,7 +478,7 @@
                                         @php $doc = $docEntry['model']; $mime = $docEntry['mime'] ?? null; @endphp
                                         <div class="verification-tile w-100">
                                         @if($mime && \Illuminate\Support\Str::startsWith($mime, 'image/'))
-                                            <img src="{{ route('admin.apartments.verification.preview', $doc) }}" alt="{{ $label }}">
+                                            <img class="verification-preview-img" src="{{ route('admin.apartments.verification.preview', $doc) }}" alt="{{ $label }}" onclick="openVerificationLightbox(this.src, this.alt)">
                                         @else
                                             {{-- non-image: show file icon + filename --}}
                                             <div class="file-icon">
@@ -299,12 +499,15 @@
                                     @elseif($docEntry && !empty($docEntry['meta_path']))
                                         @php
                                             $metaPath = $docEntry['meta_path'];
-                                            $url = \Illuminate\Support\Str::startsWith($metaPath, ['http://','https://']) ? $metaPath : asset('storage/' . ltrim($metaPath, '/'));
+                                            // use controller proxy routes to avoid direct storage URLs being blocked
+                                            $b64 = base64_encode($metaPath);
+                                            $previewUrl = route('admin.apartments.verification.preview_meta', $apartment) . '?p=' . urlencode($b64);
+                                            $downloadUrl = route('admin.apartments.verification.download_meta', $apartment) . '?p=' . urlencode($b64);
                                             $mime = $docEntry['mime'] ?? null;
                                         @endphp
                                         <div class="verification-tile w-100">
                                         @if($mime && \Illuminate\Support\Str::startsWith($mime, 'image/'))
-                                            <img src="{{ $url }}" alt="{{ $label }}">
+                                            <img class="verification-preview-img" src="{{ $previewUrl }}" alt="{{ $label }}" onclick="openVerificationLightbox(this.src, this.alt)">
                                         @else
                                             <div class="file-icon">
                                                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -318,13 +521,16 @@
                                         <div class="mt-2 w-100 d-flex justify-content-between align-items-center">
                                             <small class="text-muted">Stored in meta</small>
                                             <div>
-                                                <a href="{{ $url }}" download class="btn btn-sm btn-outline-secondary">Download</a>
+                                                <a href="{{ $downloadUrl }}" class="btn btn-sm btn-outline-secondary">Download</a>
                                             </div>
                                         </div>
                                     @elseif($metaDocPath)
                                         @php
                                             // if metaDocPath is a storage path or URL (older fallback)
-                                            $url = \Illuminate\Support\Str::startsWith($metaDocPath, ['http://','https://']) ? $metaDocPath : asset('storage/' . ltrim($metaDocPath, '/'));
+                                            $url = \Illuminate\Support\Str::startsWith($metaDocPath, ['http://','https://']) ? $metaDocPath : null;
+                                            $b64 = $url ? base64_encode($metaDocPath) : null;
+                                            $previewUrl = $b64 ? route('admin.apartments.verification.preview_meta', $apartment) . '?p=' . urlencode($b64) : null;
+                                            $downloadUrl = $b64 ? route('admin.apartments.verification.download_meta', $apartment) . '?p=' . urlencode($b64) : ($url ?? null);
                                         @endphp
                                         <div class="verification-tile w-100">
                                             <div class="file-icon">
@@ -338,7 +544,11 @@
                                         <div class="mt-2 w-100 d-flex justify-content-between align-items-center">
                                             <small class="text-muted">Stored in meta</small>
                                             <div>
-                                                <a href="{{ $url }}" download class="btn btn-sm btn-outline-secondary">Download</a>
+                                                @if($downloadUrl)
+                                                    <a href="{{ $downloadUrl }}" class="btn btn-sm btn-outline-secondary">Download</a>
+                                                @else
+                                                    <span class="text-muted small">No file</span>
+                                                @endif
                                             </div>
                                         </div>
                                     @else
@@ -383,6 +593,14 @@
     </div>
 </div>
 
+<!-- Verification lightbox -->
+<div id="verificationLightbox" class="verification-lightbox" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="inner" tabindex="-1">
+    <button class="close-btn" aria-label="Close preview" onclick="closeVerificationLightbox()?false:void(0)">✕</button>
+        <img id="verificationLightboxImg" src="" alt="Preview">
+    </div>
+</div>
+
 @endsection
 
 @push('styles')
@@ -398,6 +616,13 @@
     .file-icon { display:flex; flex-direction:column; align-items:center; justify-content:center; color:#6c757d; }
     .file-icon svg { opacity:0.9; }
     .file-meta { max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    /* Lightbox / full-screen preview */
+    .verification-lightbox { position:fixed; inset:0; background:rgba(0,0,0,0.8); display:none; align-items:center; justify-content:center; z-index:1200; }
+    .verification-lightbox.active { display:flex; }
+    .verification-lightbox .inner { position:relative; max-width:96vw; max-height:96vh; overflow:auto; display:flex; align-items:center; justify-content:center; }
+    .verification-lightbox .inner img { max-width:100%; max-height:100%; display:block; }
+    .verification-lightbox .close-btn { position:absolute; top:8px; right:8px; background:rgba(255,255,255,0.9); border:none; border-radius:4px; padding:6px 8px; cursor:pointer; }
+    .verification-lightbox .inner img.zoomed { transform:scale(2); cursor:zoom-out; }
 </style>
 @endpush
 
