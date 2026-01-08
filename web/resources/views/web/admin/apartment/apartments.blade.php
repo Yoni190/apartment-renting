@@ -348,6 +348,14 @@
                                     </form>
 
                                     {{-- Edit apartment --}}
+                                    {{-- View apartment details --}}
+                                    <form action="{{ route('admin.apartments.show', $apartment) }}" method="GET">
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="View Details">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </form>
+
+                                    {{-- Edit apartment --}}
                                     <form action="{{ route('admin.apartments.edit', $apartment) }}" method="GET">
                                         <button type="submit" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Apartment">
                                             <i class="bi bi-pen"></i>

@@ -33,7 +33,8 @@ class ApartmentVerificationDocumentController extends Controller
         abort_unless(Auth::guard('admin')->check(), 403);
 
         $request->validate([
-            'document_type' => 'required|in:ownership_certificate,utility_bill,authorization_letter,agent_id,national_id',
+            // align allowed types with application naming
+            'document_type' => 'required|in:ownership_certificate,utility_bill,rental_authorization_letter,agent_authorization_letter,national_id',
             'file' => 'required|file|max:51200', // max 50MB - adjustable
         ]);
 
@@ -91,5 +92,34 @@ class ApartmentVerificationDocumentController extends Controller
         $doc->delete();
 
         return redirect()->back()->with('message', 'Verification document deleted');
+    }
+
+    /**
+     * Preview a verification document inline (images/PDF) for admin review.
+     */
+    public function preview(ApartmentVerificationDocument $doc)
+    {
+        abort_unless(Auth::guard('admin')->check(), 403);
+
+        if (!Storage::disk('local')->exists($doc->file_path)) {
+            abort(404);
+        }
+
+        // Resolve absolute path within storage/app
+        $fullPath = storage_path('app/' . $doc->file_path);
+        $mime = null;
+        if (file_exists($fullPath)) {
+            $mime = @mime_content_type($fullPath) ?: 'application/octet-stream';
+        }
+
+        // For images and PDFs return inline display, otherwise force download
+        $inlineTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
+
+        if (in_array($mime, $inlineTypes)) {
+            return response()->file($fullPath, ['Content-Type' => $mime]);
+        }
+
+        // Fallback to download for other types
+        return response()->download($fullPath, basename($doc->file_path));
     }
 }

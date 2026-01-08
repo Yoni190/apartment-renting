@@ -175,6 +175,67 @@
                             placeholder="Write a short description about the apartment..."
                         >{{ $apartment->description }}</textarea>
                     </div>
+
+                    <!-- Verification fields -->
+                    <div class="col-md-12 mt-3">
+                        <h5 class="mb-2">Verification & Identity</h5>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Owner full name</label>
+                                <input type="text" name="owner_name" class="form-control" value="{{ is_array($apartment->meta) ? ($apartment->meta['owner_name'] ?? '') : '' }}" placeholder="Owner full name">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Owner phone</label>
+                                <input type="text" name="owner_phone" class="form-control" value="{{ is_array($apartment->meta) ? ($apartment->meta['owner_phone'] ?? '') : '' }}" placeholder="e.g. +2519xxxxxxx">
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-check form-switch mt-2">
+                                    <input class="form-check-input" type="checkbox" id="isAgent" name="is_agent" {{ (is_array($apartment->meta) && !empty($apartment->meta['is_agent'])) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="isAgent">Posting as agent?</label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12">
+                                <label class="form-label fw-semibold">Verification documents</label>
+                                <div class="row g-3">
+                                    @php
+                                        $expected = [
+                                            'national_id' => 'National ID',
+                                            'ownership_certificate' => 'Ownership certificate',
+                                            'utility_bill' => 'Utility bill',
+                                            'rental_authorization_letter' => 'Rental authorization letter',
+                                            'agent_authorization_letter' => 'Agent authorization letter',
+                                        ];
+                                    @endphp
+                                    @foreach($expected as $field => $label)
+                                        <div class="col-md-4">
+                                            <div class="border rounded p-2 h-100">
+                                                <strong>{{ $label }}</strong>
+                                                <div class="mt-2">
+                                                    @if(isset($docsByType) && !empty($docsByType[$field]))
+                                                        @php $docEntry = $docsByType[$field]; $doc = $docEntry['model']; $mime = $docEntry['mime'] ?? null; @endphp
+                                                        @if($mime && \Illuminate\Support\Str::startsWith($mime, 'image/'))
+                                                            <img src="{{ route('admin.apartments.verification.preview', $doc) }}" alt="{{ $label }}" style="width:100%; height:120px; object-fit:cover; border-radius:6px;">
+                                                        @elseif($mime === 'application/pdf')
+                                                            <div class="small text-muted">PDF uploaded - <a href="{{ route('admin.apartments.verification.download', $doc) }}">Download</a></div>
+                                                        @else
+                                                            <div class="small text-muted">File uploaded - <a href="{{ route('admin.apartments.verification.download', $doc) }}">Download</a></div>
+                                                        @endif
+                                                    @else
+                                                        <div class="text-muted">Not provided</div>
+                                                    @endif
+                                                </div>
+                                                <div class="mt-2">
+                                                    <input type="file" name="{{ $field }}" class="form-control" />
+                                                    <small class="text-muted">Choose file to replace / add</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="mt-4 text-end">

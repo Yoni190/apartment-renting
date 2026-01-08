@@ -53,6 +53,10 @@ Route::prefix('admin')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
         Route::get('/users', [UserController::class, 'index'])->name('admin.users');
         Route::get('/apartments', [ApartmentController::class, 'index'])->name('admin.apartments');
+        // Show single apartment details (admin view)
+        Route::get('/apartments/{apartment}/view', [ApartmentController::class, 'show'])->name('admin.apartments.show');
+        // Preview verification document (admin only, inline preview)
+        Route::get('/apartments/verification-docs/{doc}/preview', [ApartmentVerificationDocumentController::class, 'preview'])->name('admin.apartments.verification.preview');
     Route::post('/apartments/{apartment}/approve', [ApartmentController::class, 'approve'])->name('admin.apartments.approve');
     Route::post('/apartments/{apartment}/reject', [ApartmentController::class, 'reject'])->name('admin.apartments.reject');
     Route::post('/apartments/{apartment}/request-more-info', [ApartmentController::class, 'requestMoreInfo'])->name('admin.apartments.requestMoreInfo');

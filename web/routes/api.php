@@ -263,6 +263,40 @@ Route::middleware('auth:sanctum')->post('/apartments', function (Request $reques
         }
     }
 
+    // Handle optionally uploaded verification documents (owner uploads via mobile/web)
+    $verificationFields = ['national_id','ownership_certificate','utility_bill','rental_authorization_letter','agent_authorization_letter'];
+    // Ensure meta has verification sub-structure
+    $meta = is_array($apartment->meta) ? $apartment->meta : (array) ($apartment->meta ?? []);
+    $meta['verification'] = $meta['verification'] ?? [];
+    // prefer explicit owner fields from request, else fall back to meta values
+    $meta['verification']['full_name'] = $request->input('owner_name') ?? ($meta['owner_name'] ?? ($meta['verification']['full_name'] ?? null));
+    if ($request->filled('owner_email')) $meta['verification']['email'] = $request->input('owner_email');
+    $meta['verification']['is_agent'] = $request->filled('is_agent') ? true : ($meta['is_agent'] ?? ($meta['verification']['is_agent'] ?? false));
+    if ($request->filled('agent_id')) $meta['verification']['agent_id'] = $request->input('agent_id');
+    if ($request->filled('agent_phone')) $meta['verification']['agent_phone'] = $request->input('agent_phone');
+
+    foreach ($verificationFields as $field) {
+        if ($request->hasFile($field)) {
+            $file = $request->file($field);
+            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            // store in public disk so legacy meta paths like verification/... remain accessible via storage
+            $path = $file->storeAs('verification', $filename, 'public');
+
+            // create DB record for the verification document
+            \App\Models\ApartmentVerificationDocument::create([
+                'apartment_id' => $apartment->id,
+                'document_type' => $field,
+                'file_path' => $path,
+            ]);
+
+            // persist into meta.verification.documents for backward compatibility
+            $meta['verification']['documents'] = $meta['verification']['documents'] ?? [];
+            $meta['verification']['documents'][$field] = $path;
+            $apartment->meta = $meta;
+            $apartment->save();
+        }
+    }
+
     // If owner provided open_for_tour metadata, create listing_open_hours entries.
     // Expected shape: open_for_tour: { date_from, date_to, time_from, time_to }
     if (!empty($meta['open_for_tour'])) {
