@@ -32,6 +32,16 @@ const MIN_STAYS = ['1 month', '3 months', '6 months', '12 months']
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8000'
 
+const normalizeUri = (uri) => {
+  if (!uri) return null
+  // Web can use the uri directly. On native, ensure file paths start with file://
+  if (Platform.OS !== 'web') {
+    if (uri.startsWith('/')) return `file://${uri}`
+    return uri
+  }
+  return uri
+}
+
 const AddListing = () => {
   const navigation = useNavigation()
   const scrollRef = useRef(null)
@@ -140,6 +150,14 @@ const AddListing = () => {
   const [agentId, setAgentId] = useState('')
   const [agentPhone, setAgentPhone] = useState('')
   const [agentAuthorizationLetter, setAgentAuthorizationLetter] = useState(null)
+  // preview URIs for existing stored documents (do not overwrite unless replaced)
+  const [nationalIdPreview, setNationalIdPreview] = useState(null)
+  const [ownershipCertificatePreview, setOwnershipCertificatePreview] = useState(null)
+  const [utilityBillPreview, setUtilityBillPreview] = useState(null)
+  const [agentAuthorizationPreview, setAgentAuthorizationPreview] = useState(null)
+  const [verificationPrevious, setVerificationPrevious] = useState(null)
+  const [previewVisible, setPreviewVisible] = useState(false)
+  const [previewUri, setPreviewUri] = useState(null)
 
   useEffect(() => {
     // init amenities map
@@ -268,6 +286,31 @@ const AddListing = () => {
           }).filter(Boolean)
           setImages(imageUris)
         }
+        // Load verification snapshot and current verification fields. Prefer the
+        // preserved one-time snapshot (`previous`) so the edit form reflects the
+        // initial values unless the owner explicitly changes them.
+        try {
+          const prev = (m && m.verification && m.verification.previous) ? m.verification.previous : null
+          if (prev) setVerificationPrevious(prev)
+          const currentVerification = m.verification || {}
+          // Prefer previous snapshot values when present
+          setOwnerFullName((prev && prev.full_name) ? prev.full_name : (currentVerification.full_name || apt.owner_name || ''))
+          setOwnerPhoneNumber((prev && (prev.owner_phone !== undefined && prev.owner_phone !== null)) ? String(prev.owner_phone) : (currentVerification.owner_phone || apt.owner_phone || ''))
+          // Preserve initial is_agent: if previous snapshot says false/0, keep false
+          const prevIsAgent = prev && (prev.is_agent !== undefined && prev.is_agent !== null) ? (prev.is_agent === 1 || prev.is_agent === true) : null
+          const currentIsAgent = (currentVerification.is_agent !== undefined && currentVerification.is_agent !== null) ? (currentVerification.is_agent === 1 || currentVerification.is_agent === true) : (apt.is_agent === 1 || apt.is_agent === true)
+          setIsAgent(prevIsAgent === null ? Boolean(currentIsAgent) : Boolean(prevIsAgent))
+          setAgentId((prev && prev.agent_id) ? prev.agent_id : (currentVerification.agent_id || apt.agent_id || ''))
+          setAgentPhone((prev && prev.agent_phone) ? prev.agent_phone : (currentVerification.agent_phone || apt.agent_phone || ''))
+          const docs = (m.verification && m.verification.documents) ? m.verification.documents : {}
+          if (docs.national_id) setNationalIdPreview(`${API_URL}/storage/${docs.national_id}`)
+          if (docs.ownership_certificate) setOwnershipCertificatePreview(`${API_URL}/storage/${docs.ownership_certificate}`)
+          if (docs.utility_bill) setUtilityBillPreview(`${API_URL}/storage/${docs.utility_bill}`)
+          if (docs.agent_authorization_letter) setAgentAuthorizationPreview(`${API_URL}/storage/${docs.agent_authorization_letter}`)
+          if (docs.rental_authorization_letter) setAgentAuthorizationPreview(`${API_URL}/storage/${docs.rental_authorization_letter}`)
+        } catch (e) {
+          // ignore preview failures
+        }
       } catch (e) {
         console.warn('Failed to load listing for edit', e.message)
       }
@@ -369,6 +412,51 @@ const AddListing = () => {
       const ext = match ? match[1] : 'jpg'
       const fileObj = { uri: pickedUri, name: filename || `doc.${ext}`, type: `image/${ext === 'jpg' ? 'jpeg' : ext}` }
 
+  // If editing an existing listing, upload immediately to the API so the
+      // server stores the new document and we update the preview path.
+      if (isEditMode && listingId) {
+        try {
+          const token = await SecureStore.getItemAsync('token')
+          if (!token) throw new Error('Not authenticated')
+          const fd = new FormData()
+          const docType = (type === 'nationalId' ? 'national_id' : (type === 'ownershipCertificate' ? 'ownership_certificate' : (type === 'utilityBill' ? 'utility_bill' : (type === 'rentalAuthorizationLetter' ? 'rental_authorization_letter' : 'agent_authorization_letter'))))
+          fd.append('document_type', docType)
+          fd.append('file', fileObj)
+          const res = await axios.post(`${API_URL}/apartments/${listingId}/verification-docs`, fd, { headers: { 'Content-Type': 'multipart/form-data', Accept: 'application/json', Authorization: `Bearer ${token}` } })
+          const path = res.data.path
+          const previewUri = `${API_URL}/storage/${path}`
+          switch (type) {
+            case 'nationalId':
+              setNationalIdPreview(previewUri)
+              setNationalIdImage(null)
+              break
+            case 'ownershipCertificate':
+              setOwnershipCertificatePreview(previewUri)
+              setOwnershipCertificate(null)
+              break
+            case 'utilityBill':
+              setUtilityBillPreview(previewUri)
+              setUtilityBill(null)
+              break
+            case 'rentalAuthorizationLetter':
+              setAgentAuthorizationPreview(previewUri)
+              setRentalAuthorizationLetter(null)
+              break
+            case 'agentAuthorizationLetter':
+              setAgentAuthorizationPreview(previewUri)
+              setAgentAuthorizationLetter(null)
+              break
+            default:
+              break
+          }
+        } catch (err) {
+          console.log('Upload verification doc failed', err)
+          Alert.alert('Upload failed', 'Could not upload document. Please try again.')
+        }
+        return
+      }
+
+      // Create flow: keep file object for form submission
       switch (type) {
         case 'nationalId':
           setNationalIdImage(fileObj)
@@ -390,6 +478,56 @@ const AddListing = () => {
       }
     } catch (err) {
       console.log('Document picker error', err)
+    }
+  }
+
+  const openPreview = (uri) => {
+    const u = normalizeUri(uri)
+    if (!u) return
+    setPreviewUri(u)
+    setPreviewVisible(true)
+  }
+
+  const closePreview = () => {
+    setPreviewVisible(false)
+    setPreviewUri(null)
+  }
+
+  // Delete a verification document (owner edit flow)
+  const deleteVerificationDoc = async (documentType) => {
+    if (!listingId) return
+    try {
+      const token = await SecureStore.getItemAsync('token')
+      if (!token) throw new Error('Not authenticated')
+      await axios.delete(`${API_URL}/apartments/${listingId}/verification-docs`, { data: { document_type: documentType }, headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } })
+      // clear corresponding preview state
+      switch (documentType) {
+        case 'national_id':
+          setNationalIdPreview(null)
+          setNationalIdImage(null)
+          break
+        case 'ownership_certificate':
+          setOwnershipCertificatePreview(null)
+          setOwnershipCertificate(null)
+          break
+        case 'utility_bill':
+          setUtilityBillPreview(null)
+          setUtilityBill(null)
+          break
+        case 'agent_authorization_letter':
+          setAgentAuthorizationPreview(null)
+          setAgentAuthorizationLetter(null)
+          break
+        case 'rental_authorization_letter':
+          setAgentAuthorizationPreview(null)
+          setRentalAuthorizationLetter(null)
+          break
+        default:
+          break
+      }
+    } catch (err) {
+      console.log('Delete verification doc failed', err)
+      Alert.alert('Delete failed', 'Could not delete document. Please try again.')
     }
   }
 
@@ -1108,27 +1246,42 @@ const AddListing = () => {
           <Text style={[styles.label, { marginTop: 6 }]}>National ID (optional)</Text>
           <View style={styles.docRow}>
             <TouchableOpacity style={styles.docTile} onPress={() => pickDocument('nationalId')}>
-              {nationalIdImage ? (
-                <>
-                  <Image source={{ uri: nationalIdImage.uri || nationalIdImage }} style={styles.thumb} />
-                  <Text style={styles.docTileLabel}>National ID attached</Text>
-                  <View style={[styles.docTileActions, { justifyContent: 'space-between' }]}>
-                    <TouchableOpacity style={styles.docActionButton} onPress={() => pickDocument('nationalId')}>
-                      <Text style={styles.docActionText}>Replace</Text>
+                {(nationalIdImage || nationalIdPreview) ? (
+                  <>
+                    <TouchableOpacity onPress={() => openPreview((nationalIdImage && (nationalIdImage.uri || nationalIdImage)) || nationalIdPreview)} activeOpacity={0.9}>
+                      {
+                        (() => {
+                          const raw = (nationalIdImage && (nationalIdImage.uri || nationalIdImage)) || nationalIdPreview
+                          const src = normalizeUri(raw)
+                          return src ? (
+                            <Image source={{ uri: src }} style={styles.thumb} resizeMode="cover" />
+                          ) : (
+                            <Image source={require('../../assets/apartment_dummy.jpeg')} style={styles.thumb} />
+                          )
+                        })()
+                      }
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => setNationalIdImage(null)}>
-                      <Text style={styles.docActionTextRemove}>Remove</Text>
+                    <Text style={styles.docTileLabel}>National ID attached</Text>
+                    <View style={[styles.docTileActions, { justifyContent: 'space-between' }]}>
+                      <TouchableOpacity style={styles.docActionButton} onPress={() => pickDocument('nationalId')}>
+                        <Text style={styles.docActionText}>Replace</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={() => {
+                        if (nationalIdPreview) deleteVerificationDoc('national_id')
+                        else setNationalIdImage(null)
+                      }}>
+                        <Text style={styles.docActionTextRemove}>Remove</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </>
+                ) : (
+                  <>
+                    <Text style={styles.docTileLabel}>No ID attached</Text>
+                    <TouchableOpacity style={[styles.btn, { marginTop: 8 }]} onPress={() => pickDocument('nationalId')}>
+                      <Text style={styles.btnText}>Upload national ID</Text>
                     </TouchableOpacity>
-                  </View>
-                </>
-              ) : (
-                <>
-                  <Text style={styles.docTileLabel}>No ID attached</Text>
-                  <TouchableOpacity style={[styles.btn, { marginTop: 8 }]} onPress={() => pickDocument('nationalId')}>
-                    <Text style={styles.btnText}>Upload national ID</Text>
-                  </TouchableOpacity>
-                </>
-              )}
+                  </>
+                )}
             </TouchableOpacity>
           </View>
           <Text style={styles.docSmallNote}>Upload a photo of the owner's national ID or passport (optional). Accepted types: JPG, PNG. Max 5MB.</Text>
@@ -1137,15 +1290,30 @@ const AddListing = () => {
           <Text style={{ color: '#333', fontStyle: 'italic', marginBottom: 8 }}>Upload ONE of the following documents to verify ownership or authority:</Text>
           <View style={styles.docRow}>
             <TouchableOpacity style={styles.docTile} onPress={() => pickDocument('ownershipCertificate')}>
-              {ownershipCertificate ? (
+              {(ownershipCertificate || ownershipCertificatePreview) ? (
                 <>
-                  <Image source={{ uri: ownershipCertificate.uri || ownershipCertificate }} style={styles.thumb} />
+                  <TouchableOpacity onPress={() => openPreview((ownershipCertificate && (ownershipCertificate.uri || ownershipCertificate)) || ownershipCertificatePreview)} activeOpacity={0.9}>
+                    {
+                      (() => {
+                        const raw = (ownershipCertificate && (ownershipCertificate.uri || ownershipCertificate)) || ownershipCertificatePreview
+                        const src = normalizeUri(raw)
+                        return src ? (
+                          <Image source={{ uri: src }} style={styles.thumb} resizeMode="cover" />
+                        ) : (
+                          <Image source={require('../../assets/apartment_dummy.jpeg')} style={styles.thumb} />
+                        )
+                      })()
+                    }
+                  </TouchableOpacity>
                   <Text style={styles.docTileLabel}>Ownership certificate</Text>
                   <View style={styles.docTileActions}>
                     <TouchableOpacity style={styles.docActionButton} onPress={() => pickDocument('ownershipCertificate')}>
                       <Text style={styles.docActionText}>Replace</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => setOwnershipCertificate(null)}>
+                    <TouchableOpacity onPress={() => {
+                      if (ownershipCertificatePreview) deleteVerificationDoc('ownership_certificate')
+                      else setOwnershipCertificate(null)
+                    }}>
                       <Text style={styles.docActionTextRemove}>Remove</Text>
                     </TouchableOpacity>
                   </View>
@@ -1160,15 +1328,30 @@ const AddListing = () => {
               )}
             </TouchableOpacity>
             <TouchableOpacity style={[styles.docTile, styles.docTileLast]} onPress={() => pickDocument('utilityBill')}>
-              {utilityBill ? (
+              {(utilityBill || utilityBillPreview) ? (
                 <>
-                  <Image source={{ uri: utilityBill.uri || utilityBill }} style={styles.thumb} />
+                  <TouchableOpacity onPress={() => openPreview((utilityBill && (utilityBill.uri || utilityBill)) || utilityBillPreview)} activeOpacity={0.9}>
+                    {
+                      (() => {
+                        const raw = (utilityBill && (utilityBill.uri || utilityBill)) || utilityBillPreview
+                        const src = normalizeUri(raw)
+                        return src ? (
+                          <Image source={{ uri: src }} style={styles.thumb} resizeMode="cover" />
+                        ) : (
+                          <Image source={require('../../assets/apartment_dummy.jpeg')} style={styles.thumb} />
+                        )
+                      })()
+                    }
+                  </TouchableOpacity>
                   <Text style={styles.docTileLabel}>Utility bill</Text>
                   <View style={styles.docTileActions}>
                     <TouchableOpacity style={styles.docActionButton} onPress={() => pickDocument('utilityBill')}>
                       <Text style={styles.docActionText}>Replace</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => setUtilityBill(null)}>
+                    <TouchableOpacity onPress={() => {
+                      if (utilityBillPreview) deleteVerificationDoc('utility_bill')
+                      else setUtilityBill(null)
+                    }}>
                       <Text style={styles.docActionTextRemove}>Remove</Text>
                     </TouchableOpacity>
                   </View>
@@ -1220,15 +1403,30 @@ const AddListing = () => {
             <Text style={[styles.label, { marginTop: 6 }]}>Agent authorization letter (optional)</Text>
             <View style={styles.docRow}>
               <TouchableOpacity style={styles.docTile} onPress={() => pickDocument('agentAuthorizationLetter')}>
-                {agentAuthorizationLetter ? (
+                {(agentAuthorizationLetter || agentAuthorizationPreview) ? (
                   <>
-                    <Image source={{ uri: agentAuthorizationLetter.uri || agentAuthorizationLetter }} style={styles.thumb} />
+                    <TouchableOpacity onPress={() => openPreview((agentAuthorizationLetter && (agentAuthorizationLetter.uri || agentAuthorizationLetter)) || agentAuthorizationPreview)} activeOpacity={0.9}>
+                      {
+                        (() => {
+                          const raw = (agentAuthorizationLetter && (agentAuthorizationLetter.uri || agentAuthorizationLetter)) || agentAuthorizationPreview
+                          const src = normalizeUri(raw)
+                          return src ? (
+                            <Image source={{ uri: src }} style={styles.thumb} resizeMode="cover" />
+                          ) : (
+                            <Image source={require('../../assets/apartment_dummy.jpeg')} style={styles.thumb} />
+                          )
+                        })()
+                      }
+                    </TouchableOpacity>
                     <Text style={styles.docTileLabel}>Authorization letter attached</Text>
                     <View style={styles.docTileActions}>
                       <TouchableOpacity style={styles.docActionButton} onPress={() => pickDocument('agentAuthorizationLetter')}>
                         <Text style={styles.docActionText}>Replace</Text>
                       </TouchableOpacity>
-                      <TouchableOpacity onPress={() => setAgentAuthorizationLetter(null)}>
+                      <TouchableOpacity onPress={() => {
+                        if (agentAuthorizationPreview) deleteVerificationDoc('agent_authorization_letter')
+                        else setAgentAuthorizationLetter(null)
+                      }}>
                         <Text style={styles.docActionTextRemove}>Remove</Text>
                       </TouchableOpacity>
                     </View>
@@ -1257,6 +1455,20 @@ const AddListing = () => {
       </View>
     </ScrollView>
   </KeyboardAvoidingView>
+      <Modal visible={previewVisible} transparent animationType="fade" onRequestClose={closePreview}>
+        <View style={styles.previewModalBackdrop}>
+          <TouchableOpacity style={styles.previewModalCloseArea} onPress={closePreview} />
+          <View style={styles.previewModalContent}>
+            {previewUri ? (
+              <Image source={{ uri: previewUri }} style={styles.previewImage} resizeMode="contain" />
+            ) : null}
+            <TouchableOpacity style={styles.previewCloseBtn} onPress={closePreview}>
+              <Text style={styles.previewCloseText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+          <TouchableOpacity style={styles.previewModalCloseArea} onPress={closePreview} />
+        </View>
+      </Modal>
 </SafeAreaView>
   )
 }

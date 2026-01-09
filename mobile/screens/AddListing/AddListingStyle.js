@@ -589,5 +589,44 @@ export default StyleSheet.create({
     color: '#94a3b8',
     fontWeight: '400'
   }
+  ,
+  /* Preview modal styles */
+  previewModalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20
+  },
+  previewModalCloseArea: {
+    flex: 1,
+    width: '100%'
+  },
+  previewModalContent: {
+    width: '100%',
+    maxWidth: 760,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 14,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  previewImage: {
+    width: '100%',
+    height: 420,
+    borderRadius: 10,
+    backgroundColor: '#fff'
+  },
+  previewCloseBtn: {
+    marginTop: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 10,
+    backgroundColor: '#3b82f6'
+  },
+  previewCloseText: {
+    color: '#fff',
+    fontWeight: '700'
+  }
 })
 

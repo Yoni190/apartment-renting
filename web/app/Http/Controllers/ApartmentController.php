@@ -411,6 +411,50 @@ class ApartmentController extends Controller
         // Capture previous verification status so we can reset verification fields
         $wasPreviouslyApproved = $apartment->verification_status === 'approved';
 
+        // Preserve the initial verification data (one-time snapshot) so we
+        // can compare before/after owner edits. Store under meta.verification.previous
+        // but only if a snapshot doesn't already exist (we keep the first values).
+        $currentMeta = is_array($apartment->meta) ? $apartment->meta : (array) ($apartment->meta ?? []);
+        $currentMeta['verification'] = $currentMeta['verification'] ?? [];
+        if (empty($currentMeta['verification']['previous'])) {
+            // Build a snapshot of the non-file verification fields
+            $snapshot = [
+                'captured_at' => now()->toDateTimeString(),
+                'owner_name' => $currentMeta['owner_name'] ?? null,
+                'owner_phone' => $currentMeta['owner_phone'] ?? null,
+                'is_agent' => $currentMeta['is_agent'] ?? null,
+                'agent_id' => $currentMeta['verification']['agent_id'] ?? null,
+                'agent_phone' => $currentMeta['verification']['agent_phone'] ?? null,
+                'verification' => $currentMeta['verification'] ?? null,
+                'documents' => [],
+            ];
+
+            // Include any persisted verification documents from the DB (latest per type)
+            try {
+                $docs = ApartmentVerificationDocument::where('apartment_id', $apartment->id)->orderBy('created_at','desc')->get();
+                foreach ($docs as $d) {
+                    if (!array_key_exists($d->document_type, $snapshot['documents'])) {
+                        $snapshot['documents'][$d->document_type] = $d->file_path;
+                    }
+                }
+            } catch (\Exception $e) {
+                // don't block the edit if docs can't be read; log for diagnosis
+                Log::warning('Failed to snapshot verification documents for apartment ' . $apartment->id . ': ' . $e->getMessage());
+            }
+
+            // Also include any legacy meta-stored document paths
+            if (!empty($currentMeta['verification']['documents']) && is_array($currentMeta['verification']['documents'])) {
+                foreach ($currentMeta['verification']['documents'] as $k => $v) {
+                    if (empty($snapshot['documents'][$k])) $snapshot['documents'][$k] = $v;
+                }
+            }
+
+            // Store the snapshot in meta and persist immediately so further errors don't lose it.
+            $currentMeta['verification']['previous'] = $snapshot;
+            $apartment->meta = $currentMeta;
+            try { $apartment->save(); } catch (\Exception $e) { Log::warning('Failed to save verification snapshot for apartment ' . $apartment->id . ': ' . $e->getMessage()); }
+        }
+
         $apartment->update([
             'title' => $request->name,
             'description' => $request->description,

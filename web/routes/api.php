@@ -176,6 +176,49 @@ Route::get('/apartments/{apartment}', function (Request $request, Apartment $apa
     }
     
     $apartment->load('images', 'owner');
+
+    // If the requester is the owner, create a one-time snapshot of the current
+    // verification data so the owner can safely compare original values after
+    // making edits. We create the snapshot only if it doesn't already exist.
+    if ($isOwner) {
+        $currentMeta = is_array($apartment->meta) ? $apartment->meta : (array) ($apartment->meta ?? []);
+        $currentMeta['verification'] = $currentMeta['verification'] ?? [];
+        if (empty($currentMeta['verification']['previous'])) {
+            $snapshot = [
+                'captured_at' => now()->toDateTimeString(),
+                'owner_name' => $currentMeta['owner_name'] ?? null,
+                'owner_phone' => $currentMeta['owner_phone'] ?? null,
+                'is_agent' => $currentMeta['is_agent'] ?? null,
+                'agent_id' => $currentMeta['verification']['agent_id'] ?? null,
+                'agent_phone' => $currentMeta['verification']['agent_phone'] ?? null,
+                'verification' => $currentMeta['verification'] ?? null,
+                'documents' => [],
+            ];
+
+            try {
+                $docs = \App\Models\ApartmentVerificationDocument::where('apartment_id', $apartment->id)->orderBy('created_at','desc')->get();
+                foreach ($docs as $d) {
+                    if (!array_key_exists($d->document_type, $snapshot['documents'])) {
+                        $snapshot['documents'][$d->document_type] = $d->file_path;
+                    }
+                }
+            } catch (\Exception $e) {
+                try { \Illuminate\Support\Facades\Log::warning('Failed to snapshot verification documents on GET for apartment ' . $apartment->id . ': ' . $e->getMessage()); } catch (\Exception $_) {}
+            }
+
+            if (!empty($currentMeta['verification']['documents']) && is_array($currentMeta['verification']['documents'])) {
+                foreach ($currentMeta['verification']['documents'] as $k => $v) {
+                    if (empty($snapshot['documents'][$k])) $snapshot['documents'][$k] = $v;
+                }
+            }
+
+            $currentMeta['verification']['previous'] = $snapshot;
+            $apartment->meta = $currentMeta;
+            try { $apartment->save(); } catch (\Exception $e) { try { \Illuminate\Support\Facades\Log::warning('Failed to save verification snapshot on GET for apartment ' . $apartment->id . ': ' . $e->getMessage()); } catch (\Exception $_) {} }
+            // reload meta into the model so the response includes the snapshot
+            $apartment->refresh();
+        }
+    }
     
     // Check if authenticated user has favorited this apartment
     if ($user) {
@@ -295,6 +338,47 @@ Route::middleware('auth:sanctum')->post('/apartments', function (Request $reques
             $apartment->meta = $meta;
             $apartment->save();
         }
+    }
+
+    // Create a one-time snapshot of the initial verification data so the
+    // owner cannot accidentally overwrite the original values without a
+    // preserved copy. Stored under meta.verification.previous (if missing).
+    try {
+        $currentMeta = is_array($apartment->meta) ? $apartment->meta : (array) ($apartment->meta ?? []);
+        $currentMeta['verification'] = $currentMeta['verification'] ?? [];
+        if (empty($currentMeta['verification']['previous'])) {
+            $snapshot = [
+                'captured_at' => now()->toDateTimeString(),
+                'owner_name' => $currentMeta['owner_name'] ?? null,
+                'owner_phone' => $currentMeta['owner_phone'] ?? null,
+                'is_agent' => $currentMeta['is_agent'] ?? null,
+                'agent_id' => $currentMeta['verification']['agent_id'] ?? null,
+                'agent_phone' => $currentMeta['verification']['agent_phone'] ?? null,
+                'verification' => $currentMeta['verification'] ?? null,
+                'documents' => [],
+            ];
+
+            // include DB-stored verification documents (latest per type)
+            $docs = \App\Models\ApartmentVerificationDocument::where('apartment_id', $apartment->id)->orderBy('created_at','desc')->get();
+            foreach ($docs as $d) {
+                if (!array_key_exists($d->document_type, $snapshot['documents'])) {
+                    $snapshot['documents'][$d->document_type] = $d->file_path;
+                }
+            }
+
+            // include any meta-stored paths
+            if (!empty($currentMeta['verification']['documents']) && is_array($currentMeta['verification']['documents'])) {
+                foreach ($currentMeta['verification']['documents'] as $k => $v) {
+                    if (empty($snapshot['documents'][$k])) $snapshot['documents'][$k] = $v;
+                }
+            }
+
+            $currentMeta['verification']['previous'] = $snapshot;
+            $apartment->meta = $currentMeta;
+            $apartment->save();
+        }
+    } catch (\Exception $e) {
+        try { \Illuminate\Support\Facades\Log::warning('Failed to create initial verification snapshot for apartment ' . $apartment->id . ': ' . $e->getMessage()); } catch (\Exception $_) {}
     }
 
     // If owner provided open_for_tour metadata, create listing_open_hours entries.
@@ -470,6 +554,48 @@ Route::middleware('auth:sanctum')->patch('/apartments/{apartment}', function (Re
     // Determine if this apartment was previously approved by admin
     $wasPreviouslyApproved = $apartment->verification_status === 'approved';
 
+    // Preserve the initial verification data (one-time snapshot) so we can
+    // compare before/after owner edits. Store under meta.verification.previous
+    // but only if a snapshot doesn't already exist (keep the first values).
+    $currentMeta = is_array($apartment->meta) ? $apartment->meta : (array) ($apartment->meta ?? []);
+    $currentMeta['verification'] = $currentMeta['verification'] ?? [];
+    if (empty($currentMeta['verification']['previous'])) {
+        $snapshot = [
+            'captured_at' => now()->toDateTimeString(),
+            'owner_name' => $currentMeta['owner_name'] ?? null,
+            'owner_phone' => $currentMeta['owner_phone'] ?? null,
+            'is_agent' => $currentMeta['is_agent'] ?? null,
+            'agent_id' => $currentMeta['verification']['agent_id'] ?? null,
+            'agent_phone' => $currentMeta['verification']['agent_phone'] ?? null,
+            'verification' => $currentMeta['verification'] ?? null,
+            'documents' => [],
+        ];
+
+        // Include any persisted verification documents from the DB (latest per type)
+        try {
+            $docs = \App\Models\ApartmentVerificationDocument::where('apartment_id', $apartment->id)->orderBy('created_at','desc')->get();
+            foreach ($docs as $d) {
+                if (!array_key_exists($d->document_type, $snapshot['documents'])) {
+                    $snapshot['documents'][$d->document_type] = $d->file_path;
+                }
+            }
+        } catch (\Exception $e) {
+            // log and continue; do not block owner update
+            try { \Illuminate\Support\Facades\Log::warning('Failed to snapshot verification documents for apartment ' . $apartment->id . ': ' . $e->getMessage()); } catch (\Exception $_) {}
+        }
+
+        // Also include any legacy meta-stored document paths
+        if (!empty($currentMeta['verification']['documents']) && is_array($currentMeta['verification']['documents'])) {
+            foreach ($currentMeta['verification']['documents'] as $k => $v) {
+                if (empty($snapshot['documents'][$k])) $snapshot['documents'][$k] = $v;
+            }
+        }
+
+        $currentMeta['verification']['previous'] = $snapshot;
+        $apartment->meta = $currentMeta;
+        try { $apartment->save(); } catch (\Exception $e) { try { \Illuminate\Support\Facades\Log::warning('Failed to save verification snapshot for apartment ' . $apartment->id . ': ' . $e->getMessage()); } catch (\Exception $_) {} }
+    }
+
     $apartment->fill($data);
     $apartment->save();
 
@@ -487,6 +613,76 @@ Route::middleware('auth:sanctum')->patch('/apartments/{apartment}', function (Re
         'message' => 'Listing Update submitted and awaiting admin verification.',
         'apartment' => $apartment->fresh()->load('images')
     ]);
+});
+
+// Owner upload a verification document for their apartment (API)
+Route::middleware('auth:sanctum')->post('/apartments/{apartment}/verification-docs', function (Request $request, Apartment $apartment) {
+    $user = $request->user();
+    if (!$user || $apartment->user_id !== $user->id) {
+        return response()->json(['message' => 'Forbidden'], 403);
+    }
+
+    $request->validate([
+        'document_type' => 'required|in:national_id,ownership_certificate,utility_bill,rental_authorization_letter,agent_authorization_letter',
+        'file' => 'required|file|max:51200',
+    ]);
+
+    $file = $request->file('file');
+    $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+    // store on public disk so mobile can preview via /storage/<path>
+    $path = $file->storeAs('verification', $filename, 'public');
+
+    $doc = \App\Models\ApartmentVerificationDocument::create([
+        'apartment_id' => $apartment->id,
+        'document_type' => $request->input('document_type'),
+        'file_path' => $path,
+    ]);
+
+    // persist into meta.verification.documents for backward compatibility
+    $meta = is_array($apartment->meta) ? $apartment->meta : (array) ($apartment->meta ?? []);
+    $meta['verification'] = $meta['verification'] ?? [];
+    $meta['verification']['documents'] = $meta['verification']['documents'] ?? [];
+    $meta['verification']['documents'][$request->input('document_type')] = $path;
+    $apartment->meta = $meta;
+    $apartment->save();
+
+    return response()->json(['message' => 'Uploaded', 'doc' => $doc, 'path' => $path]);
+});
+
+// Owner delete a verification document by type
+Route::middleware('auth:sanctum')->delete('/apartments/{apartment}/verification-docs', function (Request $request, Apartment $apartment) {
+    $user = $request->user();
+    if (!$user || $apartment->user_id !== $user->id) {
+        return response()->json(['message' => 'Forbidden'], 403);
+    }
+
+    $request->validate(['document_type' => 'required']);
+    $docType = $request->input('document_type');
+
+    $doc = \App\Models\ApartmentVerificationDocument::where('apartment_id', $apartment->id)
+        ->where('document_type', $docType)
+        ->orderBy('created_at', 'desc')
+        ->first();
+
+    if ($doc) {
+        // delete file from whichever disk
+        if (\Illuminate\Support\Facades\Storage::disk('local')->exists($doc->file_path)) {
+            \Illuminate\Support\Facades\Storage::disk('local')->delete($doc->file_path);
+        } elseif (\Illuminate\Support\Facades\Storage::disk('public')->exists($doc->file_path)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($doc->file_path);
+        }
+        $doc->delete();
+    }
+
+    // Remove from meta.verification.documents if present
+    $meta = is_array($apartment->meta) ? $apartment->meta : (array) ($apartment->meta ?? []);
+    if (!empty($meta['verification']['documents'][$docType])) {
+        unset($meta['verification']['documents'][$docType]);
+        $apartment->meta = $meta;
+        $apartment->save();
+    }
+
+    return response()->json(['message' => 'Deleted']);
 });
 
 // Delete an apartment (owner)
