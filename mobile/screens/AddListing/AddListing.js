@@ -289,7 +289,6 @@ const AddListing = () => {
         // Load verification snapshot and current verification fields. Prefer the
         // preserved one-time snapshot (`previous`) so the edit form reflects the
         // initial values unless the owner explicitly changes them.
-        //try
         try {
           const prev = (m && m.verification && m.verification.previous) ? m.verification.previous : null
           if (prev) setVerificationPrevious(prev)
