@@ -291,7 +291,6 @@ const AddListing = () => {
         // initial values unless the owner explicitly changes them.
         //try
         //to
-        //sync
         try {
           const prev = (m && m.verification && m.verification.previous) ? m.verification.previous : null
           if (prev) setVerificationPrevious(prev)
