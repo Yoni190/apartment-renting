@@ -292,7 +292,6 @@ const AddListing = () => {
         //try
         //to
         //sync
-        //changes
         try {
           const prev = (m && m.verification && m.verification.previous) ? m.verification.previous : null
           if (prev) setVerificationPrevious(prev)
