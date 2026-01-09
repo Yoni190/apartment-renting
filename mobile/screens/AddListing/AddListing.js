@@ -295,7 +295,6 @@ const AddListing = () => {
         //changes
         //here
         //admin
-        //add
         try {
           const prev = (m && m.verification && m.verification.previous) ? m.verification.previous : null
           if (prev) setVerificationPrevious(prev)
