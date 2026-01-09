@@ -16,11 +16,92 @@
         }
         main {
             flex: 1;
+            transition: margin-left 220ms ease;
         }
         .sidebar {
             min-height: 100vh;
             background-color: #f8f9fa;
             border-right: 1px solid #dee2e6;
+            transition: width 220ms ease, transform 220ms ease;
+        }
+
+        /* ensure header brand is not overlapped by the collapsed fixed sidebar */
+        header .navbar {
+            transition: margin-left 220ms ease;
+            z-index: 1060; /* keep header above the collapsed sidebar */
+        }
+
+        /* collapsed sidebar: keep a thin fixed bar on the left */
+        :root { --sidebar-collapsed-width: 56px; }
+        body.sidebar-collapsed .sidebar {
+            width: var(--sidebar-collapsed-width) !important;
+            min-width: var(--sidebar-collapsed-width) !important;
+            max-width: var(--sidebar-collapsed-width) !important;
+            overflow: hidden;
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            z-index: 1040;
+        }
+        /* push the header content to the right so the brand is visible */
+        body.sidebar-collapsed header .navbar {
+            margin-left: var(--sidebar-collapsed-width);
+        }
+        /* Ensure main content uses the full remaining width (no leftover column gaps)
+           so apartment lists and tables can use all available horizontal space. */
+        body.sidebar-collapsed main#adminMain {
+            margin-left: var(--sidebar-collapsed-width) !important;
+            width: calc(100% - var(--sidebar-collapsed-width)) !important;
+            max-width: calc(100% - var(--sidebar-collapsed-width)) !important;
+        }
+
+        /* Also override the Bootstrap column flex on the nav column so the grid
+           doesn't reserve the original column width when collapsed. */
+        body.sidebar-collapsed #adminSidebar {
+            flex: 0 0 var(--sidebar-collapsed-width) !important;
+            width: var(--sidebar-collapsed-width) !important;
+            max-width: var(--sidebar-collapsed-width) !important;
+        }
+
+        /* center the sidebar's internal toggle when collapsed */
+        body.sidebar-collapsed nav.sidebar .sidebar-toggle-wrap {
+            justify-content: center !important;
+            padding-left: 0.25rem !important;
+            padding-right: 0.25rem !important;
+        }
+        /* keep a visible affordance on the collapsed bar */
+        body.sidebar-collapsed nav.sidebar .sidebar-toggle-wrap #sidebarToggle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        /* compact the nav links when collapsed: show only leading glyphs/icons */
+        nav.sidebar .nav-link {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+        }
+        body.sidebar-collapsed nav.sidebar .nav-link {
+            justify-content: center;
+            padding-left: .25rem;
+            padding-right: .25rem;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        /* When collapsed: hide everything inside the sidebar except the toggle
+           so the main content area is the primary focus. The thin bar remains
+           as an affordance to re-open the menu. */
+        body.sidebar-collapsed nav.sidebar > .d-flex:not(.sidebar-toggle-wrap) {
+            display: none !important;
+        }
+        body.sidebar-collapsed nav.sidebar .nav {
+            display: none !important;
+        }
+        /* keep the collapsed bar visually minimal */
+        body.sidebar-collapsed nav.sidebar {
+            border-right: none;
+            background-color: transparent;
         }
       </style>
       @stack('styles')
@@ -32,12 +113,18 @@
 
     <div class="container-fluid">
         <div class="row">
-            <nav class="col-md-3 col-lg-2 d-md-block sidebar py-3">
+            <nav id="adminSidebar" class="col-md-3 col-lg-2 d-md-block sidebar py-3">
+                <!-- single toggle placed on the right side of the sidebar -->
+                <div class="px-3 mb-3 d-flex sidebar-toggle-wrap justify-content-end">
+                    <button id="sidebarToggle" class="btn btn-sm btn-outline-secondary" aria-label="Toggle sidebar">
+                        <i class="bi bi-list"></i>
+                    </button>
+                </div>
+
                 @include('web.admin.layout.sidebar')
             </nav>
 
-            
-            <main>
+            <main id="adminMain" class="col-md-9 col-lg-10 py-3">
                 @yield('content')
             </main>
         </div>
@@ -55,6 +142,36 @@
             return new bootstrap.Toast(toastEl, { delay: 4000, autohide: true });
         });
         toastList.forEach(toast => toast.show());
+    </script>
+    <script>
+        // Sidebar collapse/expand (thin collapsed bar on the left)
+        (function () {
+            const KEY = 'adminSidebarCollapsed'
+            const body = document.body
+            const toggle = document.getElementById('sidebarToggle')
+
+            function applyState(collapsed) {
+                if (collapsed) body.classList.add('sidebar-collapsed')
+                else body.classList.remove('sidebar-collapsed')
+            }
+
+            // init from storage
+            try {
+                const stored = localStorage.getItem(KEY)
+                applyState(stored === '1')
+            } catch (e) {
+                // ignore
+            }
+
+            if (toggle) {
+                toggle.addEventListener('click', function (e) {
+                    e && e.preventDefault()
+                    const collapsed = !body.classList.contains('sidebar-collapsed')
+                    applyState(collapsed)
+                    try { localStorage.setItem(KEY, collapsed ? '1' : '0') } catch (err) {}
+                })
+            }
+        })()
     </script>
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @stack('scripts')
