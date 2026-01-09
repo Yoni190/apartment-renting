@@ -31,8 +31,17 @@
             z-index: 1060; /* keep header above the collapsed sidebar */
         }
 
-        /* collapsed sidebar: keep a thin fixed bar on the left */
-        :root { --sidebar-collapsed-width: 56px; }
+        /* sidebar widths */
+        :root {
+            --sidebar-expanded-width: 200px; /* default open width (smaller than bootstrap col) */
+            --sidebar-collapsed-width: 56px; /* thin collapsed width */
+        }
+        /* make the admin sidebar slightly narrower than bootstrap columns */
+        #adminSidebar {
+            flex: 0 0 var(--sidebar-expanded-width) !important;
+            width: var(--sidebar-expanded-width) !important;
+            max-width: var(--sidebar-expanded-width) !important;
+        }
         body.sidebar-collapsed .sidebar {
             width: var(--sidebar-collapsed-width) !important;
             min-width: var(--sidebar-collapsed-width) !important;
