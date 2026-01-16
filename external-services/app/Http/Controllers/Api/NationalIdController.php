@@ -20,20 +20,20 @@ class NationalIdController extends Controller
             ->first();
 
         if(!$record) {
-            return response->json([
+            return \response()->json([
                 'valid' => false,
                 'reason' => 'ID not found'
             ], 404);
         }
 
         if(strcasecmp($record->first_name . ' ' . $record->last_name, $request->first_name . ' ' . $request->last_name) !== 0) {
-            return response->json([
+            return \response()->json([
                 'valid' => false,
                 'reason' => 'Name mismatch'
             ], 403);
         }
 
-        return response->json([
+        return \response()->json([
             'valid' => true,
             'status' => 'active'
         ]);
