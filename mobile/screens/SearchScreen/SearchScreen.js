@@ -15,6 +15,8 @@ const SearchScreen = () => {
     const [results, setResults] = useState([])
     const [loading, setLoading] = useState(false)
 
+    const API_URL = process.env.EXPO_PUBLIC_API_URL;
+
     const searchApartments = async (text) => {
         setQuery(text)
 
@@ -53,7 +55,7 @@ const SearchScreen = () => {
           placeholderTextColor="#999"
           style={styles.input}
           value={query}
-          onChangeText={setQuery}
+          onChangeText={searchApartments}
         />
 
         {/* Filter Icon */}
