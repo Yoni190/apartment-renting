@@ -850,3 +850,6 @@ Route::get('/recommendations', function (Request $request) {
     // Only return owner-provided fields (do not fabricate data). We already eager-loaded images/owner.
     return response()->json($results);
 });
+
+
+Route::get('/apartments/search', [ApartmentController::class, 'search']);
