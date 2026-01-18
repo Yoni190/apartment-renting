@@ -11,6 +11,7 @@ const SearchScreen = () => {
 
     const [query, setQuery] = useState('')
     const [results, setResults] = useState([])
+    const [loading, setLoading] = useState(false)
 
 
   return (
