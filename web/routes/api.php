@@ -77,7 +77,7 @@ function normalizeMetaFields(array $meta): array {
 */
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+    return $request->user()->load('favorites');
 });
 
 // update user profile (name, email, phone, optional password)
