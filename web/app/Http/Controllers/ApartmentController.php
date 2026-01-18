@@ -649,4 +649,17 @@ class ApartmentController extends Controller
         return redirect()->route('admin.apartments')
         ->with('message', 'Apartment deleted successfully!');
     }
+
+    public function search(Request $request) {
+        $query = $request->query('q');
+
+        if(!$query) {
+            return response()->json([]);
+        }
+
+        $apartments = Apartment::where('title', 'LIKE', "%{$query}%")
+                        ->get();
+
+        return response()->json($apartments);
+    }
 }
