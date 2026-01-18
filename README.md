@@ -52,6 +52,6 @@ Owners must mark approved tours as Completed or No Show.
 
 ## Validation & Enforcement
 
-- Only future date-time slots (including later today) can be booked.
+- Only future date-time slots (including later today) can be booked .
 
 - Past or expired tour slots are automatically removed from availability on the tour request panel.
