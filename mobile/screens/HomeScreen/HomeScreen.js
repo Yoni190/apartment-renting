@@ -46,6 +46,8 @@ const HomeScreen = () => {
       fetchRecommendations({})
     }, [])
 
+
+
     const fetchRecommendations = async (q = {}) => {
       setLoading(true)
       try {
@@ -91,6 +93,30 @@ const HomeScreen = () => {
 
       getUser()
     }, [])
+
+    useEffect(() => {
+      if (apartments.length && user) {
+        updateApartmentsWithFavorites(user);
+        console.log(apartments)
+      }
+    }, [user]);
+
+
+
+    const updateApartmentsWithFavorites = (user) => {
+      if (!user?.favorites) return;
+
+      setApartments(prevApartments => {
+        const favoriteIds = new Set(
+          user.favorites.map(fav => fav.apartment_id)
+        );
+
+        return prevApartments.map(apartment => ({
+          ...apartment,
+          is_favorite: favoriteIds.has(apartment.id),
+        }));
+      });
+    };
 
 
     const navigateToDetails = () => {
