@@ -174,7 +174,7 @@ const AddListing = () => {
       try {
         const token = await SecureStore.getItemAsync('token')
         if (!token) return
-        const res = await axios.get(`${API_URL}/apartments/${listingId}`, { headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } })
+        const res = await axios.get(`${API_URL}/api/apartments/${listingId}`, { headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } })
         const apt = res.data
         // populate fields defensively
         setTitle(apt.title || '')
@@ -422,7 +422,7 @@ const AddListing = () => {
           const docType = (type === 'nationalId' ? 'national_id' : (type === 'ownershipCertificate' ? 'ownership_certificate' : (type === 'utilityBill' ? 'utility_bill' : (type === 'rentalAuthorizationLetter' ? 'rental_authorization_letter' : 'agent_authorization_letter'))))
           fd.append('document_type', docType)
           fd.append('file', fileObj)
-          const res = await axios.post(`${API_URL}/apartments/${listingId}/verification-docs`, fd, { headers: { 'Content-Type': 'multipart/form-data', Accept: 'application/json', Authorization: `Bearer ${token}` } })
+          const res = await axios.post(`${API_URL}/api/apartments/${listingId}/verification-docs`, fd, { headers: { 'Content-Type': 'multipart/form-data', Accept: 'application/json', Authorization: `Bearer ${token}` } })
           const path = res.data.path
           const previewUri = `${API_URL}/storage/${path}`
           switch (type) {
@@ -499,7 +499,7 @@ const AddListing = () => {
     try {
       const token = await SecureStore.getItemAsync('token')
       if (!token) throw new Error('Not authenticated')
-      await axios.delete(`${API_URL}/apartments/${listingId}/verification-docs`, { data: { document_type: documentType }, headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } })
+      await axios.delete(`${API_URL}/api/apartments/${listingId}/verification-docs`, { data: { document_type: documentType }, headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } })
       // clear corresponding preview state
       switch (documentType) {
         case 'national_id':
@@ -717,7 +717,7 @@ const AddListing = () => {
           purpose,
           meta: metaObj
         }
-  const res = await axios.patch(`${API_URL}/apartments/${listingId}`, payload, { headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } })
+  const res = await axios.patch(`${API_URL}/api/apartments/${listingId}`, payload, { headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } })
   const serverMsg = res?.data?.message || 'Listing Update submitted and awaiting admin verification.'
   Alert.alert('Success', serverMsg)
   navigation.goBack()
@@ -790,7 +790,7 @@ const AddListing = () => {
           }
         }
 
-        const res = await axios.post(`${API_URL}/apartments`, formData, {
+        const res = await axios.post(`${API_URL}/api/apartments`, formData, {
           headers: { 'Content-Type': 'multipart/form-data', Accept: 'application/json', Authorization: `Bearer ${token}` }
         })
         const serverMsg = res?.data?.message || 'Listing posted'

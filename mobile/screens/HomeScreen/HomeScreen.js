@@ -50,7 +50,7 @@ const HomeScreen = () => {
       setLoading(true)
       try {
         const token = await SecureStore.getItemAsync('token')
-        const response = await axios.get(`${API_URL}/recommendations`, {
+        const response = await axios.get(`${API_URL}/api/recommendations`, {
           params: q,
           headers: {
             Accept: 'application/json',
@@ -75,7 +75,7 @@ const HomeScreen = () => {
         if(!access_token) navigation.replace('Login')
 
         try {
-            const response = await axios.get(`${API_URL}/user`, {
+            const response = await axios.get(`${API_URL}/api/user`, {
                 headers: {
                     Accept: "application/json",
                     Authorization: `Bearer ${access_token}`
@@ -119,7 +119,7 @@ const HomeScreen = () => {
           return
         }
         
-        await axios.post(`${API_URL}/apartments/${apartment.id}/favorite`, {}, {
+        await axios.post(`${API_URL}/api/apartments/${apartment.id}/favorite`, {}, {
           headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
         })
         
@@ -135,7 +135,7 @@ const HomeScreen = () => {
         const token = await SecureStore.getItemAsync('token')
         if (!token) return
         
-        await axios.delete(`${API_URL}/apartments/${apartment.id}/favorite`, {
+        await axios.delete(`${API_URL}/api/apartments/${apartment.id}/favorite`, {
           headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
         })
         

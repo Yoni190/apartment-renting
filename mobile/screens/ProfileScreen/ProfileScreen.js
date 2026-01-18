@@ -41,7 +41,7 @@ const ProfileScreen = () => {
       if (!access_token) navigation.replace("Login")
 
       try {
-        const response = await axios.get(`${API_URL}/user`, {
+        const response = await axios.get(`${API_URL}/api/user`, {
           headers: {
             Accept: "application/json",
             Authorization: `Bearer ${access_token}`

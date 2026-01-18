@@ -34,7 +34,7 @@ const RegisterScreen = () => {
         setErrors({})
         setLoading(true)
         try {
-      const response = await axios.post(`${API_URL}/register`, {
+      const response = await axios.post(`${API_URL}/api/register`, {
         name,
         email,
         password,

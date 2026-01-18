@@ -64,7 +64,7 @@ export default function ApartmentDetails() {
         const token = await SecureStore.getItemAsync('token')
 
         // fetch listing
-        const res = await axios.get(`${API_URL}/apartments/${listingId}`, {
+        const res = await axios.get(`${API_URL}/api/apartments/${listingId}`, {
           headers: { Accept: 'application/json', Authorization: token ? `Bearer ${token}` : undefined },
         })
         setListing(res.data)
@@ -78,7 +78,7 @@ export default function ApartmentDetails() {
         // fetch user if token available (to determine owner controls)
         if (token) {
           try {
-            const u = await axios.get(`${API_URL}/user`, { headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } })
+            const u = await axios.get(`${API_URL}/api/user`, { headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } })
             setUser(u.data)
           } catch (e) {
             // ignore; user remains null
@@ -333,13 +333,13 @@ export default function ApartmentDetails() {
 
       if (isFavourite) {
         // Remove from favorites
-        await axios.delete(`${API_URL}/apartments/${listingId}/favorite`, {
+        await axios.delete(`${API_URL}/api/apartments/${listingId}/favorite`, {
           headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
         })
         setIsFavourite(false)
       } else {
         // Add to favorites
-        await axios.post(`${API_URL}/apartments/${listingId}/favorite`, {}, {
+        await axios.post(`${API_URL}/api/apartments/${listingId}/favorite`, {}, {
           headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
         })
         setIsFavourite(true)
@@ -555,7 +555,7 @@ export default function ApartmentDetails() {
       const token = await SecureStore.getItemAsync('token')
       const dateStr = combined.toISOString().slice(0,10)
       const timeOnly = combined.toTimeString().slice(0,5)
-      await axios.post(`${API_URL}/apartments/${listingId}/book-tour`, { date: dateStr, time: timeOnly }, {
+      await axios.post(`${API_URL}/api/apartments/${listingId}/book-tour`, { date: dateStr, time: timeOnly }, {
         headers: { Accept: 'application/json', Authorization: `Bearer ${token}` }
       })
       Alert.alert('Success', 'Tour requested — the owner will receive a notification.')
@@ -614,7 +614,7 @@ export default function ApartmentDetails() {
       const token = await SecureStore.getItemAsync('token')
       const dateStr = combined.toISOString().slice(0,10)
       const timeStr = combined.toTimeString().slice(0,5)
-      const res = await axios.post(`${API_URL}/apartments/${listingId}/book-tour`, { date: dateStr, time: timeStr }, {
+      const res = await axios.post(`${API_URL}/api/apartments/${listingId}/book-tour`, { date: dateStr, time: timeStr }, {
         headers: { Accept: 'application/json', Authorization: `Bearer ${token}` }
       })
       Alert.alert('Success', 'Tour requested — the owner will receive a notification.')

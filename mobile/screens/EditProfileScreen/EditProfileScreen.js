@@ -59,7 +59,7 @@ const EditProfileScreen = () => {
 
       try {
         setLoading(true)
-        const response = await axios.get(`${API_URL}/user`, {
+        const response = await axios.get(`${API_URL}/api/user`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${access_token}`
@@ -104,7 +104,7 @@ const EditProfileScreen = () => {
       // try PATCH first (some backends require PATCH for updates)
       let response
       try {
-        response = await axios.patch(`${API_URL}/user`, payload, {
+        response = await axios.patch(`${API_URL}/api/user`, payload, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${access_token}`
@@ -115,7 +115,7 @@ const EditProfileScreen = () => {
         console.log('Patch attempt failed:', respErr?.status, respErr?.data)
         // fallback: if PATCH not allowed, try POST with method override header
         if (respErr?.status === 405 || respErr?.status === 419) {
-          response = await axios.post(`${API_URL}/user`, payload, {
+          response = await axios.post(`${API_URL}/api/user`, payload, {
             headers: {
               Accept: 'application/json',
               Authorization: `Bearer ${access_token}`,
@@ -172,7 +172,7 @@ const EditProfileScreen = () => {
             try {
               setLoading(true)
               try {
-                const response = await axios.delete(`${API_URL}/user`, {
+                const response = await axios.delete(`${API_URL}/api/user`, {
                   headers: {
                     Accept: 'application/json',
                     Authorization: `Bearer ${access_token}`
@@ -184,7 +184,7 @@ const EditProfileScreen = () => {
                 console.log('Delete attempt failed:', respDel?.status, respDel?.data)
                 if (respDel?.status === 405 || respDel?.status === 419) {
                   // try POST with method override
-                  await axios.post(`${API_URL}/user`, {}, {
+                  await axios.post(`${API_URL}/api/user`, {}, {
                     headers: {
                       Accept: 'application/json',
                       Authorization: `Bearer ${access_token}`,

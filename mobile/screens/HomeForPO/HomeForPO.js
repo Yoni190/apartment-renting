@@ -28,7 +28,7 @@ const HomeForPO = () => {
           return
         }
 
-        const res = await axios.get(`${API_URL}/my-apartments`, {
+        const res = await axios.get(`${API_URL}/api/my-apartments`, {
           headers: { Accept: 'application/json', Authorization: `Bearer ${token}` }
         })
         setListings(res.data || [])
@@ -59,10 +59,10 @@ const HomeForPO = () => {
       try {
         const token = await SecureStore.getItemAsync('token')
         if (!token) return
-        await axios.post(`${API_URL}/apartments/${apt.id}/deactivate`, { active: apt.status ? 0 : 1 }, { headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' } })
+        await axios.post(`${API_URL}/api/apartments/${apt.id}/deactivate`, { active: apt.status ? 0 : 1 }, { headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' } })
         // refresh listings
         setLoading(true)
-        const res = await axios.get(`${API_URL}/my-apartments`, { headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' } })
+        const res = await axios.get(`${API_URL}/api/my-apartments`, { headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' } })
         setListings(res.data || [])
       } catch (e) {
         console.warn('Failed to toggle deactivate', e.message)
@@ -92,10 +92,10 @@ const HomeForPO = () => {
           try {
             const token = await SecureStore.getItemAsync('token')
             if (!token) return
-            await axios.delete(`${API_URL}/apartments/${apt.id}`, { headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' } })
+            await axios.delete(`${API_URL}/api/apartments/${apt.id}`, { headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' } })
             // refresh
             setLoading(true)
-            const res = await axios.get(`${API_URL}/my-apartments`, { headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' } })
+            const res = await axios.get(`${API_URL}/api/my-apartments`, { headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' } })
             setListings(res.data || [])
           } catch (e) {
             console.warn('Failed to delete listing', e.message)

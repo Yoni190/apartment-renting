@@ -26,7 +26,7 @@ const FavouritesScreen = () => {
         return
       }
 
-      const response = await axios.get(`${API_URL}/favorites`, {
+      const response = await axios.get(`${API_URL}/api/favorites`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${token}`
@@ -52,7 +52,7 @@ const FavouritesScreen = () => {
       const token = await SecureStore.getItemAsync('token')
       if (!token) return
       
-      await axios.post(`${API_URL}/apartments/${apartment.id}/favorite`, {}, {
+      await axios.post(`${API_URL}/api/apartments/${apartment.id}/favorite`, {}, {
         headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
       })
       loadFavorites()
@@ -66,7 +66,7 @@ const FavouritesScreen = () => {
       const token = await SecureStore.getItemAsync('token')
       if (!token) return
       
-      await axios.delete(`${API_URL}/apartments/${apartment.id}/favorite`, {
+      await axios.delete(`${API_URL}/api/apartments/${apartment.id}/favorite`, {
         headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
       })
       loadFavorites()

@@ -716,6 +716,7 @@ Route::middleware('auth:sanctum')->post('/apartments/{apartment}/deactivate', fu
 });
 
 
+// Login endpoint - POST only
 Route::post('/login', function (Request $request) {
     $request->validate([
         'email' => 'required|email',
@@ -740,6 +741,16 @@ Route::post('/login', function (Request $request) {
     }
 
     return $user->createToken($request->device_name)->plainTextToken;
+});
+
+// Handle GET requests to /api/login (helpful error message)
+Route::get('/login', function () {
+    return response()->json([
+        'message' => 'Login endpoint requires POST method. Please use POST with email, password, device_name, and role.',
+        'method' => 'POST',
+        'required_fields' => ['email', 'password', 'device_name', 'role'],
+        'role_values' => ['0' => 'Property Owner', '1' => 'Client/Renter']
+    ], 405);
 });
 
 

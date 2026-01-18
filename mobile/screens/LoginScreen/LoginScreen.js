@@ -26,7 +26,7 @@ const LoginScreen = () => {
         setErrors({})
         setLoading(true)
     try {
-      const response = await axios.post(`${API_URL}/login`, {
+      const response = await axios.post(`${API_URL}/api/login`, {
         email,
         password,
         role: selectedRoleParam,
@@ -49,7 +49,7 @@ const LoginScreen = () => {
           } else {
             // otherwise fetch the user to determine role and redirect accordingly
             try {
-              const userRes = await axios.get(`${API_URL}/user`, {
+              const userRes = await axios.get(`${API_URL}/api/user`, {
                 headers: { Accept: 'application/json', Authorization: `Bearer ${access_token}` }
               })
               const user = userRes.data
