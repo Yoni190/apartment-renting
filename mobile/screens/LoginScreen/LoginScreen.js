@@ -96,7 +96,7 @@ const LoginScreen = () => {
           <Text style={styles.roleInfo}>{selectedRoleParam === 0 ? 'Logging in as Property Owner' : 'Logging in as Client'}</Text>
         )}
 
-        {errors?.message && <Text style={styles.errorText}>{errors.message}</Text>}
+        {/* {errors?.message && <Text style={styles.errorText}>{errors.message}</Text>} */}
 
       <TextInput 
         placeholder='Email Address'
