@@ -4,6 +4,8 @@ import styles from './SearchScreenStyle'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Header from '../../components/Header'
 import { Search, SlidersHorizontal } from 'lucide-react-native'
+import axios from 'axios'
+
 
 
 
@@ -12,6 +14,29 @@ const SearchScreen = () => {
     const [query, setQuery] = useState('')
     const [results, setResults] = useState([])
     const [loading, setLoading] = useState(false)
+
+    const searchApartments = async (text) => {
+        setQuery(text)
+
+        if(text.length < 2) {
+            setResults([])
+            return
+        }
+
+        try {
+            setLoading(true)
+            const response = await axios.get(
+                `${API_URL}/search?q=${text}`
+            )
+
+            setResults(response.data)
+            console.log(results)
+        } catch(error) {
+            console.log(error)
+        } finally {
+            setLoading(false)
+        }
+    }
 
 
   return (
