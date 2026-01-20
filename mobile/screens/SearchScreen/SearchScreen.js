@@ -10,6 +10,7 @@ import { Search, SlidersHorizontal } from 'lucide-react-native'
 const SearchScreen = () => {
 
     const [query, setQuery] = useState('')
+    const [results, setResults] = useState([])
 
 
   return (
