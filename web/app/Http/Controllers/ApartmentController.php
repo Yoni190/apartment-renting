@@ -657,7 +657,8 @@ class ApartmentController extends Controller
             return response()->json([]);
         }
 
-        $apartments = Apartment::where('title', 'LIKE', "%{$query}%")
+        $apartments = Apartment::with('images')
+                        ->where('title', 'LIKE', "%{$query}%")
                         ->get();
 
         return response()->json($apartments);
