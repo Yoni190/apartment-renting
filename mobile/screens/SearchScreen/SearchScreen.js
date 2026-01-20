@@ -6,8 +6,7 @@ import Header from '../../components/Header'
 import { Search, SlidersHorizontal } from 'lucide-react-native'
 import axios from 'axios'
 import ListingCard from '../../components/ListingCard'
-
-
+import { useNavigation } from '@react-navigation/native'
 
 
 const SearchScreen = () => {
@@ -15,6 +14,8 @@ const SearchScreen = () => {
     const [query, setQuery] = useState('')
     const [results, setResults] = useState([])
     const [loading, setLoading] = useState(false)
+
+    const navigation = useNavigation()
 
     const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
