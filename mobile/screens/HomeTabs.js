@@ -11,6 +11,7 @@ import HomeScreen from './HomeScreen/HomeScreen'
 import { MyTours } from './TourScreen/TourScreen'
 import MessagesScreen from './MessagesScreen/MessagesScreen'
 import FavouritesScreen from './FavouritesScreen/FavouritesScreen'
+import SearchScreen from './SearchScreen/SearchScreen'
 
 const Tab = createBottomTabNavigator()
 
@@ -53,7 +54,7 @@ const HomeTabs = () => {
         }}
       /> */}
 
-      {/* <Tab.Screen 
+      <Tab.Screen 
         name="Search" 
         component={SearchScreen}
         options={{
@@ -64,7 +65,7 @@ const HomeTabs = () => {
             />
           )
         }}
-      /> */}
+      />
 
       <Tab.Screen 
         name="Messages" 
