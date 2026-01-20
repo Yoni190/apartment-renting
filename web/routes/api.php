@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Rules;
 use App\Services\RecommendationService;
+use App\Http\Controllers\ApartmentController;
+
 // Helper: normalize common meta fields so clients receive consistent shapes
 // e.g. amenities, utilities may be sent as JSON strings or comma lists — store as arrays
 function normalizeMetaFields(array $meta): array {
@@ -852,4 +854,9 @@ Route::get('/recommendations', function (Request $request) {
 });
 
 
-Route::get('/apartments/search', [ApartmentController::class, 'search']);
+Route::get('/search', [ApartmentController::class, 'search']);
+
+Route::get('/test', function () {
+    return response()->json(['test' => 'suiii']);
+});
+
