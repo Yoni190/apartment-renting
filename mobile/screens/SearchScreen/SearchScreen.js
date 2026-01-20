@@ -33,9 +33,22 @@ const SearchScreen = () => {
         <SlidersHorizontal size={20} color="#999" />
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <Text style={{ padding: 20 }}>SearchScreen</Text>
-      </ScrollView>
+      {/* Placeholder when no search */}
+      {query.length === 0 ? (
+        <View style={styles.placeholderContainer}>
+          <Search size={48} color="#ccc" />
+          <Text style={styles.placeholderTitle}>Start searching</Text>
+          <Text style={styles.placeholderText}>
+            Find items by typing in the search bar above
+          </Text>
+        </View>
+      ) : (
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <Text style={{ padding: 20 }}>
+            Showing results for "{query}"
+          </Text>
+        </ScrollView>
+      )}
     </SafeAreaView>
   )
 }
