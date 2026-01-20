@@ -37,4 +37,7 @@ export default StyleSheet.create({
         color: '#888',
         textAlign: 'center',
         },
+        resultsContainer: {
+            marginTop: 40
+        }
 })
