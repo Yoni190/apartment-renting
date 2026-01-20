@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import Header from '../../components/Header'
 import { Search, SlidersHorizontal } from 'lucide-react-native'
 import axios from 'axios'
+import ListingCard from '../../components/ListingCard'
 
 
 
@@ -62,22 +63,78 @@ const SearchScreen = () => {
         <SlidersHorizontal size={20} color="#999" />
       </View>
 
-      {/* Placeholder when no search */}
       {query.length === 0 ? (
         <View style={styles.placeholderContainer}>
-          <Search size={48} color="#ccc" />
-          <Text style={styles.placeholderTitle}>Start searching</Text>
-          <Text style={styles.placeholderText}>
-            Find items by typing in the search bar above
-          </Text>
+            <Search size={48} color="#ccc" />
+            <Text style={styles.placeholderTitle}>Start searching</Text>
+            <Text style={styles.placeholderText}>
+            Find apartments by title or location
+            </Text>
         </View>
-      ) : (
+        ) : (
         <ScrollView showsVerticalScrollIndicator={false}>
-          <Text style={{ padding: 20 }}>
-            Showing results for "{query}"
-          </Text>
+            {loading && (
+            <Text style={{ padding: 20 }}>Searching...</Text>
+            )}
+
+            {!loading && results.length === 0 && (
+            <Text style={{ padding: 20 }}>No results found</Text>
+            )}
+
+            {results.map((a) => {
+                const imgs = Array.isArray(a.images)
+                    ? a.images
+                    : (a.images && Array.isArray(a.images.data)
+                        ? a.images.data
+                        : [])
+
+                const images = (imgs || [])
+                    .map(img =>
+                    img.url ||
+                    (img.path ? `${API_URL}/storage/${img.path}` : null)
+                    )
+                    .filter(Boolean)
+
+                const meta = a.meta || {}
+
+                return (
+                    <ListingCard
+                    key={a.id}
+                    images={images.length ? images : undefined}
+                    hasVideo={!!meta.hasVideo}
+                    hasVirtualTour={!!meta.hasVirtualTour}
+                    priceRange={meta.price_range || a.price || undefined}
+                    bedroomRange={
+                        meta.bedroom_range ||
+                        (a.bedrooms ? `${a.bedrooms} Beds` : undefined)
+                    }
+                    title={a.title || undefined}
+                    address={
+                        a.address ||
+                        (meta.location
+                        ? `${meta.location.area ?? ''} ${meta.location.city ?? ''}`
+                        : undefined)
+                    }
+                    amenities={meta.amenities || undefined}
+                    phoneEnabled={!!meta.allow_phone}
+                    contactPhone={meta.contact_phone || a.contact_phone || undefined}
+                    saved={a.is_favorite || a.fav || false}
+                    onSave={() => handleSave(a)}
+                    onUnsave={() => handleUnsave(a)}
+                    onMessage={() => openMessage(a)}
+                    onCall={(phone) => handleCall(phone)}
+                    onPress={() =>
+                        navigation.navigate('ApartmentDetails', {
+                        listingId: a.id,
+                        })
+                    }
+                    />
+                )
+                })}
+
         </ScrollView>
-      )}
+        )}
+
     </SafeAreaView>
   )
 }
