@@ -39,5 +39,57 @@ export default StyleSheet.create({
         },
         resultsContainer: {
             marginTop: 40
-        }
+        },
+        filterOverlay: {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 100,
+            },
+
+            filterMenu: {
+            width: '80%',
+            backgroundColor: '#fff',
+            borderRadius: 12,
+            padding: 20,
+            elevation: 5,
+            },
+
+            filterTitle: {
+            fontSize: 18,
+            fontWeight: 'bold',
+            marginBottom: 10,
+            },
+
+            filterLabel: {
+            marginTop: 10,
+            fontWeight: '600',
+            },
+
+            filterOptions: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            marginVertical: 5,
+            },
+
+            filterOption: {
+            padding: 10,
+            borderWidth: 1,
+            borderColor: '#ccc',
+            borderRadius: 8,
+            },
+
+            closeButton: {
+            marginTop: 20,
+            backgroundColor: '#007AFF',
+            padding: 10,
+            borderRadius: 8,
+            alignItems: 'center',
+            },
+
 })

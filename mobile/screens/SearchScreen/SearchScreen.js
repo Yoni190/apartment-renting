@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
+import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
 import styles from './SearchScreenStyle'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -14,6 +14,7 @@ const SearchScreen = () => {
     const [query, setQuery] = useState('')
     const [results, setResults] = useState([])
     const [loading, setLoading] = useState(false)
+    const [showFilters, setShowFilters] = useState(false)
 
     const navigation = useNavigation()
 
@@ -42,7 +43,6 @@ const SearchScreen = () => {
         }
     }
 
-
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#fff', paddingTop: 50 }}>
       <Header title="Search" />
@@ -61,8 +61,57 @@ const SearchScreen = () => {
         />
 
         {/* Filter Icon */}
-        <SlidersHorizontal size={20} color="#999" />
+        <TouchableOpacity onPress={() => setShowFilters(!showFilters)}>
+            <SlidersHorizontal
+            size={20}
+            color="#999" />
+        </TouchableOpacity>
       </View>
+
+      {showFilters && (
+        <View style={styles.filterOverlay}>
+            <View style={styles.filterMenu}>
+            <Text style={styles.filterTitle}>Filters</Text>
+
+            {/* Bedrooms */}
+            <Text style={styles.filterLabel}>Bedrooms</Text>
+            <View style={styles.filterOptions}>
+                <TouchableOpacity style={styles.filterOption}>
+                <Text>1+</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.filterOption}>
+                <Text>2+</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.filterOption}>
+                <Text>3+</Text>
+                </TouchableOpacity>
+            </View>
+
+            {/* Price */}
+            <Text style={styles.filterLabel}>Price Range</Text>
+            <View style={styles.filterOptions}>
+                <TouchableOpacity style={styles.filterOption}>
+                <Text>Low</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.filterOption}>
+                <Text>Medium</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.filterOption}>
+                <Text>High</Text>
+                </TouchableOpacity>
+            </View>
+
+            {/* Close button */}
+            <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => setShowFilters(false)}
+            >
+                <Text style={{ color: 'white' }}>Close</Text>
+            </TouchableOpacity>
+            </View>
+        </View>
+        )}
+
 
       {query.length === 0 ? (
         <View style={styles.placeholderContainer}>
