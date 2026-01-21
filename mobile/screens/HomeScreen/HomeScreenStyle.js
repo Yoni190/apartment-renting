@@ -23,7 +23,8 @@ export default StyleSheet.create({
     title: {
         fontSize: 18,
         fontWeight: 'bold',
-        marginTop: 16
+        marginTop: 16,
+        padding: 10,
     },
     recommendationsImage: {
         width: '100%',
