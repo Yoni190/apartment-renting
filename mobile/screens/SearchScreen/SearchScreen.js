@@ -73,7 +73,7 @@ const SearchScreen = () => {
             </Text>
         </View>
         ) : (
-        <ScrollView showsVerticalScrollIndicator={false}>
+        <ScrollView showsVerticalScrollIndicator={false} style={styles.resultsContainer}>
             {loading && (
             <Text style={{ padding: 20 }}>Searching...</Text>
             )}
