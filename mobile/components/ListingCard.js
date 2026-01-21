@@ -62,11 +62,11 @@ export default function ListingCard({
   amenities,
   phoneEnabled,
   contactPhone,
-  saved,
-  onSave,
-  onUnsave,
-  onMessage,
-  onCall,
+  saved=null,
+  onSave=null,
+  onUnsave=null,
+  onMessage=null,
+  onCall=null,
   onPress,
   isOwnerMode = false,
   onEdit,
@@ -243,7 +243,7 @@ export default function ListingCard({
         <View style={styles.topRow}>
           {priceRange ? <Text style={styles.priceText}>{priceRange}</Text> : null}
 
-          {!isOwnerMode && (onSave || onUnsave) && (
+          {!isOwnerMode && (onSave || onUnsave) && saved && (
             <TouchableOpacity
               style={styles.saveBtn}
               onPress={handleSaveToggle}
