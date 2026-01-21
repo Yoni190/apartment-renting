@@ -690,5 +690,60 @@ export default StyleSheet.create({
     color: '#1778f2',
     fontWeight: '600',
   },
+  writeReviewCard: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+
+  writeReviewTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    marginBottom: 10,
+    color: '#111827',
+  },
+
+  writeStarsRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+
+  reviewInputMock: {
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 10,
+    padding: 12,
+    minHeight: 80,
+    backgroundColor: '#f9fafb',
+    marginBottom: 12,
+  },
+
+  reviewPlaceholder: {
+    color: '#9ca3af',
+    fontSize: 14,
+  },
+
+  submitReviewBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#1778f2',
+    paddingVertical: 10,
+    borderRadius: 8,
+    opacity: 0.85, // gives "disabled" visual feel
+  },
+
+  submitReviewText: {
+    color: '#fff',
+    fontWeight: '600',
+    marginLeft: 6,
+  },
+
 
 })

@@ -908,7 +908,7 @@ export default function ApartmentDetails() {
             )}
           </View>
         </View>
-        
+
         {/* Ratings & Reviews Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Ratings & Reviews</Text>
@@ -927,6 +927,34 @@ export default function ApartmentDetails() {
 
             <Text style={styles.reviewCount}>Based on 23 reviews</Text>
           </View>
+
+          {/* Write a Review */}
+          <View style={styles.writeReviewCard}>
+            <Text style={styles.writeReviewTitle}>Write a Review</Text>
+
+            {/* Star input (visual only) */}
+            <View style={styles.writeStarsRow}>
+              <Ionicons name="star-outline" size={28} color="#fbbf24" />
+              <Ionicons name="star-outline" size={28} color="#fbbf24" />
+              <Ionicons name="star-outline" size={28} color="#fbbf24" />
+              <Ionicons name="star-outline" size={28} color="#fbbf24" />
+              <Ionicons name="star-outline" size={28} color="#fbbf24" />
+            </View>
+
+            {/* Review input placeholder */}
+            <View style={styles.reviewInputMock}>
+              <Text style={styles.reviewPlaceholder}>
+                Share your experience about this apartment...
+              </Text>
+            </View>
+
+            {/* Submit button (disabled look) */}
+            <TouchableOpacity style={styles.submitReviewBtn} activeOpacity={0.8}>
+              <Ionicons name="send-outline" size={16} color="#fff" />
+              <Text style={styles.submitReviewText}>Submit Review</Text>
+            </TouchableOpacity>
+          </View>
+
 
           {/* Individual reviews */}
           <View style={styles.reviewCard}>
