@@ -626,4 +626,69 @@ export default StyleSheet.create({
     fontWeight: '700',
     fontSize: 16,
   },
+
+  ratingSummary: {
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+
+  ratingValue: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#111827',
+  },
+
+  starsRow: {
+    flexDirection: 'row',
+    marginVertical: 4,
+  },
+
+  starsRowSmall: {
+    flexDirection: 'row',
+  },
+
+  reviewCount: {
+    fontSize: 13,
+    color: '#6b7280',
+  },
+
+  reviewCard: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+
+  reviewHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+
+  reviewerName: {
+    fontWeight: '600',
+    color: '#111827',
+  },
+
+  reviewText: {
+    color: '#374151',
+    lineHeight: 20,
+  },
+
+  viewAllReviewsBtn: {
+    marginTop: 8,
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+
+  viewAllReviewsText: {
+    color: '#1778f2',
+    fontWeight: '600',
+  },
+
 })
