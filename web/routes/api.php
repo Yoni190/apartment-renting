@@ -12,6 +12,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Rules;
 use App\Services\RecommendationService;
 use App\Http\Controllers\ApartmentController;
+use App\Http\Controllers\ReviewController;
 
 // Helper: normalize common meta fields so clients receive consistent shapes
 // e.g. amenities, utilities may be sent as JSON strings or comma lists — store as arrays
@@ -852,6 +853,13 @@ Route::get('/recommendations', function (Request $request) {
     // Only return owner-provided fields (do not fabricate data). We already eager-loaded images/owner.
     return response()->json($results);
 });
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/apartments/{apartment}/reviews', [ReviewController::class, 'store']);
+    Route::put('/reviews/{review}', [ReviewController::class, 'update']);
+    Route::delete('/reviews/{review}', [ReviewController::class, 'destroy']);
+});
+
 
 
 Route::get('/search', [ApartmentController::class, 'search']);
