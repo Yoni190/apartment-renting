@@ -270,7 +270,7 @@ export default function ListingCard({
         {/* actions row */}
         <View style={styles.actionsRow}>
           {/* If both message and call are available, show two equal-width primary buttons */}
-          {onMessage && contactPhone && onCall ? (
+          {onMessage && contactPhone && onCall && (
             <>
               <TouchableOpacity style={[styles.primaryBtn, styles.splitBtn, { marginRight: 8 }]} onPress={onMessage} accessibilityRole="button" accessibilityLabel="Message">
                 <Ionicons name="chatbubble-ellipses-outline" size={16} color="#fff" style={{ marginRight: 8 }} />
@@ -281,23 +281,7 @@ export default function ListingCard({
                 <Text style={styles.primaryBtnText}>Call</Text>
               </TouchableOpacity>
             </>
-          ) : (
-            // Fallback: render whichever action is present (preserve previous styles)
-            <>
-              {onMessage ? (
-                <TouchableOpacity style={[styles.primaryBtn]} onPress={onMessage} accessibilityRole="button" accessibilityLabel="Message">
-                  <Ionicons name="chatbubble-ellipses-outline" size={16} color="#fff" style={{ marginRight: 8 }} />
-                  <Text style={styles.primaryBtnText}>Message</Text>
-                </TouchableOpacity>
-              ) : null}
-              {contactPhone && onCall ? (
-                <TouchableOpacity style={[styles.callBtn]} onPress={() => onCall(contactPhone)} accessibilityRole="button" accessibilityLabel={`Call ${contactPhone}`}>
-                  <Ionicons name="call-outline" size={16} color="#1778f2" style={{ marginRight: 8 }} />
-                  <Text style={styles.callBtnText}>Call</Text>
-                </TouchableOpacity>
-              ) : null}
-            </>
-          )}
+          ) }
 
           {/* Owner-only actions */}
           {isOwnerMode && (
