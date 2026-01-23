@@ -237,7 +237,7 @@ const HomeForPO = () => {
                       <React.Fragment key={`${activeTab}-${item.id}`}>
                         <ListingCard
                           images={images.length ? images : undefined}
-                          priceRange={item.price ? `$${Number(item.price).toLocaleString()}` : undefined}
+                          priceRange={item.price ? `${Number(item.price).toLocaleString()} Birr` : undefined}
                           bedroomRange={item.bedrooms ? `${item.bedrooms} Bed${item.bedrooms !== 1 ? 's' : ''}` : undefined}
                           title={item.title}
                           address={item.address || (meta.location ? `${meta.location.area || ''} ${meta.location.city || ''}`.trim() : undefined)}
