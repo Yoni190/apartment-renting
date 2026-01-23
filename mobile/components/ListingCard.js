@@ -241,6 +241,11 @@ export default function ListingCard({
         {/* (Badge moved to absolute overlay on top-left) */}
         {/* top row: price + save (if not owner) */}
         <View style={styles.topRow}>
+          {/* bedroom / title */}
+          <View style={styles.titleRow}>
+            {title ? <Text style={styles.titleText} numberOfLines={2}>{title}</Text> : null}
+            {bedroomRange ? <Text style={styles.bedroomText}>{bedroomRange}</Text> : null}
+          </View>
           {priceRange ? <Text style={styles.priceText}>{priceRange}</Text> : null}
 
           {!isOwnerMode && (onSave || onUnsave) && saved && (
@@ -255,11 +260,7 @@ export default function ListingCard({
           )}
         </View>
 
-        {/* bedroom / title */}
-        <View style={styles.titleRow}>
-          {bedroomRange ? <Text style={styles.bedroomText}>{bedroomRange}</Text> : null}
-          {title ? <Text style={styles.titleText} numberOfLines={2}>{title}</Text> : null}
-        </View>
+        
 
         {/* address */}
   {address ? <Text style={styles.addressText} numberOfLines={2}>{address}</Text> : null}
@@ -410,6 +411,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '700',
     color: '#111',
+    marginTop: 20
   },
   saveBtn: {
     padding: 6,
