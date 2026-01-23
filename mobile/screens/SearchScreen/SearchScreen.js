@@ -7,10 +7,12 @@ import { Search, SlidersHorizontal } from 'lucide-react-native'
 import axios from 'axios'
 import ListingCard from '../../components/ListingCard'
 import { useNavigation } from '@react-navigation/native'
+import { useTranslation } from 'react-i18next'
+
 
 
 const SearchScreen = () => {
-
+    const { t } = useTranslation()
     const [query, setQuery] = useState('')
     const [results, setResults] = useState([])
     const [loading, setLoading] = useState(false)
@@ -61,7 +63,7 @@ const SearchScreen = () => {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#fff', paddingTop: 50 }}>
-      <Header title="Search" />
+      <Header title={t('search')} />
 
       <View style={styles.searchContainer}>
         {/* Search Icon */}
@@ -69,7 +71,7 @@ const SearchScreen = () => {
 
         {/* Input */}
         <TextInput
-          placeholder="Search..."
+          placeholder={t('search...')}
           placeholderTextColor="#999"
           style={styles.input}
           value={query}
@@ -88,10 +90,10 @@ const SearchScreen = () => {
       {showFilters && (
         <View style={styles.filterOverlay}>
           <View style={styles.filterMenu}>
-            <Text style={styles.filterTitle}>Filters</Text>
+            <Text style={styles.filterTitle}>{t('filters')}</Text>
 
             {/* Bedrooms */}
-            <Text style={styles.filterLabel}>Bedrooms</Text>
+            <Text style={styles.filterLabel}>{t('bedrooms')}</Text>
             <View style={styles.filterOptions}>
               {[1, 2, 3].map(n => (
                 <TouchableOpacity
@@ -108,7 +110,7 @@ const SearchScreen = () => {
             </View>
 
             {/* Price */}
-            <Text style={styles.filterLabel}>Price Range</Text>
+            <Text style={styles.filterLabel}>{t('price_range')}</Text>
             <View style={styles.filterOptions}>
               {['low', 'medium', 'high'].map(p => (
                 <TouchableOpacity
@@ -130,14 +132,14 @@ const SearchScreen = () => {
                 style={[styles.closeButton, { backgroundColor: '#ccc', flex: 1, marginRight: 10 }]}
                 onPress={() => setShowFilters(false)}
               >
-                <Text style={{ color: 'white', textAlign: 'center' }}>Cancel</Text>
+                <Text style={{ color: 'white', textAlign: 'center' }}>{t('cancel')}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={[styles.closeButton, { flex: 1 }]}
                 onPress={applyFilters}
               >
-                <Text style={{ color: 'white', textAlign: 'center' }}>Apply</Text>
+                <Text style={{ color: 'white', textAlign: 'center' }}>{t('apply')}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -148,19 +150,19 @@ const SearchScreen = () => {
       {query.length === 0 ? (
         <View style={styles.placeholderContainer}>
             <Search size={48} color="#ccc" />
-            <Text style={styles.placeholderTitle}>Start searching</Text>
+            <Text style={styles.placeholderTitle}>{t('start_searching')}</Text>
             <Text style={styles.placeholderText}>
-            Find apartments by title or location
+            {t('find_apartments_by_title')}
             </Text>
         </View>
         ) : (
         <ScrollView showsVerticalScrollIndicator={false} style={styles.resultsContainer}>
             {loading && (
-            <Text style={{ padding: 20 }}>Searching...</Text>
+            <Text style={{ padding: 20 }}>{t('searching...')}</Text>
             )}
 
             {!loading && results.length === 0 && (
-            <Text style={{ padding: 20 }}>No results found</Text>
+            <Text style={{ padding: 20 }}>{t('no_results_found')}</Text>
             )}
 
             {results.map((a) => {

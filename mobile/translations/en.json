@@ -23,5 +23,12 @@
   "searchSubtitle": "Try adjusting your search to find what you're looking for.",
   "recommended": "Recommended",
   "home": "Home",
-  "apartments": "Apartments"
+  "apartments": "Apartments",
+  "search...": "Search...",
+  "start_searching": "Start searching",
+  "find_apartments_by_title": "Find apartments by title",
+  "filters": "Filters",
+  "bedrooms": "Bedrooms",
+  "price_range": "Price Range",
+  "apply": "Apply"
 }

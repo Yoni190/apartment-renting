@@ -16,5 +16,13 @@
   "chooseYourRole": "ሚናኻ ምረጽ",
   "recommended": "ዝተመከረ",
   "home": "ዋና",
-  "apartments": "ኣፓርታማታት"
+  "apartments": "ኣፓርታማታት",
+  "search": "ድለ",
+  "search...": "ድለ...",
+  "start_searching": "መድለይ ጀምር",
+  "find_apartments_by_title": "ኣፓርታማታት ብስም ድለ",
+  "filters": "መጣርያታት",
+  "bedrooms": "ክፍሊ",
+  "price_range": "መጠን ዋጋ",
+  "apply": "ተግባር"
 }
