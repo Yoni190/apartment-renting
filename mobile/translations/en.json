@@ -20,5 +20,8 @@
   "search": "Search",
   "searchPlaceholder": "Search for apartments, locations...",
   "noResultsFound": "No Results Found",
-  "searchSubtitle": "Try adjusting your search to find what you're looking for."
+  "searchSubtitle": "Try adjusting your search to find what you're looking for.",
+  "recommended": "Recommended",
+  "home": "Home",
+  "apartments": "Apartments"
 }
