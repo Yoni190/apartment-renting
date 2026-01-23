@@ -23,28 +23,41 @@ const SearchScreen = () => {
 
     const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
-    const searchApartments = async (text) => {
-        setQuery(text)
+      const searchApartments = async (text, filters = {}) => {
+            setQuery(text)
 
-        if(text.length < 2) {
+            if (text.length < 2) {
             setResults([])
             return
-        }
+            }
 
-        try {
+            try {
             setLoading(true)
-            const response = await axios.get(
-                `${API_URL}/search?q=${text}`
-            )
 
+            // Build query params for API
+            const params = {
+                q: text,
+                ...(filters.bedrooms ? { bedrooms: filters.bedrooms } : {}),
+                ...(filters.price ? { price_range: filters.price } : {}),
+            }
+
+            const response = await axios.get(`${API_URL}/search`, { params })
             setResults(response.data)
-            console.log(results)
-        } catch(error) {
+            } catch (error) {
             console.log(error)
-        } finally {
+            } finally {
             setLoading(false)
+            }
         }
-    }
+
+        // Handle filter change
+        const applyFilters = () => {
+            setShowFilters(false)
+            searchApartments(query, {
+            bedrooms: bedroomFilter,
+            price: priceFilter,
+            })
+        }
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#fff', paddingTop: 50 }}>
@@ -71,49 +84,65 @@ const SearchScreen = () => {
         </TouchableOpacity>
       </View>
 
+      {/* Filter Menu */}
       {showFilters && (
         <View style={styles.filterOverlay}>
-            <View style={styles.filterMenu}>
+          <View style={styles.filterMenu}>
             <Text style={styles.filterTitle}>Filters</Text>
 
             {/* Bedrooms */}
             <Text style={styles.filterLabel}>Bedrooms</Text>
             <View style={styles.filterOptions}>
-                <TouchableOpacity style={styles.filterOption}>
-                <Text>1+</Text>
+              {[1, 2, 3].map(n => (
+                <TouchableOpacity
+                  key={n}
+                  style={[
+                    styles.filterOption,
+                    bedroomFilter === n && { backgroundColor: '#007AFF' }
+                  ]}
+                  onPress={() => setBedroomFilter(n)}
+                >
+                  <Text style={{ color: bedroomFilter === n ? 'white' : 'black' }}>{n}+</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.filterOption}>
-                <Text>2+</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.filterOption}>
-                <Text>3+</Text>
-                </TouchableOpacity>
+              ))}
             </View>
 
             {/* Price */}
             <Text style={styles.filterLabel}>Price Range</Text>
             <View style={styles.filterOptions}>
-                <TouchableOpacity style={styles.filterOption}>
-                <Text>Low</Text>
+              {['low', 'medium', 'high'].map(p => (
+                <TouchableOpacity
+                  key={p}
+                  style={[
+                    styles.filterOption,
+                    priceFilter === p && { backgroundColor: '#007AFF' }
+                  ]}
+                  onPress={() => setPriceFilter(p)}
+                >
+                  <Text style={{ color: priceFilter === p ? 'white' : 'black' }}>{p}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.filterOption}>
-                <Text>Medium</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.filterOption}>
-                <Text>High</Text>
-                </TouchableOpacity>
+              ))}
             </View>
 
-            {/* Close button */}
-            <TouchableOpacity
-                style={styles.closeButton}
+            {/* Apply & Close Buttons */}
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
+              <TouchableOpacity
+                style={[styles.closeButton, { backgroundColor: '#ccc', flex: 1, marginRight: 10 }]}
                 onPress={() => setShowFilters(false)}
-            >
-                <Text style={{ color: 'white' }}>Close</Text>
-            </TouchableOpacity>
+              >
+                <Text style={{ color: 'white', textAlign: 'center' }}>Cancel</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.closeButton, { flex: 1 }]}
+                onPress={applyFilters}
+              >
+                <Text style={{ color: 'white', textAlign: 'center' }}>Apply</Text>
+              </TouchableOpacity>
             </View>
+          </View>
         </View>
-        )}
+      )}
 
 
       {query.length === 0 ? (
