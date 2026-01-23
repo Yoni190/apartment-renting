@@ -16,6 +16,9 @@ const SearchScreen = () => {
     const [loading, setLoading] = useState(false)
     const [showFilters, setShowFilters] = useState(false)
 
+    const [bedroomFilter, setBedroomFilter] = useState(null)
+    const [priceFilter, setPriceFilter] = useState(null) 
+
     const navigation = useNavigation()
 
     const API_URL = process.env.EXPO_PUBLIC_API_URL;
