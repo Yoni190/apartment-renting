@@ -9,8 +9,11 @@ import { Ionicons } from '@expo/vector-icons'
 import Header from '../../components/Header'
 import { SlidersHorizontal, ToolCase } from 'lucide-react-native'
 import ListingCard from '../../components/ListingCard'
+import { useTranslation } from 'react-i18next'
+
 
 const HomeScreen = () => {
+    const { t } = useTranslation()
     const [user, setUser] = useState(null)
     const [apartments, setApartments] = useState([])
     const [loading, setLoading] = useState(false)
@@ -206,7 +209,7 @@ const HomeScreen = () => {
   <SafeAreaView style={{ flex: 1, backgroundColor: '#fff', paddingTop: 50 }}>
       {/* Add top padding so the absolute-positioned Header doesn't cover content */}
       <Header 
-          title='Home'
+          title={t('home')}
         />
       <ScrollView showsVerticalScrollIndicator={false}> 
         
@@ -247,7 +250,7 @@ const HomeScreen = () => {
           </View>
         ) : null}
 
-        <Text style={styles.title}>Recommended</Text>
+        <Text style={styles.title}>{t('recommended')}</Text>
 
         <ScrollView 
           showsHorizontalScrollIndicator={false} 
@@ -281,7 +284,7 @@ const HomeScreen = () => {
           ))}
         </ScrollView>
 
-        <Text style={styles.title}>Apartments</Text>
+        <Text style={styles.title}>{t('apartments')}</Text>
 
         {/* Show listings using ListingCard only */}
         <View style={{ alignItems: 'center', paddingVertical: 8 }}>
