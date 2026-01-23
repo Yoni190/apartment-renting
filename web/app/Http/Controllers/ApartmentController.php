@@ -652,15 +652,35 @@ class ApartmentController extends Controller
 
     public function search(Request $request) {
         $query = $request->query('q');
+        $bedrooms = $request->query('bedrooms'); // 1, 2, 3
+        $priceRange = $request->query('price_range'); // low, medium, high
 
         if(!$query) {
             return response()->json([]);
         }
 
         $apartments = Apartment::with('images')
-                        ->where('title', 'LIKE', "%{$query}%")
-                        ->get();
+                        ->where('title', 'LIKE', "%{$query}%");
+
+        // Apply bedroom filter
+        if($bedrooms) {
+            $apartments->where('bedrooms', '>=', $bedrooms);
+        }
+
+        // Apply price filter
+        if($priceRange) {
+            if($priceRange === 'low') {
+                $apartments->where('price', '<', 10000); // example
+            } elseif($priceRange === 'medium') {
+                $apartments->whereBetween('price', [10000, 20000]);
+            } elseif($priceRange === 'high') {
+                $apartments->where('price', '>', 2000);
+            }
+        }
+
+        $apartments = $apartments->get();
 
         return response()->json($apartments);
     }
+
 }
