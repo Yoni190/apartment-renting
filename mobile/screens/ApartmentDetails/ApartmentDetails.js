@@ -11,6 +11,7 @@ import {
   Linking,
   Platform,
   FlatList,
+  TextInput
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useRoute, useNavigation } from '@react-navigation/native'
@@ -54,6 +55,11 @@ export default function ApartmentDetails() {
   const [selectedDateIndex, setSelectedDateIndex] = useState(null)
   const [bookingLoading, setBookingLoading] = useState(false)
   const flatListRef = useRef(null)
+
+  const [rating, setRating] = useState(0)
+  const [reviewText, setReviewText] = useState('')
+  const [reviewLoading, setReviewLoading] = useState(false)
+
 
   useEffect(() => {
     if (!listingId) return
@@ -672,6 +678,55 @@ export default function ApartmentDetails() {
     }
   }, [listing, images])
 
+  const submitReview = async () => {
+    if (!rating) {
+      Alert.alert('Rating required', 'Please select a star rating')
+      return
+    }
+
+    try {
+      setReviewLoading(true)
+
+      const token = await SecureStore.getItemAsync('token')
+      if (!token) {
+        Alert.alert('Login required', 'Please log in to submit a review')
+        return
+      }
+
+      await axios.post(
+        `${API_URL}/apartments/${listingId}/reviews`,
+        {
+          rating,
+          comment: reviewText,
+        },
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+
+      Alert.alert('Success', 'Your review has been submitted 🎉')
+
+      // reset form
+      setRating(0)
+      setReviewText('')
+
+    } catch (err) {
+      console.warn('Review error', err.response?.data || err.message)
+
+      const message =
+        err.response?.data?.message ||
+        'Failed to submit review'
+
+      Alert.alert('Error', message)
+    } finally {
+      setReviewLoading(false)
+    }
+  }
+
+
   if (loading) {
     return (
       <SafeAreaView style={{ flex: 1 }}>
@@ -934,18 +989,28 @@ export default function ApartmentDetails() {
 
             {/* Star input (visual only) */}
             <View style={styles.writeStarsRow}>
-              <Ionicons name="star-outline" size={28} color="#fbbf24" />
-              <Ionicons name="star-outline" size={28} color="#fbbf24" />
-              <Ionicons name="star-outline" size={28} color="#fbbf24" />
-              <Ionicons name="star-outline" size={28} color="#fbbf24" />
-              <Ionicons name="star-outline" size={28} color="#fbbf24" />
+              {[1, 2, 3, 4, 5].map((value) => (
+                <TouchableOpacity key={value} onPress={() => setRating(value)}>
+                  <Ionicons
+                    name={value <= rating ? 'star' : 'star-outline'}
+                    size={28}
+                    color="#fbbf24"
+                  />
+                </TouchableOpacity>
+              ))}
             </View>
+
 
             {/* Review input placeholder */}
             <View style={styles.reviewInputMock}>
-              <Text style={styles.reviewPlaceholder}>
-                Share your experience about this apartment...
-              </Text>
+              <TextInput
+                value={reviewText}
+                onChangeText={setReviewText}
+                placeholder="Share your experience about this apartment..."
+                multiline
+                style={styles.reviewInput}
+                placeholderTextColor="#9ca3af"
+              />
             </View>
 
             {/* Submit button (disabled look) */}
