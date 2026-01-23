@@ -56,9 +56,17 @@ export default function ApartmentDetails() {
   const [bookingLoading, setBookingLoading] = useState(false)
   const flatListRef = useRef(null)
 
+  // For submission
   const [rating, setRating] = useState(0)
   const [reviewText, setReviewText] = useState('')
   const [reviewLoading, setReviewLoading] = useState(false)
+
+  // For displaying
+  const [reviews, setReviews] = useState([])
+  const [averageRating, setAverageRating] = useState(0)
+  const [totalReviews, setTotalReviews] = useState(0)
+  const [reviewsLoading, setReviewsLoading] = useState(false)
+
 
 
   useEffect(() => {
