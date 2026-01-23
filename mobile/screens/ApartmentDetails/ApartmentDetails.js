@@ -1111,17 +1111,20 @@ export default function ApartmentDetails() {
 
 
           {/* View all button */}
-          <TouchableOpacity
-            style={styles.viewAllReviewsBtn}
-            onPress={() =>
-              navigation.navigate('ApartmentReviews', {
-                apartmentId: listingId,
-                apartmentTitle: listing.title,
-              })
-            }
-          >
-            <Text style={styles.viewAllReviewsText}>View all reviews</Text>
-          </TouchableOpacity>
+          {totalReviews > 3 && (
+              <TouchableOpacity
+                style={styles.viewAllReviewsBtn}
+                onPress={() =>
+                  navigation.navigate('ApartmentReviews', {
+                    apartmentId: listingId,
+                    apartmentTitle: listing.title,
+                  })
+                }
+              >
+                <Text style={styles.viewAllReviewsText}>View all reviews</Text>
+              </TouchableOpacity>
+          )}
+          
         </View>
 
 
