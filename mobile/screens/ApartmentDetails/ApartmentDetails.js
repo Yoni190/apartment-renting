@@ -122,6 +122,7 @@ export default function ApartmentDetails() {
     }
 
     load()
+    fetchReviews()
   }, [listingId])
 
   const isOwner = useMemo(() => {
@@ -1001,17 +1002,28 @@ export default function ApartmentDetails() {
 
           {/* Rating summary */}
           <View style={styles.ratingSummary}>
-            <Text style={styles.ratingValue}>4.5</Text>
+            <Text style={styles.ratingValue}>{averageRating ? averageRating.toFixed(1) : '0.0'}</Text>
 
             <View style={styles.starsRow}>
-              <Ionicons name="star" size={18} color="#fbbf24" />
-              <Ionicons name="star" size={18} color="#fbbf24" />
-              <Ionicons name="star" size={18} color="#fbbf24" />
-              <Ionicons name="star" size={18} color="#fbbf24" />
-              <Ionicons name="star-half" size={18} color="#fbbf24" />
+              {[1,2,3,4,5].map((i) => (
+                <Ionicons
+                  key={i}
+                  name={
+                    averageRating >= i
+                      ? 'star'
+                      : averageRating >= i - 0.5
+                      ? 'star-half'
+                      : 'star-outline'
+                  }
+                  size={18}
+                  color="#fbbf24"
+                />
+              ))}
             </View>
 
-            <Text style={styles.reviewCount}>Based on 23 reviews</Text>
+          <Text style={styles.reviewCount}>
+            Based on {totalReviews} review{totalReviews !== 1 ? 's' : ''}
+          </Text>
           </View>
 
           {/* Write a Review */}
@@ -1062,40 +1074,41 @@ export default function ApartmentDetails() {
           </View>
 
 
-          {/* Individual reviews */}
-          <View style={styles.reviewCard}>
-            <View style={styles.reviewHeader}>
-              <Text style={styles.reviewerName}>John D.</Text>
-              <View style={styles.starsRowSmall}>
-                <Ionicons name="star" size={14} color="#fbbf24" />
-                <Ionicons name="star" size={14} color="#fbbf24" />
-                <Ionicons name="star" size={14} color="#fbbf24" />
-                <Ionicons name="star" size={14} color="#fbbf24" />
-                <Ionicons name="star-outline" size={14} color="#fbbf24" />
-              </View>
-            </View>
+          {reviewsLoading && (
+            <Text style={{ padding: 12 }}>Loading reviews...</Text>
+          )}
 
-            <Text style={styles.reviewText}>
-              Clean apartment, quiet neighborhood, and very responsive owner.
+          {!reviewsLoading && reviews.length === 0 && (
+            <Text style={{ padding: 12, color: '#6b7280' }}>
+              No reviews yet. Be the first to review!
             </Text>
-          </View>
+          )}
 
-          <View style={styles.reviewCard}>
-            <View style={styles.reviewHeader}>
-              <Text style={styles.reviewerName}>Sarah K.</Text>
-              <View style={styles.starsRowSmall}>
-                <Ionicons name="star" size={14} color="#fbbf24" />
-                <Ionicons name="star" size={14} color="#fbbf24" />
-                <Ionicons name="star" size={14} color="#fbbf24" />
-                <Ionicons name="star-half" size={14} color="#fbbf24" />
-                <Ionicons name="star-outline" size={14} color="#fbbf24" />
+          {reviews.map((review) => (
+            <View key={review.id} style={styles.reviewCard}>
+              <View style={styles.reviewHeader}>
+                <Text style={styles.reviewerName}>
+                  {review.user?.name || 'Anonymous'}
+                </Text>
+
+                <View style={styles.starsRowSmall}>
+                  {[1,2,3,4,5].map((i) => (
+                    <Ionicons
+                      key={i}
+                      name={review.rating >= i ? 'star' : 'star-outline'}
+                      size={14}
+                      color="#fbbf24"
+                    />
+                  ))}
+                </View>
               </View>
-            </View>
 
-            <Text style={styles.reviewText}>
-              Great location but parking can be difficult sometimes.
-            </Text>
-          </View>
+              {review.comment ? (
+                <Text style={styles.reviewText}>{review.comment}</Text>
+              ) : null}
+            </View>
+          ))}
+
 
           {/* View all button */}
           <TouchableOpacity style={styles.viewAllReviewsBtn}>
