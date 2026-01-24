@@ -734,6 +734,29 @@ export default function ApartmentDetails() {
     }
   }
 
+  const fetchReviews = async () => {
+    if (!listingId) return
+
+    try {
+      setReviewsLoading(true)
+
+      const res = await axios.get(
+        `${API_URL}/apartments/${listingId}/reviews`,
+        { headers: { Accept: 'application/json' } }
+      )
+
+      setReviews(res.data.reviews || [])
+      setAverageRating(res.data.average_rating || 0)
+      setTotalReviews(res.data.total_reviews || 0)
+
+    } catch (err) {
+      console.warn('Failed to load reviews', err.message)
+    } finally {
+      setReviewsLoading(false)
+    }
+  }
+
+
 
   if (loading) {
     return (
