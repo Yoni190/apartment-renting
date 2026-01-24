@@ -1084,7 +1084,7 @@ export default function ApartmentDetails() {
             </Text>
           )}
 
-          {reviews.map((review) => (
+          {reviews.slice(0, 3).map((review) => (
             <View key={review.id} style={styles.reviewCard}>
               <View style={styles.reviewHeader}>
                 <Text style={styles.reviewerName}>
