@@ -3,6 +3,9 @@ import React, { useEffect, useState } from 'react'
 import { Ionicons } from '@expo/vector-icons'
 import styles from './ApartmentDetailsStyle'
 import axios from 'axios'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import Header from '../../components/Header'
+
 
 
 
@@ -24,28 +27,30 @@ const ApartmentReviews = ({ route }) => {
   }
 
   return (
-    <ScrollView style={{ padding: 16 }}>
-      {reviews.map(review => (
-        <View key={review.id} style={styles.reviewCard}>
-          <Text style={styles.reviewerName}>
-            {review.user?.name || 'Anonymous'}
-          </Text>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#f8fafc' }}>
+        <Header title={'Apartment Reviews'} />
 
-          <View style={styles.starsRowSmall}>
-            {[1,2,3,4,5].map(i => (
-              <Ionicons
-                key={i}
-                name={review.rating >= i ? 'star' : 'star-outline'}
-                size={14}
-                color="#fbbf24"
-              />
-            ))}
-          </View>
-
-          <Text style={styles.reviewText}>{review.comment}</Text>
-        </View>
-      ))}
-    </ScrollView>
+        <ScrollView style={{ padding: 16, marginTop: 70 }}>
+          {reviews.map(review => (
+            <View key={review.id} style={styles.reviewCard}>
+              <Text style={styles.reviewerName}>
+                {review.user?.name || 'Anonymous'}
+              </Text>
+              <View style={styles.starsRowSmall}>
+                {[1,2,3,4,5].map(i => (
+                  <Ionicons
+                    key={i}
+                    name={review.rating >= i ? 'star' : 'star-outline'}
+                    size={14}
+                    color="#fbbf24"
+                  />
+                ))}
+              </View>
+              <Text style={styles.reviewText}>{review.comment}</Text>
+            </View>
+          ))}
+        </ScrollView>
+    </SafeAreaView>
   )
 }
 
