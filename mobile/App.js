@@ -16,8 +16,8 @@ import HomeForPO from './screens/HomeForPO/HomeForPO';
 import AddListing from './screens/AddListing/AddListing';
 import OwnerTabs from './screens/OwnerTabs'
 import ApartmentDetails from './screens/ApartmentDetails/ApartmentDetails';
-
 import './i18n';
+import ApartmentReviews from './screens/ApartmentDetails/ApartmentReviews';
 
 const Stack = createStackNavigator()
 
@@ -43,6 +43,7 @@ export default function App() {
         <Stack.Screen name="Home" component={HomeTabs} options={{ headerShown: false }}/>
         <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ headerShown: false }}/>
         <Stack.Screen name="ApartmentDetails" component={ApartmentDetails} options={{ headerShown: false }}/>
+        <Stack.Screen name="ApartmentReviews" component={ApartmentReviews} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
     </SafeAreaProvider>

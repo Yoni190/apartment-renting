@@ -2,6 +2,7 @@ import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-nat
 import React, { useEffect, useState } from 'react'
 import { Ionicons } from '@expo/vector-icons'
 import styles from './ApartmentDetailsStyle'
+import axios from 'axios'
 
 
 
@@ -9,6 +10,7 @@ const ApartmentReviews = ({ route }) => {
   const { apartmentId } = route.params
   const [reviews, setReviews] = useState([])
   const [loading, setLoading] = useState(true)
+  const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8000'
 
   useEffect(() => {
     axios
