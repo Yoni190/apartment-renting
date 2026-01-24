@@ -908,6 +908,67 @@ export default function ApartmentDetails() {
             )}
           </View>
         </View>
+        
+        {/* Ratings & Reviews Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Ratings & Reviews</Text>
+
+          {/* Rating summary */}
+          <View style={styles.ratingSummary}>
+            <Text style={styles.ratingValue}>4.5</Text>
+
+            <View style={styles.starsRow}>
+              <Ionicons name="star" size={18} color="#fbbf24" />
+              <Ionicons name="star" size={18} color="#fbbf24" />
+              <Ionicons name="star" size={18} color="#fbbf24" />
+              <Ionicons name="star" size={18} color="#fbbf24" />
+              <Ionicons name="star-half" size={18} color="#fbbf24" />
+            </View>
+
+            <Text style={styles.reviewCount}>Based on 23 reviews</Text>
+          </View>
+
+          {/* Individual reviews */}
+          <View style={styles.reviewCard}>
+            <View style={styles.reviewHeader}>
+              <Text style={styles.reviewerName}>John D.</Text>
+              <View style={styles.starsRowSmall}>
+                <Ionicons name="star" size={14} color="#fbbf24" />
+                <Ionicons name="star" size={14} color="#fbbf24" />
+                <Ionicons name="star" size={14} color="#fbbf24" />
+                <Ionicons name="star" size={14} color="#fbbf24" />
+                <Ionicons name="star-outline" size={14} color="#fbbf24" />
+              </View>
+            </View>
+
+            <Text style={styles.reviewText}>
+              Clean apartment, quiet neighborhood, and very responsive owner.
+            </Text>
+          </View>
+
+          <View style={styles.reviewCard}>
+            <View style={styles.reviewHeader}>
+              <Text style={styles.reviewerName}>Sarah K.</Text>
+              <View style={styles.starsRowSmall}>
+                <Ionicons name="star" size={14} color="#fbbf24" />
+                <Ionicons name="star" size={14} color="#fbbf24" />
+                <Ionicons name="star" size={14} color="#fbbf24" />
+                <Ionicons name="star-half" size={14} color="#fbbf24" />
+                <Ionicons name="star-outline" size={14} color="#fbbf24" />
+              </View>
+            </View>
+
+            <Text style={styles.reviewText}>
+              Great location but parking can be difficult sometimes.
+            </Text>
+          </View>
+
+          {/* View all button */}
+          <TouchableOpacity style={styles.viewAllReviewsBtn}>
+            <Text style={styles.viewAllReviewsText}>View all reviews</Text>
+          </TouchableOpacity>
+        </View>
+
 
         {/* Amenities Section */}
         {amenitiesList.length > 0 && (
