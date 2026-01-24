@@ -66,4 +66,12 @@ class Apartment extends Model
         return $this->hasMany(TourBooking::class, 'listing_id');
     }
 
+    public function reviews() {
+        return $this->hasMany(Review::class);
+    }
+
+    public function averageRating() {
+        return $this->reviews()->avg('rating');
+    }
+
 }
