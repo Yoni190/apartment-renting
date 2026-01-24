@@ -153,6 +153,19 @@ export default function ListingCard({
       disabled={!onPress}
       accessibilityRole={onPress ? 'button' : undefined}
     >
+      {/* Favorite (heart) button placed below the images at the top-right of the card */}
+      {!isOwnerMode && (onSave || onUnsave) && (
+        <TouchableOpacity
+          style={styles.favoriteBtnAbsolute}
+          onPress={(e) => { e && e.stopPropagation && e.stopPropagation(); handleSaveToggle() }}
+          accessibilityRole="button"
+          accessibilityLabel={saved ? 'Remove from favourites' : 'Add to favourites'}
+          hitSlop={{ top: 8, left: 8, right: 8, bottom: 8 }}
+        >
+          {/* Use a visible color for the outline state and red for saved state */}
+          <Ionicons name={saved ? 'heart' : 'heart-outline'} size={22} color={saved ? '#e0245e' : '#666'} />
+        </TouchableOpacity>
+      )}
       {/* Absolute badge sits on top-left of the card (over image when present) */}
       {isOwnerMode && (
         <View style={styles.badgeAbsoluteContainer} pointerEvents="none">
@@ -248,16 +261,7 @@ export default function ListingCard({
           </View>
           {priceRange ? <Text style={styles.priceText}>{priceRange}</Text> : null}
 
-          {!isOwnerMode && (onSave || onUnsave) && saved && (
-            <TouchableOpacity
-              style={styles.saveBtn}
-              onPress={handleSaveToggle}
-              accessibilityRole="button"
-              accessibilityLabel={saved ? 'Unsave listing' : 'Save listing'}
-            >
-              <Ionicons name={saved ? 'heart' : 'heart-outline'} size={20} color={saved ? '#e0245e' : '#333'} />
-            </TouchableOpacity>
-          )}
+          {/* favorite control is shown as an absolute button below the images */}
         </View>
 
         
@@ -318,6 +322,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderColor: '#e6e6e6',
     borderWidth: 1,
+    position: 'relative',
     marginBottom: 16,
     alignSelf: 'center',
     // shadow
@@ -416,6 +421,35 @@ const styles = StyleSheet.create({
   saveBtn: {
     padding: 6,
     marginLeft: 12,
+  },
+  favoriteBtnAbsolute: {
+    position: 'absolute',
+    right: 12,
+    // place just below the image area
+    top: IMAGE_HEIGHT + 8,
+    zIndex: 60,
+    backgroundColor: '#ffffff',
+    padding: 8,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.06)',
+    // subtle shadow
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOpacity: 0.08,
+        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 4 },
+      },
+      android: {
+        elevation: 3,
+      },
+      web: {
+        boxShadow: '0 6px 16px rgba(14,30,37,0.06)',
+      },
+    }),
   },
   titleRow: {
     marginTop: 8,
