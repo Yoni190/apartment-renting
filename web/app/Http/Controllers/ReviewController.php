@@ -37,4 +37,17 @@ class ReviewController extends Controller
         ], 201);
 
     }
+
+    public function index(Apartment $apartment) {
+        $reviews = Review::with('user:id,name')
+                ->where('apartment_id', $apartment->id)
+                ->latest()
+                ->get();
+                
+        return response()->json([
+            'reviews' => $reviews,
+            'average_rating' => round($reviews->avg('rating'), 1),
+            'total_reviews' => $reviews->count(),
+        ]);
+    }
 }
