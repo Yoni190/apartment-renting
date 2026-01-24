@@ -1019,8 +1019,14 @@ export default function ApartmentDetails() {
               style={styles.submitReviewBtn}
               disabled={reviewLoading}
               activeOpacity={0.8}>
-              <Ionicons name="send-outline" size={16} color="#fff" />
-              <Text style={styles.submitReviewText}>Submit Review</Text>
+              {reviewLoading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <>
+                  <Ionicons name="send-outline" size={16} color="#fff" />
+                  <Text style={styles.submitReviewText}>Submit Review</Text>
+                </>
+              )}
             </TouchableOpacity>
           </View>
 
