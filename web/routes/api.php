@@ -855,6 +855,7 @@ Route::get('/recommendations', function (Request $request) {
 });
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/apartments/{apartment}/reviews', [ReviewController::class, 'index']);
     Route::post('/apartments/{apartment}/reviews', [ReviewController::class, 'store']);
     Route::put('/reviews/{review}', [ReviewController::class, 'update']);
     Route::delete('/reviews/{review}', [ReviewController::class, 'destroy']);
