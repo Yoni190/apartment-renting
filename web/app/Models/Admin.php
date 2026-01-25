@@ -27,4 +27,8 @@ class Admin extends Authenticatable
     public function role() {
         return $this->belongsTo(AdminRole::class, 'admin_role_id');
     }
+
+    public function logs() {
+        return $this->hasMany(Log::class);
+    }
 }
