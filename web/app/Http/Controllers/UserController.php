@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Log;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -30,6 +32,13 @@ class UserController extends Controller
     public function toggleStatus(User $user){
         $user->status = $user->status === 1 ? 0 : 1;
         $user->save();
+
+        Log::create([
+            'admin_id' => Auth::id(),
+            'entity_type' => 'User',
+            'entity_id' => $user->id,
+            'action' => 'Change Status',
+        ]);
 
         return redirect()->back()->with('message', "$user->name's status updated successfully");
     }
