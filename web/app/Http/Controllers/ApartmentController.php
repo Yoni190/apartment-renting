@@ -548,6 +548,13 @@ class ApartmentController extends Controller
             $apartment->save();
         }
 
+        LogModel::create([
+            'admin_id' => Auth::id(),
+            'entity_type' => 'Apartment',
+            'entity_id' => $apartment->id,
+            'action' => 'Update'
+        ]);
+
         return redirect()->route('admin.apartments')
         ->with('message', 'Apartment edited successfully! The listing will be re-verified by an admin.');
     }
