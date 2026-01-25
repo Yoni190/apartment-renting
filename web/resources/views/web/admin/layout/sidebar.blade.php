@@ -17,7 +17,7 @@
             <a href="{{ route('admin.settings') }}" class="nav-link text-dark">⚙️ Settings</a>
         </li>
         <li class="nav-item mb-2">
-            <a href="#" class="nav-link text-dark">Logs</a>
+            <a href="{{ route('admin.logs') }}" class="nav-link text-dark">Logs</a>
         </li>
         <li class="nav-item mt-3">
             <form method="POST" action="{{ route('admin.logout') }}">
