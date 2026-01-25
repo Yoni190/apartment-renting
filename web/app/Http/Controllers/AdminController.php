@@ -8,6 +8,8 @@ use App\Models\User;
 use App\Models\Admin;
 use App\Models\AdminRole;
 use App\Models\Api;
+use App\Models\Apartment;
+use App\Models\Log;
 use Illuminate\Support\Facades\Hash;
 
 
@@ -149,6 +151,26 @@ class AdminController extends Controller
     }
 
     function logs() {
-        return view('web.admin.logs');
+        $logs = Log::with('admin')
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(function ($log) {
+                    switch($log->entity_type) {
+                        case 'User':
+                            $entity = User::find($log->entity_id);
+                            $log->entity_name = $entity?->name ?? 'Deleted User';
+                            break;
+                        case 'Apartment':
+                            $entity = Apartment::find($log->entity_id);
+                            $log->entity_name = $entity?->title ?? 'Deleted Apartment';
+                            break;
+                        default:
+                            $log->entity_name = 'N/A';
+                    }
+
+                    return $log;
+                });
+
+        return view('web.admin.logs', compact('logs'));
     }
 }
