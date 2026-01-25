@@ -12,6 +12,8 @@ use App\Notifications\ListingApproved;
 use App\Notifications\ListingRejected;
 use App\Notifications\ListingMoreInfoRequested;
 use App\Models\ApartmentVerificationDocument;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Log as LogModel;
 
 
 class ApartmentController extends Controller
@@ -638,6 +640,13 @@ class ApartmentController extends Controller
                 $apartment->save();
             }
         }
+
+        LogModel::create([
+            'admin_id' => Auth::id(),
+            'entity_type' => 'Apartment',
+            'entity_id' => $apartment->id,
+            'action' => 'Create'
+        ]);
 
         return redirect()->route('admin.apartments')
         ->with('message', 'Apartment added successfully!');
