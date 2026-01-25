@@ -107,6 +107,13 @@ class ApartmentController extends Controller
         $apartment->status = $apartment->status === 1 ? 0 : 1;
         $apartment->save();
 
+        LogModel::create([
+            'admin_id' => Auth::id(),
+            'entity_type' => 'Apartment',
+            'entity_id' => $apartment->id,
+            'action' => 'Change Status'
+        ]);
+
         return redirect()->back()->with('message', $apartment->title . "'s status updated successfully");
     }
 
