@@ -150,27 +150,55 @@ class AdminController extends Controller
         return view('web.admin.settings', compact('paymentApi'));
     }
 
-    function logs() {
-        $logs = Log::with('admin')
-                ->orderBy('created_at', 'desc')
-                ->get()
-                ->map(function ($log) {
-                    switch($log->entity_type) {
-                        case 'User':
-                            $entity = User::find($log->entity_id);
-                            $log->entity_name = $entity?->name ?? 'Deleted User';
-                            break;
-                        case 'Apartment':
-                            $entity = Apartment::find($log->entity_id);
-                            $log->entity_name = $entity?->title ?? 'Deleted Apartment';
-                            break;
-                        default:
-                            $log->entity_name = 'N/A';
-                    }
+    public function logs(Request $request)
+    {
+        $query = Log::with('admin')->orderBy('created_at', 'desc');
 
-                    return $log;
-                });
+        // Filter by admin
+        if ($request->filled('admin_id')) {
+            $query->where('admin_id', $request->admin_id);
+        }
 
-        return view('web.admin.logs', compact('logs'));
+        // Filter by action
+        if ($request->filled('action')) {
+            $query->where('action', $request->action);
+        }
+
+        // Filter by entity type
+        if ($request->filled('entity_type')) {
+            $query->where('entity_type', $request->entity_type);
+        }
+
+        // Filter by date range
+        if ($request->filled('from')) {
+            $query->whereDate('created_at', '>=', $request->from);
+        }
+
+        if ($request->filled('to')) {
+            $query->whereDate('created_at', '<=', $request->to);
+        }
+
+        $logs = $query->get()->map(function ($log) {
+            switch ($log->entity_type) {
+                case 'User':
+                    $entity = User::find($log->entity_id);
+                    $log->entity_name = $entity?->name ?? 'Deleted User';
+                    break;
+
+                case 'Apartment':
+                    $entity = Apartment::find($log->entity_id);
+                    $log->entity_name = $entity?->title ?? 'Deleted Apartment';
+                    break;
+
+                default:
+                    $log->entity_name = 'N/A';
+            }
+
+            return $log;
+        });
+
+        $admins = Admin::orderBy('name')->get();
+
+        return view('web.admin.logs', compact('logs', 'admins'));
     }
 }
