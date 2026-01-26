@@ -74,6 +74,7 @@ Route::prefix('admin')->group(function () {
     Route::get('/apartments/{apartment}/verification-download', [ApartmentVerificationDocumentController::class, 'downloadMeta'])->name('admin.apartments.verification.download_meta');
     Route::delete('/apartments/verification-docs/{doc}', [ApartmentVerificationDocumentController::class, 'destroy'])->name('admin.apartments.verification.destroy');
         Route::get('/settings', [AdminController::class, 'settings'])->name('admin.settings');
+        Route::get('/logs', [AdminController::class, 'logs'])->name('admin.logs');
         Route::post('/save-settings', [SettingController::class, 'saveAPI'])->name('admin.settings.save');
         Route::get('/admins', [AdminController::class, 'index'])->name('admin.admins.index');
         Route::get('/admins/add', [AdminController::class, 'addView'])->name('admin.add');
