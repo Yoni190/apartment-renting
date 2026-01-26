@@ -254,12 +254,12 @@ export default function ListingCard({
         {/* (Badge moved to absolute overlay on top-left) */}
         {/* top row: price + save (if not owner) */}
         <View style={styles.topRow}>
-          {/* bedroom / title */}
+          {/* Left block: price above the title (name) */}
           <View style={styles.titleRow}>
+            {priceRange ? <Text style={styles.priceText}>{priceRange}</Text> : null}
             {title ? <Text style={styles.titleText} numberOfLines={2}>{title}</Text> : null}
             {bedroomRange ? <Text style={styles.bedroomText}>{bedroomRange}</Text> : null}
           </View>
-          {priceRange ? <Text style={styles.priceText}>{priceRange}</Text> : null}
 
           {/* favorite control is shown as an absolute button below the images */}
         </View>
@@ -405,18 +405,24 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   body: {
-    padding: 16,
+    // reduce top padding to bring price closer to image and shorten the content area
+    paddingTop: 2,
+    paddingRight: 16,
+    paddingBottom: 12,
+    paddingLeft: 16,
   },
   topRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
   },
   priceText: {
     fontSize: 20,
     fontWeight: '700',
     color: '#111',
-    marginTop: 20
+    marginTop: 0,
+    marginBottom: 5,
+    alignSelf: 'flex-start',
   },
   saveBtn: {
     padding: 6,
@@ -454,16 +460,19 @@ const styles = StyleSheet.create({
   titleRow: {
     marginTop: 8,
     marginBottom: 6,
+    flex: 1,
+    flexDirection: 'column',
   },
   bedroomText: {
     fontSize: 14,
     color: '#666',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   titleText: {
     fontSize: 18,
     fontWeight: '600',
     color: '#111',
+    marginTop: 1,
   },
   statusRow: {
     flexDirection: 'row',
@@ -502,7 +511,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   addressText: {
-    marginTop: 6,
+    marginTop: 1,
     color: '#666',
     fontSize: 14,
   },
