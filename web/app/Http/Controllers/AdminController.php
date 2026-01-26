@@ -147,4 +147,8 @@ class AdminController extends Controller
 
         return view('web.admin.settings', compact('paymentApi'));
     }
+
+    function logs() {
+        return view('web.admin.logs');
+    }
 }
