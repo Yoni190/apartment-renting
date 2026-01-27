@@ -686,6 +686,7 @@ class ApartmentController extends Controller
             'admin_id' => Auth::id(),
             'entity_type' => 'Apartment',
             'entity_id' => $apartment->id,
+            'entity_name' => $apartment->title, 
             'action' => 'Delete'
         ]);
 
