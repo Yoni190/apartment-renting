@@ -109,7 +109,7 @@ class ApartmentController extends Controller
 
         LogModel::create([
             'admin_id' => Auth::id(),
-            'entity_type' => 'Apartment',
+            'entity_type' => Apartment::class,
             'entity_id' => $apartment->id,
             'action' => 'Change Status'
         ]);
@@ -157,7 +157,7 @@ class ApartmentController extends Controller
 
         LogModel::create([
             'admin_id' => Auth::id(),
-            'entity_type' => 'Apartment',
+            'entity_type' => Apartment::class,
             'entity_id' => $apartment->id,
             'action' => 'Verified'
         ]);
@@ -198,7 +198,7 @@ class ApartmentController extends Controller
 
         LogModel::create([
             'admin_id' => Auth::id(),
-            'entity_type' => 'Apartment',
+            'entity_type' => Apartment::class,
             'entity_id' => $apartment->id,
             'action' => 'Rejected'
         ]);
@@ -572,7 +572,7 @@ class ApartmentController extends Controller
 
         LogModel::create([
             'admin_id' => Auth::id(),
-            'entity_type' => 'Apartment',
+            'entity_type' => Apartment::class,
             'entity_id' => $apartment->id,
             'action' => 'Update'
         ]);
@@ -672,7 +672,7 @@ class ApartmentController extends Controller
 
         LogModel::create([
             'admin_id' => Auth::id(),
-            'entity_type' => 'Apartment',
+            'entity_type' => Apartment::class,
             'entity_id' => $apartment->id,
             'action' => 'Create'
         ]);
@@ -685,7 +685,7 @@ class ApartmentController extends Controller
 
         LogModel::create([
             'admin_id' => Auth::id(),
-            'entity_type' => 'Apartment',
+            'entity_type' => Apartment::class,
             'entity_id' => $apartment->id,
             'entity_name' => $apartment->title, 
             'action' => 'Delete'
