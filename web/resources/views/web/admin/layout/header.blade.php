@@ -1,7 +1,14 @@
 
 
 <nav class="navbar navbar-expand-lg navbar-light bg-dark p-3">
-    <a href="{{ route('admin.dashboard') }}" class="navbar-brand text-white">Gojoye</a>
+    <div class="d-flex align-items-center gap-2">
+        <button id="sidebarToggle"
+                class="btn btn-outline-light btn-sm"
+                aria-label="Toggle sidebar">
+            <i class="bi bi-list"></i>
+        </button>
+        <a href="{{ route('admin.dashboard') }}" class="navbar-brand text-white">Gojoye</a>
+    </div>
     {{--
     <ul class="navbar-nav mr-auto">
         <li class="nav-item">
@@ -17,6 +24,9 @@
     </ul>
     --}}    
 </nav>
+
+
+
 
 <div class="position-fixed top-0 end-0 p-3" style="z-index: 1055;">
             @if(session('message'))
