@@ -35,7 +35,7 @@ class UserController extends Controller
 
         Log::create([
             'admin_id' => Auth::id(),
-            'entity_type' => 'User',
+            'entity_type' => User::class,
             'entity_id' => $user->id,
             'action' => 'Change Status',
         ]);

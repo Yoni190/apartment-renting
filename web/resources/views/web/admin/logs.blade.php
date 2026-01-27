@@ -94,7 +94,7 @@
                 <tr>
                     <td>{{ $logs->firstItem() + $index }}</td>
                     <td>{{ $log->admin->name ?? 'System' }}</td>
-                    <td>{{ $log->entity_type }}</td>
+                    <td>{{ class_basename($log->entity_type) }}</td>
                     <td>{{ $log->entity_name }}</td>
                     <td>
                         <span class="badge bg-info text-dark">

@@ -163,7 +163,7 @@ class AdminController extends Controller
     {
         $query = Log::with('admin')
             ->when(
-                $request->entity_type === 'apartment',
+                $request->entity_type === Apartment::class,
                 fn ($q) => $q->with('entity')
             )
             ->orderBy('created_at', 'desc');
