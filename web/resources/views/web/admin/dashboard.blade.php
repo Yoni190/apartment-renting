@@ -40,20 +40,23 @@
 
     <!-- Charts -->
     <div class="row mt-4">
+        <!-- Users Growth -->
         <div class="col-md-6">
             <div class="card p-3 shadow-sm">
-                <h5 class="text-center">Monthly Sales</h5>
-                <canvas id="salesChart"></canvas>
-            </div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="card p-3 shadow-sm">
-                <h5 class="text-center">User Growth</h5>
+                <h5 class="text-center">New Users per Month</h5>
                 <canvas id="userChart"></canvas>
             </div>
         </div>
+
+        <!-- Apartments Added -->
+        <div class="col-md-6">
+            <div class="card p-3 shadow-sm">
+                <h5 class="text-center">New Apartments Added</h5>
+                <canvas id="apartmentsChart"></canvas>
+            </div>
+        </div>
     </div>
+
 
     <div class="card mt-4 shadow-sm">
         <div class="card-header bg-dark text-white">
@@ -100,7 +103,44 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+<script>
+const userCtx = document.getElementById('userChart');
+new Chart(userCtx, {
+    type: 'bar',
+    data: {
+        labels: @json($labels),
+        datasets: [{
+            label: 'New Users',
+            data: @json(array_values($userGrowth)),
+            backgroundColor: 'rgba(75, 192, 192, 0.7)'
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: { y: { beginAtZero: true } }
+    }
+});
 
+const aptCtx = document.getElementById('apartmentsChart');
+new Chart(aptCtx, {
+    type: 'line',
+    data: {
+        labels: @json($labels),
+        datasets: [{
+            label: 'Apartments Added',
+            data: @json(array_values($apartmentsGrowth)),
+            borderColor: 'rgba(255, 159, 64, 1)',
+            backgroundColor: 'rgba(255, 159, 64, 0.2)',
+            fill: true,
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: { y: { beginAtZero: true } }
+    }
+});
+</script>
 
 
 @endpush
