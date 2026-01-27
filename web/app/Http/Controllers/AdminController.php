@@ -76,28 +76,37 @@ class AdminController extends Controller
     }
     
  
-    function dashboard() {
-        //Dummy Data
+    public function dashboard()
+    {
         $totalUsers = User::count();
-        $totalSales = 54000;
-        $totalOrders = 320;
+        $totalApartments = Apartment::count();
+        $activeApartments = Apartment::where('status', 1)->count();
+        $recentApartments = Apartment::with('owner')->latest()->take(5)->get();
 
+        // Monthly new users
+        $userGrowth = User::selectRaw('MONTH(created_at) as month, COUNT(*) as count')
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get()
+            ->pluck('count', 'month')
+            ->toArray();
 
-        $monthlySales = [
-            'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-            'data'   => [5000, 7000, 8000, 6500, 9000, 11000]
-        ];
+        // Monthly apartments added
+        $apartmentsGrowth = Apartment::selectRaw('MONTH(created_at) as month, COUNT(*) as count')
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get()
+            ->pluck('count', 'month')
+            ->toArray();
 
-        $userGrowth = [
-            'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-            'data'   => [100, 150, 160, 200, 250, 300]
-        ];
+        $labels = array_map(function($m){ return date('M', mktime(0,0,0,$m,1)); }, array_keys($userGrowth));
 
         return view('web.admin.dashboard', compact(
-            'totalUsers', 'totalSales', 'totalOrders',
-            'monthlySales', 'userGrowth'
+            'totalUsers', 'totalApartments', 'activeApartments',
+            'recentApartments', 'userGrowth', 'apartmentsGrowth', 'labels'
         ));
     }
+
 
     function apartments() {
         return view('web.admin.apartments');
