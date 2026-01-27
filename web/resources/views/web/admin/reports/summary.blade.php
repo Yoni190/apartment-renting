@@ -129,29 +129,30 @@
             <td class="highlight">{{ $totalUsers }}</td>
         </tr>
         <tr>
-            <th>Total Sales</th>
-            <td class="highlight">{{ number_format($totalSales) }} Birr</td>
+            <th>Total Apartments</th>
+            <td class="highlight">{{ $totalApartments }}</td>
         </tr>
         <tr>
-            <th>Total Orders</th>
-            <td class="highlight">{{ $totalOrders }}</td>
+            <th>Active Apartments</th>
+            <td class="highlight">{{ $activeApartments }}</td>
         </tr>
     </table>
 
-    <!-- Monthly Sales Section -->
-    <div class="section-title">Monthly Sales</div>
+
+    <div class="section-title">Monthly Apartments Added</div>
     <table>
         <tr>
-            @foreach ($months as $m)
-                <th>{{ $m }}</th>
+            @foreach ($months as $month)
+                <th>{{ $month }}</th>
             @endforeach
         </tr>
         <tr>
-            @foreach ($monthlySales as $s)
-                <td class="highlight">{{ number_format($s) }} Birr</td>
+            @foreach ($apartmentsGrowth as $count)
+                <td class="highlight">{{ $count }}</td>
             @endforeach
         </tr>
     </table>
+
 
     <div class="footer">
         © {{ date('Y') }} Gojoye • Generated Report
