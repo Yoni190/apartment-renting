@@ -55,6 +55,43 @@
         </div>
     </div>
 
+    <div class="card mt-4 shadow-sm">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">Recent Apartments</h5>
+        </div>
+        <div class="card-body table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Title</th>
+                        <th>Owner</th>
+                        <th>Area</th>
+                        <th>Status</th>
+                        <th>Created At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($recentApartments as $index => $apt)
+                    <tr>
+                        <td>{{ $index + 1 }}</td>
+                        <td>{{ $apt->title }}</td>
+                        <td>{{ $apt->owner->name }}</td>
+                        <td>{{ $apt->area }}</td>
+                        <td>
+                            <span class="badge {{ $apt->status ? 'bg-success' : 'bg-warning' }}">
+                                {{ $apt->status ? 'Active' : 'Pending' }}
+                            </span>
+                        </td>
+                        <td>{{ $apt->created_at->format('d M Y') }}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
 </div>
 
 @endsection
