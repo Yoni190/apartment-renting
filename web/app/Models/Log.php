@@ -29,4 +29,9 @@ class Log extends Model
             default => 'N/A',
         };
     }
+
+    public function entity()
+    {
+        return $this->morphTo(null, 'entity_type', 'entity_id');
+    }
 }

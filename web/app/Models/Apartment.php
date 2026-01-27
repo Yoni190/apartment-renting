@@ -74,4 +74,9 @@ class Apartment extends Model
         return $this->reviews()->avg('rating');
     }
 
+    public function logs()
+    {
+        return $this->morphMany(Log::class, 'entity');
+    }
+
 }
