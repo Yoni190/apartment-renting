@@ -13,6 +13,7 @@ class Log extends Model
         'admin_id',
         'entity_type',
         'entity_id',
+        'entity_name',
         'action',
     ];
 
