@@ -607,7 +607,7 @@ class ApartmentController extends Controller
             'title' => $request->name,
             'description' => $request->description,
             'price' => $request->price,
-            'status' => 1,
+            'status' => 0,
             'address' => $request->address,
             'bedrooms' => $request->bedrooms,
             'bathrooms' => $request->bathrooms,
