@@ -127,6 +127,7 @@ class ApartmentController extends Controller
     public function approve(Apartment $apartment) {
         $apartment->verification_status = 'approved';
         $apartment->verified_at = now();
+        $apartment->status = 1;
         // verified_by column references users.id in the schema. Admins are stored
         // in a separate `admins` table, so writing the admin id here causes a
         // foreign key violation. Instead, keep the DB FK untouched (set null)
