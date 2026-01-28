@@ -20,4 +20,13 @@ class Log extends Model
     public function admin() {
         return $this->belongsTo(Admin::class);
     }
+
+    public function getEntityNameAttribute()
+    {
+        return match($this->entity_type) {
+            'User' => optional(User::find($this->entity_id))->name ?? 'Deleted User',
+            'Apartment' => optional(Apartment::find($this->entity_id))->title ?? 'Deleted Apartment',
+            default => 'N/A',
+        };
+    }
 }

@@ -90,9 +90,9 @@
             </tr>
         </thead>
         <tbody>
-            @forelse($logs as $log)
+            @forelse($logs as $index => $log)
                 <tr>
-                    <td>{{ $loop->iteration }}</td>
+                    <td>{{ $logs->firstItem() + $index }}</td>
                     <td>{{ $log->admin->name ?? 'System' }}</td>
                     <td>{{ $log->entity_type }}</td>
                     <td>{{ $log->entity_name }}</td>
@@ -110,5 +110,9 @@
             @endforelse
         </tbody>
     </table>
+
+    <div class="d-flex justify-content-center mt-3">
+        {{ $logs->onEachSide(1)->links('pagination::bootstrap-5') }}
+    </div>
 </div>
 @endsection

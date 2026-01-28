@@ -154,22 +154,19 @@ class AdminController extends Controller
     {
         $query = Log::with('admin')->orderBy('created_at', 'desc');
 
-        // Filter by admin
+        // Filters
         if ($request->filled('admin_id')) {
             $query->where('admin_id', $request->admin_id);
         }
 
-        // Filter by action
         if ($request->filled('action')) {
             $query->where('action', $request->action);
         }
 
-        // Filter by entity type
         if ($request->filled('entity_type')) {
             $query->where('entity_type', $request->entity_type);
         }
 
-        // Filter by date range
         if ($request->filled('from')) {
             $query->whereDate('created_at', '>=', $request->from);
         }
@@ -178,26 +175,11 @@ class AdminController extends Controller
             $query->whereDate('created_at', '<=', $request->to);
         }
 
-        $logs = $query->get()->map(function ($log) {
-            switch ($log->entity_type) {
-                case 'User':
-                    $entity = User::find($log->entity_id);
-                    $log->entity_name = $entity?->name ?? 'Deleted User';
-                    break;
-
-                case 'Apartment':
-                    $entity = Apartment::find($log->entity_id);
-                    break;
-
-                default:
-                    $log->entity_name = 'N/A';
-            }
-
-            return $log;
-        });
+        $logs = $query->paginate(10)->withQueryString();
 
         $admins = Admin::orderBy('name')->get();
 
         return view('web.admin.logs', compact('logs', 'admins'));
     }
+
 }
