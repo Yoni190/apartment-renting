@@ -187,7 +187,6 @@ class AdminController extends Controller
 
                 case 'Apartment':
                     $entity = Apartment::find($log->entity_id);
-                    $log->entity_name = $entity?->title ?? 'Deleted Apartment';
                     break;
 
                 default:
