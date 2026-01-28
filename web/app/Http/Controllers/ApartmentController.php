@@ -131,7 +131,7 @@ class ApartmentController extends Controller
         // in a separate `admins` table, so writing the admin id here causes a
         // foreign key violation. Instead, keep the DB FK untouched (set null)
         // and record the approving admin inside the apartment meta for audit.
-        $apartment->verified_by = null;
+        
         $admin = auth('admin')->user();
         if ($admin) {
             $meta = is_array($apartment->meta) ? $apartment->meta : (array) ($apartment->meta ?? []);
@@ -154,6 +154,13 @@ class ApartmentController extends Controller
             Log::error('Failed to send listing approved notification: ' . $e->getMessage());
         }
 
+        LogModel::create([
+            'admin_id' => Auth::id(),
+            'entity_type' => 'Apartment',
+            'entity_id' => $apartment->id,
+            'action' => 'Verified'
+        ]);
+
         return redirect()->back()->with('message', $apartment->title . ' has been approved');
     }
 
@@ -165,7 +172,7 @@ class ApartmentController extends Controller
         $apartment->verification_status = 'rejected';
         $apartment->verified_at = now();
         // see note in approve(): do not write admin id into verified_by (FK -> users)
-        $apartment->verified_by = null;
+        
         $apartment->rejection_reason = $request->input('rejection_reason');
         $admin = auth('admin')->user();
         if ($admin) {
@@ -187,6 +194,13 @@ class ApartmentController extends Controller
         } catch (\Exception $e) {
             Log::error('Failed to send listing rejected notification: ' . $e->getMessage());
         }
+
+        LogModel::create([
+            'admin_id' => Auth::id(),
+            'entity_type' => 'Apartment',
+            'entity_id' => $apartment->id,
+            'action' => 'Rejected'
+        ]);
 
         return redirect()->back()->with('message', $apartment->title . ' has been rejected');
     }
