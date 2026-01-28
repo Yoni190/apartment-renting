@@ -660,6 +660,14 @@ class ApartmentController extends Controller
     }
 
     public function delete(Apartment $apartment) {
+
+        LogModel::create([
+            'admin_id' => Auth::id(),
+            'entity_type' => 'Apartment',
+            'entity_id' => $apartment->id,
+            'action' => 'Delete'
+        ]);
+
         $apartment->delete();
 
         return redirect()->route('admin.apartments')
