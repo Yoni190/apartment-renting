@@ -78,9 +78,9 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($users as $user)
+                    @forelse($users as $index => $user)
                         <tr>
-                            <td>{{ $user->id }}</td>
+                            <td>{{ $users->firstItem() + $index }}</td>
                             <td>{{ $user->name }}</td>
                             <td>{{ $user->email }}</td>
                             <td>{{ $user->role == 0 ? 'Apartment Owner' : 'Renter' }}</td>
