@@ -52,6 +52,33 @@ const HomeScreen = () => {
       }, [])
     );
 
+    useFocusEffect(
+      useCallback(() => {
+        const refreshUser = async () => {
+          const token = await SecureStore.getItemAsync('token')
+          if (!token) return
+
+          try {
+            const response = await axios.get(`${API_URL}/user`, {
+              headers: { Accept: 'application/json', Authorization: `Bearer ${token}` }
+            })
+            setUser(response.data)
+
+            // update apartments with new favorites
+            setApartments(prev => prev.map(apartment => ({
+              ...apartment,
+              is_favorite: response.data.favorites?.some(fav => fav.apartment_id === apartment.id) || false
+            })))
+          } catch (err) {
+            console.log(err)
+          }
+        }
+
+        refreshUser()
+      }, [])
+    )
+
+
 
 
     const fetchRecommendations = async (q = {}) => {
