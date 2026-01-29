@@ -54,9 +54,7 @@
             z-index: 1040;
         }
         /* push the header content to the right so the brand is visible */
-        body.sidebar-collapsed header .navbar {
-            margin-left: var(--sidebar-collapsed-width);
-        }
+        
         /* Ensure main content uses the full remaining width (no leftover column gaps)
            so apartment lists and tables can use all available horizontal space. */
         body.sidebar-collapsed main#adminMain {
@@ -123,12 +121,7 @@
     <div class="container-fluid">
         <div class="row">
             <nav id="adminSidebar" class="col-md-3 col-lg-2 d-md-block sidebar py-3">
-                <!-- single toggle placed on the right side of the sidebar -->
-                <div class="px-3 mb-3 d-flex sidebar-toggle-wrap justify-content-end">
-                    <button id="sidebarToggle" class="btn btn-sm btn-outline-secondary" aria-label="Toggle sidebar">
-                        <i class="bi bi-list"></i>
-                    </button>
-                </div>
+                
 
                 @include('web.admin.layout.sidebar')
             </nav>
