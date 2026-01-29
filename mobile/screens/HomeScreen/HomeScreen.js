@@ -1,8 +1,8 @@
 import { Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Alert, Linking } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import * as SecureStore from "expo-secure-store"
 import axios from 'axios'
-import { useNavigation } from '@react-navigation/native'
+import { useFocusEffect, useNavigation } from '@react-navigation/native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import styles from './HomeScreenStyle'
 import { Ionicons } from '@expo/vector-icons'
@@ -10,6 +10,7 @@ import Header from '../../components/Header'
 import { SlidersHorizontal, ToolCase } from 'lucide-react-native'
 import ListingCard from '../../components/ListingCard'
 import { useTranslation } from 'react-i18next'
+
 
 
 const HomeScreen = () => {
@@ -45,9 +46,11 @@ const HomeScreen = () => {
 
 
     // Fetch recommendations (default: no filters) on mount
-    useEffect(() => {
-      fetchRecommendations({})
-    }, [])
+    useFocusEffect(
+      useCallback(() => {
+        fetchRecommendations({});
+      }, [])
+    );
 
 
 
