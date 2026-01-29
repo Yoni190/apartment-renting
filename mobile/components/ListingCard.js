@@ -256,8 +256,8 @@ export default function ListingCard({
         <View style={styles.topRow}>
           {/* Left block: price above the title (name) */}
           <View style={styles.titleRow}>
-            {priceRange ? <Text style={styles.priceText}>{priceRange}</Text> : null}
             {title ? <Text style={styles.titleText} numberOfLines={2}>{title}</Text> : null}
+            {priceRange ? <Text style={styles.priceText}>{priceRange} Birr</Text> : null}
             {bedroomRange ? <Text style={styles.bedroomText}>{bedroomRange}</Text> : null}
           </View>
 
