@@ -161,7 +161,12 @@ class AdminController extends Controller
 
     public function logs(Request $request)
     {
-        $query = Log::with('admin')->orderBy('created_at', 'desc');
+        $query = Log::with('admin')
+            ->when(
+                $request->entity_type === 'apartment',
+                fn ($q) => $q->with('entity')
+            )
+            ->orderBy('created_at', 'desc');
 
         // Filters
         if ($request->filled('admin_id')) {
