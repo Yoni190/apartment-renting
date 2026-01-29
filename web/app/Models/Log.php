@@ -23,9 +23,9 @@ class Log extends Model
 
     public function getEntityNameAttribute()
     {
-        return match($this->entity_type) {
-            'User' => optional(User::find($this->entity_id))->name ?? 'Deleted User',
-            'Apartment' => optional(Apartment::find($this->entity_id))->title ?? 'Deleted Apartment',
+        return match ($this->entity_type) {
+            User::class => optional(User::find($this->entity_id))->name ?? 'Deleted User',
+            Apartment::class => optional(Apartment::find($this->entity_id))->title ?? 'Deleted Apartment',
             default => 'N/A',
         };
     }
