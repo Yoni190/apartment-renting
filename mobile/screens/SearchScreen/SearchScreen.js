@@ -25,41 +25,50 @@ const SearchScreen = () => {
 
     const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
-      const searchApartments = async (text, filters = {}) => {
-            setQuery(text)
+    const searchApartments = async (text, filters = {}) => {
+          setQuery(text)
 
-            if (text.length < 2) {
-            setResults([])
-            return
-            }
+          if (text.length < 2) {
+          setResults([])
+          return
+          }
 
-            try {
-            setLoading(true)
+          try {
+          setLoading(true)
 
-            // Build query params for API
-            const params = {
-                q: text,
-                ...(filters.bedrooms ? { bedrooms: filters.bedrooms } : {}),
-                ...(filters.price ? { price_range: filters.price } : {}),
-            }
+          // Build query params for API
+          const params = {
+              q: text,
+              ...(filters.bedrooms ? { bedrooms: filters.bedrooms } : {}),
+              ...(filters.price ? { price_range: filters.price } : {}),
+          }
 
-            const response = await axios.get(`${API_URL}/search`, { params })
-            setResults(response.data)
-            } catch (error) {
-            console.log(error)
-            } finally {
-            setLoading(false)
-            }
-        }
+          const response = await axios.get(`${API_URL}/search`, { params })
+          setResults(response.data)
+          } catch (error) {
+          console.log(error)
+          } finally {
+          setLoading(false)
+          }
+      }
 
-        // Handle filter change
-        const applyFilters = () => {
-            setShowFilters(false)
-            searchApartments(query, {
-            bedrooms: bedroomFilter,
-            price: priceFilter,
-            })
-        }
+      // Handle filter change
+      const applyFilters = () => {
+          setShowFilters(false)
+          searchApartments(query, {
+          bedrooms: bedroomFilter,
+          price: priceFilter,
+          })
+      }
+
+        // Add this function inside your component
+    const resetFilters = () => {
+        setBedroomFilter(null)
+        setPriceFilter(null)
+        setShowFilters(false)
+        searchApartments(query)
+    }
+
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#fff', paddingTop: 50 }}>
@@ -126,22 +135,29 @@ const SearchScreen = () => {
               ))}
             </View>
 
-            {/* Apply & Close Buttons */}
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
               <TouchableOpacity
-                style={[styles.closeButton, { backgroundColor: '#ccc', flex: 1, marginRight: 10 }]}
-                onPress={() => setShowFilters(false)}
+                  style={[styles.closeButton, { backgroundColor: '#f39c12', flex: 1, marginRight: 10 }]}
+                  onPress={resetFilters}
               >
-                <Text style={{ color: 'white', textAlign: 'center' }}>{t('cancel')}</Text>
+                  <Text style={{ color: 'white', textAlign: 'center' }}>{t('reset')}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[styles.closeButton, { flex: 1 }]}
-                onPress={applyFilters}
+                  style={[styles.closeButton, { backgroundColor: '#ccc', flex: 1, marginRight: 10 }]}
+                  onPress={() => setShowFilters(false)}
               >
-                <Text style={{ color: 'white', textAlign: 'center' }}>{t('apply')}</Text>
+                  <Text style={{ color: 'white', textAlign: 'center' }}>{t('cancel')}</Text>
               </TouchableOpacity>
-            </View>
+
+              <TouchableOpacity
+                  style={[styles.closeButton, { flex: 1 }]}
+                  onPress={applyFilters}
+              >
+                  <Text style={{ color: 'white', textAlign: 'center' }}>{t('apply')}</Text>
+              </TouchableOpacity>
+          </View>
+
           </View>
         </View>
       )}
