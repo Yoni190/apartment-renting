@@ -687,7 +687,7 @@ export default function ApartmentDetails() {
     }
   }, [listing, images])
 
-  const submitReview = async () => {
+const submitReview = async () => {
     if (!rating) {
       Alert.alert('Rating required', 'Please select a star rating')
       return
@@ -722,18 +722,18 @@ export default function ApartmentDetails() {
       setRating(0)
       setReviewText('')
 
+      // **REFETCH REVIEWS**
+      fetchReviews()
+
     } catch (err) {
       console.warn('Review error', err.response?.data || err.message)
-
-      const message =
-        err.response?.data?.message ||
-        'Failed to submit review'
-
+      const message = err.response?.data?.message || 'Failed to submit review'
       Alert.alert('Error', message)
     } finally {
       setReviewLoading(false)
     }
   }
+
 
   const fetchReviews = async () => {
     if (!listingId) return
