@@ -1222,7 +1222,7 @@ const AddListing = () => {
         {/* Optional verification / identity (these are optional and only visible to admins in the server) */}
         <View style={styles.verificationCard}>
           <Text style={styles.sectionTitle}>Optional verification & identity</Text>
-          <Text style={[styles.label, { marginTop: 6 }]}>Owner full name (optional)</Text>
+          <Text style={[styles.label, { marginTop: 6 }]}>Owner full name </Text>
           <TextInput
             style={[styles.input, focusedInput === 'ownerFullName' && styles.inputFocused]}
             value={ownerFullName}
@@ -1232,7 +1232,7 @@ const AddListing = () => {
             placeholderTextColor="#94a3b8"
           />
 
-          <Text style={styles.label}>Owner phone (optional)</Text>
+          <Text style={styles.label}>Owner phone </Text>
           <TextInput
             style={[styles.input, focusedInput === 'ownerPhone' && styles.inputFocused]}
             value={ownerPhoneNumber}
@@ -1243,7 +1243,7 @@ const AddListing = () => {
             keyboardType={Platform.OS === 'web' ? 'default' : 'phone-pad'}
           />
 
-          <Text style={[styles.label, { marginTop: 6 }]}>National ID (optional)</Text>
+          <Text style={[styles.label, { marginTop: 6 }]}>National ID</Text>
           <View style={styles.docRow}>
             <TouchableOpacity style={styles.docTile} onPress={() => pickDocument('nationalId')}>
                 {(nationalIdImage || nationalIdPreview) ? (
@@ -1286,7 +1286,7 @@ const AddListing = () => {
           </View>
           <Text style={styles.docSmallNote}>Upload a photo of the owner's national ID or passport (optional). Accepted types: JPG, PNG. Max 5MB.</Text>
 
-          <Text style={[styles.label, { marginTop: 12 }]}>Ownership / authority documents (optional)</Text>
+          <Text style={[styles.label, { marginTop: 12 }]}>Ownership / authority documents </Text>
           <Text style={{ color: '#333', fontStyle: 'italic', marginBottom: 8 }}>Upload ONE of the following documents to verify ownership or authority:</Text>
           <View style={styles.docRow}>
             <TouchableOpacity style={styles.docTile} onPress={() => pickDocument('ownershipCertificate')}>
@@ -1381,7 +1381,7 @@ const AddListing = () => {
         {isAgent && (
           <View style={styles.agentCard}>
             <Text style={styles.sectionTitle}>Agent details</Text>
-            <Text style={[styles.label, { marginTop: 6 }]}>Agent ID (optional)</Text>
+            <Text style={[styles.label, { marginTop: 6 }]}>Agent ID </Text>
             <TextInput
               style={[styles.input]}
               value={agentId}
@@ -1390,7 +1390,7 @@ const AddListing = () => {
               placeholderTextColor="#94a3b8"
             />
 
-            <Text style={styles.label}>Agent phone (optional)</Text>
+            <Text style={styles.label}>Agent phone</Text>
             <TextInput
               style={[styles.input]}
               value={agentPhone}
@@ -1400,7 +1400,7 @@ const AddListing = () => {
               keyboardType={Platform.OS === 'web' ? 'default' : 'phone-pad'}
             />
 
-            <Text style={[styles.label, { marginTop: 6 }]}>Agent authorization letter (optional)</Text>
+            <Text style={[styles.label, { marginTop: 6 }]}>Agent authorization letter</Text>
             <View style={styles.docRow}>
               <TouchableOpacity style={styles.docTile} onPress={() => pickDocument('agentAuthorizationLetter')}>
                 {(agentAuthorizationLetter || agentAuthorizationPreview) ? (
