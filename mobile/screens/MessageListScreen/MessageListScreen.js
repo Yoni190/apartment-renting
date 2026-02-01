@@ -282,7 +282,7 @@ export default function MessageListScreen({ navigation }) {
           style={[styles.toggleButton, !showAll ? styles.toggleActive : null]}
           onPress={() => setShowAll(false)}
         >
-          <Text style={{ color: !showAll ? 'white' : '#0f172a', fontWeight: '600' }}>Conversations</Text>
+          <Text style={{ color: !showAll ? 'white' : '#0f172a', fontWeight: '600' }}>Unread</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.toggleButton, showAll ? styles.toggleActive : null]}
@@ -293,8 +293,6 @@ export default function MessageListScreen({ navigation }) {
       </View>
       {loading ? (
         <View style={styles.emptyContainer}><Text style={styles.emptyTitle}>Loading...</Text></View>
-      ) : chats.length === 0 ? (
-        <View style={styles.emptyContainer}><Text style={styles.emptyTitle}>No messages yet</Text></View>
       ) : (
         showAll ? (
           <FlatList
@@ -305,13 +303,22 @@ export default function MessageListScreen({ navigation }) {
             ItemSeparatorComponent={() => <View style={styles.divider} />}
           />
         ) : (
-          <FlatList
-            data={chats}
-            keyExtractor={(item, idx) => String(item.user_id ?? item.id ?? idx)}
-            renderItem={renderItem}
-            contentContainerStyle={styles.listContent}
-            ItemSeparatorComponent={() => <View style={styles.divider} />}
-          />
+          // Unread conversations only
+          (() => {
+            const unreadChats = (chats || []).filter(c => Number(c.unread_count || 0) > 0)
+            if (unreadChats.length === 0) {
+              return <View style={styles.emptyContainer}><Text style={styles.emptyTitle}>No unread messages</Text></View>
+            }
+            return (
+              <FlatList
+                data={unreadChats}
+                keyExtractor={(item, idx) => String(item.user_id ?? item.id ?? idx)}
+                renderItem={renderItem}
+                contentContainerStyle={styles.listContent}
+                ItemSeparatorComponent={() => <View style={styles.divider} />}
+              />
+            )
+          })()
         )
       )}
     </SafeAreaView>

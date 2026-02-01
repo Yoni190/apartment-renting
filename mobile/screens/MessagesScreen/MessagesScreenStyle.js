@@ -4,7 +4,7 @@ export default StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f9f9f9' },
   kb: { flex: 1 },
   // leave space for the global/compact header so messages are not hidden underneath
-  listContent: { paddingHorizontal: 12, paddingBottom: 12, paddingTop: 65 },
+  listContent: { paddingHorizontal: 12, paddingBottom: 12, paddingTop: 12},
 
   // conversation list
   convoRow: { flexDirection: 'row', paddingVertical: 12, alignItems: 'center', borderBottomWidth: 1, borderBottomColor: '#f1f1f1' },
@@ -133,4 +133,65 @@ export default StyleSheet.create({
     width: 48,
     alignItems: 'flex-end',
   },
+  // custom chat header (dark blue, avatar, back icon)
+  chatHeader: {
+    height: 96,
+    paddingTop: 22,
+    paddingHorizontal: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#0088cc',
+    borderBottomWidth: 1,
+    borderBottomColor: '#006aa0',
+  },
+  chatHeaderLeft: {
+    width: 48,
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+  },
+  chatBackContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  chatBack: {
+    fontSize: 22,
+    color: '#fff',
+    fontWeight: '700',
+  },
+  chatHeaderCenter: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingLeft: 4,
+  },
+  chatAvatar: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#005f88',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
+  },
+  chatAvatarText: {
+    color: '#fff',
+    fontWeight: '700',
+  },
+  chatHeaderTitle: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '700',
+    maxWidth: '70%'
+  },
+  chatHeaderRight: { width: 48 },
 })

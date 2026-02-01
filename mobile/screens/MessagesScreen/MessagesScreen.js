@@ -5,10 +5,13 @@ import {
   ActivityIndicator,
   FlatList,
   TextInput,
-  TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
+  TouchableOpacity,
+  Pressable,
+  Animated,
+  Easing,
 } from 'react-native'
 import Header from '../../components/Header'
 import { Ionicons } from '@expo/vector-icons'
@@ -25,6 +28,7 @@ const MessagesScreen = ({ route }) => {
   const [text, setText] = useState('')
   const [currentUserId, setCurrentUserId] = useState(null)
   const flatRef = useRef(null)
+  const backScale = useRef(new Animated.Value(1)).current
   const isFocused = useIsFocused()
   const [conversations, setConversations] = useState([])
   const [showNewModal, setShowNewModal] = useState(false)
@@ -319,9 +323,33 @@ const MessagesScreen = ({ route }) => {
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.kb} keyboardVerticalOffset={90}>
   {/* Compact conversation header (Telegram-like) when opened for a specific conversation */}
   {hasTarget ? (
-    // Use the project's Header component in short mode so the conversation name
-    // appears using the same visual style as the app header (logo + centered title).
-    <Header title={receiverName ?? route?.params?.receiverName ?? 'Conversation'} short />
+    // Custom dark-blue conversation header (Telegram-like)
+    <View style={styles.chatHeader}>
+      {/* Animated back button */}
+      <Pressable
+        onPress={() => {
+          try { navigation.goBack() } catch (e) { navigation.navigate('Home') }
+        }}
+        onPressIn={() => {
+          Animated.spring(backScale, { toValue: 0.92, useNativeDriver: true }).start()
+        }}
+        onPressOut={() => {
+          Animated.spring(backScale, { toValue: 1, friction: 6, useNativeDriver: true }).start()
+        }}
+        style={styles.chatHeaderLeft}
+      >
+        <Animated.View style={[styles.chatBackContainer, { transform: [{ scale: backScale }] }]}> 
+          <Text style={styles.chatBack}>{'<'}</Text>
+        </Animated.View>
+      </Pressable>
+
+      <View style={styles.chatHeaderCenter}>
+        <View style={styles.chatAvatar}><Text style={styles.chatAvatarText}>{(receiverName || route?.params?.receiverName || 'U').charAt(0).toUpperCase()}</Text></View>
+        <Text style={styles.chatHeaderTitle} numberOfLines={1}>{receiverName ?? route?.params?.receiverName ?? 'Conversation'}</Text>
+      </View>
+
+      <View style={styles.chatHeaderRight} />
+    </View>
   ) : (
     <Header title={receiverName ?? route?.params?.receiverName ?? 'Messages'} />
   )}
