@@ -160,6 +160,8 @@ export default function MessageListScreen({ navigation }) {
           arr.unshift(m)
           return arr
         })
+        // also refresh from server to ensure previews/ticks match authoritative state
+        try { loadConversations(); loadAllMessages(); } catch (e) {}
       } catch (e) { }
     }
 
@@ -349,6 +351,9 @@ export default function MessageListScreen({ navigation }) {
         else if (m.receiver && Number(m.receiver.id) === otherId) existing.name = m.receiver.name
       }
       if (!existing.name) existing.name = `User ${otherId}`
+  // record last sender and read state so conversation preview can render ticks
+  existing.last_sender_id = m.sender_id ? Number(m.sender_id) : existing.last_sender_id
+  existing.last_message_is_read = existing.last_message_is_read || !!m.is_read || !!m.read_at
       map.set(key, existing)
     }
     const arr = Array.from(map.values())
