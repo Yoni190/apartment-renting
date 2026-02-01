@@ -97,4 +97,39 @@ export default StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  // compact conversation header (Telegram-like)
+  compactHeader: {
+    height: 64,
+    paddingTop: 12,
+    paddingHorizontal: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f1f5f9',
+  },
+  headerLeft: {
+    width: 48,
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+  },
+  backIcon: {
+    fontSize: 26,
+    color: '#0f172a',
+    fontWeight: '700',
+  },
+  headerCenter: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingLeft: 8,
+  },
+  headerTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#0f172a',
+  },
+  headerRight: {
+    width: 48,
+    alignItems: 'flex-end',
+  },
 })

@@ -261,7 +261,32 @@ const MessagesScreen = ({ route }) => {
     const preview = item.last_message || ''
     const time = item.last_at ? new Date(item.last_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''
     return (
-      <TouchableOpacity style={styles.convoRow} onPress={() => navigation.navigate('Messages', { senderId: Number(currentUserId), receiverId: Number(item.user_id || item.id) })}>
+      <TouchableOpacity
+        style={styles.convoRow}
+        onPress={async () => {
+          try {
+            const uid = Number(currentUserId)
+            const other = Number(item.user_id || item.id)
+            console.log('MessagesScreen: convo pressed, navigating', { uid, other, otherName })
+            // climb to root navigator so we reliably open the chat screen
+            let nav = navigation
+            while (nav.getParent && nav.getParent()) {
+              const p = nav.getParent()
+              if (!p) break
+              nav = p
+            }
+            // prefer dispatching a navigate action on the root navigation prop
+            if (nav && nav.dispatch) {
+              nav.dispatch(require('@react-navigation/native').CommonActions.navigate({ name: 'Messages', params: { senderId: uid, receiverId: other, receiverName: otherName } }))
+            } else {
+              navigation.navigate('Messages', { senderId: Number(currentUserId), receiverId: Number(item.user_id || item.id), receiverName: otherName })
+            }
+          } catch (e) {
+            console.warn('MessagesScreen conversation navigation failed', e)
+            navigation.navigate('Messages', { senderId: Number(currentUserId), receiverId: Number(item.user_id || item.id), receiverName: otherName })
+          }
+        }}
+      >
         <View style={styles.avatarPlaceholder}><Text style={styles.avatarText}>{(otherName[0]||'U').toUpperCase()}</Text></View>
         <View style={{ flex: 1, marginLeft: 12 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -288,7 +313,14 @@ const MessagesScreen = ({ route }) => {
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.kb} keyboardVerticalOffset={90}>
-  <Header title={receiverName ?? route?.params?.receiverName ?? 'Messages'} />
+  {/* Compact conversation header (Telegram-like) when opened for a specific conversation */}
+  {hasTarget ? (
+    // Use the project's Header component in short mode so the conversation name
+    // appears using the same visual style as the app header (logo + centered title).
+    <Header title={receiverName ?? route?.params?.receiverName ?? 'Conversation'} short />
+  ) : (
+    <Header title={receiverName ?? route?.params?.receiverName ?? 'Messages'} />
+  )}
 
         {/* If opened without an explicit convo target (bottom tab), show conversation list; otherwise show the chat view */}
         {!hasTarget ? (
