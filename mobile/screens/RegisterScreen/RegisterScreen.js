@@ -53,12 +53,21 @@ const RegisterScreen = () => {
             console.log('register token', access_token)
 
             await SecureStore.setItemAsync('token', access_token)
-            // navigate according to selected role (owner=0 -> HomeForPO, client=1 -> Home)
-            if (selectedRole === 0) {
-              navigation.replace('OwnerHome')
-            } else {
-              navigation.replace('Home')
+            // persist user token then fetch the user to store user_id and navigate
+            try {
+              const userRes = await axios.get(`${API_URL}/user`, {
+                headers: { Accept: 'application/json', Authorization: `Bearer ${access_token}` }
+              })
+              const user = userRes.data
+              if (user?.id) {
+                try { await SecureStore.setItemAsync('user_id', String(user.id)) } catch (e) {}
+              }
+            } catch (e) {
+              // ignore fetch errors for now
             }
+
+            if (selectedRole === 0) navigation.replace('OwnerHome')
+            else navigation.replace('Home')
 
         } catch (error) {
             console.log('Register error', error?.response || error.message)

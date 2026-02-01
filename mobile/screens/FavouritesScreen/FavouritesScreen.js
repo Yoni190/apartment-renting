@@ -47,6 +47,20 @@ const FavouritesScreen = () => {
     }, [])
   )
 
+  const navigateToChat = (params) => {
+    try {
+      let nav = navigation
+      while (nav.getParent && nav.getParent()) {
+        const p = nav.getParent()
+        if (!p) break
+        nav = p
+      }
+      nav.navigate('Messages', params)
+    } catch (e) {
+      navigation.navigate('Messages', params)
+    }
+  }
+
   const handleSave = async (apartment) => {
     try {
       const token = await SecureStore.getItemAsync('token')
@@ -139,7 +153,7 @@ const FavouritesScreen = () => {
                 saved={true}
                 onSave={() => handleSave(apartment)}
                 onUnsave={() => handleUnsave(apartment)}
-                onMessage={() => navigation.navigate('Messages', { apartmentId: apartment.id })}
+                onMessage={() => navigateToChat({ apartmentId: apartment.id })}
                 onCall={(phone) => {
                   if (phone) {
                     const phoneUrl = `tel:${phone}`

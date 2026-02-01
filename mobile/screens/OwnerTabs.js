@@ -5,6 +5,7 @@ import HomeForPO from './HomeForPO/HomeForPO'
 import AddListing from './AddListing/AddListing'
 import OwnerTours from './TourScreen/TourScreen'
 import MessagesScreen from './MessagesScreen/MessagesScreen'
+import MessageListScreen from './MessageListScreen/MessageListScreen'
 import ProfileScreen from './ProfileScreen/ProfileScreen'
 
 const Tab = createBottomTabNavigator()
@@ -55,7 +56,7 @@ const OwnerTabs = () => {
 
       <Tab.Screen
         name="OwnerMessages"
-        component={MessagesScreen}
+        component={MessageListScreen}
         options={{
           tabBarIcon: ({ focused }) => (
             <Ionicons name={focused ? 'chatbubble' : 'chatbubble-outline'} size={24} />

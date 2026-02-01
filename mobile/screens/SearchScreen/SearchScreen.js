@@ -23,6 +23,52 @@ const SearchScreen = () => {
 
     const navigation = useNavigation()
 
+    // Open messages screen for a listing or user. Tries to infer owner id from several common fields.
+    const openMessage = async (listingOrUser) => {
+      try {
+        // determine receiver (owner) id from common shapes
+        const receiverId = listingOrUser.owner_id || listingOrUser.user_id || listingOrUser.owner?.id || listingOrUser.user?.id || listingOrUser.id
+
+        // current user id from secure store (fallback to 0)
+        let senderId = null
+        try {
+          const uid = await require('expo-secure-store').getItemAsync('user_id')
+          if (uid) senderId = Number(uid)
+        } catch (e) {
+          // ignore
+        }
+
+        // default roles (adjust if your app stores roles)
+        const senderRole = 'client'
+        const receiverRole = 'property_owner'
+
+        // navigate to root stack 'Messages' so chat opens directly
+        try {
+          let nav = navigation
+          while (nav.getParent && nav.getParent()) {
+            const p = nav.getParent()
+            if (!p) break
+            nav = p
+          }
+          nav.navigate('Messages', {
+          senderId: senderId || 0,
+          receiverId: receiverId || 0,
+          senderRole,
+          receiverRole,
+        })
+        } catch (e) {
+          navigation.navigate('Messages', {
+            senderId: senderId || 0,
+            receiverId: receiverId || 0,
+            senderRole,
+            receiverRole,
+          })
+        }
+      } catch (err) {
+        console.warn('openMessage failed', err)
+      }
+    }
+
     const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
     const searchApartments = async (text, filters = {}) => {
