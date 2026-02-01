@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react'
-import { SafeAreaView, View, FlatList, Text, TouchableOpacity } from 'react-native'
+import { SafeAreaView, View, FlatList, Text, TouchableOpacity, TextInput } from 'react-native'
 import { CommonActions } from '@react-navigation/native'
 import styles from './MessageListScreenStyle'
 import MessageListItem from '../../components/MessageListItem'
@@ -14,6 +14,7 @@ export default function MessageListScreen({ navigation }) {
   const [loading, setLoading] = useState(true)
   const [allMessages, setAllMessages] = useState([])
   const [currentUserId, setCurrentUserId] = useState(null)
+  const [query, setQuery] = useState('')
 
   useEffect(() => {
     let mounted = true
@@ -275,7 +276,7 @@ export default function MessageListScreen({ navigation }) {
       // MessageListItem creating a smaller payload that can lose the user id)
       onPress={() => onOpenChat(item)}
       unreadCount={Number(item.unread_count || 0)}
-  lastMessageFromMe={Number(item.last_sender_id) === Number(currentUserId ?? effectiveSenderId ?? -1)}
+      lastMessageFromMe={Number(item.last_sender_id) === Number(currentUserId ?? -1)}
       lastMessageIsRead={Boolean(item.last_message_is_read)}
     />
   )
@@ -361,6 +362,12 @@ export default function MessageListScreen({ navigation }) {
     return arr
   }, [allMessages, currentUserId])
 
+  const filteredList = useMemo(() => {
+    if (!query || query.trim() === '') return groupedFromAll
+    const q = query.trim().toLowerCase()
+    return groupedFromAll.filter(it => (it.name || '').toLowerCase().includes(q) || (it.last_message || '').toLowerCase().includes(q))
+  }, [groupedFromAll, query])
+
   // unread conversations derived from grouped all-messages (one row per counterpart)
   
 
@@ -370,13 +377,30 @@ export default function MessageListScreen({ navigation }) {
       {loading ? (
         <View style={styles.emptyContainer}><Text style={styles.emptyTitle}>Loading...</Text></View>
       ) : (
-        <FlatList
-          data={groupedFromAll}
-          keyExtractor={(item, idx) => String(item.user_id ?? item.id ?? idx)}
-          renderItem={renderItem}
-          contentContainerStyle={styles.listContent}
-          ItemSeparatorComponent={() => <View style={styles.divider} />}
-        />
+        <View style={styles.screenContent}>
+          <View style={styles.searchContainer}>
+            <TextInput
+              placeholder="Search conversations"
+              value={query}
+              onChangeText={setQuery}
+              style={styles.searchInput}
+              returnKeyType="search"
+              clearButtonMode="while-editing"
+            />
+            {query ? (
+              <TouchableOpacity style={styles.searchClear} onPress={() => setQuery('')}>
+                <Text style={{ color: '#6b7280' }}>✕</Text>
+              </TouchableOpacity>
+            ) : null}
+          </View>
+          <FlatList
+            data={filteredList}
+            keyExtractor={(item, idx) => String(item.user_id ?? item.id ?? idx)}
+            renderItem={renderItem}
+            contentContainerStyle={styles.listContent}
+            ItemSeparatorComponent={() => <View style={styles.divider} />}
+          />
+        </View>
       )}
     </SafeAreaView>
   )
