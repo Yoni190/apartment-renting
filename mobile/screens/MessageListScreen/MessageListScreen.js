@@ -4,6 +4,7 @@ import { CommonActions } from '@react-navigation/native'
 import styles from './MessageListScreenStyle'
 import MessageListItem from '../../components/MessageListItem'
 import messageService from '../../services/messageService'
+import { onMessageUpdate, offMessageUpdate } from '../../services/messageService'
 import * as SecureStore from 'expo-secure-store'
 import Header from '../../components/Header'
 
@@ -11,7 +12,6 @@ import Header from '../../components/Header'
 export default function MessageListScreen({ navigation }) {
   const [chats, setChats] = useState([])
   const [loading, setLoading] = useState(true)
-  const [showAll, setShowAll] = useState(false)
   const [allMessages, setAllMessages] = useState([])
   const [currentUserId, setCurrentUserId] = useState(null)
 
@@ -52,8 +52,10 @@ export default function MessageListScreen({ navigation }) {
               const lastMessage = it.last_message ?? it.lastMessage ?? it.message ?? ''
               const lastAt = it.last_at ?? it.lastAt ?? it.updated_at ?? it.created_at ?? null
               const unread = it.unread_count ?? it.unreadCount ?? 0
+              const lastSender = it.last_sender_id ?? it.lastSenderId ?? it.sender_id ?? (it.sender && it.sender.id ? Number(it.sender.id) : null)
+              const lastIsRead = it.last_message_is_read ?? it.lastMessageIsRead ?? (it.read_at ? true : false) ?? false
               const name = it.name ?? it.user?.name ?? (sid === userId ? it.sender?.name : it.receiver?.name) ?? it.sender?.name ?? it.receiver?.name ?? (userId ? `User ${userId}` : 'Unknown')
-              return { user_id: userId, last_message: lastMessage, last_at: lastAt, unread_count: unread, name }
+              return { user_id: userId, last_message: lastMessage, last_at: lastAt, unread_count: unread, name, last_sender_id: lastSender ? Number(lastSender) : null, last_message_is_read: !!lastIsRead }
             })
             convs.sort((a, b) => new Date(b.last_at || 0) - new Date(a.last_at || 0))
             if (mounted) {
@@ -88,6 +90,9 @@ export default function MessageListScreen({ navigation }) {
               else if (m.receiver && Number(m.receiver.id) === otherId) existing.name = m.receiver.name
             }
             if (!existing.name) existing.name = `User ${otherId}`
+            // record last message sender and read state for preview ticks
+            existing.last_sender_id = m.sender_id ? Number(m.sender_id) : existing.last_sender_id
+            existing.last_message_is_read = existing.last_message_is_read || !!m.is_read
             map.set(key, existing)
           }
 
@@ -114,6 +119,51 @@ export default function MessageListScreen({ navigation }) {
         }
       }
     }
+
+    // subscribe to message updates (sent or received) so previews reflect latest message
+    const handleMsg = (m) => {
+      try {
+        const uid = currentUserId
+        if (!uid) return
+        // normalize incoming message shape
+        const sid = Number(m.sender_id)
+        const rid = Number(m.receiver_id)
+        const other = sid === uid ? rid : sid
+        if (!other) return
+
+        // update chats list preview
+        setChats(prev => {
+          const copy = Array.isArray(prev) ? [...prev] : []
+          const idx = copy.findIndex(c => Number(c.user_id) === Number(other))
+          const preview = {
+            user_id: other,
+            name: (m.sender && Number(m.sender.id) === other) ? m.sender.name : ((m.receiver && Number(m.receiver.id) === other) ? m.receiver.name : `User ${other}`),
+            last_message: m.message ?? m.last_message ?? copy[idx]?.last_message ?? '',
+            last_at: m.created_at ?? m.createdAt ?? new Date().toISOString(),
+            unread_count: (Number(m.receiver_id) === uid && !m.is_read) ? ((copy[idx]?.unread_count || 0) + 1) : (copy[idx]?.unread_count || 0),
+            last_sender_id: Number(m.sender_id),
+            last_message_is_read: !!m.is_read || !!m.read_at || false,
+          }
+          if (idx >= 0) copy.splice(idx, 1)
+          copy.unshift(preview)
+          return copy
+        })
+
+        // update allMessages list so grouped view refreshes
+        setAllMessages(prev => {
+          const arr = Array.isArray(prev) ? [...prev] : []
+          // avoid duplicates by id when possible
+          if (m.id) {
+            const found = arr.findIndex(x => String(x.id) === String(m.id))
+            if (found >= 0) { arr[found] = m; return arr }
+          }
+          arr.unshift(m)
+          return arr
+        })
+      } catch (e) { }
+    }
+
+    const unsub = onMessageUpdate(handleMsg)
 
     async function loadAllMessages() {
       try {
@@ -145,6 +195,7 @@ export default function MessageListScreen({ navigation }) {
 
     return () => {
       mounted = false
+      try { offMessageUpdate(handleMsg) } catch (e) {}
     }
   }, [])
 
@@ -222,6 +273,8 @@ export default function MessageListScreen({ navigation }) {
       // MessageListItem creating a smaller payload that can lose the user id)
       onPress={() => onOpenChat(item)}
       unreadCount={Number(item.unread_count || 0)}
+  lastMessageFromMe={Number(item.last_sender_id) === Number(currentUserId ?? effectiveSenderId ?? -1)}
+      lastMessageIsRead={Boolean(item.last_message_is_read)}
     />
   )
 
@@ -303,52 +356,22 @@ export default function MessageListScreen({ navigation }) {
     return arr
   }, [allMessages, currentUserId])
 
+  // unread conversations derived from grouped all-messages (one row per counterpart)
+  
+
   return (
     <SafeAreaView style={styles.container}>
       <Header title="Messages" />
-      <View style={styles.toggleRow}>
-        <TouchableOpacity
-          style={[styles.toggleButton, !showAll ? styles.toggleActive : null]}
-          onPress={() => setShowAll(false)}
-        >
-          <Text style={{ color: !showAll ? 'white' : '#0f172a', fontWeight: '600' }}>Unread</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.toggleButton, showAll ? styles.toggleActive : null]}
-          onPress={() => setShowAll(true)}
-        >
-          <Text style={{ color: showAll ? 'white' : '#0f172a', fontWeight: '600' }}>All messages</Text>
-        </TouchableOpacity>
-      </View>
       {loading ? (
         <View style={styles.emptyContainer}><Text style={styles.emptyTitle}>Loading...</Text></View>
       ) : (
-        showAll ? (
-          <FlatList
-            data={groupedFromAll}
-            keyExtractor={(item, idx) => String(item.user_id ?? item.id ?? idx)}
-            renderItem={renderItem}
-            contentContainerStyle={styles.listContent}
-            ItemSeparatorComponent={() => <View style={styles.divider} />}
-          />
-        ) : (
-          // Unread conversations only
-          (() => {
-            const unreadChats = (chats || []).filter(c => Number(c.unread_count || 0) > 0)
-            if (unreadChats.length === 0) {
-              return <View style={styles.emptyContainer}><Text style={styles.emptyTitle}>No unread messages</Text></View>
-            }
-            return (
-              <FlatList
-                data={unreadChats}
-                keyExtractor={(item, idx) => String(item.user_id ?? item.id ?? idx)}
-                renderItem={renderItem}
-                contentContainerStyle={styles.listContent}
-                ItemSeparatorComponent={() => <View style={styles.divider} />}
-              />
-            )
-          })()
-        )
+        <FlatList
+          data={groupedFromAll}
+          keyExtractor={(item, idx) => String(item.user_id ?? item.id ?? idx)}
+          renderItem={renderItem}
+          contentContainerStyle={styles.listContent}
+          ItemSeparatorComponent={() => <View style={styles.divider} />}
+        />
       )}
     </SafeAreaView>
   )

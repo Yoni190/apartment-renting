@@ -156,6 +156,16 @@ const MessagesScreen = ({ route }) => {
     }
   }, [])
 
+  // Emit last message to listeners when we load the conversation so the list updates
+  useEffect(() => {
+    try {
+      if (Array.isArray(messages) && messages.length > 0) {
+        const last = messages[messages.length - 1]
+        if (last) messageService.emitMessageUpdate(last)
+      }
+    } catch (e) {}
+  }, [messages])
+
   // compute layout offsets so FlatList and input can adjust when keyboard appears
   const baseListPadding = Platform.OS === 'android' ? 240 : 140
   const baseInputBottom = Platform.OS === 'android' ? 36 : 12
@@ -204,6 +214,34 @@ const MessagesScreen = ({ route }) => {
       created_at: new Date().toISOString(),
     }
     setMessages((m) => [...m, tempMessage])
+    // also update conversation preview immediately so MessageList shows latest sent text
+    try {
+      setChats(prev => {
+        try {
+          const other = Number(payload.receiver_id)
+          if (!other) return prev || []
+          const existingIndex = (prev || []).findIndex(c => Number(c.user_id) === other)
+          const newPreview = {
+            user_id: other,
+            name: receiverName || `User ${other}`,
+            last_message: payload.message,
+            last_at: tempMessage.created_at,
+            unread_count: (prev && prev[existingIndex]) ? (prev[existingIndex].unread_count || 0) : 0,
+            last_sender_id: Number(payload.sender_id),
+            last_message_is_read: false,
+          }
+          const copy = Array.isArray(prev) ? [...prev] : []
+          if (existingIndex >= 0) {
+            copy.splice(existingIndex, 1)
+          }
+          // put new preview at head (most recent)
+          copy.unshift(newPreview)
+          return copy
+        } catch (e) { return prev }
+      })
+      // also append to allMessages so grouped view updates
+      setAllMessages(prev => (prev || []).concat([tempMessage]))
+    } catch (e) {}
     setText('')
     setTimeout(() => flatRef.current?.scrollToEnd?.({ animated: true }), 50)
 
@@ -212,6 +250,28 @@ const MessagesScreen = ({ route }) => {
       // if server returned the created message object, replace the temp message
       if (serverMsg && serverMsg.id) {
         setMessages((prev) => prev.map((m) => (m.id === tempId ? serverMsg : m)))
+        // update conversation preview to reflect server timestamps/ids
+        try {
+          setChats(prev => {
+            const other = Number(serverMsg.receiver_id) === Number(effectiveSenderId) ? Number(serverMsg.sender_id) : Number(serverMsg.receiver_id)
+            const idx = (prev || []).findIndex(c => Number(c.user_id) === other)
+            const updatedPreview = {
+              user_id: other,
+              name: receiverName || `User ${other}`,
+              last_message: serverMsg.message ?? payload.message,
+              last_at: serverMsg.created_at ?? new Date().toISOString(),
+              unread_count: (prev && prev[idx]) ? (prev[idx].unread_count || 0) : 0,
+              last_sender_id: Number(serverMsg.sender_id || payload.sender_id),
+              last_message_is_read: !!serverMsg.is_read || !!serverMsg.read_at || false,
+            }
+            const copy = Array.isArray(prev) ? [...prev] : []
+            if (idx >= 0) copy.splice(idx, 1)
+            copy.unshift(updatedPreview)
+            return copy
+          })
+          // replace temp in allMessages with server message
+          setAllMessages(prev => (prev || []).map(m => (m.id === tempId ? serverMsg : m)))
+        } catch (e) {}
       } else {
         // fallback: reload conversation to pick up server-saved message
         try {
@@ -286,7 +346,12 @@ const MessagesScreen = ({ route }) => {
       <View style={[styles.messageRow, isSent ? styles.messageRowSent : styles.messageRowReceived]}>
         <View style={[styles.bubble, isSent ? styles.bubbleSent : styles.bubbleReceived]}>
           <Text style={[styles.messageText, isSent ? styles.messageTextSent : styles.messageTextReceived]}>{item.message}</Text>
-          <Text style={styles.timeText}>{time}</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
+            {isSent ? (
+              <Ionicons name={(item.is_read || item.read_at) ? 'checkmark-done' : 'checkmark'} size={14} color={'#ffffff'} style={{ marginRight: 6 }} />
+            ) : null}
+            <Text style={styles.timeText}>{time}</Text>
+          </View>
         </View>
 
         {isSent ? <View style={styles.sentSpacer} /> : null}

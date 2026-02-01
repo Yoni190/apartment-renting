@@ -30,6 +30,26 @@ export interface MessagePayload {
   [key: string]: any
 }
 
+// Simple in-memory event emitter for message updates so different screens
+// can react to new messages (optimistic or server-synced) without a global store.
+type MsgCallback = (msg: any) => void
+const _messageListeners: MsgCallback[] = []
+export function onMessageUpdate(cb: MsgCallback) {
+  if (typeof cb === 'function') _messageListeners.push(cb)
+  return () => offMessageUpdate(cb)
+}
+export function offMessageUpdate(cb: MsgCallback) {
+  const idx = _messageListeners.indexOf(cb)
+  if (idx >= 0) _messageListeners.splice(idx, 1)
+}
+export function emitMessageUpdate(msg: any) {
+  try {
+    for (const cb of _messageListeners.slice()) {
+      try { cb(msg) } catch (e) { /* ignore listener errors */ }
+    }
+  } catch (e) {}
+}
+
 /**
  * Fetch messages between two users (sender & receiver).
  * Returns server response data (array of messages).

@@ -1,7 +1,8 @@
 import React from 'react'
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
+import { Ionicons } from '@expo/vector-icons'
 
-export default function MessageListItem({ recipientName, lastMessage, timestamp, onPress, id, unreadCount }) {
+export default function MessageListItem({ recipientName, lastMessage, timestamp, onPress, id, unreadCount, lastMessageFromMe, lastMessageIsRead }) {
   const name = recipientName || `User ${id ?? ''}`
   const lastAt = timestamp || ''
 
@@ -26,16 +27,23 @@ export default function MessageListItem({ recipientName, lastMessage, timestamp,
       <View style={styles.content}>
         <View style={styles.rowTop}>
           <Text style={styles.name} numberOfLines={1}>{name}</Text>
-          <Text style={styles.time}>{lastAt}</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            {lastMessageFromMe ? (
+              <Ionicons name={lastMessageIsRead ? 'checkmark-done' : 'checkmark'} size={16} color={'#0b63d6'} style={{ marginRight: 6 }} />
+            ) : null}
+            <Text style={styles.time}>{lastAt}</Text>
+          </View>
         </View>
 
         <View style={styles.rowBottom}>
           <Text style={styles.lastMessage} numberOfLines={1} ellipsizeMode="tail">{lastMessage}</Text>
         </View>
       </View>
-      {unreadCount ? (
-        <View style={styles.badge}><Text style={styles.badgeText}>{String(unreadCount)}</Text></View>
-      ) : null}
+      <View style={styles.rightMeta}>
+        {unreadCount ? (
+          <View style={styles.badge}><Text style={styles.badgeText}>{String(unreadCount)}</Text></View>
+        ) : null}
+      </View>
     </TouchableOpacity>
   )
 }
@@ -92,6 +100,11 @@ const styles = StyleSheet.create({
   lastMessage: {
     fontSize: 13,
     color: '#6b7280',
+  },
+  rightMeta: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 8,
   },
   badge: {
     backgroundColor: '#1778f2',
