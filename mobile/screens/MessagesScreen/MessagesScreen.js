@@ -265,7 +265,7 @@ const MessagesScreen = ({ route }) => {
         style={styles.convoRow}
         onPress={async () => {
           try {
-            const uid = Number(currentUserId)
+            const uid = currentUserId ? Number(currentUserId) : null
             const other = Number(item.user_id || item.id)
             console.log('MessagesScreen: convo pressed, navigating', { uid, other, otherName })
             // climb to root navigator so we reliably open the chat screen
@@ -276,14 +276,18 @@ const MessagesScreen = ({ route }) => {
               nav = p
             }
             // prefer dispatching a navigate action on the root navigation prop
+            const params = { receiverId: other, receiverName: otherName }
+            if (uid) params.senderId = uid
             if (nav && nav.dispatch) {
-              nav.dispatch(require('@react-navigation/native').CommonActions.navigate({ name: 'Messages', params: { senderId: uid, receiverId: other, receiverName: otherName } }))
+              nav.dispatch(require('@react-navigation/native').CommonActions.navigate({ name: 'Messages', params }))
             } else {
-              navigation.navigate('Messages', { senderId: Number(currentUserId), receiverId: Number(item.user_id || item.id), receiverName: otherName })
+              navigation.navigate('Messages', params)
             }
           } catch (e) {
             console.warn('MessagesScreen conversation navigation failed', e)
-            navigation.navigate('Messages', { senderId: Number(currentUserId), receiverId: Number(item.user_id || item.id), receiverName: otherName })
+            const params = { receiverId: Number(item.user_id || item.id), receiverName: otherName }
+            if (currentUserId) params.senderId = Number(currentUserId)
+            navigation.navigate('Messages', params)
           }
         }}
       >

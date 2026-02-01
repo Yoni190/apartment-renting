@@ -6,7 +6,21 @@ export default function MessageListItem({ recipientName, lastMessage, timestamp,
   const lastAt = timestamp || ''
 
   return (
-    <TouchableOpacity style={styles.itemRow} onPress={() => { console.log('MessageListItem pressed', { id, name }); onPress && onPress({ id, recipientName: name }) }}>
+    <TouchableOpacity
+      style={styles.itemRow}
+      onPress={() => {
+        console.log('MessageListItem pressed', { id, name, hasOnPress: !!onPress })
+        if (onPress) {
+          try {
+            // call without args — parent may expect no params
+            onPress()
+          } catch (e) {
+            // fallback: call with a small payload
+            onPress({ id, recipientName: name })
+          }
+        }
+      }}
+    >
       <View style={styles.avatar}>
         <Text style={styles.avatarText}>{(name || 'U').slice(0, 1).toUpperCase()}</Text>
       </View>
