@@ -6,6 +6,7 @@ import {
   FlatList,
   TextInput,
   KeyboardAvoidingView,
+  Keyboard,
   Platform,
   SafeAreaView,
   TouchableOpacity,
@@ -29,6 +30,8 @@ const MessagesScreen = ({ route }) => {
   const [currentUserId, setCurrentUserId] = useState(null)
   const flatRef = useRef(null)
   const backScale = useRef(new Animated.Value(1)).current
+  const [keyboardHeight, setKeyboardHeight] = useState(0)
+  const animatedKeyboard = useRef(new Animated.Value(0)).current
   const isFocused = useIsFocused()
   const [conversations, setConversations] = useState([])
   const [showNewModal, setShowNewModal] = useState(false)
@@ -123,6 +126,41 @@ const MessagesScreen = ({ route }) => {
 
     return () => { mounted = false }
   }, [effectiveSenderId, effectiveReceiverId, inferredReceiver, currentUserId])
+
+  // Listen for keyboard show/hide to move the input row above the keyboard
+  useEffect(() => {
+    const onShow = (e) => {
+      try {
+        const h = e?.endCoordinates?.height ?? e?.end?.height ?? 0
+        const height = Number(h) || 0
+        setKeyboardHeight(height)
+        // animate animatedKeyboard to height for smooth movement
+        try {
+          Animated.timing(animatedKeyboard, { toValue: height, duration: 160, useNativeDriver: false }).start()
+        } catch (e) {}
+        // scroll to bottom so last message remains visible above keyboard
+        setTimeout(() => flatRef.current?.scrollToEnd?.({ animated: true }), 120)
+      } catch (err) {}
+    }
+    const onHide = () => {
+      setKeyboardHeight(0)
+      try {
+        Animated.timing(animatedKeyboard, { toValue: 0, duration: 160, useNativeDriver: false }).start()
+      } catch (e) {}
+    }
+
+    const showSub = Keyboard.addListener('keyboardDidShow', onShow)
+    const hideSub = Keyboard.addListener('keyboardDidHide', onHide)
+    return () => {
+      try { showSub.remove(); hideSub.remove(); } catch (e) {}
+    }
+  }, [])
+
+  // compute layout offsets so FlatList and input can adjust when keyboard appears
+  const baseListPadding = Platform.OS === 'android' ? 240 : 140
+  const baseInputBottom = Platform.OS === 'android' ? 36 : 12
+  const effectiveListPadding = baseListPadding + (keyboardHeight || 0)
+  const effectiveInputBottom = baseInputBottom + (keyboardHeight || 0)
 
   // Load conversation previews when opened without sender/receiver params
   useEffect(() => {
@@ -316,7 +354,7 @@ const MessagesScreen = ({ route }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.kb} keyboardVerticalOffset={90}>
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.kb} keyboardVerticalOffset={90}>
   {/* Compact conversation header (Telegram-like) when opened for a specific conversation */}
   {hasTarget ? (
     // Custom dark-blue conversation header (Telegram-like)
@@ -394,11 +432,12 @@ const MessagesScreen = ({ route }) => {
               data={messages}
               keyExtractor={(item) => String(item.id)}
               renderItem={renderItem}
-              contentContainerStyle={styles.listContent}
+              contentContainerStyle={[styles.listContent, { paddingBottom: effectiveListPadding }]}
+              keyboardShouldPersistTaps="handled"
               onContentSizeChange={() => flatRef.current?.scrollToEnd?.({ animated: true })}
             />
 
-            <View style={styles.inputRow}>
+            <Animated.View style={[styles.inputRow, { bottom: Animated.add(animatedKeyboard, baseInputBottom), zIndex: 50, elevation: 50 }]}>
               <TextInput
                 style={styles.input}
                 value={text}
@@ -409,7 +448,7 @@ const MessagesScreen = ({ route }) => {
               <TouchableOpacity style={styles.sendBtn} onPress={handleSend} accessibilityLabel="Send">
                 <Ionicons name="send" size={20} color="#fff" />
               </TouchableOpacity>
-            </View>
+            </Animated.View>
           </>
         )}
       </KeyboardAvoidingView>

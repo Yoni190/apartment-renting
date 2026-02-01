@@ -4,7 +4,11 @@ export default StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f9f9f9' },
   kb: { flex: 1 },
   // leave space for the global/compact header so messages are not hidden underneath
-  listContent: { paddingHorizontal: 12, paddingBottom: 12, paddingTop: 12},
+  // increase bottom padding so the last message isn't hidden behind the input row
+  // on Android we add extra bottom space to stay above soft navigation bars
+  // NOTE: this value must be larger if the input is absolutely positioned so list content
+  // can scroll above the input area
+  listContent: { paddingHorizontal: 12, paddingBottom: Platform.OS === 'android' ? 140 : 100, paddingTop: 12},
 
   // conversation list
   convoRow: { flexDirection: 'row', paddingVertical: 12, alignItems: 'center', borderBottomWidth: 1, borderBottomColor: '#f1f1f1' },
@@ -75,20 +79,33 @@ export default StyleSheet.create({
   sentSpacer: { width: 2 },
 
   inputRow: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    // place above bottom; Android needs a larger offset to clear soft nav
+    bottom: Platform.OS === 'android' ? 36 : 12,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: Platform.OS === 'ios' ? 12 : 8,
+    paddingHorizontal: 14,
+    // slightly taller touch area on iOS, taller on Android
+    paddingVertical: Platform.OS === 'android' ? 12 : 10,
     borderTopWidth: 1,
     borderTopColor: '#eee',
     backgroundColor: '#fff',
+    // elevation/shadow so it sits above list content
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 6,
   },
   input: {
     flex: 1,
     minHeight: 40,
     maxHeight: 120,
     paddingHorizontal: 12,
-    paddingVertical: 8,
+    // slightly more vertical padding on Android for taller hit area
+    paddingVertical: Platform.OS === 'android' ? 12 : 8,
     backgroundColor: '#f6f7fb',
     borderRadius: 20,
     marginRight: 8,

@@ -181,6 +181,34 @@ export default function MessageListScreen({ navigation }) {
         if (uid) params.senderId = uid
         navigation.navigate('Messages', params)
       }
+      // locally clear unread badge for this conversation so UI is immediate
+      try {
+        // clear in chats list
+        setChats(prev => (prev || []).map(c => {
+          const id = Number(c.user_id ?? c.id ?? null)
+          if (id === otherId) return { ...c, unread_count: 0 }
+          return c
+        }))
+
+        // mark on server as read for this conversation (receiver = current user, sender = otherId)
+        if (uid) {
+          messageService.markMessagesAsRead(uid, otherId).catch(err => console.warn('mark read failed', err))
+        }
+
+        // update allMessages so groupedFromAll reflects the change immediately
+        setAllMessages(prev => (prev || []).map(m => {
+          try {
+            const sid = Number(m.sender_id)
+            const rid = Number(m.receiver_id)
+            if (uid && sid === otherId && rid === uid) {
+              return { ...m, is_read: true }
+            }
+            return m
+          } catch (e) { return m }
+        }))
+      } catch (err) {
+        console.warn('Failed to clear unread locally', err)
+      }
     })()
   }
 
@@ -193,6 +221,7 @@ export default function MessageListScreen({ navigation }) {
       // pass a wrapper so we always call onOpenChat with the original item (avoids
       // MessageListItem creating a smaller payload that can lose the user id)
       onPress={() => onOpenChat(item)}
+      unreadCount={Number(item.unread_count || 0)}
     />
   )
 
