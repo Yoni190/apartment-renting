@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react'
-import { SafeAreaView, View, FlatList, Text, TouchableOpacity, TextInput, Animated, Easing } from 'react-native'
+import { SafeAreaView, View, FlatList, Text, TouchableOpacity, TextInput, Animated, Easing, Modal } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { CommonActions } from '@react-navigation/native'
 import styles from './MessageListScreenStyle'
@@ -21,6 +21,10 @@ export default function MessageListScreen({ navigation }) {
   const loadersRef = useRef({})
   const emptyAnim = useRef(new Animated.Value(0)).current
   const emptyAllAnim = useRef(new Animated.Value(0)).current
+  const [showNewModal, setShowNewModal] = useState(false)
+  const [newEmail, setNewEmail] = useState('')
+  const [newError, setNewError] = useState('')
+  const [newLoading, setNewLoading] = useState(false)
 
   const onRefresh = async () => {
     try {
@@ -359,6 +363,56 @@ export default function MessageListScreen({ navigation }) {
     })()
   }
 
+  const onStartChatByEmail = async () => {
+    try {
+      const email = String(newEmail || '').trim().toLowerCase()
+      if (!email) {
+        setNewError('Please enter an email.')
+        return
+      }
+      setNewLoading(true)
+      setNewError('')
+      const user = await messageService.lookupUserByEmail(email)
+      const receiverId = Number(user?.id)
+      const receiverName = user?.name || email
+      const uidStr = await SecureStore.getItemAsync('user_id')
+      const uid = uidStr ? Number(uidStr) : null
+      if (!receiverId) {
+        setNewError('User not found.')
+        return
+      }
+      if (uid && receiverId === uid) {
+        setNewError('You cannot message yourself.')
+        return
+      }
+      setShowNewModal(false)
+      setNewEmail('')
+      try {
+        let nav = navigation
+        while (nav.getParent && nav.getParent()) {
+          const p = nav.getParent()
+          if (!p) break
+          nav = p
+        }
+        const params = { receiverId, receiverName }
+        if (uid) params.senderId = uid
+        if (nav && nav.dispatch) {
+          nav.dispatch(CommonActions.navigate({ name: 'Messages', params }))
+        } else {
+          navigation.navigate('Messages', params)
+        }
+      } catch (e) {
+        const params = { receiverId, receiverName }
+        if (uid) params.senderId = uid
+        navigation.navigate('Messages', params)
+      }
+    } catch (e) {
+      setNewError('User not found.')
+    } finally {
+      setNewLoading(false)
+    }
+  }
+
   const renderItem = ({ item }) => (
     (() => {
       // find authoritative latest message for this conversation from allMessages
@@ -667,6 +721,36 @@ export default function MessageListScreen({ navigation }) {
               return null
             }}
           />
+          {activeTab === 'all' ? (
+            <TouchableOpacity style={styles.fab} onPress={() => setShowNewModal(true)}>
+              <Text style={styles.fabText}>+</Text>
+            </TouchableOpacity>
+          ) : null}
+
+          <Modal visible={showNewModal} transparent animationType="slide">
+            <View style={styles.modalOverlay}>
+              <View style={styles.modalCard}>
+                <Text style={styles.modalTitle}>Start new message</Text>
+                <TextInput
+                  placeholder="Enter user email"
+                  value={newEmail}
+                  onChangeText={(t) => { setNewEmail(t); setNewError('') }}
+                  style={styles.modalInput}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                />
+                {newError ? <Text style={styles.modalError}>{newError}</Text> : null}
+                <View style={styles.modalActions}>
+                  <TouchableOpacity onPress={() => setShowNewModal(false)} style={styles.modalBtnGhost}>
+                    <Text style={styles.modalBtnGhostText}>Cancel</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={onStartChatByEmail} style={styles.modalBtnPrimary} disabled={newLoading}>
+                    <Text style={styles.modalBtnPrimaryText}>{newLoading ? 'Please wait...' : 'Start'}</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </Modal>
         </View>
       )}
     </SafeAreaView>

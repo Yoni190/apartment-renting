@@ -238,6 +238,22 @@ export async function getListing(listingId: number) {
   }
 }
 
+/**
+ * Lookup a user by email to start a chat.
+ * Returns basic user info (id, name, email) or throws if not found.
+ */
+export async function lookupUserByEmail(email: string) {
+  const url = `${API_URL}/users/lookup`
+  try {
+    const headers = await getAuthHeaders()
+    const res = await axios.post(url, { email }, { headers })
+    return res.data
+  } catch (err) {
+    console.error('lookupUserByEmail error', err)
+    throw err
+  }
+}
+
 const messageService = {
   getMessages,
   sendMessage,
@@ -245,6 +261,7 @@ const messageService = {
   getConversations,
   getListing,
   getMessagesForUser,
+  lookupUserByEmail,
 }
 
 export default messageService
