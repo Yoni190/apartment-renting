@@ -13,6 +13,7 @@ import {
   Pressable,
   Animated,
   Easing,
+  PanResponder,
 } from 'react-native'
 import Header from '../../components/Header'
 import { Ionicons } from '@expo/vector-icons'
@@ -37,6 +38,18 @@ const MessagesScreen = ({ route }) => {
   const [allMessages, setAllMessages] = useState([])
   const [showNewModal, setShowNewModal] = useState(false)
   const [newReceiverId, setNewReceiverId] = useState('')
+  const [replyTo, setReplyTo] = useState(null)
+  const lastTapRef = useRef({ time: 0, id: null })
+
+  const messageById = useMemo(() => {
+    const map = new Map()
+    try {
+      for (const m of messages || []) {
+        if (m && m.id !== undefined && m.id !== null) map.set(String(m.id), m)
+      }
+    } catch (e) {}
+    return map
+  }, [messages])
 
   // prefer explicit sender/receiver provided via route params
   const routeSenderId = route?.params?.senderId
@@ -283,6 +296,7 @@ const MessagesScreen = ({ route }) => {
       sender_id: effectiveSenderId || 0,
       receiver_id: effectiveReceiverId || 0,
       message: text.trim(),
+      reply_to_id: replyTo?.id ?? null,
     }
 
     // optimistic update with a temp id we can match later
@@ -295,6 +309,7 @@ const MessagesScreen = ({ route }) => {
       sender_role: 'client',
       receiver_role: 'property_owner',
       message: payload.message,
+      reply_to_id: payload.reply_to_id,
       is_read: false,
       created_at: new Date().toISOString(),
     }
@@ -329,6 +344,7 @@ const MessagesScreen = ({ route }) => {
       try { emitMessageUpdate(tempMessage) } catch (e) {}
     } catch (e) {}
     setText('')
+    setReplyTo(null)
     setTimeout(() => flatRef.current?.scrollToEnd?.({ animated: true }), 50)
 
     try {
@@ -462,9 +478,38 @@ const MessagesScreen = ({ route }) => {
   const renderItem = ({ item }) => {
     const isSent = Number(item.sender_id) === Number(effectiveSenderId)
     const time = new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    const replyTarget = item.reply_to_id ? messageById.get(String(item.reply_to_id)) : null
+    const replyName = replyTarget
+      ? (Number(replyTarget.sender_id) === Number(effectiveSenderId) ? 'You' : (receiverName || 'User'))
+      : null
+    const replyText = replyTarget?.message ?? 'Original message'
+
+    const panResponder = PanResponder.create({
+      onMoveShouldSetPanResponder: (_e, g) => Math.abs(g.dx) > 12 && Math.abs(g.dx) > Math.abs(g.dy),
+      onPanResponderRelease: (_e, g) => {
+        if (g.dx > 60) setReplyTo(item)
+      },
+    })
+
+    const onBubblePress = () => {
+      const now = Date.now()
+      if (lastTapRef.current.id === item.id && now - lastTapRef.current.time < 300) {
+        setReplyTo(item)
+        lastTapRef.current = { time: 0, id: null }
+        return
+      }
+      lastTapRef.current = { time: now, id: item.id }
+    }
+
     return (
-      <View style={[styles.messageRow, isSent ? styles.messageRowSent : styles.messageRowReceived]}>
-        <View style={[styles.bubble, isSent ? styles.bubbleSent : styles.bubbleReceived]}>
+      <View style={[styles.messageRow, isSent ? styles.messageRowSent : styles.messageRowReceived]} {...panResponder.panHandlers}>
+        <Pressable style={[styles.bubble, isSent ? styles.bubbleSent : styles.bubbleReceived]} onPress={onBubblePress}>
+          {item.reply_to_id ? (
+            <View style={[styles.replySnippet, isSent ? styles.replySnippetSent : styles.replySnippetReceived]}>
+              <Text style={[styles.replyName, isSent ? styles.replyNameSent : styles.replyNameReceived]} numberOfLines={1}>{replyName || 'Reply'}</Text>
+              <Text style={[styles.replyText, isSent ? styles.replyTextSent : styles.replyTextReceived]} numberOfLines={2}>{replyText}</Text>
+            </View>
+          ) : null}
           <Text style={[styles.messageText, isSent ? styles.messageTextSent : styles.messageTextReceived]}>{item.message}</Text>
           <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
             {isSent ? (
@@ -472,7 +517,7 @@ const MessagesScreen = ({ route }) => {
             ) : null}
             <Text style={styles.timeText}>{time}</Text>
           </View>
-        </View>
+        </Pressable>
 
         {isSent ? <View style={styles.sentSpacer} /> : null}
       </View>
@@ -654,16 +699,31 @@ const MessagesScreen = ({ route }) => {
             />
 
             <Animated.View style={[styles.inputRow, { bottom: Animated.add(animatedKeyboard, baseInputBottom), zIndex: 50, elevation: 50 }]}>
-              <TextInput
-                style={styles.input}
-                value={text}
-                onChangeText={setText}
-                placeholder="Type a message"
-                multiline={false}
-              />
-              <TouchableOpacity style={styles.sendBtn} onPress={handleSend} accessibilityLabel="Send">
-                <Ionicons name="send" size={20} color="#fff" />
-              </TouchableOpacity>
+              {replyTo ? (
+                <View style={styles.replyComposer}>
+                  <View style={styles.replyComposerLeft}>
+                    <Text style={styles.replyComposerTitle} numberOfLines={1}>
+                      Replying to {Number(replyTo.sender_id) === Number(effectiveSenderId) ? 'You' : (receiverName || 'User')}
+                    </Text>
+                    <Text style={styles.replyComposerText} numberOfLines={1}>{replyTo.message}</Text>
+                  </View>
+                  <TouchableOpacity onPress={() => setReplyTo(null)} style={styles.replyComposerClose}>
+                    <Ionicons name="close" size={18} color="#6b7280" />
+                  </TouchableOpacity>
+                </View>
+              ) : null}
+              <View style={styles.inputInner}>
+                <TextInput
+                  style={styles.input}
+                  value={text}
+                  onChangeText={setText}
+                  placeholder="Type a message"
+                  multiline={false}
+                />
+                <TouchableOpacity style={styles.sendBtn} onPress={handleSend} accessibilityLabel="Send">
+                  <Ionicons name="send" size={20} color="#fff" />
+                </TouchableOpacity>
+              </View>
             </Animated.View>
           </>
         )}

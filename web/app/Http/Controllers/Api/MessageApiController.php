@@ -84,7 +84,8 @@ class MessageApiController extends Controller
             'sender_id' => ['required','integer'],
             'receiver_id' => ['required','integer'],
             'message' => ['required','string','max:2000'],
-            'listing_id' => ['nullable','integer']
+            'listing_id' => ['nullable','integer'],
+            'reply_to_id' => ['nullable','integer']
         ]);
 
         $user = $request->user();
@@ -100,6 +101,7 @@ class MessageApiController extends Controller
             'receiver_id' => (int)$request->input('receiver_id'),
             'message' => $request->input('message'),
             'listing_id' => $request->input('listing_id') ?: null,
+            'reply_to_id' => $request->input('reply_to_id') ?: null,
         ]);
 
         // Optionally: notify the receiver via database notification / broadcast here
