@@ -75,6 +75,14 @@ export async function getMessagesForUser(userId: number) {
   try {
     const headers = await getAuthHeaders()
     const res = await axios.get(url, { headers })
+    // debug: log if messages include read flags
+    try {
+      const data = res.data
+      if (Array.isArray(data) && data.length > 0) {
+        console.log('getMessagesForUser: sample message keys', Object.keys(data[0]))
+        console.log('getMessagesForUser: sample read fields', { is_read: data[0].is_read, read_at: data[0].read_at })
+      }
+    } catch (e) {}
     return res.data
   } catch (err) {
     console.error('getMessagesForUser error', err)
@@ -182,7 +190,8 @@ export async function getConversations(userId: number) {
             existing.last_message = m.message
             existing.last_at = m.created_at
           }
-          if (!m.is_read && Number(m.receiver_id) === Number(userId)) existing.unread_count = (existing.unread_count || 0) + 1
+          // count only messages received by the current user that are not marked read
+          if (Number(m.receiver_id) === Number(userId) && !(m.is_read || m.read_at)) existing.unread_count = (existing.unread_count || 0) + 1
           // try to get a name from sender/receiver payloads if present
           existing.name = existing.name || (m.sender && m.sender.name) || (m.receiver && m.receiver.name) || existing.name
           map.set(otherId, existing)

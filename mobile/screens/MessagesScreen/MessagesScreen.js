@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState, useMemo } from 'react'
 import {
   View,
   Text,
@@ -17,7 +17,7 @@ import {
 import Header from '../../components/Header'
 import { Ionicons } from '@expo/vector-icons'
 import styles from './MessagesScreenStyle'
-import messageService, { MessagePayload } from '../../services/messageService'
+import messageService, { MessagePayload, onMessageUpdate, offMessageUpdate } from '../../services/messageService'
 import * as SecureStore from 'expo-secure-store'
 import { useIsFocused } from '@react-navigation/native'
 import { Modal } from 'react-native'
@@ -34,6 +34,7 @@ const MessagesScreen = ({ route }) => {
   const animatedKeyboard = useRef(new Animated.Value(0)).current
   const isFocused = useIsFocused()
   const [conversations, setConversations] = useState([])
+  const [allMessages, setAllMessages] = useState([])
   const [showNewModal, setShowNewModal] = useState(false)
   const [newReceiverId, setNewReceiverId] = useState('')
 
@@ -111,10 +112,30 @@ const MessagesScreen = ({ route }) => {
             if (derived) setReceiverName(derived)
           }
         }
-        // mark as read for the current user (sender)
+        // mark as read for the current user only for this conversation (receiver=current user, sender=other)
         try {
-          if (!Number.isNaN(sender)) {
-            messageService.markMessagesAsRead(sender).catch(() => {})
+          if (!Number.isNaN(sender) && !Number.isNaN(receiver)) {
+            // receiverId = current user (sender), senderId = other participant (receiver)
+            messageService.markMessagesAsRead(Number(sender), Number(receiver)).catch(() => {})
+            // update local copies to reflect read state immediately
+            try {
+              setMessages(prev => (prev || []).map(m => {
+                const sid = Number(m.sender_id)
+                const rid = Number(m.receiver_id)
+                if (sid === Number(receiver) && rid === Number(sender)) {
+                  return { ...m, is_read: true, read_at: new Date().toISOString() }
+                }
+                return m
+              }))
+              setAllMessages(prev => (prev || []).map(m => {
+                const sid = Number(m.sender_id)
+                const rid = Number(m.receiver_id)
+                if (sid === Number(receiver) && rid === Number(sender)) {
+                  return { ...m, is_read: true, read_at: new Date().toISOString() }
+                }
+                return m
+              }))
+            } catch (e) {}
           }
         } catch (e) {}
         // scroll to bottom after short delay
@@ -185,12 +206,76 @@ const MessagesScreen = ({ route }) => {
         const data = await messageService.getConversations(uid)
         if (!active) return
         setConversations(Array.isArray(data) ? data : [])
+        // load all messages so we can compute authoritative unread counts
+        try {
+          const msgs = await messageService.getMessagesForUser(uid)
+          if (Array.isArray(msgs)) {
+            // sort desc for convenience
+            msgs.sort((a,b) => new Date(b.created_at||b.createdAt||0) - new Date(a.created_at||a.createdAt||0))
+            setAllMessages(msgs)
+          } else {
+            setAllMessages([])
+          }
+        } catch (e) {
+          console.warn('MessagesScreen: failed to load all messages for unreadMap', e)
+          setAllMessages([])
+        }
       } catch (err) {
         console.warn('Failed to load conversations', err)
       }
     })()
     return () => { active = false }
   }, [routeSenderId, routeReceiverId, currentUserId, isFocused])
+
+  // subscribe to in-app message updates to keep unread counts fresh
+  useEffect(() => {
+    const handler = (m) => {
+      try {
+        setAllMessages(prev => {
+          const arr = Array.isArray(prev) ? [...prev] : []
+          if (m.id) {
+            const idx = arr.findIndex(x => String(x.id) === String(m.id))
+            if (idx >= 0) { arr[idx] = m; return arr }
+          }
+          arr.unshift(m)
+          return arr
+        })
+      } catch (e) {}
+    }
+    const unsub = onMessageUpdate(handler)
+    return () => { try { unsub(); offMessageUpdate(handler) } catch (e) {} }
+  }, [])
+
+  // authoritative unread counts per sender based on raw messages (is_read === false)
+  const unreadMap = useMemo(() => {
+    const map = new Map()
+    try {
+      const uid = Number(currentUserId)
+      if (!uid || !Array.isArray(allMessages)) return map
+      for (const m of allMessages) {
+        try {
+          const rid = Number(m.receiver_id)
+          const sid = Number(m.sender_id)
+          if (rid !== uid) continue
+          if (!sid) continue
+          if (m.is_read || m.read_at) continue
+          const key = String(sid)
+          map.set(key, (map.get(key) || 0) + 1)
+        } catch (e) {}
+      }
+    } catch (e) {}
+    return map
+  }, [allMessages, currentUserId])
+
+  // debug: log unreadMap contents when it changes
+  useEffect(() => {
+    try {
+      const uid = currentUserId
+      if (!uid) return
+      const entries = Array.from(unreadMap ? unreadMap.entries() : [])
+      console.log('MessagesScreen: unreadMap entries', entries)
+    } catch (e) {}
+  }, [unreadMap, currentUserId])
 
   const handleSend = async () => {
     if (!text.trim()) return
@@ -216,7 +301,7 @@ const MessagesScreen = ({ route }) => {
     setMessages((m) => [...m, tempMessage])
     // also update conversation preview immediately so MessageList shows latest sent text
     try {
-      setChats(prev => {
+  setConversations(prev => {
         try {
           const other = Number(payload.receiver_id)
           if (!other) return prev || []
@@ -252,7 +337,7 @@ const MessagesScreen = ({ route }) => {
         setMessages((prev) => prev.map((m) => (m.id === tempId ? serverMsg : m)))
         // update conversation preview to reflect server timestamps/ids
         try {
-          setChats(prev => {
+          setConversations(prev => {
             const other = Number(serverMsg.receiver_id) === Number(effectiveSenderId) ? Number(serverMsg.sender_id) : Number(serverMsg.receiver_id)
             const idx = (prev || []).findIndex(c => Number(c.user_id) === other)
             const updatedPreview = {
@@ -329,15 +414,30 @@ const MessagesScreen = ({ route }) => {
     }
   }, [hasTarget, effectiveSenderId, effectiveReceiverId])
 
-  // when screen regains focus, attempt to mark as read for current user
+  // when screen regains focus, mark messages as read only for the open conversation (if any)
   useEffect(() => {
     if (!isFocused) return
-    // mark as read for the authenticated user (effectiveSenderId)
+    if (!hasTarget) return
     try {
-      const myId = effectiveSenderId
-      if (myId && !Number.isNaN(myId)) messageService.markMessagesAsRead(myId).catch(() => {})
+      const myId = Number(effectiveSenderId)
+      const other = Number(effectiveReceiverId)
+      if (myId && other && !Number.isNaN(myId) && !Number.isNaN(other)) {
+        // mark only messages sent by `other` to `myId` as read
+        messageService.markMessagesAsRead(myId, other).catch(() => {})
+        // update local state immediately for better UX
+        try {
+          setMessages(prev => (prev || []).map(m => {
+            if (Number(m.sender_id) === other && Number(m.receiver_id) === myId) return { ...m, is_read: true, read_at: new Date().toISOString() }
+            return m
+          }))
+          setAllMessages(prev => (prev || []).map(m => {
+            if (Number(m.sender_id) === other && Number(m.receiver_id) === myId) return { ...m, is_read: true, read_at: new Date().toISOString() }
+            return m
+          }))
+        } catch (e) {}
+      }
     } catch (e) {}
-  }, [isFocused, effectiveSenderId])
+  }, [isFocused, effectiveSenderId, effectiveReceiverId, hasTarget])
 
   const renderItem = ({ item }) => {
     const isSent = Number(item.sender_id) === Number(effectiveSenderId)
@@ -363,6 +463,8 @@ const MessagesScreen = ({ route }) => {
     const otherName = item.name || `User ${item.user_id || item.id}`
     const preview = item.last_message || ''
     const time = item.last_at ? new Date(item.last_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''
+    const otherId = Number(item.user_id ?? item.other_user_id ?? item.id ?? 0)
+    const unreadCount = Number(unreadMap.get(String(otherId)) || item.unread_count || 0)
     return (
       <TouchableOpacity
         style={styles.convoRow}
@@ -402,7 +504,7 @@ const MessagesScreen = ({ route }) => {
           </View>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <Text style={styles.convoPreview} numberOfLines={1}>{preview}</Text>
-            {item.unread_count ? <View style={styles.unreadBadge}><Text style={styles.unreadText}>{item.unread_count}</Text></View> : null}
+            {unreadCount ? <View style={styles.unreadBadge}><Text style={styles.unreadText}>{unreadCount}</Text></View> : null}
           </View>
         </View>
       </TouchableOpacity>
