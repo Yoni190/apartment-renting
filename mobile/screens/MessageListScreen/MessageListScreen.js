@@ -15,6 +15,7 @@ export default function MessageListScreen({ navigation }) {
   const [allMessages, setAllMessages] = useState([])
   const [currentUserId, setCurrentUserId] = useState(null)
   const [query, setQuery] = useState('')
+  const [activeTab, setActiveTab] = useState('all')
   const [refreshing, setRefreshing] = useState(false)
   const loadersRef = useRef({})
 
@@ -541,10 +542,23 @@ export default function MessageListScreen({ navigation }) {
 
   const filteredList = useMemo(() => {
     const base = (Array.isArray(groupedFromAll) && groupedFromAll.length > 0) ? groupedFromAll : (Array.isArray(chats) ? chats : [])
-    if (!query || query.trim() === '') return base
     const q = query.trim().toLowerCase()
-    return base.filter(it => (it.name || '').toLowerCase().includes(q) || (it.last_message || '').toLowerCase().includes(q))
-  }, [groupedFromAll, query])
+    let list = base
+    if (q) {
+      list = list.filter(it => (it.name || '').toLowerCase().includes(q) || (it.last_message || '').toLowerCase().includes(q))
+    }
+    if (activeTab === 'unread') {
+      list = list.filter(it => {
+        try {
+          const otherId = Number(it.user_id ?? it.id ?? null)
+          if (!otherId) return false
+          const count = Number(unreadMap.get(String(otherId)) || it.unread_count || 0)
+          return count > 0
+        } catch (e) { return false }
+      })
+    }
+    return list
+  }, [groupedFromAll, chats, query, activeTab, unreadMap])
 
   // unread conversations derived from grouped all-messages (one row per counterpart)
   
@@ -570,6 +584,20 @@ export default function MessageListScreen({ navigation }) {
                 <Text style={{ color: '#6b7280' }}>✕</Text>
               </TouchableOpacity>
             ) : null}
+          </View>
+          <View style={styles.tabRow}>
+            <TouchableOpacity
+              style={[styles.tabButton, activeTab === 'all' && styles.tabButtonActive]}
+              onPress={() => setActiveTab('all')}
+            >
+              <Text style={[styles.tabText, activeTab === 'all' && styles.tabTextActive]}>All messages</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.tabButton, activeTab === 'unread' && styles.tabButtonActive]}
+              onPress={() => setActiveTab('unread')}
+            >
+              <Text style={[styles.tabText, activeTab === 'unread' && styles.tabTextActive]}>Unread</Text>
+            </TouchableOpacity>
           </View>
           <FlatList
             data={filteredList}
