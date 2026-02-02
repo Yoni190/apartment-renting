@@ -15,16 +15,34 @@ class MessageApiController extends Controller
     // or: ?user_id=.. (all messages where user is sender or receiver)
     public function index(Request $request)
     {
+        $user = $request->user();
+        if (!$user) return response()->json(['message' => 'Unauthenticated'], 401);
+        $uid = (int) $user->id;
+
         // conversation between two users
         if ($request->filled('sender_id') && $request->filled('receiver_id')) {
             $s = (int)$request->input('sender_id');
             $r = (int)$request->input('receiver_id');
+
+            if ($uid !== $s && $uid !== $r) {
+                return response()->json(['message' => 'Unauthenticated or unauthorized'], 401);
+            }
 
             // eager load sender and receiver so clients can display participant names
             $msgs = Message::with(['sender', 'receiver'])->where(function($q) use ($s,$r) {
                 $q->where('sender_id', $s)->where('receiver_id', $r);
             })->orWhere(function($q) use ($s,$r) {
                 $q->where('sender_id', $r)->where('receiver_id', $s);
+            })->where(function($q) use ($uid) {
+                $q->where(function($q2) use ($uid) {
+                    $q2->where('sender_id', $uid)->where(function($q3) {
+                        $q3->whereNull('sender_deleted')->orWhere('sender_deleted', false);
+                    });
+                })->orWhere(function($q2) use ($uid) {
+                    $q2->where('receiver_id', $uid)->where(function($q3) {
+                        $q3->whereNull('receiver_deleted')->orWhere('receiver_deleted', false);
+                    });
+                });
             })->orderBy('created_at','asc')->get();
 
             return response()->json($msgs);
@@ -33,10 +51,25 @@ class MessageApiController extends Controller
         // messages for a single user (sent or received)
         if ($request->filled('user_id')) {
             $uid = (int)$request->input('user_id');
+            if ($uid !== (int)$user->id) {
+                return response()->json(['message' => 'Unauthenticated or unauthorized'], 401);
+            }
             $msgs = Message::with(['sender', 'receiver'])
                 ->where(function($q) use ($uid) {
                     $q->where('sender_id', $uid)->orWhere('receiver_id', $uid);
-                })->orderBy('created_at','asc')->get();
+                })
+                ->where(function($q) use ($uid) {
+                    $q->where(function($q2) use ($uid) {
+                        $q2->where('sender_id', $uid)->where(function($q3) {
+                            $q3->whereNull('sender_deleted')->orWhere('sender_deleted', false);
+                        });
+                    })->orWhere(function($q2) use ($uid) {
+                        $q2->where('receiver_id', $uid)->where(function($q3) {
+                            $q3->whereNull('receiver_deleted')->orWhere('receiver_deleted', false);
+                        });
+                    });
+                })
+                ->orderBy('created_at','asc')->get();
 
             return response()->json($msgs);
         }
@@ -112,13 +145,18 @@ class MessageApiController extends Controller
         $uid = (int) $user->id;
         $other = (int) $request->input('other_id');
 
-        $deleted = Message::where(function($q) use ($uid, $other) {
-            $q->where('sender_id', $uid)->where('receiver_id', $other);
-        })->orWhere(function($q) use ($uid, $other) {
-            $q->where('sender_id', $other)->where('receiver_id', $uid);
-        })->delete();
+        $senderUpdated = Message::where('sender_id', $uid)
+            ->where('receiver_id', $other)
+            ->update(['sender_deleted' => true]);
 
-        return response()->json(['deleted' => $deleted]);
+        $receiverUpdated = Message::where('receiver_id', $uid)
+            ->where('sender_id', $other)
+            ->update(['receiver_deleted' => true]);
+
+        return response()->json([
+            'sender_updated' => $senderUpdated,
+            'receiver_updated' => $receiverUpdated,
+        ]);
     }
 
     // GET /api/conversations
@@ -131,6 +169,16 @@ class MessageApiController extends Controller
 
         $msgs = Message::where(function($q) use ($uid) {
             $q->where('sender_id', $uid)->orWhere('receiver_id', $uid);
+        })->where(function($q) use ($uid) {
+            $q->where(function($q2) use ($uid) {
+                $q2->where('sender_id', $uid)->where(function($q3) {
+                    $q3->whereNull('sender_deleted')->orWhere('sender_deleted', false);
+                });
+            })->orWhere(function($q2) use ($uid) {
+                $q2->where('receiver_id', $uid)->where(function($q3) {
+                    $q3->whereNull('receiver_deleted')->orWhere('receiver_deleted', false);
+                });
+            });
         })->orderBy('created_at','desc')->get();
 
         $convos = [];
