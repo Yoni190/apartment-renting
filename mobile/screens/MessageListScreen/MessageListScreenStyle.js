@@ -145,4 +145,14 @@ export default StyleSheet.create({
     color: '#94a3b8',
     fontSize: 16,
   },
+  emptyUnreadContainer: {
+    marginTop: 120,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyUnreadText: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#6b7280',
+  },
 })
