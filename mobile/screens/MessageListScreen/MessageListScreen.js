@@ -225,7 +225,17 @@ export default function MessageListScreen({ navigation }) {
         })
 
         // also refresh from server to ensure previews/ticks match authoritative state
-        try { loadConversations(); loadAllMessages(); } catch (e) {}
+        // Debounce these heavy refreshes to avoid triggering server rate limits
+        try {
+          const t = loadersRef.current
+          // clear any pending refresh
+          if (t._refreshTimer) clearTimeout(t._refreshTimer)
+          t._refreshTimer = setTimeout(() => {
+            try { t.loadConversations && t.loadConversations() } catch (e) {}
+            try { t.loadAllMessages && t.loadAllMessages() } catch (e) {}
+            t._refreshTimer = null
+          }, 800)
+        } catch (e) {}
       } catch (e) { }
     }
 
@@ -381,6 +391,16 @@ export default function MessageListScreen({ navigation }) {
           return Boolean(item.last_message_is_read)
         } catch (e) { return Boolean(item.last_message_is_read) }
       })()
+      // local read-state for the authoritative latest message (if any)
+      const lastLocallyRead = (() => {
+        try {
+          if (latest && latest.id) {
+            const local = getLocalReadState(latest.id)
+            return local === null ? null : Boolean(local)
+          }
+        } catch (e) {}
+        return null
+      })()
       const unreadCount = lastFromMe ? 0 : Number(unreadMap.get(String(otherId)) || item.unread_count || 0)
 
       return (
@@ -394,6 +414,10 @@ export default function MessageListScreen({ navigation }) {
           onPress={() => onOpenChat(item)}
           lastMessageFromMe={lastFromMe}
           lastMessageId={latest?.id ?? null}
+          lastMessageWasReceived={latest ? (Number(latest.receiver_id) === Number(currentUserId ?? -1)) : (Number(item.last_sender_id) !== Number(currentUserId ?? -1))}
+          lastMessageReadAt={latest?.read_at ?? latest?.readAt ?? null}
+          lastMessageTimestamp={latest?.created_at ?? latest?.createdAt ?? null}
+          lastMessageLocallyRead={lastLocallyRead}
           unreadCount={unreadCount}
           lastMessageIsRead={lastIsRead}
         />

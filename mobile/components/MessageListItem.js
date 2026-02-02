@@ -2,7 +2,7 @@ import React from 'react'
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 
-export default function MessageListItem({ recipientName, lastMessage, timestamp, onPress, id, unreadCount, lastMessageFromMe, lastMessageIsRead, lastMessageId }) {
+export default function MessageListItem({ recipientName, lastMessage, timestamp, onPress, id, unreadCount, lastMessageFromMe, lastMessageIsRead, lastMessageId, lastMessageWasReceived, lastMessageReadAt, lastMessageTimestamp, lastMessageLocallyRead }) {
   const name = recipientName || `User ${id ?? ''}`
   const lastAt = timestamp || ''
 
@@ -29,11 +29,25 @@ export default function MessageListItem({ recipientName, lastMessage, timestamp,
           <Text style={styles.name} numberOfLines={1}>{name}</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             {(() => {
+              // If the latest message was RECEIVED by the current user, hide any tick icons.
+              if (lastMessageWasReceived) return null
               // Only show double-check when the last message was sent by the current user,
-              // is marked read, and we have a concrete message id (i.e. not a server preview
-              // entry lacking the underlying message). Otherwise show a single check for
-              // sent messages or no tick for received messages.
-              const showDouble = Boolean(lastMessageFromMe && lastMessageIsRead && lastMessageId)
+              // is marked read (we require an actual read timestamp), the read timestamp
+              // corresponds to that message (or later), and we have a concrete message id.
+              // Otherwise show a single check for sent messages.
+              let showDouble = false
+              try {
+                if (lastMessageFromMe && lastMessageId) {
+                  // local override (immediate UX) — if we marked this message read locally, honor it
+                  if (lastMessageLocallyRead === true) showDouble = true
+                  else if (lastMessageReadAt) {
+                    const ra = new Date(lastMessageReadAt).getTime()
+                    const ca = lastMessageTimestamp ? new Date(lastMessageTimestamp).getTime() : null
+                    // require read_at to be a valid time and not older than the message created_at
+                    if (!isNaN(ra) && (!ca || ra >= ca)) showDouble = true
+                  }
+                }
+              } catch (e) { showDouble = false }
               const showSingle = Boolean(lastMessageFromMe) && !showDouble
               const iconName = showDouble ? 'checkmark-done' : (showSingle ? 'checkmark' : null)
               if (iconName) return <Ionicons name={iconName} size={16} color={'#0b63d6'} style={{ marginRight: 6 }} />
@@ -48,7 +62,10 @@ export default function MessageListItem({ recipientName, lastMessage, timestamp,
         </View>
       </View>
       <View style={styles.rightMeta}>
-        {unreadCount ? (
+        {/* Only show unread badge when the latest message was RECEIVED by the current user
+            and there are unread messages. Do not show badge for messages sent by the
+            current user. */}
+        {(lastMessageWasReceived && Number(unreadCount) > 0) ? (
           <View style={styles.badge}><Text style={styles.badgeText}>{String(unreadCount)}</Text></View>
         ) : null}
       </View>
