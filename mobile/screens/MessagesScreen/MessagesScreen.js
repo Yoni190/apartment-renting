@@ -23,6 +23,8 @@ import * as ImagePicker from 'expo-image-picker'
 import * as SecureStore from 'expo-secure-store'
 import { useNavigation, useIsFocused } from '@react-navigation/native'
 import Header from '../../components/Header'
+import RentApplicationForm from '../../components/RentApplicationForm'
+import PurchaseApplicationForm from '../../components/PurchaseApplicationForm'
 import messageService, {
   emitMessageUpdate,
   onMessageUpdate,
@@ -1058,111 +1060,9 @@ const MessagesScreen = ({ route }) => {
                 <View style={styles.templateFormCard}>
                   <Text style={styles.templateTitle}>{selectedTemplate?.title || 'Template'}</Text>
                   {selectedTemplate?.type === 'rent' ? (
-                    <ScrollView style={styles.templateFormScroll} contentContainerStyle={styles.templateFormContent}>
-                      <View style={styles.templateFieldRow}>
-                        <Text style={styles.templateFieldLabel}>Subject</Text>
-                        <TextInput
-                          style={styles.templateFieldInput}
-                          value="Property Rent Application"
-                          editable={false}
-                        />
-                      </View>
-                      <View style={styles.templateFieldRow}>
-                        <Text style={styles.templateFieldLabel}>Full Name</Text>
-                        <TextInput style={styles.templateFieldInput} value={rentForm.fullName} onChangeText={(v) => setRentForm(prev => ({ ...prev, fullName: v }))} />
-                      </View>
-                      <View style={styles.templateFieldRow}>
-                        <Text style={styles.templateFieldLabel}>Phone Number</Text>
-                        <TextInput style={styles.templateFieldInput} value={rentForm.phoneNumber} onChangeText={(v) => setRentForm(prev => ({ ...prev, phoneNumber: v }))} keyboardType="phone-pad" />
-                      </View>
-                      <View style={styles.templateFieldRow}>
-                        <Text style={styles.templateFieldLabel}>Email (optional)</Text>
-                        <TextInput style={styles.templateFieldInput} value={rentForm.email} onChangeText={(v) => setRentForm(prev => ({ ...prev, email: v }))} keyboardType="email-address" autoCapitalize="none" />
-                      </View>
-                      <View style={styles.templateFieldRow}>
-                        <Text style={styles.templateFieldLabel}>Apartment / Unit Interested In</Text>
-                        <TextInput style={styles.templateFieldInput} value={rentForm.unit} onChangeText={(v) => setRentForm(prev => ({ ...prev, unit: v }))} />
-                      </View>
-                      <View style={styles.templateFieldRow}>
-                        <Text style={styles.templateFieldLabel}>Preferred Move-in Date</Text>
-                        <TextInput style={styles.templateFieldInput} value={rentForm.moveIn} onChangeText={(v) => setRentForm(prev => ({ ...prev, moveIn: v }))} />
-                      </View>
-                      <View style={styles.templateFieldRow}>
-                        <Text style={styles.templateFieldLabel}>Lease Duration</Text>
-                        <TextInput style={styles.templateFieldInput} value={rentForm.leaseDuration} onChangeText={(v) => setRentForm(prev => ({ ...prev, leaseDuration: v }))} />
-                      </View>
-                      <View style={styles.templateFieldRow}>
-                        <Text style={styles.templateFieldLabel}>Employment Status</Text>
-                        <TextInput style={styles.templateFieldInput} value={rentForm.employmentStatus} onChangeText={(v) => setRentForm(prev => ({ ...prev, employmentStatus: v }))} />
-                      </View>
-                      <View style={styles.templateFieldRow}>
-                        <Text style={styles.templateFieldLabel}>Estimated Monthly Income</Text>
-                        <TextInput style={styles.templateFieldInput} value={rentForm.income} onChangeText={(v) => setRentForm(prev => ({ ...prev, income: v }))} keyboardType="numeric" />
-                      </View>
-                      <View style={styles.templateFieldRow}>
-                        <Text style={styles.templateFieldLabel}>Number of Occupants</Text>
-                        <TextInput style={styles.templateFieldInput} value={rentForm.occupants} onChangeText={(v) => setRentForm(prev => ({ ...prev, occupants: v }))} keyboardType="numeric" />
-                      </View>
-                      <View style={styles.templateFieldRow}>
-                        <Text style={styles.templateFieldLabel}>Additional Notes (optional)</Text>
-                        <TextInput
-                          style={[styles.templateFieldInput, styles.templateFieldInputMultiline]}
-                          value={rentForm.notes}
-                          onChangeText={(v) => setRentForm(prev => ({ ...prev, notes: v }))}
-                          multiline
-                          textAlignVertical="top"
-                        />
-                      </View>
-                    </ScrollView>
+                    <RentApplicationForm form={rentForm} setForm={setRentForm} styles={styles} />
                   ) : selectedTemplate?.type === 'buy' ? (
-                    <ScrollView style={styles.templateFormScroll} contentContainerStyle={styles.templateFormContent}>
-                      <View style={styles.templateFieldRow}>
-                        <Text style={styles.templateFieldLabel}>Subject</Text>
-                        <TextInput
-                          style={styles.templateFieldInput}
-                          value="Property Purchase Application"
-                          editable={false}
-                        />
-                      </View>
-                      <View style={styles.templateFieldRow}>
-                        <Text style={styles.templateFieldLabel}>Full Name</Text>
-                        <TextInput style={styles.templateFieldInput} value={buyForm.fullName} onChangeText={(v) => setBuyForm(prev => ({ ...prev, fullName: v }))} />
-                      </View>
-                      <View style={styles.templateFieldRow}>
-                        <Text style={styles.templateFieldLabel}>Phone Number</Text>
-                        <TextInput style={styles.templateFieldInput} value={buyForm.phoneNumber} onChangeText={(v) => setBuyForm(prev => ({ ...prev, phoneNumber: v }))} keyboardType="phone-pad" />
-                      </View>
-                      <View style={styles.templateFieldRow}>
-                        <Text style={styles.templateFieldLabel}>Email (optional)</Text>
-                        <TextInput style={styles.templateFieldInput} value={buyForm.email} onChangeText={(v) => setBuyForm(prev => ({ ...prev, email: v }))} keyboardType="email-address" autoCapitalize="none" />
-                      </View>
-                      <View style={styles.templateFieldRow}>
-                        <Text style={styles.templateFieldLabel}>Apartment / Unit Interested In</Text>
-                        <TextInput style={styles.templateFieldInput} value={buyForm.unit} onChangeText={(v) => setBuyForm(prev => ({ ...prev, unit: v }))} />
-                      </View>
-                      <View style={styles.templateFieldRow}>
-                        <Text style={styles.templateFieldLabel}>Intended Purchase Timeframe</Text>
-                        <TextInput style={styles.templateFieldInput} value={buyForm.timeframe} onChangeText={(v) => setBuyForm(prev => ({ ...prev, timeframe: v }))} />
-                      </View>
-                      <View style={styles.templateFieldRow}>
-                        <Text style={styles.templateFieldLabel}>Budget Range</Text>
-                        <TextInput style={styles.templateFieldInput} value={buyForm.budget} onChangeText={(v) => setBuyForm(prev => ({ ...prev, budget: v }))} />
-                      </View>
-                      <View style={styles.templateFieldRow}>
-                        <Text style={styles.templateFieldLabel}>Source of Funds (Cash / Loan / Mortgage)</Text>
-                        <TextInput style={styles.templateFieldInput} value={buyForm.sourceOfFunds} onChangeText={(v) => setBuyForm(prev => ({ ...prev, sourceOfFunds: v }))} />
-                      </View>
-                      <View style={styles.templateFieldRow}>
-                        <Text style={styles.templateFieldLabel}>Additional Notes (optional)</Text>
-                        <TextInput
-                          style={[styles.templateFieldInput, styles.templateFieldInputMultiline]}
-                          value={buyForm.notes}
-                          onChangeText={(v) => setBuyForm(prev => ({ ...prev, notes: v }))}
-                          multiline
-                          textAlignVertical="top"
-                        />
-                      </View>
-                    </ScrollView>
+                    <PurchaseApplicationForm form={buyForm} setForm={setBuyForm} styles={styles} />
                   ) : (
                     <TextInput
                       style={styles.templateFormInput}
