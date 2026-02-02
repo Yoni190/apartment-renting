@@ -252,12 +252,39 @@ export default StyleSheet.create({
     color: '#0f172a',
   },
   templateFieldRow: {
+  templateMessageCard: {
+    backgroundColor: 'rgba(255,255,255,0.16)',
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 6,
+  },
+  templateMessageSubject: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#ffffff',
+    marginBottom: 6,
+  },
+  templateMessageRow: {
+    marginBottom: 6,
+  },
+  templateMessageLabel: {
+    fontSize: 11,
+    color: '#e2e8f0',
+    marginBottom: 2,
+  },
+  templateMessageValue: {
+    fontSize: 13,
+    color: '#ffffff',
+  },
     marginBottom: 10,
   },
   templateFieldLabel: {
     fontSize: 12,
     color: '#6b7280',
     marginBottom: 4,
+  },
+  templateFieldLabelOnDark: {
+    color: '#ffffff',
   },
   templateFieldInput: {
     backgroundColor: '#f8fafc',

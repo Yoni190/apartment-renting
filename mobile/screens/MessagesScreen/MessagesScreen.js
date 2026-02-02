@@ -620,6 +620,86 @@ const MessagesScreen = ({ route }) => {
     } catch (e) {}
   }, [isFocused, effectiveSenderId, effectiveReceiverId, hasTarget])
 
+  const parseTemplateFields = (message) => {
+    const lines = String(message || '').split('\n').map(l => l.trim()).filter(Boolean)
+    const subjectLine = lines.find(l => l.toLowerCase().startsWith('subject:')) || ''
+    const subject = subjectLine.replace(/^subject:\s*/i, '')
+    const fieldMap = {}
+    for (const line of lines) {
+      const idx = line.indexOf(':')
+      if (idx <= 0) continue
+      const key = line.slice(0, idx).trim()
+      const value = line.slice(idx + 1).trim()
+      if (/^subject$/i.test(key)) continue
+      fieldMap[key] = value
+    }
+    return { subject, fieldMap }
+  }
+
+  const getTemplateType = (message) => {
+    const text = String(message || '').toLowerCase()
+    if (text.includes('subject: property rent application')) return 'rent'
+    if (text.includes('subject: property purchase application')) return 'buy'
+    return null
+  }
+
+  const renderTemplateCard = (message) => {
+    const type = getTemplateType(message)
+    if (!type) return null
+    const { subject, fieldMap } = parseTemplateFields(message)
+    const fields = type === 'rent'
+      ? [
+          'Full Name',
+          'Phone Number',
+          'Email (optional)',
+          'Apartment / Unit Interested In',
+          'Preferred Move-in Date',
+          'Lease Duration',
+          'Employment Status',
+          'Estimated Monthly Income',
+          'Number of Occupants',
+          'Additional Notes (optional)',
+        ]
+      : [
+          'Full Name',
+          'Phone Number',
+          'Email (optional)',
+          'Apartment / Unit Interested In',
+          'Intended Purchase Timeframe',
+          'Budget Range',
+          'Source of Funds (Cash / Loan / Mortgage)',
+          'Additional Notes (optional)',
+        ]
+
+    return (
+      <View style={styles.templateFormContent}>
+        <View style={styles.templateFieldRow}>
+          <Text style={[styles.templateFieldLabel, styles.templateFieldLabelOnDark]}>Subject</Text>
+          <TextInput
+            style={styles.templateFieldInput}
+            value={subject || (type === 'rent' ? 'Property Rent Application' : 'Property Purchase Application')}
+            editable={false}
+          />
+        </View>
+        {fields.map((label) => {
+          const isNotes = label === 'Additional Notes (optional)'
+          return (
+            <View key={label} style={styles.templateFieldRow}>
+              <Text style={[styles.templateFieldLabel, styles.templateFieldLabelOnDark]}>{label}</Text>
+              <TextInput
+                style={[styles.templateFieldInput, isNotes ? styles.templateFieldInputMultiline : null]}
+                value={fieldMap[label] || ''}
+                editable={false}
+                multiline={isNotes}
+                textAlignVertical={isNotes ? 'top' : 'auto'}
+              />
+            </View>
+          )
+        })}
+      </View>
+    )
+  }
+
   const renderItem = ({ item }) => {
     const isSent = Number(item.sender_id) === Number(effectiveSenderId)
     const time = new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -678,7 +758,11 @@ const MessagesScreen = ({ route }) => {
               ) : null}
             </View>
           ) : null}
-          <Text style={[styles.messageText, isSent ? styles.messageTextSent : styles.messageTextReceived]}>{item.message}</Text>
+          {renderTemplateCard(item.message) ? (
+            renderTemplateCard(item.message)
+          ) : (
+            <Text style={[styles.messageText, isSent ? styles.messageTextSent : styles.messageTextReceived]}>{item.message}</Text>
+          )}
           <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
             {isSent ? (
               <Ionicons name={(item.is_read || item.read_at) ? 'checkmark-done' : 'checkmark'} size={14} color={'#ffffff'} style={{ marginRight: 6 }} />
