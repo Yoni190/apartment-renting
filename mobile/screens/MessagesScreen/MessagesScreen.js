@@ -17,7 +17,7 @@ import {
 import Header from '../../components/Header'
 import { Ionicons } from '@expo/vector-icons'
 import styles from './MessagesScreenStyle'
-import messageService, { MessagePayload, onMessageUpdate, offMessageUpdate, emitMessageUpdate } from '../../services/messageService'
+import messageService, { MessagePayload, onMessageUpdate, offMessageUpdate, emitMessageUpdate, setLocalReadState, getLocalReadState } from '../../services/messageService'
 import * as SecureStore from 'expo-secure-store'
 import { useIsFocused } from '@react-navigation/native'
 import { Modal } from 'react-native'
@@ -427,16 +427,33 @@ const MessagesScreen = ({ route }) => {
       if (myId && other && !Number.isNaN(myId) && !Number.isNaN(other)) {
         // mark only messages sent by `other` to `myId` as read
         messageService.markMessagesAsRead(myId, other).catch(() => {})
-        // update local state immediately for better UX
+        // update local state immediately for better UX and emit updates
         try {
-          setMessages(prev => (prev || []).map(m => {
-            if (Number(m.sender_id) === other && Number(m.receiver_id) === myId) return { ...m, is_read: true, read_at: new Date().toISOString() }
-            return m
-          }))
-          setAllMessages(prev => (prev || []).map(m => {
-            if (Number(m.sender_id) === other && Number(m.receiver_id) === myId) return { ...m, is_read: true, read_at: new Date().toISOString() }
-            return m
-          }))
+          setMessages(prev => {
+            const arr = (prev || []).map(m => {
+              if (Number(m.sender_id) === other && Number(m.receiver_id) === myId) {
+                const updated = { ...m, is_read: true, read_at: new Date().toISOString() }
+                try { setLocalReadState(updated.id, true) } catch (e) {}
+                try { emitMessageUpdate(updated) } catch (e) {}
+                return updated
+              }
+              return m
+            })
+            return arr
+          })
+
+          setAllMessages(prev => {
+            const arr = (prev || []).map(m => {
+              if (Number(m.sender_id) === other && Number(m.receiver_id) === myId) {
+                const updated = { ...m, is_read: true, read_at: new Date().toISOString() }
+                try { setLocalReadState(updated.id, true) } catch (e) {}
+                try { emitMessageUpdate(updated) } catch (e) {}
+                return updated
+              }
+              return m
+            })
+            return arr
+          })
         } catch (e) {}
       }
     } catch (e) {}
@@ -467,7 +484,36 @@ const MessagesScreen = ({ route }) => {
     const preview = item.last_message || ''
     const time = item.last_at ? new Date(item.last_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''
     const otherId = Number(item.user_id ?? item.other_user_id ?? item.id ?? 0)
-    const unreadCount = Number(unreadMap.get(String(otherId)) || item.unread_count || 0)
+    // derive latest message from allMessages to compute accurate tick/read state
+    let latest = null
+    try {
+      if (Array.isArray(allMessages) && otherId) {
+        for (const m of allMessages) {
+          const sid = Number(m.sender_id)
+          const rid = Number(m.receiver_id)
+          const other = sid === currentUserId ? rid : sid
+          if (other !== otherId) continue
+          if (!latest) latest = m
+          else {
+            const la = new Date(latest.created_at || latest.createdAt || 0)
+            const ca = new Date(m.created_at || m.createdAt || 0)
+            if (ca > la) latest = m
+          }
+        }
+      }
+    } catch (e) { latest = null }
+    const lastFromMe = latest ? (Number(latest.sender_id) === Number(currentUserId ?? -1)) : (Number(item.last_sender_id) === Number(currentUserId ?? -1))
+    const lastIsRead = (() => {
+      try {
+        if (latest && latest.id) {
+          const local = getLocalReadState(latest.id)
+          if (local !== null) return Boolean(local)
+          return Boolean(latest.is_read || latest.read_at)
+        }
+        return Boolean(item.last_message_is_read)
+      } catch (e) { return Boolean(item.last_message_is_read) }
+    })()
+    const unreadCount = lastFromMe ? 0 : Number(unreadMap.get(String(otherId)) || item.unread_count || 0)
     return (
       <TouchableOpacity
         style={styles.convoRow}

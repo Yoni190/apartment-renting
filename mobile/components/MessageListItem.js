@@ -2,7 +2,7 @@ import React from 'react'
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 
-export default function MessageListItem({ recipientName, lastMessage, timestamp, onPress, id, unreadCount, lastMessageFromMe, lastMessageIsRead }) {
+export default function MessageListItem({ recipientName, lastMessage, timestamp, onPress, id, unreadCount, lastMessageFromMe, lastMessageIsRead, lastMessageId }) {
   const name = recipientName || `User ${id ?? ''}`
   const lastAt = timestamp || ''
 
@@ -29,9 +29,11 @@ export default function MessageListItem({ recipientName, lastMessage, timestamp,
           <Text style={styles.name} numberOfLines={1}>{name}</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             {(() => {
-              // Show tick when the last message is read or when it was sent by the current user.
-              // This ensures property-owners also see tick indicators in the conversation preview.
-              const showDouble = Boolean(lastMessageIsRead)
+              // Only show double-check when the last message was sent by the current user,
+              // is marked read, and we have a concrete message id (i.e. not a server preview
+              // entry lacking the underlying message). Otherwise show a single check for
+              // sent messages or no tick for received messages.
+              const showDouble = Boolean(lastMessageFromMe && lastMessageIsRead && lastMessageId)
               const showSingle = Boolean(lastMessageFromMe) && !showDouble
               const iconName = showDouble ? 'checkmark-done' : (showSingle ? 'checkmark' : null)
               if (iconName) return <Ionicons name={iconName} size={16} color={'#0b63d6'} style={{ marginRight: 6 }} />

@@ -4,7 +4,7 @@ import { CommonActions } from '@react-navigation/native'
 import styles from './MessageListScreenStyle'
 import MessageListItem from '../../components/MessageListItem'
 import messageService from '../../services/messageService'
-import { onMessageUpdate, offMessageUpdate } from '../../services/messageService'
+import { onMessageUpdate, offMessageUpdate, emitMessageUpdate, setLocalReadState, getLocalReadState } from '../../services/messageService'
 import * as SecureStore from 'expo-secure-store'
 import Header from '../../components/Header'
 
@@ -125,11 +125,6 @@ export default function MessageListScreen({ navigation }) {
             const key = String(otherId)
             const existing = map.get(key) || { user_id: otherId, last_message: null, last_at: null, unread_count: 0, name: null }
             const created = m.created_at ? new Date(m.created_at) : null
-            if (!existing.last_at || (created && new Date(existing.last_at) < created)) {
-              existing.last_message = m.message ?? m.last_message ?? ''
-              existing.last_at = m.created_at ?? m.created_at ?? null
-            }
-            if (Number(m.receiver_id) === uid && !(m.is_read || m.read_at)) existing.unread_count = (existing.unread_count || 0) + 1
 
             // try to derive a display name for the other participant
             if (!existing.name) {
@@ -139,8 +134,14 @@ export default function MessageListScreen({ navigation }) {
             }
             if (!existing.name) existing.name = `User ${otherId}`
             // record last message sender and read state for preview ticks
+            if (!existing.last_at || (created && new Date(existing.last_at) < created)) {
+              // this message becomes the latest for this conversation — use its read state
+              existing.last_message = m.message ?? m.last_message ?? ''
+              existing.last_at = m.created_at ?? m.created_at ?? null
+              existing.last_message_is_read = !!m.is_read || !!m.read_at
+            }
+            if (Number(m.receiver_id) === uid && !(m.is_read || m.read_at)) existing.unread_count = (existing.unread_count || 0) + 1
             existing.last_sender_id = m.sender_id ? Number(m.sender_id) : existing.last_sender_id
-            existing.last_message_is_read = existing.last_message_is_read || !!m.is_read || !!m.read_at
             map.set(key, existing)
           }
 
@@ -319,17 +320,25 @@ export default function MessageListScreen({ navigation }) {
           messageService.markMessagesAsRead(uid, otherId).catch(err => console.warn('mark read failed', err))
         }
 
-        // update allMessages so groupedFromAll reflects the change immediately
-        setAllMessages(prev => (prev || []).map(m => {
-          try {
-            const sid = Number(m.sender_id)
-            const rid = Number(m.receiver_id)
-            if (uid && sid === otherId && rid === uid) {
-              return { ...m, is_read: true }
-            }
-            return m
-          } catch (e) { return m }
-        }))
+        // update allMessages so groupedFromAll reflects the change immediately and emit updates
+        try {
+          setAllMessages(prev => {
+            const arr = (prev || []).map(m => {
+              try {
+                const sid = Number(m.sender_id)
+                const rid = Number(m.receiver_id)
+                if (uid && sid === otherId && rid === uid) {
+                  const updated = { ...m, is_read: true }
+                  try { setLocalReadState(updated.id, true) } catch (e) {}
+                  try { emitMessageUpdate(updated) } catch (e) {}
+                  return updated
+                }
+              } catch (e) {}
+              return m
+            })
+            return arr
+          })
+        } catch (e) { console.warn('Failed to update allMessages locally', e) }
       } catch (err) {
         console.warn('Failed to clear unread locally', err)
       }
@@ -337,18 +346,59 @@ export default function MessageListScreen({ navigation }) {
   }
 
   const renderItem = ({ item }) => (
-    <MessageListItem
-      id={String(item.user_id ?? item.id)}
-      recipientName={item.name || (`User ${item.user_id ?? item.id}`)}
-      lastMessage={item.last_message || item.last_message || ''}
-      timestamp={item.last_at ? new Date(item.last_at).toLocaleString([], { hour: '2-digit', minute: '2-digit' }) : ''}
-      // pass a wrapper so we always call onOpenChat with the original item (avoids
-      // MessageListItem creating a smaller payload that can lose the user id)
-      onPress={() => onOpenChat(item)}
-      unreadCount={Number(unreadMap.get(String(item.user_id ?? item.id)) || item.unread_count || 0)}
-      lastMessageFromMe={Number(item.last_sender_id) === Number(currentUserId ?? -1)}
-      lastMessageIsRead={Boolean(item.last_message_is_read)}
-    />
+    (() => {
+      // find authoritative latest message for this conversation from allMessages
+      const otherId = Number(item.user_id ?? item.id ?? null)
+      let latest = null
+      try {
+        if (Array.isArray(allMessages) && otherId) {
+          for (const m of allMessages) {
+            const sid = Number(m.sender_id)
+            const rid = Number(m.receiver_id)
+            const other = sid === currentUserId ? rid : sid
+            if (other !== otherId) continue
+            if (!latest) latest = m
+            else {
+              const la = new Date(latest.created_at || latest.createdAt || 0)
+              const ca = new Date(m.created_at || m.createdAt || 0)
+              if (ca > la) latest = m
+            }
+          }
+        }
+      } catch (e) { latest = null }
+
+      const lastMessageText = latest?.message ?? item.last_message ?? ''
+      const lastAt = latest?.created_at ?? latest?.createdAt ?? item.last_at ?? null
+      const lastFromMe = latest ? (Number(latest.sender_id) === Number(currentUserId ?? -1)) : (Number(item.last_sender_id) === Number(currentUserId ?? -1))
+      // prefer local read-state map for the exact message id to avoid transient mismatches
+      const lastIsRead = (() => {
+        try {
+          if (latest && latest.id) {
+            const local = getLocalReadState(latest.id)
+            if (local !== null) return Boolean(local)
+            return Boolean(latest.is_read || latest.read_at)
+          }
+          return Boolean(item.last_message_is_read)
+        } catch (e) { return Boolean(item.last_message_is_read) }
+      })()
+      const unreadCount = lastFromMe ? 0 : Number(unreadMap.get(String(otherId)) || item.unread_count || 0)
+
+      return (
+        <MessageListItem
+          id={String(item.user_id ?? item.id)}
+          recipientName={item.name || (`User ${item.user_id ?? item.id}`)}
+          lastMessage={lastMessageText}
+          timestamp={lastAt ? new Date(lastAt).toLocaleString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+          // pass a wrapper so we always call onOpenChat with the original item (avoids
+          // MessageListItem creating a smaller payload that can lose the user id)
+          onPress={() => onOpenChat(item)}
+          lastMessageFromMe={lastFromMe}
+          lastMessageId={latest?.id ?? null}
+          unreadCount={unreadCount}
+          lastMessageIsRead={lastIsRead}
+        />
+      )
+    })()
   )
 
   const renderMessageItem = ({ item }) => {
@@ -413,8 +463,11 @@ export default function MessageListScreen({ navigation }) {
       const existing = map.get(key) || { user_id: otherId, last_message: null, last_at: null, unread_count: 0, name: null }
       const created = m.created_at ? new Date(m.created_at) : (m.createdAt ? new Date(m.createdAt) : null)
       if (!existing.last_at || (created && new Date(existing.last_at) < created)) {
+        // this message becomes the latest — use its content and read state
         existing.last_message = m.message ?? m.last_message ?? ''
         existing.last_at = m.created_at ?? m.createdAt ?? null
+        existing.last_sender_id = m.sender_id ? Number(m.sender_id) : existing.last_sender_id
+        existing.last_message_is_read = !!m.is_read || !!m.read_at
       }
       // count only messages that are received by the current user and not marked read
       if (Number(m.receiver_id) === uid && !(m.is_read || m.read_at)) existing.unread_count = (existing.unread_count || 0) + 1
@@ -423,9 +476,7 @@ export default function MessageListScreen({ navigation }) {
         else if (m.receiver && Number(m.receiver.id) === otherId) existing.name = m.receiver.name
       }
       if (!existing.name) existing.name = `User ${otherId}`
-  // record last sender and read state so conversation preview can render ticks
-  existing.last_sender_id = m.sender_id ? Number(m.sender_id) : existing.last_sender_id
-  existing.last_message_is_read = existing.last_message_is_read || !!m.is_read || !!m.read_at
+  // (last_sender_id / last_message_is_read already set when this message became the latest)
       map.set(key, existing)
     }
     const arr = Array.from(map.values())
