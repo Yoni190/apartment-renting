@@ -46,6 +46,9 @@ const MessagesScreen = ({ route }) => {
   const [uploadingMedia, setUploadingMedia] = useState(false)
   const [viewerVisible, setViewerVisible] = useState(false)
   const [viewerUri, setViewerUri] = useState(null)
+  const pinchScale = useRef(new Animated.Value(1)).current
+  const lastScale = useRef(1)
+  const pinchStart = useRef(null)
   const [downloadingMap, setDownloadingMap] = useState({})
   const [downloadedMap, setDownloadedMap] = useState({})
 
@@ -58,6 +61,45 @@ const MessagesScreen = ({ route }) => {
     } catch (e) {}
     return map
   }, [messages])
+
+  const pinchResponder = useMemo(() => PanResponder.create({
+    onStartShouldSetPanResponder: () => true,
+    onMoveShouldSetPanResponder: (_e, g) => g.numberActiveTouches >= 2,
+    onPanResponderGrant: (e) => {
+      if (e.nativeEvent.touches.length >= 2) {
+        const [a, b] = e.nativeEvent.touches
+        const dx = a.pageX - b.pageX
+        const dy = a.pageY - b.pageY
+        pinchStart.current = Math.sqrt(dx * dx + dy * dy)
+      }
+    },
+    onPanResponderMove: (e) => {
+      if (e.nativeEvent.touches.length >= 2 && pinchStart.current) {
+        const [a, b] = e.nativeEvent.touches
+        const dx = a.pageX - b.pageX
+        const dy = a.pageY - b.pageY
+        const dist = Math.sqrt(dx * dx + dy * dy)
+        let next = (dist / pinchStart.current) * lastScale.current
+        next = Math.max(1, Math.min(3, next))
+        pinchScale.setValue(next)
+      }
+    },
+    onPanResponderRelease: () => {
+      try {
+        // @ts-ignore
+        lastScale.current = pinchScale.__getValue ? pinchScale.__getValue() : lastScale.current
+      } catch (e) {}
+      pinchStart.current = null
+    },
+  }), [pinchScale])
+
+  useEffect(() => {
+    if (viewerVisible) {
+      pinchScale.setValue(1)
+      lastScale.current = 1
+      pinchStart.current = null
+    }
+  }, [viewerVisible, pinchScale])
 
   const handlePickMedia = async () => {
     try {
@@ -838,19 +880,15 @@ const MessagesScreen = ({ route }) => {
                   <Ionicons name="close" size={24} color="#fff" />
                 </TouchableOpacity>
                 <View style={styles.viewerBody}>
-                  <ScrollView
-                    style={{ flex: 1 }}
-                    contentContainerStyle={styles.viewerScrollContent}
-                    minimumZoomScale={1}
-                    maximumZoomScale={3}
-                    showsHorizontalScrollIndicator={false}
-                    showsVerticalScrollIndicator={false}
-                    bouncesZoom
-                  >
+                  <View style={styles.viewerScrollContent} {...pinchResponder.panHandlers}>
                     {viewerUri ? (
-                      <Image source={{ uri: viewerUri }} style={styles.viewerImage} resizeMode="contain" />
+                      <Animated.Image
+                        source={{ uri: viewerUri }}
+                        style={[styles.viewerImage, { transform: [{ scale: pinchScale }] }]}
+                        resizeMode="contain"
+                      />
                     ) : null}
-                  </ScrollView>
+                  </View>
                 </View>
               </View>
             </Modal>
