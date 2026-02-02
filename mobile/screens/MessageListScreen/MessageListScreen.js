@@ -172,17 +172,28 @@ export default function MessageListScreen({ navigation }) {
     }
 
     // subscribe to message updates (sent or received) so previews reflect latest message
-    const handleMsg = (m) => {
+    const handleMsg = async (m) => {
       try {
-        const uid = currentUserId
-        if (!uid) return
+        // ensure we have a current user id; fall back to SecureStore if not yet loaded
+        let uid = currentUserId
+        if (!uid) {
+          try {
+            const uidStr = await SecureStore.getItemAsync('user_id')
+            uid = uidStr ? Number(uidStr) : null
+            if (uid) setCurrentUserId(uid)
+          } catch (e) {
+            uid = null
+          }
+        }
+
         // normalize incoming message shape
         const sid = Number(m.sender_id)
         const rid = Number(m.receiver_id)
-        const other = sid === uid ? rid : sid
-        if (!other) return
+        // determine the other participant relative to uid; if uid not known, pick the other id heuristically
+        const other = (uid ? (sid === uid ? rid : sid) : (isFinite(sid) && sid !== 0 ? sid : rid))
+        if (!other && other !== 0) return
 
-        // update chats list preview
+        // update chats list preview immediately
         setChats(prev => {
           const copy = Array.isArray(prev) ? [...prev] : []
           const idx = copy.findIndex(c => Number(c.user_id) === Number(other))
@@ -191,7 +202,8 @@ export default function MessageListScreen({ navigation }) {
             name: (m.sender && Number(m.sender.id) === other) ? m.sender.name : ((m.receiver && Number(m.receiver.id) === other) ? m.receiver.name : `User ${other}`),
             last_message: m.message ?? m.last_message ?? copy[idx]?.last_message ?? '',
             last_at: m.created_at ?? m.createdAt ?? new Date().toISOString(),
-            unread_count: (Number(m.receiver_id) === uid && !(m.is_read || m.read_at)) ? ((copy[idx]?.unread_count || 0) + 1) : (copy[idx]?.unread_count || 0),
+            // count unread only if we know the current user id; otherwise leave as existing
+            unread_count: (uid && Number(m.receiver_id) === uid && !(m.is_read || m.read_at)) ? ((copy[idx]?.unread_count || 0) + 1) : (copy[idx]?.unread_count || 0),
             last_sender_id: Number(m.sender_id),
             last_message_is_read: !!m.is_read || !!m.read_at || false,
           }
@@ -200,10 +212,9 @@ export default function MessageListScreen({ navigation }) {
           return copy
         })
 
-        // update allMessages list so grouped view refreshes
+        // update allMessages so grouped view refreshes
         setAllMessages(prev => {
           const arr = Array.isArray(prev) ? [...prev] : []
-          // avoid duplicates by id when possible
           if (m.id) {
             const found = arr.findIndex(x => String(x.id) === String(m.id))
             if (found >= 0) { arr[found] = m; return arr }
@@ -211,6 +222,7 @@ export default function MessageListScreen({ navigation }) {
           arr.unshift(m)
           return arr
         })
+
         // also refresh from server to ensure previews/ticks match authoritative state
         try { loadConversations(); loadAllMessages(); } catch (e) {}
       } catch (e) { }
@@ -453,9 +465,10 @@ export default function MessageListScreen({ navigation }) {
   }, [allMessages, currentUserId])
 
   const filteredList = useMemo(() => {
-    if (!query || query.trim() === '') return groupedFromAll
+    const base = (Array.isArray(groupedFromAll) && groupedFromAll.length > 0) ? groupedFromAll : (Array.isArray(chats) ? chats : [])
+    if (!query || query.trim() === '') return base
     const q = query.trim().toLowerCase()
-    return groupedFromAll.filter(it => (it.name || '').toLowerCase().includes(q) || (it.last_message || '').toLowerCase().includes(q))
+    return base.filter(it => (it.name || '').toLowerCase().includes(q) || (it.last_message || '').toLowerCase().includes(q))
   }, [groupedFromAll, query])
 
   // unread conversations derived from grouped all-messages (one row per counterpart)
