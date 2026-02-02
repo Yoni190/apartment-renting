@@ -243,7 +243,7 @@ export default StyleSheet.create({
     color: '#0f172a',
   },
   templateFormInput: {
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#eaf2ff',
     borderRadius: 8,
     paddingHorizontal: 10,
     paddingVertical: 8,
@@ -264,7 +264,7 @@ export default StyleSheet.create({
     fontWeight: '700',
   },
   templateFieldInput: {
-    backgroundColor: '#f8fafc84',
+    backgroundColor: '#eaf2ff',
     borderRadius: 8,
     paddingHorizontal: 10,
     paddingVertical: 8,
