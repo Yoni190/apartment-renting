@@ -114,6 +114,15 @@ export default StyleSheet.create({
     borderRadius: 20,
     marginRight: 8,
   },
+  templateBtn: {
+    width: 30,
+    height: 30,
+    borderRadius: 8,
+    backgroundColor: '#eef2f6',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 6,
+  },
   sendBtn: {
     width: 44,
     height: 44,
@@ -202,6 +211,39 @@ export default StyleSheet.create({
   viewerImage: {
     width: '100%',
     height: '100%',
+  },
+  templateOverlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.35)',
+  },
+  templateCard: {
+    backgroundColor: '#fff',
+    padding: 16,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+  },
+  templateTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    marginBottom: 8,
+    color: '#0f172a',
+  },
+  templateOption: {
+    paddingVertical: 12,
+  },
+  templateOptionText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#0f172a',
+  },
+  templateCancel: {
+    marginTop: 8,
+    alignItems: 'flex-end',
+  },
+  templateCancelText: {
+    color: '#6b7280',
+    fontWeight: '600',
   },
   replyComposer: {
     backgroundColor: '#f8fafc',

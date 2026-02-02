@@ -46,6 +46,7 @@ const MessagesScreen = ({ route }) => {
   const [uploadingMedia, setUploadingMedia] = useState(false)
   const [viewerVisible, setViewerVisible] = useState(false)
   const [viewerUri, setViewerUri] = useState(null)
+  const [showTemplateModal, setShowTemplateModal] = useState(false)
   const pinchScale = useRef(new Animated.Value(1)).current
   const lastScale = useRef(1)
   const pinchStart = useRef(null)
@@ -875,6 +876,9 @@ const MessagesScreen = ({ route }) => {
                   placeholder="Type a message"
                   multiline={false}
                 />
+                <TouchableOpacity style={styles.templateBtn} onPress={() => setShowTemplateModal(true)} accessibilityLabel="Templates">
+                  <Ionicons name="document-text" size={18} color="#0f172a" />
+                </TouchableOpacity>
                 <TouchableOpacity style={styles.mediaBtn} onPress={handlePickMedia} accessibilityLabel="Add media">
                   <Text style={styles.mediaBtnText}>+</Text>
                 </TouchableOpacity>
@@ -898,6 +902,58 @@ const MessagesScreen = ({ route }) => {
                       />
                     ) : null}
                   </View>
+                </View>
+              </View>
+            </Modal>
+            <Modal visible={showTemplateModal} transparent animationType="slide" onRequestClose={() => setShowTemplateModal(false)}>
+              <View style={styles.templateOverlay}>
+                <View style={styles.templateCard}>
+                  <Text style={styles.templateTitle}>Templates</Text>
+                  <TouchableOpacity
+                    style={styles.templateOption}
+                    onPress={() => {
+                      setText(
+                        'Subject: Rental Application\n\n' +
+                        'Full Name:\n' +
+                        'Phone Number:\n' +
+                        'Email (optional):\n\n' +
+                        'Apartment / Unit Interested In:\n' +
+                        'Preferred Move-in Date:\n' +
+                        'Lease Duration:\n\n' +
+                        'Employment Status:\n' +
+                        'Estimated Monthly Income:\n\n' +
+                        'Number of Occupants:\n' +
+                        'Additional Notes (optional):\n\n' +
+                        'I am interested in renting this apartment and would like to proceed with the next steps.'
+                      )
+                      setShowTemplateModal(false)
+                    }}
+                  >
+                    <Text style={styles.templateOptionText}>Application to Rent</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.templateOption}
+                    onPress={() => {
+                      setText(
+                        'Subject: Purchase Application\n\n' +
+                        'Full Name:\n' +
+                        'Phone Number:\n' +
+                        'Email (optional):\n\n' +
+                        'Apartment / Unit Interested In:\n' +
+                        'Intended Purchase Timeframe:\n\n' +
+                        'Source of Funds (Cash / Loan / Mortgage):\n' +
+                        'Estimated Budget Range:\n\n' +
+                        'Additional Notes (optional):\n\n' +
+                        'I am interested in purchasing this apartment and would like to proceed with the process.'
+                      )
+                      setShowTemplateModal(false)
+                    }}
+                  >
+                    <Text style={styles.templateOptionText}>Application to Buy</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => setShowTemplateModal(false)} style={styles.templateCancel}>
+                    <Text style={styles.templateCancelText}>Cancel</Text>
+                  </TouchableOpacity>
                 </View>
               </View>
             </Modal>
