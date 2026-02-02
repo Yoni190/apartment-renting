@@ -13,45 +13,76 @@ import {
   Pressable,
   Animated,
   Easing,
-  PanResponder,
   Image,
+  Modal,
   ScrollView,
+  PanResponder,
 } from 'react-native'
-import Header from '../../components/Header'
 import { Ionicons } from '@expo/vector-icons'
-import styles from './MessagesScreenStyle'
-import messageService, { MessagePayload, onMessageUpdate, offMessageUpdate, emitMessageUpdate, setLocalReadState, getLocalReadState } from '../../services/messageService'
 import * as ImagePicker from 'expo-image-picker'
 import * as SecureStore from 'expo-secure-store'
-import { useIsFocused } from '@react-navigation/native'
-import { Modal } from 'react-native'
-import { useNavigation } from '@react-navigation/native'
+import { useNavigation, useIsFocused } from '@react-navigation/native'
+import Header from '../../components/Header'
+import messageService, {
+  emitMessageUpdate,
+  onMessageUpdate,
+  offMessageUpdate,
+  setLocalReadState,
+  getLocalReadState,
+} from '../../services/messageService'
+import styles from './MessagesScreenStyle'
 
 const MessagesScreen = ({ route }) => {
   const [messages, setMessages] = useState([])
   const [receiverName, setReceiverName] = useState(null)
   const [text, setText] = useState('')
   const [currentUserId, setCurrentUserId] = useState(null)
-  const flatRef = useRef(null)
-  const backScale = useRef(new Animated.Value(1)).current
-  const [keyboardHeight, setKeyboardHeight] = useState(0)
-  const animatedKeyboard = useRef(new Animated.Value(0)).current
-  const isFocused = useIsFocused()
   const [conversations, setConversations] = useState([])
   const [allMessages, setAllMessages] = useState([])
+  const [uploadingMedia, setUploadingMedia] = useState(false)
+  const [showTemplateModal, setShowTemplateModal] = useState(false)
+  const [showTemplateForm, setShowTemplateForm] = useState(false)
+  const [selectedTemplate, setSelectedTemplate] = useState(null)
+  const [templateFormText, setTemplateFormText] = useState('')
+  const [rentForm, setRentForm] = useState({
+    fullName: '',
+    phoneNumber: '',
+    email: '',
+    unit: '',
+    moveIn: '',
+    leaseDuration: '',
+    employmentStatus: '',
+    income: '',
+    occupants: '',
+    notes: '',
+  })
+  const [buyForm, setBuyForm] = useState({
+    fullName: '',
+    phoneNumber: '',
+    email: '',
+    unit: '',
+    timeframe: '',
+    budget: '',
+    sourceOfFunds: '',
+    notes: '',
+  })
+  const [replyTo, setReplyTo] = useState(null)
   const [showNewModal, setShowNewModal] = useState(false)
   const [newReceiverId, setNewReceiverId] = useState('')
-  const [replyTo, setReplyTo] = useState(null)
-  const lastTapRef = useRef({ time: 0, id: null })
-  const [uploadingMedia, setUploadingMedia] = useState(false)
   const [viewerVisible, setViewerVisible] = useState(false)
   const [viewerUri, setViewerUri] = useState(null)
-  const [showTemplateModal, setShowTemplateModal] = useState(false)
+  const [keyboardHeight, setKeyboardHeight] = useState(0)
+  const [downloadingMap, setDownloadingMap] = useState({})
+  const [downloadedMap, setDownloadedMap] = useState({})
+
+  const flatRef = useRef(null)
+  const lastTapRef = useRef({ time: 0, id: null })
+  const backScale = useRef(new Animated.Value(1)).current
+  const animatedKeyboard = useRef(new Animated.Value(0)).current
   const pinchScale = useRef(new Animated.Value(1)).current
   const lastScale = useRef(1)
   const pinchStart = useRef(null)
-  const [downloadingMap, setDownloadingMap] = useState({})
-  const [downloadedMap, setDownloadedMap] = useState({})
+  const isFocused = useIsFocused()
 
   const messageById = useMemo(() => {
     const map = new Map()
@@ -65,42 +96,30 @@ const MessagesScreen = ({ route }) => {
 
   const pinchResponder = useMemo(() => PanResponder.create({
     onStartShouldSetPanResponder: () => true,
-    onMoveShouldSetPanResponder: (_e, g) => g.numberActiveTouches >= 2,
-    onPanResponderGrant: (e) => {
-      if (e.nativeEvent.touches.length >= 2) {
-        const [a, b] = e.nativeEvent.touches
-        const dx = a.pageX - b.pageX
-        const dy = a.pageY - b.pageY
-        pinchStart.current = Math.sqrt(dx * dx + dy * dy)
+    onMoveShouldSetPanResponder: () => true,
+    onPanResponderGrant: (_e, g) => {
+      if (g?.numberActiveTouches >= 2) {
+        pinchStart.current = g
+        lastScale.current = pinchScale.__getValue ? pinchScale.__getValue() : lastScale.current
       }
     },
-    onPanResponderMove: (e) => {
-      if (e.nativeEvent.touches.length >= 2 && pinchStart.current) {
-        const [a, b] = e.nativeEvent.touches
-        const dx = a.pageX - b.pageX
-        const dy = a.pageY - b.pageY
-        const dist = Math.sqrt(dx * dx + dy * dy)
-        let next = (dist / pinchStart.current) * lastScale.current
-        next = Math.max(1, Math.min(3, next))
-        pinchScale.setValue(next)
-      }
+    onPanResponderMove: (_e, g) => {
+      try {
+        if (g?.numberActiveTouches >= 2 && pinchStart.current) {
+          const dx = Math.abs(g.dx)
+          const dy = Math.abs(g.dy)
+          const dist = Math.sqrt(dx * dx + dy * dy) || 1
+          const base = Math.sqrt((pinchStart.current.dx || 0) ** 2 + (pinchStart.current.dy || 0) ** 2) || dist
+          let next = (dist / base) * (lastScale.current || 1)
+          next = Math.max(1, Math.min(3, next))
+          pinchScale.setValue(next)
+        }
+      } catch (e) {}
     },
     onPanResponderRelease: () => {
-      try {
-        // @ts-ignore
-        lastScale.current = pinchScale.__getValue ? pinchScale.__getValue() : lastScale.current
-      } catch (e) {}
       pinchStart.current = null
     },
   }), [pinchScale])
-
-  useEffect(() => {
-    if (viewerVisible) {
-      pinchScale.setValue(1)
-      lastScale.current = 1
-      pinchStart.current = null
-    }
-  }, [viewerVisible, pinchScale])
 
   const handlePickMedia = async () => {
     let tempId = null
@@ -136,6 +155,7 @@ const MessagesScreen = ({ route }) => {
       }
       tempMediaUrl = tempMessage.media_url
       setMessages((m) => [...m, tempMessage])
+      setAllMessages(prev => (prev || []).concat([tempMessage]))
       try { emitMessageUpdate(tempMessage) } catch (e) {}
       setText('')
       setReplyTo(null)
@@ -145,44 +165,35 @@ const MessagesScreen = ({ route }) => {
       const fileType = asset.mimeType || (asset.type === 'video' ? 'video/mp4' : 'image/jpeg')
       const serverMsg = await messageService.sendMessageWithMedia(payload, {
         uri: asset.uri,
-        type: fileType,
         name: fileName,
+        type: fileType,
       })
+
       if (serverMsg && serverMsg.id) {
-        const merged = { ...tempMessage, ...serverMsg, uploading: false, temp: false }
-        setMessages(prev => {
-          const next = (prev || []).map(m => {
-            if (m.id === tempId) return merged
-            if (m.temp && m.media_url === tempMessage.media_url) return merged
-            return m
-          })
-          // remove any other lingering temp uploads with the same media
-          return next.filter(m => !(m.temp && m.media_url === tempMessage.media_url && m.id !== merged.id))
-        })
-        try { emitMessageUpdate(merged) } catch (e) {}
+        setMessages((prev) => prev.map((m) => (m.id === tempId ? serverMsg : m)))
+        setAllMessages(prev => (prev || []).map(m => (m.id === tempId ? serverMsg : m)))
+        try { emitMessageUpdate(serverMsg) } catch (e) {}
       }
-    } catch (e) {
-      console.warn('Media send failed', e)
+    } catch (err) {
+      console.warn('sendMessageWithMedia failed', err)
+      setMessages((prev) => prev.map((m) => (m.id === tempId ? { ...m, failed: true, temp: false, uploading: false } : m)))
     } finally {
-      // ensure upload state/spinner is cleared even on failure
+      setUploadingMedia(false)
       setMessages(prev => (prev || []).map(m => {
         if (tempId && m.id === tempId) return { ...m, uploading: false }
         if (tempMediaUrl && m.temp && m.media_url === tempMediaUrl) return { ...m, uploading: false }
         return m
       }))
-      setUploadingMedia(false)
     }
   }
 
   const handleDownloadMedia = async (item) => {
     try {
-      if (!item?.id || !item?.media_url) return
+      if (!item?.media_url) return
       const id = String(item.id)
-      if (downloadedMap[id]) return
+      if (downloadingMap[id] || downloadedMap[id]) return
       setDownloadingMap(prev => ({ ...prev, [id]: true }))
-      if ((item.media_type || '').startsWith('image/')) {
-        try { await Image.prefetch(item.media_url) } catch (e) {}
-      }
+      try { await Image.prefetch(item.media_url) } catch (e) {}
       setDownloadedMap(prev => ({ ...prev, [id]: true }))
     } finally {
       setDownloadingMap(prev => ({ ...prev, [String(item.id)]: false }))
@@ -419,12 +430,13 @@ const MessagesScreen = ({ route }) => {
   }, [allMessages, currentUserId])
 
 
-  const handleSend = async () => {
-    if (!text.trim()) return
+  const handleSend = async (overrideText) => {
+    const messageText = (typeof overrideText === 'string' ? overrideText : text).trim()
+    if (!messageText) return
     const payload = {
       sender_id: effectiveSenderId || 0,
       receiver_id: effectiveReceiverId || 0,
-      message: text.trim(),
+      message: messageText,
       reply_to_id: replyTo?.id ?? null,
     }
 
@@ -912,21 +924,21 @@ const MessagesScreen = ({ route }) => {
                   <TouchableOpacity
                     style={styles.templateOption}
                     onPress={() => {
-                      setText(
-                        'Subject: Rental Application\n\n' +
-                        'Full Name:\n' +
-                        'Phone Number:\n' +
-                        'Email (optional):\n\n' +
-                        'Apartment / Unit Interested In:\n' +
-                        'Preferred Move-in Date:\n' +
-                        'Lease Duration:\n\n' +
-                        'Employment Status:\n' +
-                        'Estimated Monthly Income:\n\n' +
-                        'Number of Occupants:\n' +
-                        'Additional Notes (optional):\n\n' +
-                        'I am interested in renting this apartment and would like to proceed with the next steps.'
-                      )
+                      setSelectedTemplate({ title: 'Application to Rent', type: 'rent' })
+                      setRentForm({
+                        fullName: '',
+                        phoneNumber: '',
+                        email: '',
+                        unit: '',
+                        moveIn: '',
+                        leaseDuration: '',
+                        employmentStatus: '',
+                        income: '',
+                        occupants: '',
+                        notes: '',
+                      })
                       setShowTemplateModal(false)
+                      setShowTemplateForm(true)
                     }}
                   >
                     <Text style={styles.templateOptionText}>Application to Rent</Text>
@@ -934,19 +946,19 @@ const MessagesScreen = ({ route }) => {
                   <TouchableOpacity
                     style={styles.templateOption}
                     onPress={() => {
-                      setText(
-                        'Subject: Purchase Application\n\n' +
-                        'Full Name:\n' +
-                        'Phone Number:\n' +
-                        'Email (optional):\n\n' +
-                        'Apartment / Unit Interested In:\n' +
-                        'Intended Purchase Timeframe:\n\n' +
-                        'Source of Funds (Cash / Loan / Mortgage):\n' +
-                        'Estimated Budget Range:\n\n' +
-                        'Additional Notes (optional):\n\n' +
-                        'I am interested in purchasing this apartment and would like to proceed with the process.'
-                      )
+                      setSelectedTemplate({ title: 'Application to Buy', type: 'buy' })
+                      setBuyForm({
+                        fullName: '',
+                        phoneNumber: '',
+                        email: '',
+                        unit: '',
+                        timeframe: '',
+                        budget: '',
+                        sourceOfFunds: '',
+                        notes: '',
+                      })
                       setShowTemplateModal(false)
+                      setShowTemplateForm(true)
                     }}
                   >
                     <Text style={styles.templateOptionText}>Application to Buy</Text>
@@ -954,6 +966,168 @@ const MessagesScreen = ({ route }) => {
                   <TouchableOpacity onPress={() => setShowTemplateModal(false)} style={styles.templateCancel}>
                     <Text style={styles.templateCancelText}>Cancel</Text>
                   </TouchableOpacity>
+                </View>
+              </View>
+            </Modal>
+            <Modal visible={showTemplateForm} transparent animationType="slide" onRequestClose={() => setShowTemplateForm(false)}>
+              <View style={styles.templateOverlay}>
+                <View style={styles.templateFormCard}>
+                  <Text style={styles.templateTitle}>{selectedTemplate?.title || 'Template'}</Text>
+                  {selectedTemplate?.type === 'rent' ? (
+                    <ScrollView style={styles.templateFormScroll} contentContainerStyle={styles.templateFormContent}>
+                      <View style={styles.templateFieldRow}>
+                        <Text style={styles.templateFieldLabel}>Subject</Text>
+                        <TextInput
+                          style={styles.templateFieldInput}
+                          value="Property Rent Application"
+                          editable={false}
+                        />
+                      </View>
+                      <View style={styles.templateFieldRow}>
+                        <Text style={styles.templateFieldLabel}>Full Name</Text>
+                        <TextInput style={styles.templateFieldInput} value={rentForm.fullName} onChangeText={(v) => setRentForm(prev => ({ ...prev, fullName: v }))} />
+                      </View>
+                      <View style={styles.templateFieldRow}>
+                        <Text style={styles.templateFieldLabel}>Phone Number</Text>
+                        <TextInput style={styles.templateFieldInput} value={rentForm.phoneNumber} onChangeText={(v) => setRentForm(prev => ({ ...prev, phoneNumber: v }))} keyboardType="phone-pad" />
+                      </View>
+                      <View style={styles.templateFieldRow}>
+                        <Text style={styles.templateFieldLabel}>Email (optional)</Text>
+                        <TextInput style={styles.templateFieldInput} value={rentForm.email} onChangeText={(v) => setRentForm(prev => ({ ...prev, email: v }))} keyboardType="email-address" autoCapitalize="none" />
+                      </View>
+                      <View style={styles.templateFieldRow}>
+                        <Text style={styles.templateFieldLabel}>Apartment / Unit Interested In</Text>
+                        <TextInput style={styles.templateFieldInput} value={rentForm.unit} onChangeText={(v) => setRentForm(prev => ({ ...prev, unit: v }))} />
+                      </View>
+                      <View style={styles.templateFieldRow}>
+                        <Text style={styles.templateFieldLabel}>Preferred Move-in Date</Text>
+                        <TextInput style={styles.templateFieldInput} value={rentForm.moveIn} onChangeText={(v) => setRentForm(prev => ({ ...prev, moveIn: v }))} />
+                      </View>
+                      <View style={styles.templateFieldRow}>
+                        <Text style={styles.templateFieldLabel}>Lease Duration</Text>
+                        <TextInput style={styles.templateFieldInput} value={rentForm.leaseDuration} onChangeText={(v) => setRentForm(prev => ({ ...prev, leaseDuration: v }))} />
+                      </View>
+                      <View style={styles.templateFieldRow}>
+                        <Text style={styles.templateFieldLabel}>Employment Status</Text>
+                        <TextInput style={styles.templateFieldInput} value={rentForm.employmentStatus} onChangeText={(v) => setRentForm(prev => ({ ...prev, employmentStatus: v }))} />
+                      </View>
+                      <View style={styles.templateFieldRow}>
+                        <Text style={styles.templateFieldLabel}>Estimated Monthly Income</Text>
+                        <TextInput style={styles.templateFieldInput} value={rentForm.income} onChangeText={(v) => setRentForm(prev => ({ ...prev, income: v }))} keyboardType="numeric" />
+                      </View>
+                      <View style={styles.templateFieldRow}>
+                        <Text style={styles.templateFieldLabel}>Number of Occupants</Text>
+                        <TextInput style={styles.templateFieldInput} value={rentForm.occupants} onChangeText={(v) => setRentForm(prev => ({ ...prev, occupants: v }))} keyboardType="numeric" />
+                      </View>
+                      <View style={styles.templateFieldRow}>
+                        <Text style={styles.templateFieldLabel}>Additional Notes (optional)</Text>
+                        <TextInput
+                          style={[styles.templateFieldInput, styles.templateFieldInputMultiline]}
+                          value={rentForm.notes}
+                          onChangeText={(v) => setRentForm(prev => ({ ...prev, notes: v }))}
+                          multiline
+                          textAlignVertical="top"
+                        />
+                      </View>
+                    </ScrollView>
+                  ) : selectedTemplate?.type === 'buy' ? (
+                    <ScrollView style={styles.templateFormScroll} contentContainerStyle={styles.templateFormContent}>
+                      <View style={styles.templateFieldRow}>
+                        <Text style={styles.templateFieldLabel}>Subject</Text>
+                        <TextInput
+                          style={styles.templateFieldInput}
+                          value="Property Purchase Application"
+                          editable={false}
+                        />
+                      </View>
+                      <View style={styles.templateFieldRow}>
+                        <Text style={styles.templateFieldLabel}>Full Name</Text>
+                        <TextInput style={styles.templateFieldInput} value={buyForm.fullName} onChangeText={(v) => setBuyForm(prev => ({ ...prev, fullName: v }))} />
+                      </View>
+                      <View style={styles.templateFieldRow}>
+                        <Text style={styles.templateFieldLabel}>Phone Number</Text>
+                        <TextInput style={styles.templateFieldInput} value={buyForm.phoneNumber} onChangeText={(v) => setBuyForm(prev => ({ ...prev, phoneNumber: v }))} keyboardType="phone-pad" />
+                      </View>
+                      <View style={styles.templateFieldRow}>
+                        <Text style={styles.templateFieldLabel}>Email (optional)</Text>
+                        <TextInput style={styles.templateFieldInput} value={buyForm.email} onChangeText={(v) => setBuyForm(prev => ({ ...prev, email: v }))} keyboardType="email-address" autoCapitalize="none" />
+                      </View>
+                      <View style={styles.templateFieldRow}>
+                        <Text style={styles.templateFieldLabel}>Apartment / Unit Interested In</Text>
+                        <TextInput style={styles.templateFieldInput} value={buyForm.unit} onChangeText={(v) => setBuyForm(prev => ({ ...prev, unit: v }))} />
+                      </View>
+                      <View style={styles.templateFieldRow}>
+                        <Text style={styles.templateFieldLabel}>Intended Purchase Timeframe</Text>
+                        <TextInput style={styles.templateFieldInput} value={buyForm.timeframe} onChangeText={(v) => setBuyForm(prev => ({ ...prev, timeframe: v }))} />
+                      </View>
+                      <View style={styles.templateFieldRow}>
+                        <Text style={styles.templateFieldLabel}>Budget Range</Text>
+                        <TextInput style={styles.templateFieldInput} value={buyForm.budget} onChangeText={(v) => setBuyForm(prev => ({ ...prev, budget: v }))} />
+                      </View>
+                      <View style={styles.templateFieldRow}>
+                        <Text style={styles.templateFieldLabel}>Source of Funds (Cash / Loan / Mortgage)</Text>
+                        <TextInput style={styles.templateFieldInput} value={buyForm.sourceOfFunds} onChangeText={(v) => setBuyForm(prev => ({ ...prev, sourceOfFunds: v }))} />
+                      </View>
+                      <View style={styles.templateFieldRow}>
+                        <Text style={styles.templateFieldLabel}>Additional Notes (optional)</Text>
+                        <TextInput
+                          style={[styles.templateFieldInput, styles.templateFieldInputMultiline]}
+                          value={buyForm.notes}
+                          onChangeText={(v) => setBuyForm(prev => ({ ...prev, notes: v }))}
+                          multiline
+                          textAlignVertical="top"
+                        />
+                      </View>
+                    </ScrollView>
+                  ) : (
+                    <TextInput
+                      style={styles.templateFormInput}
+                      value={templateFormText}
+                      onChangeText={setTemplateFormText}
+                      multiline
+                      textAlignVertical="top"
+                    />
+                  )}
+                  <View style={styles.templateFormActions}>
+                    <TouchableOpacity onPress={() => setShowTemplateForm(false)}>
+                      <Text style={styles.templateCancelText}>Cancel</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.templateFormInsert}
+                      onPress={async () => {
+                        let summary = templateFormText
+                        if (selectedTemplate?.type === 'rent') {
+                          summary =
+                            'Subject: Property Rent Application\n\n' +
+                            `Full Name: ${rentForm.fullName}\n` +
+                            `Phone Number: ${rentForm.phoneNumber}\n` +
+                            `Email (optional): ${rentForm.email}\n\n` +
+                            `Apartment / Unit Interested In: ${rentForm.unit}\n` +
+                            `Preferred Move-in Date: ${rentForm.moveIn}\n` +
+                            `Lease Duration: ${rentForm.leaseDuration}\n\n` +
+                            `Employment Status: ${rentForm.employmentStatus}\n` +
+                            `Estimated Monthly Income: ${rentForm.income}\n\n` +
+                            `Number of Occupants: ${rentForm.occupants}\n` +
+                            `Additional Notes (optional): ${rentForm.notes}`
+                        } else if (selectedTemplate?.type === 'buy') {
+                          summary =
+                            'Subject: Property Purchase Application\n\n' +
+                            `Full Name: ${buyForm.fullName}\n` +
+                            `Phone Number: ${buyForm.phoneNumber}\n` +
+                            `Email (optional): ${buyForm.email}\n\n` +
+                            `Apartment / Unit Interested In: ${buyForm.unit}\n` +
+                            `Intended Purchase Timeframe: ${buyForm.timeframe}\n` +
+                            `Budget Range: ${buyForm.budget}\n` +
+                            `Source of Funds (Cash / Loan / Mortgage): ${buyForm.sourceOfFunds}\n\n` +
+                            `Additional Notes (optional): ${buyForm.notes}`
+                        }
+                        setShowTemplateForm(false)
+                        await handleSend(summary)
+                      }}
+                    >
+                      <Text style={styles.templateFormInsertText}>Insert</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
               </View>
             </Modal>
