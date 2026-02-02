@@ -498,7 +498,7 @@ export default function MessageListScreen({ navigation }) {
         }
       } catch (e) { latest = null }
 
-      const lastMessageText = latest?.message ?? item.last_message ?? ''
+      const lastMessageText = (latest && latest.media_url) ? 'image' : (latest?.message ?? item.last_message ?? '')
       const lastAt = latest?.created_at ?? latest?.createdAt ?? item.last_at ?? null
       const lastFromMe = latest ? (Number(latest.sender_id) === Number(currentUserId ?? -1)) : (Number(item.last_sender_id) === Number(currentUserId ?? -1))
       // prefer local read-state map for the exact message id to avoid transient mismatches

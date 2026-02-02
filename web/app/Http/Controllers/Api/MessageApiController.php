@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Message;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 class MessageApiController extends Controller
 {
@@ -83,9 +84,10 @@ class MessageApiController extends Controller
         $request->validate([
             'sender_id' => ['required','integer'],
             'receiver_id' => ['required','integer'],
-            'message' => ['required','string','max:2000'],
+            'message' => ['nullable','string','max:2000','required_without:media'],
             'listing_id' => ['nullable','integer'],
-            'reply_to_id' => ['nullable','integer']
+            'reply_to_id' => ['nullable','integer'],
+            'media' => ['nullable','file','mimes:jpg,jpeg,png,gif,webp','max:8192']
         ]);
 
         $user = $request->user();
@@ -96,12 +98,28 @@ class MessageApiController extends Controller
             return response()->json(['message' => 'Unauthenticated or unauthorized'], 401);
         }
 
+        $mediaUrl = null;
+        $mediaType = null;
+        if ($request->hasFile('media')) {
+            try {
+                $file = $request->file('media');
+                $path = $file->store('messages', 'public');
+                // serve through /storage (requires: php artisan storage:link)
+                $mediaUrl = asset('storage/' . $path);
+                $mediaType = $file->getMimeType();
+            } catch (\Exception $e) {
+                return response()->json(['message' => 'Media upload failed'], 500);
+            }
+        }
+
         $m = Message::create([
             'sender_id' => $senderId,
             'receiver_id' => (int)$request->input('receiver_id'),
-            'message' => $request->input('message'),
+            'message' => $request->input('message') ?: '',
             'listing_id' => $request->input('listing_id') ?: null,
             'reply_to_id' => $request->input('reply_to_id') ?: null,
+            'media_url' => $mediaUrl,
+            'media_type' => $mediaType,
         ]);
 
         // Optionally: notify the receiver via database notification / broadcast here
