@@ -274,6 +274,39 @@ export default StyleSheet.create({
   templateFieldInputMultiline: {
     minHeight: 64,
   },
+  templateRadioGroup: {
+    marginTop: 4,
+    marginBottom: 6,
+    gap: 6,
+  },
+  templateRadioRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  templateRadioOuter: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    borderWidth: 2,
+    borderColor: '#94a3b8',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 8,
+    backgroundColor: '#fff',
+  },
+  templateRadioInner: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#1778f2',
+  },
+  templateRadioLabel: {
+    fontSize: 12,
+    color: '#0f172a',
+  },
+  templateRadioOtherInput: {
+    marginTop: 6,
+  },
   templateMessageCard: {
     backgroundColor: 'rgba(255,255,255,0.16)',
     borderRadius: 8,

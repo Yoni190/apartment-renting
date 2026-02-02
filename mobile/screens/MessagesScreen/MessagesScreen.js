@@ -53,6 +53,7 @@ const MessagesScreen = ({ route }) => {
     unit: '',
     moveIn: '',
     leaseDuration: '',
+    leaseDurationOther: '',
     employmentStatus: '',
     income: '',
     occupants: '',
@@ -64,6 +65,7 @@ const MessagesScreen = ({ route }) => {
     email: '',
     unit: '',
     timeframe: '',
+    timeframeOther: '',
     budget: '',
     sourceOfFunds: '',
     notes: '',
@@ -1052,6 +1054,7 @@ const MessagesScreen = ({ route }) => {
                         unit: '',
                         moveIn: '',
                         leaseDuration: '',
+                        leaseDurationOther: '',
                         employmentStatus: '',
                         income: '',
                         occupants: '',
@@ -1073,6 +1076,7 @@ const MessagesScreen = ({ route }) => {
                         email: '',
                         unit: '',
                         timeframe: '',
+                        timeframeOther: '',
                         budget: '',
                         sourceOfFunds: '',
                         notes: '',
@@ -1115,6 +1119,9 @@ const MessagesScreen = ({ route }) => {
                       onPress={async () => {
                         let summary = templateFormText
                         if (selectedTemplate?.type === 'rent') {
+                          const leaseValue = rentForm.leaseDuration === 'other'
+                            ? (rentForm.leaseDurationOther || 'Other')
+                            : rentForm.leaseDuration
                           summary =
                             'Subject: Property Rent Application\n\n' +
                             `Full Name: ${rentForm.fullName}\n` +
@@ -1122,19 +1129,22 @@ const MessagesScreen = ({ route }) => {
                             `Email (optional): ${rentForm.email}\n\n` +
                             `Apartment / Unit Interested In: ${rentForm.unit}\n` +
                             `Preferred Move-in Date: ${rentForm.moveIn}\n` +
-                            `Lease Duration: ${rentForm.leaseDuration}\n\n` +
+                            `Lease Duration: ${leaseValue}\n\n` +
                             `Employment Status: ${rentForm.employmentStatus}\n` +
                             `Estimated Monthly Income: ${rentForm.income}\n\n` +
                             `Number of Occupants: ${rentForm.occupants}\n` +
                             `Additional Notes (optional): ${rentForm.notes}`
                         } else if (selectedTemplate?.type === 'buy') {
+                          const timeframeValue = buyForm.timeframe === 'other'
+                            ? (buyForm.timeframeOther || 'Other')
+                            : buyForm.timeframe
                           summary =
                             'Subject: Property Purchase Application\n\n' +
                             `Full Name: ${buyForm.fullName}\n` +
                             `Phone Number: ${buyForm.phoneNumber}\n` +
                             `Email (optional): ${buyForm.email}\n\n` +
                             `Apartment / Unit Interested In: ${buyForm.unit}\n` +
-                            `Intended Purchase Timeframe: ${buyForm.timeframe}\n` +
+                            `Intended Purchase Timeframe: ${timeframeValue}\n` +
                             `Budget Range: ${buyForm.budget}\n` +
                             `Source of Funds (Cash / Loan / Mortgage): ${buyForm.sourceOfFunds}\n\n` +
                             `Additional Notes (optional): ${buyForm.notes}`

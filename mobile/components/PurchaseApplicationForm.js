@@ -1,5 +1,5 @@
 import React from 'react'
-import { ScrollView, View, Text, TextInput } from 'react-native'
+import { ScrollView, View, Text, TextInput, Pressable } from 'react-native'
 
 const PurchaseApplicationForm = ({ form, setForm, styles }) => {
   return (
@@ -30,7 +30,34 @@ const PurchaseApplicationForm = ({ form, setForm, styles }) => {
       </View>
       <View style={styles.templateFieldRow}>
         <Text style={styles.templateFieldLabel}>Intended Purchase Timeframe</Text>
-        <TextInput style={styles.templateFieldInput} value={form.timeframe} onChangeText={(v) => setForm(prev => ({ ...prev, timeframe: v }))} />
+        <View style={styles.templateRadioGroup}>
+          {[
+            { value: 'immediately', label: 'Immediately / Within 1 month' },
+            { value: '1-3', label: '1–3 months' },
+            { value: '3-6', label: '3–6 months' },
+            { value: '6-12', label: '6–12 months' },
+            { value: 'other', label: 'Other' },
+          ].map((opt) => (
+            <Pressable
+              key={opt.value}
+              style={styles.templateRadioRow}
+              onPress={() => setForm(prev => ({ ...prev, timeframe: opt.value }))}
+            >
+              <View style={styles.templateRadioOuter}>
+                {form.timeframe === opt.value ? <View style={styles.templateRadioInner} /> : null}
+              </View>
+              <Text style={styles.templateRadioLabel}>{opt.label}</Text>
+            </Pressable>
+          ))}
+        </View>
+        {form.timeframe === 'other' ? (
+          <TextInput
+            style={[styles.templateFieldInput, styles.templateRadioOtherInput]}
+            value={form.timeframeOther}
+            onChangeText={(v) => setForm(prev => ({ ...prev, timeframeOther: v }))}
+            placeholder="Enter your timeframe"
+          />
+        ) : null}
       </View>
       <View style={styles.templateFieldRow}>
         <Text style={styles.templateFieldLabel}>Budget Range</Text>
