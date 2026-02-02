@@ -155,4 +155,15 @@ export default StyleSheet.create({
     fontWeight: '700',
     color: '#6b7280',
   },
+  emptyAllContainer: {
+    marginTop: 120,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyAllText: {
+    marginTop: 10,
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#6b7280',
+  },
 })
