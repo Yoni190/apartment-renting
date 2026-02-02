@@ -63,6 +63,53 @@ export default StyleSheet.create({
   tabTextActive: {
     color: '#0f172a',
   },
+  selectionBar: {
+    marginHorizontal: 12,
+    marginBottom: 8,
+    backgroundColor: '#fff7ed',
+    borderRadius: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    elevation: 1,
+  },
+  selectionText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#0f172a',
+    marginBottom: 6,
+  },
+  selectionActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    gap: 8,
+  },
+  selectionBtn: {
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    backgroundColor: '#e2e8f0',
+    borderRadius: 8,
+  },
+  selectionBtnDanger: {
+    backgroundColor: '#fee2e2',
+  },
+  selectionBtnText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#0f172a',
+  },
+  selectionBtnTextDanger: {
+    color: '#b91c1c',
+  },
+  selectionBtnGhost: {
+    paddingVertical: 6,
+    paddingHorizontal: 8,
+  },
+  selectionBtnGhostText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#6b7280',
+  },
   toggleRow: {
     flexDirection: 'row',
     justifyContent: 'center',

@@ -25,6 +25,7 @@ export default function MessageListScreen({ navigation }) {
   const [newEmail, setNewEmail] = useState('')
   const [newError, setNewError] = useState('')
   const [newLoading, setNewLoading] = useState(false)
+  const [selectedMap, setSelectedMap] = useState({})
 
   const onRefresh = async () => {
     try {
@@ -363,6 +364,68 @@ export default function MessageListScreen({ navigation }) {
     })()
   }
 
+  const hasSelection = useMemo(() => Object.keys(selectedMap).length > 0, [selectedMap])
+
+  const toggleSelect = (item) => {
+    const id = String(item.user_id ?? item.id ?? '')
+    if (!id) return
+    setSelectedMap(prev => {
+      const next = { ...(prev || {}) }
+      if (next[id]) delete next[id]
+      else next[id] = true
+      return next
+    })
+  }
+
+  const clearSelection = () => setSelectedMap({})
+
+  const onMarkSelectedRead = async () => {
+    try {
+      const uidStr = await SecureStore.getItemAsync('user_id')
+      const uid = uidStr ? Number(uidStr) : null
+      if (!uid) return
+      const ids = Object.keys(selectedMap)
+      for (const sid of ids) {
+        const otherId = Number(sid)
+        if (!otherId) continue
+        try { await messageService.markMessagesAsRead(uid, otherId) } catch (e) {}
+      }
+      // update local state
+      setAllMessages(prev => (prev || []).map(m => {
+        const sid = Number(m.sender_id)
+        const rid = Number(m.receiver_id)
+        if (rid === uid && selectedMap[String(sid)]) {
+          return { ...m, is_read: true, read_at: new Date().toISOString() }
+        }
+        return m
+      }))
+      setChats(prev => (prev || []).map(c => {
+        const id = String(c.user_id ?? c.id ?? '')
+        if (selectedMap[id]) return { ...c, unread_count: 0 }
+        return c
+      }))
+      clearSelection()
+    } catch (e) {}
+  }
+
+  const onDeleteSelected = async () => {
+    try {
+      const ids = Object.keys(selectedMap)
+      for (const sid of ids) {
+        const otherId = Number(sid)
+        if (!otherId) continue
+        try { await messageService.deleteConversation(otherId) } catch (e) {}
+      }
+      // remove from local state
+      setChats(prev => (prev || []).filter(c => !selectedMap[String(c.user_id ?? c.id ?? '')]))
+      setAllMessages(prev => (prev || []).filter(m => {
+        const other = Number(m.sender_id) === Number(currentUserId) ? Number(m.receiver_id) : Number(m.sender_id)
+        return !selectedMap[String(other)]
+      }))
+      clearSelection()
+    } catch (e) {}
+  }
+
   const onStartChatByEmail = async () => {
     try {
       const email = String(newEmail || '').trim().toLowerCase()
@@ -467,9 +530,10 @@ export default function MessageListScreen({ navigation }) {
           recipientName={item.name || (`User ${item.user_id ?? item.id}`)}
           lastMessage={lastMessageText}
           timestamp={lastAt ? new Date(lastAt).toLocaleString([], { hour: '2-digit', minute: '2-digit' }) : ''}
-          // pass a wrapper so we always call onOpenChat with the original item (avoids
-          // MessageListItem creating a smaller payload that can lose the user id)
-          onPress={() => onOpenChat(item)}
+          // if selection is active, tap toggles selection; otherwise open chat
+          onPress={() => (hasSelection ? toggleSelect(item) : onOpenChat(item))}
+          onLongPress={() => toggleSelect(item)}
+          selected={!!selectedMap[String(item.user_id ?? item.id)]}
           lastMessageFromMe={lastFromMe}
           lastMessageId={latest?.id ?? null}
           lastMessageWasReceived={latest ? (Number(latest.receiver_id) === Number(currentUserId ?? -1)) : (Number(item.last_sender_id) !== Number(currentUserId ?? -1))}
@@ -690,6 +754,22 @@ export default function MessageListScreen({ navigation }) {
               <Text style={[styles.tabText, activeTab === 'unread' && styles.tabTextActive]}>Unread ({totalUnread})</Text>
             </TouchableOpacity>
           </View>
+          {hasSelection ? (
+            <View style={styles.selectionBar}>
+              <Text style={styles.selectionText}>{Object.keys(selectedMap).length} selected</Text>
+              <View style={styles.selectionActions}>
+                <TouchableOpacity style={styles.selectionBtn} onPress={onMarkSelectedRead}>
+                  <Text style={styles.selectionBtnText}>Mark read</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.selectionBtn, styles.selectionBtnDanger]} onPress={onDeleteSelected}>
+                  <Text style={[styles.selectionBtnText, styles.selectionBtnTextDanger]}>Delete</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.selectionBtnGhost} onPress={clearSelection}>
+                  <Text style={styles.selectionBtnGhostText}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          ) : null}
           <FlatList
             data={filteredList}
             keyExtractor={(item, idx) => String(item.user_id ?? item.id ?? idx)}

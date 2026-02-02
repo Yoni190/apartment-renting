@@ -2,13 +2,14 @@ import React from 'react'
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 
-export default function MessageListItem({ recipientName, lastMessage, timestamp, onPress, id, unreadCount, lastMessageFromMe, lastMessageIsRead, lastMessageId, lastMessageWasReceived, lastMessageReadAt, lastMessageTimestamp, lastMessageLocallyRead }) {
+export default function MessageListItem({ recipientName, lastMessage, timestamp, onPress, onLongPress, id, unreadCount, lastMessageFromMe, lastMessageIsRead, lastMessageId, lastMessageWasReceived, lastMessageReadAt, lastMessageTimestamp, lastMessageLocallyRead, selected }) {
   const name = recipientName || `User ${id ?? ''}`
   const lastAt = timestamp || ''
 
   return (
     <TouchableOpacity
-      style={styles.itemRow}
+      style={[styles.itemRow, selected && styles.itemRowSelected]}
+      delayLongPress={250}
       onPress={() => {
         console.log('MessageListItem pressed', { hasOnPress: !!onPress, id, name })
         if (onPress) {
@@ -18,6 +19,9 @@ export default function MessageListItem({ recipientName, lastMessage, timestamp,
             onPress({ id, recipientName: name })
           }
         }
+      }}
+      onLongPress={() => {
+        if (onLongPress) onLongPress()
       }}
     >
       <View style={styles.avatar}>
@@ -84,6 +88,11 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginVertical: 6,
     elevation: 1,
+  },
+  itemRowSelected: {
+    borderWidth: 2,
+    borderColor: '#2563eb',
+    backgroundColor: '#eff6ff',
   },
   avatar: {
     width: 48,
