@@ -246,16 +246,12 @@ const MessagesScreen = ({ route }) => {
     const time = new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     return (
       <View style={[styles.messageRow, isSent ? styles.messageRowSent : styles.messageRowReceived]}>
-        {!isSent ? (
-          <View style={styles.avatarSmall}><Text style={styles.avatarSmallText}>{(String(item.sender_id || '')[0]||'U').toUpperCase()}</Text></View>
-        ) : null}
-
         <View style={[styles.bubble, isSent ? styles.bubbleSent : styles.bubbleReceived]}>
           <Text style={[styles.messageText, isSent ? styles.messageTextSent : styles.messageTextReceived]}>{item.message}</Text>
           <Text style={styles.timeText}>{time}</Text>
         </View>
 
-        {isSent ? <View style={{ width: 32 }} /> : null}
+        {isSent ? <View style={styles.sentSpacer} /> : null}
       </View>
     )
   }

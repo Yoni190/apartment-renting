@@ -71,6 +71,9 @@ export default StyleSheet.create({
   avatarSmall: { width: 32, height: 32, borderRadius: 16, backgroundColor: '#e6eefc', alignItems: 'center', justifyContent: 'center', marginRight: 8 },
   avatarSmallText: { color: '#2563eb', fontWeight: '700' },
 
+  // spacer used to push sent messages further to the right edge
+  sentSpacer: { width: 2 },
+
   inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
