@@ -172,8 +172,26 @@ const MessagesScreen = ({ route }) => {
       })
 
       if (serverMsg && serverMsg.id) {
-        setMessages((prev) => prev.map((m) => (m.id === tempId ? serverMsg : m)))
-        setAllMessages(prev => (prev || []).map(m => (m.id === tempId ? serverMsg : m)))
+        setMessages((prev) => {
+          const filtered = (prev || []).filter(m =>
+            String(m.id) !== String(serverMsg.id) &&
+            m.id !== tempId &&
+            !(tempMediaUrl && m.temp && m.media_url === tempMediaUrl)
+          )
+          const merged = [...filtered, serverMsg]
+          merged.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+          return merged
+        })
+        setAllMessages(prev => {
+          const filtered = (prev || []).filter(m =>
+            String(m.id) !== String(serverMsg.id) &&
+            m.id !== tempId &&
+            !(tempMediaUrl && m.temp && m.media_url === tempMediaUrl)
+          )
+          const merged = [...filtered, serverMsg]
+          merged.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+          return merged
+        })
         try { emitMessageUpdate(serverMsg) } catch (e) {}
       }
     } catch (err) {
@@ -558,10 +576,26 @@ const MessagesScreen = ({ route }) => {
           const serverById = new Map()
           for (const s of msgs) serverById.set(String(s.id), s)
           const final = [...msgs]
+          const shouldDropTempMedia = (t) => {
+            try {
+              if (!t?.media_url) return false
+              const tTime = new Date(t.created_at || t.createdAt || 0).getTime()
+              if (!tTime) return false
+              return msgs.some(s => {
+                if (!s?.media_url) return false
+                if (Number(s.sender_id) !== Number(t.sender_id)) return false
+                if (Number(s.receiver_id) !== Number(t.receiver_id)) return false
+                const sTime = new Date(s.created_at || s.createdAt || 0).getTime()
+                if (!sTime) return false
+                return sTime >= tTime && (sTime - tTime) < 120000
+              })
+            } catch (e) { return false }
+          }
           for (const t of localTemps) {
             // drop temp uploads if server already has a matching media message
             const match = (t.temp && t.media_url) ? msgs.find(s => s.media_url && s.media_url === t.media_url) : null
             if (match) continue
+            if (t.temp && shouldDropTempMedia(t)) continue
             // include temp/failed if not already present
             if (!t.id || !serverById.has(String(t.id))) final.push(t)
           }
