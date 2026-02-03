@@ -47,6 +47,7 @@ const MessagesScreen = ({ route }) => {
   const [selectedTemplate, setSelectedTemplate] = useState(null)
   const [templateFormText, setTemplateFormText] = useState('')
   const [showScrollToBottom, setShowScrollToBottom] = useState(false)
+  const [userScrolledUp, setUserScrolledUp] = useState(false)
   const [rentForm, setRentForm] = useState({
     fullName: '',
     phoneNumber: '',
@@ -822,6 +823,7 @@ const MessagesScreen = ({ route }) => {
       const { layoutMeasurement, contentOffset, contentSize } = e.nativeEvent || {}
       const distanceFromBottom = (contentSize?.height || 0) - ((contentOffset?.y || 0) + (layoutMeasurement?.height || 0))
       setShowScrollToBottom(distanceFromBottom > 120)
+      setUserScrolledUp(distanceFromBottom > 120)
     } catch (e) {}
   }
 
@@ -830,13 +832,12 @@ const MessagesScreen = ({ route }) => {
       const layoutH = listLayoutHeightRef.current || 0
       const contentH = listContentHeightRef.current || 0
       if (layoutH && contentH && flatRef.current?.scrollToOffset) {
-        const extraGap = 48
-        const offset = Math.max(0, contentH - layoutH + extraGap)
+        const extraGap = 16
+        const offset = Math.max(0, contentH - layoutH + effectiveListPadding + extraGap)
         flatRef.current.scrollToOffset({ offset, animated: true })
       } else {
         flatRef.current?.scrollToEnd?.({ animated: true })
       }
-      setTimeout(() => flatRef.current?.scrollToEnd?.({ animated: true }), 60)
     } catch (e) {}
   }
 
@@ -1022,7 +1023,9 @@ const MessagesScreen = ({ route }) => {
               keyboardShouldPersistTaps="handled"
               onContentSizeChange={(_, h) => {
                 listContentHeightRef.current = h || 0
-                flatRef.current?.scrollToEnd?.({ animated: true })
+                if (!userScrolledUp) {
+                  scrollToBottom()
+                }
               }}
               onLayout={(e) => { listLayoutHeightRef.current = e.nativeEvent?.layout?.height || 0 }}
               onScroll={handleListScroll}
@@ -1059,6 +1062,9 @@ const MessagesScreen = ({ route }) => {
                   onChangeText={setText}
                   placeholder="Type a message"
                   multiline={false}
+                  onFocus={() => {
+                    if (!userScrolledUp) scrollToBottom()
+                  }}
                 />
                 <TouchableOpacity style={styles.templateBtn} onPress={() => setShowTemplateModal(true)} accessibilityLabel="Templates">
                   <Ionicons name="document-text" size={18} color="#0f172a" />
