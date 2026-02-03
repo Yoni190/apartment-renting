@@ -38,6 +38,31 @@ export default StyleSheet.create({
     borderRadius: 8,
     backgroundColor: 'transparent',
   },
+  tabRow: {
+    flexDirection: 'row',
+    marginHorizontal: 12,
+    marginBottom: 8,
+    backgroundColor: '#e5e7eb',
+    borderRadius: 12,
+    padding: 4,
+  },
+  tabButton: {
+    flex: 1,
+    paddingVertical: 8,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  tabButtonActive: {
+    backgroundColor: '#fff',
+  },
+  tabText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#6b7280',
+  },
+  tabTextActive: {
+    color: '#0f172a',
+  },
   toggleRow: {
     flexDirection: 'row',
     justifyContent: 'center',
