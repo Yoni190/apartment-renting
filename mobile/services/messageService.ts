@@ -164,6 +164,21 @@ export async function markMessagesAsRead(receiverId: number, senderId?: number) 
 }
 
 /**
+ * Delete a conversation between the current user and another user.
+ */
+export async function deleteConversation(otherId: number) {
+  const url = `${API_URL}/messages/conversation`
+  try {
+    const headers = await getAuthHeaders()
+    const res = await axios.delete(url, { headers, data: { other_id: otherId } })
+    return res.data
+  } catch (err) {
+    console.error('deleteConversation error', err)
+    throw err
+  }
+}
+
+/**
  * Try to load conversation threads / inbox for the given user.
  * This function is resilient: it will attempt several common endpoints and
  * will fall back to grouping raw messages into conversation previews.
@@ -262,6 +277,7 @@ const messageService = {
   getListing,
   getMessagesForUser,
   lookupUserByEmail,
+  deleteConversation,
 }
 
 export default messageService

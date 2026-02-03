@@ -856,6 +856,7 @@ Route::middleware('auth:sanctum')->patch('/tour-bookings/{booking}', [App\Http\C
 Route::middleware('auth:sanctum')->get('/messages', [MessageApiController::class, 'index']);
 Route::middleware('auth:sanctum')->post('/messages', [MessageApiController::class, 'store']);
 Route::middleware('auth:sanctum')->post('/messages/mark-read', [MessageApiController::class, 'markRead']);
+Route::middleware('auth:sanctum')->delete('/messages/conversation', [MessageApiController::class, 'deleteConversation']);
 Route::middleware('auth:sanctum')->get('/conversations', [MessageApiController::class, 'conversations']);
 
 // Recommendations endpoint

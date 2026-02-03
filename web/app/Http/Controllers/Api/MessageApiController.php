@@ -99,6 +99,28 @@ class MessageApiController extends Controller
         return response()->json(['updated' => $updated]);
     }
 
+    // DELETE /api/messages/conversation { other_id }
+    public function deleteConversation(Request $request)
+    {
+        $request->validate([
+            'other_id' => ['required','integer']
+        ]);
+
+        $user = $request->user();
+        if (!$user) return response()->json(['message' => 'Unauthenticated'], 401);
+
+        $uid = (int) $user->id;
+        $other = (int) $request->input('other_id');
+
+        $deleted = Message::where(function($q) use ($uid, $other) {
+            $q->where('sender_id', $uid)->where('receiver_id', $other);
+        })->orWhere(function($q) use ($uid, $other) {
+            $q->where('sender_id', $other)->where('receiver_id', $uid);
+        })->delete();
+
+        return response()->json(['deleted' => $deleted]);
+    }
+
     // GET /api/conversations
     public function conversations(Request $request)
     {
