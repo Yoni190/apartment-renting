@@ -129,7 +129,7 @@ export default function MessageListScreen({ navigation }) {
               existing.last_message = m.message ?? m.last_message ?? ''
               existing.last_at = m.created_at ?? m.created_at ?? null
             }
-            if (!m.is_read && Number(m.receiver_id) === uid) existing.unread_count = (existing.unread_count || 0) + 1
+            if (Number(m.receiver_id) === uid && !(m.is_read || m.read_at)) existing.unread_count = (existing.unread_count || 0) + 1
 
             // try to derive a display name for the other participant
             if (!existing.name) {
@@ -140,7 +140,7 @@ export default function MessageListScreen({ navigation }) {
             if (!existing.name) existing.name = `User ${otherId}`
             // record last message sender and read state for preview ticks
             existing.last_sender_id = m.sender_id ? Number(m.sender_id) : existing.last_sender_id
-            existing.last_message_is_read = existing.last_message_is_read || !!m.is_read
+            existing.last_message_is_read = existing.last_message_is_read || !!m.is_read || !!m.read_at
             map.set(key, existing)
           }
 
@@ -191,7 +191,7 @@ export default function MessageListScreen({ navigation }) {
             name: (m.sender && Number(m.sender.id) === other) ? m.sender.name : ((m.receiver && Number(m.receiver.id) === other) ? m.receiver.name : `User ${other}`),
             last_message: m.message ?? m.last_message ?? copy[idx]?.last_message ?? '',
             last_at: m.created_at ?? m.createdAt ?? new Date().toISOString(),
-            unread_count: (Number(m.receiver_id) === uid && !m.is_read) ? ((copy[idx]?.unread_count || 0) + 1) : (copy[idx]?.unread_count || 0),
+            unread_count: (Number(m.receiver_id) === uid && !(m.is_read || m.read_at)) ? ((copy[idx]?.unread_count || 0) + 1) : (copy[idx]?.unread_count || 0),
             last_sender_id: Number(m.sender_id),
             last_message_is_read: !!m.is_read || !!m.read_at || false,
           }
@@ -333,7 +333,7 @@ export default function MessageListScreen({ navigation }) {
       // pass a wrapper so we always call onOpenChat with the original item (avoids
       // MessageListItem creating a smaller payload that can lose the user id)
       onPress={() => onOpenChat(item)}
-      unreadCount={Number(item.unread_count || 0)}
+      unreadCount={Number(unreadMap.get(String(item.user_id ?? item.id)) || item.unread_count || 0)}
       lastMessageFromMe={Number(item.last_sender_id) === Number(currentUserId ?? -1)}
       lastMessageIsRead={Boolean(item.last_message_is_read)}
     />
@@ -404,7 +404,8 @@ export default function MessageListScreen({ navigation }) {
         existing.last_message = m.message ?? m.last_message ?? ''
         existing.last_at = m.created_at ?? m.createdAt ?? null
       }
-      if (!m.is_read && Number(m.receiver_id) === uid) existing.unread_count = (existing.unread_count || 0) + 1
+      // count only messages that are received by the current user and not marked read
+      if (Number(m.receiver_id) === uid && !(m.is_read || m.read_at)) existing.unread_count = (existing.unread_count || 0) + 1
       if (!existing.name) {
         if (m.sender && Number(m.sender.id) === otherId) existing.name = m.sender.name
         else if (m.receiver && Number(m.receiver.id) === otherId) existing.name = m.receiver.name
@@ -418,6 +419,37 @@ export default function MessageListScreen({ navigation }) {
     const arr = Array.from(map.values())
     arr.sort((a, b) => new Date(b.last_at || 0) - new Date(a.last_at || 0))
     return arr
+  }, [allMessages, currentUserId])
+
+  // debug: log unreadMap contents when it changes
+  useEffect(() => {
+    try {
+      const uid = currentUserId
+      if (!uid) return
+      const entries = Array.from(unreadMap ? unreadMap.entries() : [])
+      console.log('MessageListScreen: unreadMap entries', entries)
+    } catch (e) {}
+  }, [unreadMap, currentUserId])
+
+  // authoritative unread counts per sender based on raw messages (is_read === false || read_at === null)
+  const unreadMap = useMemo(() => {
+    const map = new Map()
+    try {
+      const uid = currentUserId
+      if (!uid || !Array.isArray(allMessages)) return map
+      for (const m of allMessages) {
+        try {
+          const rid = Number(m.receiver_id)
+          const sid = Number(m.sender_id)
+          if (rid !== uid) continue
+          if (!sid) continue
+          if (m.is_read || m.read_at) continue
+          const key = String(sid)
+          map.set(key, (map.get(key) || 0) + 1)
+        } catch (e) {}
+      }
+    } catch (e) {}
+    return map
   }, [allMessages, currentUserId])
 
   const filteredList = useMemo(() => {
