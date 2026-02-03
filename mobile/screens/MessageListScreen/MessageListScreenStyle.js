@@ -8,7 +8,35 @@ export default StyleSheet.create({
   // leave space for the global header (absolute positioned)
   listContent: {
     paddingVertical: 8,
+    paddingTop: 8,
+  },
+  // main content area: push content below absolute Header
+  screenContent: {
+    flex: 1,
     paddingTop: 96,
+  },
+  searchContainer: {
+    marginHorizontal: 12,
+    marginBottom: 8,
+    marginTop: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  searchInput: {
+    flex: 1,
+    backgroundColor: '#fff',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 10,
+    fontSize: 14,
+    color: '#0f172a',
+    elevation: 1,
+  },
+  searchClear: {
+    marginLeft: 8,
+    padding: 6,
+    borderRadius: 8,
+    backgroundColor: 'transparent',
   },
   toggleRow: {
     flexDirection: 'row',
