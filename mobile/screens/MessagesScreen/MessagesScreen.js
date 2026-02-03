@@ -46,6 +46,7 @@ const MessagesScreen = ({ route }) => {
   const [showTemplateForm, setShowTemplateForm] = useState(false)
   const [selectedTemplate, setSelectedTemplate] = useState(null)
   const [templateFormText, setTemplateFormText] = useState('')
+  const [showScrollToBottom, setShowScrollToBottom] = useState(false)
   const [rentForm, setRentForm] = useState({
     fullName: '',
     phoneNumber: '',
@@ -80,6 +81,8 @@ const MessagesScreen = ({ route }) => {
   const [downloadedMap, setDownloadedMap] = useState({})
 
   const flatRef = useRef(null)
+  const listLayoutHeightRef = useRef(0)
+  const listContentHeightRef = useRef(0)
   const lastTapRef = useRef({ time: 0, id: null })
   const backScale = useRef(new Animated.Value(1)).current
   const animatedKeyboard = useRef(new Animated.Value(0)).current
@@ -814,6 +817,29 @@ const MessagesScreen = ({ route }) => {
     )
   }
 
+  const handleListScroll = (e) => {
+    try {
+      const { layoutMeasurement, contentOffset, contentSize } = e.nativeEvent || {}
+      const distanceFromBottom = (contentSize?.height || 0) - ((contentOffset?.y || 0) + (layoutMeasurement?.height || 0))
+      setShowScrollToBottom(distanceFromBottom > 120)
+    } catch (e) {}
+  }
+
+  const scrollToBottom = () => {
+    try {
+      const layoutH = listLayoutHeightRef.current || 0
+      const contentH = listContentHeightRef.current || 0
+      if (layoutH && contentH && flatRef.current?.scrollToOffset) {
+        const extraGap = 48
+        const offset = Math.max(0, contentH - layoutH + extraGap)
+        flatRef.current.scrollToOffset({ offset, animated: true })
+      } else {
+        flatRef.current?.scrollToEnd?.({ animated: true })
+      }
+      setTimeout(() => flatRef.current?.scrollToEnd?.({ animated: true }), 60)
+    } catch (e) {}
+  }
+
   const renderConversation = ({ item }) => {
     const otherName = item.name || `User ${item.user_id || item.id}`
     const preview = item.last_message || ''
@@ -994,8 +1020,23 @@ const MessagesScreen = ({ route }) => {
               renderItem={renderItem}
               contentContainerStyle={[styles.listContent, { paddingBottom: effectiveListPadding }]}
               keyboardShouldPersistTaps="handled"
-              onContentSizeChange={() => flatRef.current?.scrollToEnd?.({ animated: true })}
+              onContentSizeChange={(_, h) => {
+                listContentHeightRef.current = h || 0
+                flatRef.current?.scrollToEnd?.({ animated: true })
+              }}
+              onLayout={(e) => { listLayoutHeightRef.current = e.nativeEvent?.layout?.height || 0 }}
+              onScroll={handleListScroll}
+              scrollEventThrottle={16}
             />
+
+            {showScrollToBottom ? (
+              <TouchableOpacity
+                style={[styles.scrollToBottomBtn, { bottom: effectiveInputBottom + 80 }]}
+                onPress={scrollToBottom}
+              >
+                <Ionicons name="chevron-down" size={22} color="#fff" />
+              </TouchableOpacity>
+            ) : null}
 
             <Animated.View style={[styles.inputRow, { bottom: Animated.add(animatedKeyboard, baseInputBottom), zIndex: 50, elevation: 50 }]}>
               {replyTo ? (
