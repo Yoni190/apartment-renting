@@ -1,7 +1,30 @@
-import React from 'react'
-import { ScrollView, View, Text, TextInput } from 'react-native'
+import React, { useMemo, useState } from 'react'
+import { ScrollView, View, Text, TextInput, Pressable, Platform } from 'react-native'
+import DateTimePicker from '@react-native-community/datetimepicker'
 
 const RentApplicationForm = ({ form, setForm, styles }) => {
+  const [showPicker, setShowPicker] = useState(false)
+  const minDate = useMemo(() => {
+    const d = new Date()
+    d.setHours(0, 0, 0, 0)
+    return d
+  }, [])
+
+  const parseMoveInDate = () => {
+    if (form?.moveIn) {
+      const d = new Date(form.moveIn)
+      if (!Number.isNaN(d.getTime())) return d
+    }
+    return minDate
+  }
+
+  const formatDate = (date) => {
+    if (!date) return ''
+    const y = date.getFullYear()
+    const m = String(date.getMonth() + 1).padStart(2, '0')
+    const d = String(date.getDate()).padStart(2, '0')
+    return `${y}-${m}-${d}`
+  }
   return (
     <ScrollView style={styles.templateFormScroll} contentContainerStyle={styles.templateFormContent}>
       <View style={styles.templateFieldRow}>
@@ -30,7 +53,29 @@ const RentApplicationForm = ({ form, setForm, styles }) => {
       </View>
       <View style={styles.templateFieldRow}>
         <Text style={styles.templateFieldLabel}>Preferred Move-in Date</Text>
-        <TextInput style={styles.templateFieldInput} value={form.moveIn} onChangeText={(v) => setForm(prev => ({ ...prev, moveIn: v }))} />
+        <Pressable onPress={() => setShowPicker(true)}>
+          <TextInput
+            style={styles.templateFieldInput}
+            value={form.moveIn}
+            placeholder="Select date"
+            editable={false}
+            pointerEvents="none"
+          />
+        </Pressable>
+        {showPicker ? (
+          <DateTimePicker
+            value={parseMoveInDate()}
+            mode="date"
+            display={Platform.OS === 'ios' ? 'inline' : 'default'}
+            minimumDate={minDate}
+            onChange={(_e, selectedDate) => {
+              if (Platform.OS !== 'ios') setShowPicker(false)
+              if (!selectedDate) return
+              if (selectedDate < minDate) return
+              setForm(prev => ({ ...prev, moveIn: formatDate(selectedDate) }))
+            }}
+          />
+        ) : null}
       </View>
       <View style={styles.templateFieldRow}>
         <Text style={styles.templateFieldLabel}>Lease Duration</Text>
