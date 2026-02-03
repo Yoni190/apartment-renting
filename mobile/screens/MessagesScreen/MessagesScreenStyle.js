@@ -223,11 +223,69 @@ export default StyleSheet.create({
     borderTopLeftRadius: 12,
     borderTopRightRadius: 12,
   },
+  templateFormCard: {
+    backgroundColor: '#fff',
+    padding: 16,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+    minHeight: 280,
+  },
+  templateFormScroll: {
+    maxHeight: 420,
+  },
+  templateFormContent: {
+    paddingBottom: 8,
+  },
   templateTitle: {
     fontSize: 16,
     fontWeight: '700',
     marginBottom: 8,
     color: '#0f172a',
+  },
+  templateFormInput: {
+    backgroundColor: '#f8fafc',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    minHeight: 180,
+    fontSize: 14,
+    color: '#0f172a',
+  },
+  templateFieldRow: {
+    marginBottom: 10,
+  },
+  templateFieldLabel: {
+    fontSize: 12,
+    color: '#6b7280',
+    marginBottom: 4,
+  },
+  templateFieldInput: {
+    backgroundColor: '#f8fafc',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 14,
+    color: '#0f172a',
+  },
+  templateFieldInputMultiline: {
+    minHeight: 80,
+  },
+  templateFormActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    marginTop: 12,
+    gap: 12,
+  },
+  templateFormInsert: {
+    backgroundColor: '#1778f2',
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 8,
+  },
+  templateFormInsertText: {
+    color: '#fff',
+    fontWeight: '700',
   },
   templateOption: {
     paddingVertical: 12,
@@ -244,6 +302,52 @@ export default StyleSheet.create({
   templateCancelText: {
     color: '#6b7280',
     fontWeight: '600',
+  },
+  templatePreview: {
+    backgroundColor: '#f8fafc',
+    borderRadius: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    marginBottom: 8,
+    borderLeftWidth: 3,
+    borderLeftColor: '#1778f2',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  templatePreviewLeft: {
+    flex: 1,
+  },
+  templatePreviewTitle: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#0f172a',
+  },
+  templatePreviewText: {
+    fontSize: 12,
+    color: '#6b7280',
+    marginTop: 2,
+  },
+  templatePreviewInsert: {
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    backgroundColor: '#1778f2',
+    borderRadius: 8,
+    marginLeft: 8,
+  },
+  templatePreviewInsertText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 12,
+  },
+  templatePreviewClear: {
+    paddingVertical: 6,
+    paddingHorizontal: 8,
+    marginLeft: 4,
+  },
+  templatePreviewClearText: {
+    color: '#6b7280',
+    fontWeight: '700',
+    fontSize: 16,
   },
   replyComposer: {
     backgroundColor: '#f8fafc',
