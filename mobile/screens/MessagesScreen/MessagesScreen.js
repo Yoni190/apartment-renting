@@ -928,10 +928,19 @@ const MessagesScreen = ({ route }) => {
         </Animated.View>
       </Pressable>
 
-      <View style={styles.chatHeaderCenter}>
+      <Pressable
+        style={styles.chatHeaderCenter}
+        onPress={() => {
+          const name = receiverName ?? route?.params?.receiverName ?? 'Conversation'
+          navigation.navigate('MessageProfile', {
+            receiverId: effectiveReceiverId,
+            receiverName: name,
+          })
+        }}
+      >
         <View style={styles.chatAvatar}><Text style={styles.chatAvatarText}>{(receiverName || route?.params?.receiverName || 'U').charAt(0).toUpperCase()}</Text></View>
         <Text style={styles.chatHeaderTitle} numberOfLines={1}>{receiverName ?? route?.params?.receiverName ?? 'Conversation'}</Text>
-      </View>
+      </Pressable>
 
       <View style={styles.chatHeaderRight} />
     </View>
