@@ -5,6 +5,42 @@ import * as SecureStore from 'expo-secure-store'
 const rawApi = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8000/api'
 const API_URL = String(rawApi).replace(/\/$/, '')
 
+// Throttle/coalesce frequent API calls to avoid rate limiting
+const _inflight: Map<string, Promise<any>> = new Map()
+const _lastCall: Map<string, number> = new Map()
+const _cooldownUntil: Map<string, number> = new Map()
+
+async function withThrottle<T>(key: string, fn: () => Promise<T>): Promise<T> {
+  const now = Date.now()
+  const cooldown = _cooldownUntil.get(key) || 0
+  if (cooldown > now) {
+    // wait until cooldown ends, then retry
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        withThrottle(key, fn).then(resolve).catch(reject)
+      }, cooldown - now)
+    })
+  }
+
+  const last = _lastCall.get(key) || 0
+  const existing = _inflight.get(key)
+  if (existing && now - last < 800) return existing as Promise<T>
+
+  const p = fn()
+    .catch((err: any) => {
+      if (err?.response?.status === 429) {
+        _cooldownUntil.set(key, Date.now() + 3000)
+      }
+      throw err
+    })
+    .finally(() => {
+      _inflight.delete(key)
+      _lastCall.set(key, Date.now())
+    })
+  _inflight.set(key, p)
+  return p
+}
+
 async function getToken(): Promise<string | null> {
   try {
     return await SecureStore.getItemAsync('token')
@@ -66,9 +102,11 @@ export function getLocalReadState(id: any) {
 export async function getMessages(senderId: number, receiverId: number) {
   const url = `${API_URL}/messages?sender_id=${encodeURIComponent(String(senderId))}&receiver_id=${encodeURIComponent(String(receiverId))}`
   try {
-    const headers = await getAuthHeaders()
-    const res = await axios.get(url, { headers })
-    return res.data
+    return await withThrottle(`getMessages:${senderId}:${receiverId}`, async () => {
+      const headers = await getAuthHeaders()
+      const res = await axios.get(url, { headers })
+      return res.data
+    })
   } catch (err) {
     console.error('getMessages error', err)
     throw err
@@ -82,17 +120,11 @@ export async function getMessages(senderId: number, receiverId: number) {
 export async function getMessagesForUser(userId: number) {
   const url = `${API_URL}/messages?user_id=${encodeURIComponent(String(userId))}`
   try {
-    const headers = await getAuthHeaders()
-    const res = await axios.get(url, { headers })
-    // debug: log if messages include read flags
-    try {
-      const data = res.data
-      if (Array.isArray(data) && data.length > 0) {
-        console.log('getMessagesForUser: sample message keys', Object.keys(data[0]))
-        console.log('getMessagesForUser: sample read fields', { is_read: data[0].is_read, read_at: data[0].read_at })
-      }
-    } catch (e) {}
-    return res.data
+    return await withThrottle(`getMessagesForUser:${userId}`, async () => {
+      const headers = await getAuthHeaders()
+      const res = await axios.get(url, { headers })
+      return res.data
+    })
   } catch (err) {
     console.error('getMessagesForUser error', err)
     throw err
@@ -146,6 +178,40 @@ export async function sendMessage(payload: MessagePayload) {
 }
 
 /**
+ * Send a message with media (photo or video) using multipart/form-data.
+ */
+export async function sendMessageWithMedia(payload: MessagePayload, media: { uri: string; type?: string; name?: string }) {
+  const url = `${API_URL}/messages`
+  try {
+    const headers = await getAuthHeaders()
+    const form = new FormData()
+    form.append('sender_id', String(payload.sender_id))
+    form.append('receiver_id', String(payload.receiver_id))
+    form.append('message', String(payload.message ?? ''))
+    if (payload.reply_to_id) form.append('reply_to_id', String(payload.reply_to_id))
+    if (payload.listing_id) form.append('listing_id', String(payload.listing_id))
+    const safeName = media.name || (media.uri ? media.uri.split('/').pop() : 'upload') || 'upload'
+    const safeType = media.type || (safeName.endsWith('.png') ? 'image/png' : safeName.endsWith('.jpg') || safeName.endsWith('.jpeg') ? 'image/jpeg' : safeName.endsWith('.gif') ? 'image/gif' : safeName.endsWith('.webp') ? 'image/webp' : 'image/jpeg')
+    form.append('media', {
+      uri: media.uri,
+      type: safeType,
+      name: safeName,
+    } as any)
+
+    const res = await axios.post(url, form, {
+      headers: {
+        ...headers,
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+    return res.data?.message ?? res.data
+  } catch (err) {
+    console.error('sendMessageWithMedia error', err)
+    throw err
+  }
+}
+
+/**
  * Mark messages as read for the given receiver.
  * This will call a "mark-read" endpoint on the server.
  */
@@ -195,10 +261,17 @@ export async function getConversations(userId: number) {
   for (const url of candidates) {
     try {
       console.log('getConversations GET', url)
-      const res = await axios.get(url, { headers })
-      const data = res.data
+      const data = await withThrottle(`getConversations:${userId}:${url}`, async () => {
+        const res = await axios.get(url, { headers })
+        return res.data
+      })
       // If API already provides conversations, return them directly
       if (Array.isArray(data) && data.length > 0 && data[0] && data[0].hasOwnProperty('last_message')) {
+        return data
+      }
+
+      // If API returned an array (even empty), do not fall through to other candidates
+      if (Array.isArray(data) && data.length === 0) {
         return data
       }
 
@@ -272,6 +345,7 @@ export async function lookupUserByEmail(email: string) {
 const messageService = {
   getMessages,
   sendMessage,
+  sendMessageWithMedia,
   markMessagesAsRead,
   getConversations,
   getListing,

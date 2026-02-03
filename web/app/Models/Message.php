@@ -17,7 +17,9 @@ class Message extends Model
         'read_at',
         'sender_deleted',
         'receiver_deleted',
-        'reply_to_id'
+        'reply_to_id',
+        'media_url',
+        'media_type'
     ];
 
     protected $casts = [
@@ -25,6 +27,8 @@ class Message extends Model
         'sender_deleted' => 'boolean',
         'receiver_deleted' => 'boolean',
         'reply_to_id' => 'integer',
+        'media_url' => 'string',
+        'media_type' => 'string',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

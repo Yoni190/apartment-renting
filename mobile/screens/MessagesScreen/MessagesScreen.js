@@ -14,11 +14,14 @@ import {
   Animated,
   Easing,
   PanResponder,
+  Image,
+  ScrollView,
 } from 'react-native'
 import Header from '../../components/Header'
 import { Ionicons } from '@expo/vector-icons'
 import styles from './MessagesScreenStyle'
 import messageService, { MessagePayload, onMessageUpdate, offMessageUpdate, emitMessageUpdate, setLocalReadState, getLocalReadState } from '../../services/messageService'
+import * as ImagePicker from 'expo-image-picker'
 import * as SecureStore from 'expo-secure-store'
 import { useIsFocused } from '@react-navigation/native'
 import { Modal } from 'react-native'
@@ -40,6 +43,11 @@ const MessagesScreen = ({ route }) => {
   const [newReceiverId, setNewReceiverId] = useState('')
   const [replyTo, setReplyTo] = useState(null)
   const lastTapRef = useRef({ time: 0, id: null })
+  const [uploadingMedia, setUploadingMedia] = useState(false)
+  const [viewerVisible, setViewerVisible] = useState(false)
+  const [viewerUri, setViewerUri] = useState(null)
+  const [downloadingMap, setDownloadingMap] = useState({})
+  const [downloadedMap, setDownloadedMap] = useState({})
 
   const messageById = useMemo(() => {
     const map = new Map()
@@ -50,6 +58,84 @@ const MessagesScreen = ({ route }) => {
     } catch (e) {}
     return map
   }, [messages])
+
+  const handlePickMedia = async () => {
+    try {
+      setUploadingMedia(true)
+      const res = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 0.9,
+      })
+      if (res.canceled || !res.assets || res.assets.length === 0) return
+      const asset = res.assets[0]
+      const payload = {
+        sender_id: effectiveSenderId || 0,
+        receiver_id: effectiveReceiverId || 0,
+        message: text.trim(),
+        reply_to_id: replyTo?.id ?? null,
+      }
+
+      const tempId = Date.now()
+      const tempMessage = {
+        id: tempId,
+        temp: true,
+        uploading: true,
+        sender_id: payload.sender_id,
+        receiver_id: payload.receiver_id,
+        message: payload.message || '',
+        reply_to_id: payload.reply_to_id,
+        media_url: asset.uri,
+        media_type: 'image/*',
+        is_read: false,
+        created_at: new Date().toISOString(),
+      }
+      setMessages((m) => [...m, tempMessage])
+      try { emitMessageUpdate(tempMessage) } catch (e) {}
+      setText('')
+      setReplyTo(null)
+      setTimeout(() => flatRef.current?.scrollToEnd?.({ animated: true }), 50)
+
+      const fileName = asset.fileName || (asset.uri ? asset.uri.split('/').pop() : 'upload')
+      const fileType = asset.mimeType || (asset.type === 'video' ? 'video/mp4' : 'image/jpeg')
+      const serverMsg = await messageService.sendMessageWithMedia(payload, {
+        uri: asset.uri,
+        type: fileType,
+        name: fileName,
+      })
+      if (serverMsg && serverMsg.id) {
+        const merged = { ...tempMessage, ...serverMsg, uploading: false, temp: false }
+        setMessages(prev => {
+          const next = (prev || []).map(m => {
+            if (m.id === tempId) return merged
+            if (m.temp && m.media_url === tempMessage.media_url) return merged
+            return m
+          })
+          // remove any other lingering temp uploads with the same media
+          return next.filter(m => !(m.temp && m.media_url === tempMessage.media_url && m.id !== merged.id))
+        })
+        try { emitMessageUpdate(merged) } catch (e) {}
+      }
+    } catch (e) {
+      console.warn('Media send failed', e)
+    } finally {
+      setUploadingMedia(false)
+    }
+  }
+
+  const handleDownloadMedia = async (item) => {
+    try {
+      if (!item?.id || !item?.media_url) return
+      const id = String(item.id)
+      if (downloadedMap[id]) return
+      setDownloadingMap(prev => ({ ...prev, [id]: true }))
+      if ((item.media_type || '').startsWith('image/')) {
+        try { await Image.prefetch(item.media_url) } catch (e) {}
+      }
+      setDownloadedMap(prev => ({ ...prev, [id]: true }))
+    } finally {
+      setDownloadingMap(prev => ({ ...prev, [String(item.id)]: false }))
+    }
+  }
 
   // prefer explicit sender/receiver provided via route params
   const routeSenderId = route?.params?.senderId
@@ -280,15 +366,6 @@ const MessagesScreen = ({ route }) => {
     return map
   }, [allMessages, currentUserId])
 
-  // debug: log unreadMap contents when it changes
-  useEffect(() => {
-    try {
-      const uid = currentUserId
-      if (!uid) return
-      const entries = Array.from(unreadMap ? unreadMap.entries() : [])
-      console.log('MessagesScreen: unreadMap entries', entries)
-    } catch (e) {}
-  }, [unreadMap, currentUserId])
 
   const handleSend = async () => {
     if (!text.trim()) return
@@ -397,9 +474,10 @@ const MessagesScreen = ({ route }) => {
   useEffect(() => {
     if (!hasTarget) return
     let mounted = true
-    const pollInterval = 3000
+    const pollInterval = 6000
     const poll = setInterval(async () => {
       try {
+        if (uploadingMedia) return
         const sender = effectiveSenderId
         const receiver = effectiveReceiverId
         if (!sender || !receiver) return
@@ -415,6 +493,9 @@ const MessagesScreen = ({ route }) => {
           for (const s of msgs) serverById.set(String(s.id), s)
           const final = [...msgs]
           for (const t of localTemps) {
+            // drop temp uploads if server already has a matching media message
+            const match = (t.temp && t.media_url) ? msgs.find(s => s.media_url && s.media_url === t.media_url) : null
+            if (match) continue
             // include temp/failed if not already present
             if (!t.id || !serverById.has(String(t.id))) final.push(t)
           }
@@ -501,6 +582,11 @@ const MessagesScreen = ({ route }) => {
       lastTapRef.current = { time: now, id: item.id }
     }
 
+    const hasMedia = !!item.media_url
+    const isImage = (item.media_type || '').startsWith('image/') || !!item.media_url
+    const downloaded = isSent || downloadedMap[String(item.id)]
+    const downloading = !!downloadingMap[String(item.id)]
+
     return (
       <View style={[styles.messageRow, isSent ? styles.messageRowSent : styles.messageRowReceived]} {...panResponder.panHandlers}>
         <Pressable style={[styles.bubble, isSent ? styles.bubbleSent : styles.bubbleReceived]} onPress={onBubblePress}>
@@ -508,6 +594,24 @@ const MessagesScreen = ({ route }) => {
             <View style={[styles.replySnippet, isSent ? styles.replySnippetSent : styles.replySnippetReceived]}>
               <Text style={[styles.replyName, isSent ? styles.replyNameSent : styles.replyNameReceived]} numberOfLines={1}>{replyName || 'Reply'}</Text>
               <Text style={[styles.replyText, isSent ? styles.replyTextSent : styles.replyTextReceived]} numberOfLines={2}>{replyText}</Text>
+            </View>
+          ) : null}
+          {hasMedia ? (
+            <View style={styles.mediaContainer}>
+              {downloaded ? (
+                <Pressable onPress={() => { setViewerUri(item.media_url); setViewerVisible(true) }}>
+                  <Image source={{ uri: item.media_url }} style={styles.mediaImage} resizeMode="cover" />
+                </Pressable>
+              ) : (
+                <TouchableOpacity style={styles.mediaPlaceholder} onPress={() => handleDownloadMedia(item)}>
+                  <Ionicons name="arrow-down-circle" size={36} color="#fff" />
+                </TouchableOpacity>
+              )}
+              {(downloading && !downloaded) || (item.temp && item.uploading) ? (
+                <View style={styles.mediaLoadingOverlay}>
+                  <ActivityIndicator size="large" color="#fff" />
+                </View>
+              ) : null}
             </View>
           ) : null}
           <Text style={[styles.messageText, isSent ? styles.messageTextSent : styles.messageTextReceived]}>{item.message}</Text>
@@ -720,11 +824,36 @@ const MessagesScreen = ({ route }) => {
                   placeholder="Type a message"
                   multiline={false}
                 />
+                <TouchableOpacity style={styles.mediaBtn} onPress={handlePickMedia} accessibilityLabel="Add media">
+                  <Text style={styles.mediaBtnText}>+</Text>
+                </TouchableOpacity>
                 <TouchableOpacity style={styles.sendBtn} onPress={handleSend} accessibilityLabel="Send">
                   <Ionicons name="send" size={20} color="#fff" />
                 </TouchableOpacity>
               </View>
             </Animated.View>
+            <Modal visible={viewerVisible} transparent animationType="fade" onRequestClose={() => setViewerVisible(false)}>
+              <View style={styles.viewerOverlay}>
+                <TouchableOpacity style={styles.viewerClose} onPress={() => setViewerVisible(false)}>
+                  <Ionicons name="close" size={24} color="#fff" />
+                </TouchableOpacity>
+                <View style={styles.viewerBody}>
+                  <ScrollView
+                    style={{ flex: 1 }}
+                    contentContainerStyle={styles.viewerScrollContent}
+                    minimumZoomScale={1}
+                    maximumZoomScale={3}
+                    showsHorizontalScrollIndicator={false}
+                    showsVerticalScrollIndicator={false}
+                    bouncesZoom
+                  >
+                    {viewerUri ? (
+                      <Image source={{ uri: viewerUri }} style={styles.viewerImage} resizeMode="contain" />
+                    ) : null}
+                  </ScrollView>
+                </View>
+              </View>
+            </Modal>
           </>
         )}
       </KeyboardAvoidingView>
