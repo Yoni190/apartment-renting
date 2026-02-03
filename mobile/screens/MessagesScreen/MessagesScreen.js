@@ -102,10 +102,12 @@ const MessagesScreen = ({ route }) => {
   }, [viewerVisible, pinchScale])
 
   const handlePickMedia = async () => {
+    let tempId = null
+    let tempMediaUrl = null
     try {
       setUploadingMedia(true)
       const res = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: (ImagePicker.MediaType && ImagePicker.MediaType.Images) ? ImagePicker.MediaType.Images : ImagePicker.MediaTypeOptions.Images,
         quality: 0.9,
       })
       if (res.canceled || !res.assets || res.assets.length === 0) return
@@ -117,7 +119,7 @@ const MessagesScreen = ({ route }) => {
         reply_to_id: replyTo?.id ?? null,
       }
 
-      const tempId = Date.now()
+      tempId = Date.now()
       const tempMessage = {
         id: tempId,
         temp: true,
@@ -131,6 +133,7 @@ const MessagesScreen = ({ route }) => {
         is_read: false,
         created_at: new Date().toISOString(),
       }
+      tempMediaUrl = tempMessage.media_url
       setMessages((m) => [...m, tempMessage])
       try { emitMessageUpdate(tempMessage) } catch (e) {}
       setText('')
@@ -160,6 +163,12 @@ const MessagesScreen = ({ route }) => {
     } catch (e) {
       console.warn('Media send failed', e)
     } finally {
+      // ensure upload state/spinner is cleared even on failure
+      setMessages(prev => (prev || []).map(m => {
+        if (tempId && m.id === tempId) return { ...m, uploading: false }
+        if (tempMediaUrl && m.temp && m.media_url === tempMediaUrl) return { ...m, uploading: false }
+        return m
+      }))
       setUploadingMedia(false)
     }
   }
