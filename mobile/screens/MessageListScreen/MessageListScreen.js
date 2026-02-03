@@ -597,6 +597,12 @@ export default function MessageListScreen({ navigation }) {
     return map
   }, [allMessages, currentUserId])
 
+  const totalUnread = useMemo(() => {
+    try {
+      return Array.from(unreadMap.values()).reduce((sum, n) => sum + Number(n || 0), 0)
+    } catch (e) { return 0 }
+  }, [unreadMap])
+
   const filteredList = useMemo(() => {
     const base = (Array.isArray(groupedFromAll) && groupedFromAll.length > 0) ? groupedFromAll : (Array.isArray(chats) ? chats : [])
     const q = query.trim().toLowerCase()
@@ -675,13 +681,13 @@ export default function MessageListScreen({ navigation }) {
               style={[styles.tabButton, activeTab === 'all' && styles.tabButtonActive]}
               onPress={() => setActiveTab('all')}
             >
-              <Text style={[styles.tabText, activeTab === 'all' && styles.tabTextActive]}>All messages</Text>
+              <Text style={[styles.tabText, activeTab === 'all' && styles.tabTextActive]}>All messages ({totalUnread})</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.tabButton, activeTab === 'unread' && styles.tabButtonActive]}
               onPress={() => setActiveTab('unread')}
             >
-              <Text style={[styles.tabText, activeTab === 'unread' && styles.tabTextActive]}>Unread</Text>
+              <Text style={[styles.tabText, activeTab === 'unread' && styles.tabTextActive]}>Unread ({totalUnread})</Text>
             </TouchableOpacity>
           </View>
           <FlatList
