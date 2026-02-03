@@ -3,7 +3,8 @@ import { StyleSheet, Platform } from 'react-native'
 export default StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f9f9f9' },
   kb: { flex: 1 },
-  listContent: { paddingHorizontal: 12, paddingBottom: 12 },
+  // leave space for the global/compact header so messages are not hidden underneath
+  listContent: { paddingHorizontal: 12, paddingBottom: 12, paddingTop: 65 },
 
   // conversation list
   convoRow: { flexDirection: 'row', paddingVertical: 12, alignItems: 'center', borderBottomWidth: 1, borderBottomColor: '#f1f1f1' },
