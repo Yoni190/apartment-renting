@@ -16,13 +16,15 @@ class Message extends Model
         'listing_id',
         'read_at',
         'sender_deleted',
-        'receiver_deleted'
+        'receiver_deleted',
+        'reply_to_id'
     ];
 
     protected $casts = [
         'read_at' => 'datetime',
         'sender_deleted' => 'boolean',
         'receiver_deleted' => 'boolean',
+        'reply_to_id' => 'integer',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

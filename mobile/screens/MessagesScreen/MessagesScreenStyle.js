@@ -84,8 +84,8 @@ export default StyleSheet.create({
     right: 0,
     // place above bottom; Android needs a larger offset to clear soft nav
     bottom: Platform.OS === 'android' ? 36 : 12,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: 'column',
+    alignItems: 'stretch',
     paddingHorizontal: 14,
     // slightly taller touch area on iOS, taller on Android
     paddingVertical: Platform.OS === 'android' ? 12 : 10,
@@ -98,6 +98,10 @@ export default StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 6,
+  },
+  inputInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   input: {
     flex: 1,
@@ -117,6 +121,68 @@ export default StyleSheet.create({
     backgroundColor: '#1778f2',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  replyComposer: {
+    backgroundColor: '#f8fafc',
+    borderRadius: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    marginBottom: 8,
+    borderLeftWidth: 3,
+    borderLeftColor: '#1778f2',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  replyComposerLeft: {
+    flex: 1,
+  },
+  replyComposerTitle: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#0f172a',
+  },
+  replyComposerText: {
+    fontSize: 12,
+    color: '#6b7280',
+    marginTop: 2,
+  },
+  replyComposerClose: {
+    padding: 6,
+  },
+  replySnippet: {
+    paddingVertical: 6,
+    paddingHorizontal: 8,
+    borderRadius: 10,
+    marginBottom: 6,
+    borderLeftWidth: 3,
+  },
+  replySnippetSent: {
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    borderLeftColor: '#cfe6ff',
+  },
+  replySnippetReceived: {
+    backgroundColor: '#f1f5f9',
+    borderLeftColor: '#94a3b8',
+  },
+  replyName: {
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  replyNameSent: {
+    color: '#e0f2fe',
+  },
+  replyNameReceived: {
+    color: '#0f172a',
+  },
+  replyText: {
+    fontSize: 11,
+    marginTop: 2,
+  },
+  replyTextSent: {
+    color: '#e2e8f0',
+  },
+  replyTextReceived: {
+    color: '#6b7280',
   },
   // compact conversation header (Telegram-like)
   compactHeader: {
