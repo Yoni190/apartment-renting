@@ -28,9 +28,15 @@ export default function MessageListItem({ recipientName, lastMessage, timestamp,
         <View style={styles.rowTop}>
           <Text style={styles.name} numberOfLines={1}>{name}</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            {lastMessageFromMe ? (
-              <Ionicons name={lastMessageIsRead ? 'checkmark-done' : 'checkmark'} size={16} color={'#0b63d6'} style={{ marginRight: 6 }} />
-            ) : null}
+            {(() => {
+              // Show tick when the last message is read or when it was sent by the current user.
+              // This ensures property-owners also see tick indicators in the conversation preview.
+              const showDouble = Boolean(lastMessageIsRead)
+              const showSingle = Boolean(lastMessageFromMe) && !showDouble
+              const iconName = showDouble ? 'checkmark-done' : (showSingle ? 'checkmark' : null)
+              if (iconName) return <Ionicons name={iconName} size={16} color={'#0b63d6'} style={{ marginRight: 6 }} />
+              return null
+            })()}
             <Text style={styles.time}>{lastAt}</Text>
           </View>
         </View>

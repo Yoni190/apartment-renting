@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react'
+import React, { useEffect, useState, useMemo, useRef } from 'react'
 import { SafeAreaView, View, FlatList, Text, TouchableOpacity, TextInput } from 'react-native'
 import { CommonActions } from '@react-navigation/native'
 import styles from './MessageListScreenStyle'
@@ -15,6 +15,51 @@ export default function MessageListScreen({ navigation }) {
   const [allMessages, setAllMessages] = useState([])
   const [currentUserId, setCurrentUserId] = useState(null)
   const [query, setQuery] = useState('')
+  const [refreshing, setRefreshing] = useState(false)
+  const loadersRef = useRef({})
+
+  const onRefresh = async () => {
+    try {
+      setRefreshing(true)
+      const l = loadersRef.current
+      const p = []
+      if (l.loadConversations) p.push(l.loadConversations())
+      if (l.loadAllMessages) p.push(l.loadAllMessages())
+      await Promise.all(p)
+    } catch (e) {
+      console.warn('Refresh failed', e)
+    } finally {
+      setRefreshing(false)
+    }
+  }
+
+  // recompute unread counts for existing chats using raw messages we fetched
+  const recomputeUnreadCounts = (uid, messages) => {
+    try {
+      if (!uid) return
+      if (!Array.isArray(messages) || messages.length === 0) return
+      const map = new Map()
+      for (const m of messages) {
+        try {
+          // only count messages received by the current user that are not read
+          if (Number(m.receiver_id) !== uid) continue
+          const sid = Number(m.sender_id)
+          if (!sid) continue
+          if (m.is_read || m.read_at) continue
+          const key = String(sid)
+          map.set(key, (map.get(key) || 0) + 1)
+        } catch (e) { }
+      }
+      // apply map to chats
+      setChats(prev => (prev || []).map(c => {
+        try {
+          const id = Number(c.user_id ?? c.id ?? -1)
+          const count = map.get(String(id)) || 0
+          return { ...c, unread_count: count }
+        } catch (e) { return c }
+      }))
+    } catch (e) { }
+  }
 
   useEffect(() => {
     let mounted = true
@@ -62,6 +107,8 @@ export default function MessageListScreen({ navigation }) {
             if (mounted) {
               setChats(convs)
               setLoading(false)
+              // adjust unread counts using raw messages if we have them
+              try { recomputeUnreadCounts(uid, allMessages) } catch (e) {}
             }
             return
           }
@@ -103,6 +150,8 @@ export default function MessageListScreen({ navigation }) {
           if (mounted) {
             setChats(convs)
             setLoading(false)
+            // adjust unread counts using raw messages if we have them
+            try { recomputeUnreadCounts(uid, allMessages) } catch (e) {}
           }
           return
         }
@@ -111,6 +160,7 @@ export default function MessageListScreen({ navigation }) {
         if (mounted) {
           setChats([])
           setLoading(false)
+          try { recomputeUnreadCounts(uid, allMessages) } catch (e) {}
         }
       } catch (err) {
         console.warn('Failed to load conversations', err)
@@ -183,18 +233,26 @@ export default function MessageListScreen({ navigation }) {
           // sort by created_at desc
           data.sort((a, b) => new Date(b.created_at || b.createdAt || 0) - new Date(a.created_at || a.createdAt || 0))
           if (mounted) setAllMessages(data)
+          // after we have raw messages, recompute unread counts for chats
+          try { recomputeUnreadCounts(uid, data) } catch (e) {}
         } else {
           if (mounted) setAllMessages([])
+          try { recomputeUnreadCounts(uid, []) } catch (e) {}
         }
       } catch (err) {
         console.warn('Failed to load all messages', err)
         if (mounted) setAllMessages([])
+        try { recomputeUnreadCounts(uid, []) } catch (e) {}
       }
     }
 
-  loadConversations()
-  // preload all messages in background so toggle is snappy
-  loadAllMessages()
+      // expose loaders for pull-to-refresh
+      loadersRef.current.loadConversations = loadConversations
+      loadersRef.current.loadAllMessages = loadAllMessages
+
+    loadConversations()
+    // preload all messages in background so toggle is snappy
+    loadAllMessages()
 
     return () => {
       mounted = false
@@ -398,6 +456,8 @@ export default function MessageListScreen({ navigation }) {
             keyExtractor={(item, idx) => String(item.user_id ?? item.id ?? idx)}
             renderItem={renderItem}
             contentContainerStyle={styles.listContent}
+            refreshing={refreshing}
+            onRefresh={onRefresh}
             ItemSeparatorComponent={() => <View style={styles.divider} />}
           />
         </View>
