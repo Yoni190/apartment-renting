@@ -50,6 +50,15 @@ export function emitMessageUpdate(msg: any) {
   } catch (e) {}
 }
 
+// Local in-memory map to track per-message read state to avoid transient mismatches
+const _localReadState: Map<string, boolean> = new Map()
+export function setLocalReadState(id: any, isRead: boolean) {
+  try { _localReadState.set(String(id), !!isRead) } catch (e) {}
+}
+export function getLocalReadState(id: any) {
+  try { return _localReadState.has(String(id)) ? _localReadState.get(String(id)) : null } catch (e) { return null }
+}
+
 /**
  * Fetch messages between two users (sender & receiver).
  * Returns server response data (array of messages).
