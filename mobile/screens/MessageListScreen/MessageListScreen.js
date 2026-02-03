@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react'
-import { SafeAreaView, View, FlatList, Text, TouchableOpacity, TextInput } from 'react-native'
+import { SafeAreaView, View, FlatList, Text, TouchableOpacity, TextInput, Animated, Easing } from 'react-native'
 import { CommonActions } from '@react-navigation/native'
 import styles from './MessageListScreenStyle'
 import MessageListItem from '../../components/MessageListItem'
@@ -18,6 +18,7 @@ export default function MessageListScreen({ navigation }) {
   const [activeTab, setActiveTab] = useState('all')
   const [refreshing, setRefreshing] = useState(false)
   const loadersRef = useRef({})
+  const emptyAnim = useRef(new Animated.Value(0)).current
 
   const onRefresh = async () => {
     try {
@@ -560,6 +561,20 @@ export default function MessageListScreen({ navigation }) {
     return list
   }, [groupedFromAll, chats, query, activeTab, unreadMap])
 
+  useEffect(() => {
+    if (activeTab !== 'unread') return
+    if (filteredList.length > 0) return
+    try {
+      emptyAnim.setValue(0)
+      Animated.timing(emptyAnim, {
+        toValue: 1,
+        duration: 500,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }).start()
+    } catch (e) {}
+  }, [activeTab, filteredList.length])
+
   // unread conversations derived from grouped all-messages (one row per counterpart)
   
 
@@ -607,6 +622,19 @@ export default function MessageListScreen({ navigation }) {
             refreshing={refreshing}
             onRefresh={onRefresh}
             ItemSeparatorComponent={() => <View style={styles.divider} />}
+            ListEmptyComponent={() => {
+              if (activeTab !== 'unread') return null
+              return (
+                <Animated.View
+                  style={[
+                    styles.emptyUnreadContainer,
+                    { transform: [{ scale: emptyAnim }], opacity: emptyAnim },
+                  ]}
+                >
+                  <Text style={styles.emptyUnreadText}>No unread messages.</Text>
+                </Animated.View>
+              )
+            }}
           />
         </View>
       )}
