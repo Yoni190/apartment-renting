@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import { SafeAreaView, View, FlatList, Text, TouchableOpacity } from 'react-native'
 import { CommonActions } from '@react-navigation/native'
 import styles from './MessageListScreenStyle'
@@ -13,6 +13,7 @@ export default function MessageListScreen({ navigation }) {
   const [loading, setLoading] = useState(true)
   const [showAll, setShowAll] = useState(false)
   const [allMessages, setAllMessages] = useState([])
+  const [currentUserId, setCurrentUserId] = useState(null)
 
   useEffect(() => {
     let mounted = true
@@ -21,6 +22,7 @@ export default function MessageListScreen({ navigation }) {
       try {
         const uidStr = await SecureStore.getItemAsync('user_id')
         const uid = uidStr ? Number(uidStr) : null
+        if (mounted) setCurrentUserId(uid)
         if (!uid) {
           // nothing to load for anonymous user
           if (mounted) {
@@ -117,6 +119,7 @@ export default function MessageListScreen({ navigation }) {
       try {
         const uidStr = await SecureStore.getItemAsync('user_id')
         const uid = uidStr ? Number(uidStr) : null
+        if (mounted) setCurrentUserId(uid)
         if (!uid) {
           if (mounted) setAllMessages([])
           return
@@ -154,7 +157,7 @@ export default function MessageListScreen({ navigation }) {
     ;(async () => {
       const uidStr = await SecureStore.getItemAsync('user_id')
       const uid = uidStr ? Number(uidStr) : null
-      if (!uid || !otherId) return
+      if (!otherId) return
       // navigate to root stack's Messages screen so chat opens directly
       try {
         console.log('MessageListScreen: navigating to Messages', { uid, otherId, receiverName })
@@ -165,14 +168,18 @@ export default function MessageListScreen({ navigation }) {
           if (!p) break
           nav = p
         }
+        const params = { receiverId: otherId, receiverName }
+        if (uid) params.senderId = uid
         if (nav && nav.dispatch) {
-          nav.dispatch(CommonActions.navigate({ name: 'Messages', params: { senderId: uid, receiverId: otherId, receiverName } }))
+          nav.dispatch(CommonActions.navigate({ name: 'Messages', params }))
         } else {
-          navigation.navigate('Messages', { senderId: uid, receiverId: otherId, receiverName })
+          navigation.navigate('Messages', params)
         }
       } catch (e) {
         console.warn('MessageListScreen navigation fallback', e)
-        navigation.navigate('Messages', { senderId: uid, receiverId: otherId, receiverName })
+        const params = { receiverId: otherId, receiverName }
+        if (uid) params.senderId = uid
+        navigation.navigate('Messages', params)
       }
     })()
   }
@@ -183,7 +190,9 @@ export default function MessageListScreen({ navigation }) {
       recipientName={item.name || (`User ${item.user_id ?? item.id}`)}
       lastMessage={item.last_message || item.last_message || ''}
       timestamp={item.last_at ? new Date(item.last_at).toLocaleString([], { hour: '2-digit', minute: '2-digit' }) : ''}
-      onPress={onOpenChat}
+      // pass a wrapper so we always call onOpenChat with the original item (avoids
+      // MessageListItem creating a smaller payload that can lose the user id)
+      onPress={() => onOpenChat(item)}
     />
   )
 
@@ -201,7 +210,7 @@ export default function MessageListScreen({ navigation }) {
           const rid = Number(item.receiver_id)
           const otherId = sid === uid ? rid : sid
           const receiverName = (otherId === sid) ? (item.sender?.name ?? `User ${sid}`) : (item.receiver?.name ?? `User ${rid}`)
-          if (!uid || !otherId) return
+          if (!otherId) return
           try {
             let nav = navigation
             while (nav.getParent && nav.getParent()) {
@@ -209,9 +218,13 @@ export default function MessageListScreen({ navigation }) {
               if (!p) break
               nav = p
             }
-            nav.navigate('Messages', { senderId: uid, receiverId: otherId, receiverName })
+            const params = { receiverId: otherId, receiverName }
+            if (uid) params.senderId = uid
+            nav.navigate('Messages', params)
           } catch (e) {
-            navigation.navigate('Messages', { senderId: uid, receiverId: otherId, receiverName })
+            const params = { receiverId: otherId, receiverName }
+            if (uid) params.senderId = uid
+            navigation.navigate('Messages', params)
           }
         }}
       >
@@ -228,6 +241,38 @@ export default function MessageListScreen({ navigation }) {
       </TouchableOpacity>
     )
   }
+
+  // When showing "All messages" we want to show one row per other participant
+  // (deduplicated by counterpart). Build grouped conversation previews from
+  // the raw messages so the UI shows each receiver only once.
+  const groupedFromAll = useMemo(() => {
+    if (!Array.isArray(allMessages)) return []
+    const uid = currentUserId
+    const map = new Map()
+    for (const m of allMessages) {
+      const sid = Number(m.sender_id)
+      const rid = Number(m.receiver_id)
+      const otherId = (sid && rid && uid) ? (sid === uid ? rid : sid) : (m.user_id ?? m.other_id ?? (sid === uid ? rid : sid))
+      if (!otherId) continue
+      const key = String(otherId)
+      const existing = map.get(key) || { user_id: otherId, last_message: null, last_at: null, unread_count: 0, name: null }
+      const created = m.created_at ? new Date(m.created_at) : (m.createdAt ? new Date(m.createdAt) : null)
+      if (!existing.last_at || (created && new Date(existing.last_at) < created)) {
+        existing.last_message = m.message ?? m.last_message ?? ''
+        existing.last_at = m.created_at ?? m.createdAt ?? null
+      }
+      if (!m.is_read && Number(m.receiver_id) === uid) existing.unread_count = (existing.unread_count || 0) + 1
+      if (!existing.name) {
+        if (m.sender && Number(m.sender.id) === otherId) existing.name = m.sender.name
+        else if (m.receiver && Number(m.receiver.id) === otherId) existing.name = m.receiver.name
+      }
+      if (!existing.name) existing.name = `User ${otherId}`
+      map.set(key, existing)
+    }
+    const arr = Array.from(map.values())
+    arr.sort((a, b) => new Date(b.last_at || 0) - new Date(a.last_at || 0))
+    return arr
+  }, [allMessages, currentUserId])
 
   return (
     <SafeAreaView style={styles.container}>
@@ -253,9 +298,9 @@ export default function MessageListScreen({ navigation }) {
       ) : (
         showAll ? (
           <FlatList
-            data={allMessages}
-            keyExtractor={(item, idx) => String(item.id ?? idx)}
-            renderItem={renderMessageItem}
+            data={groupedFromAll}
+            keyExtractor={(item, idx) => String(item.user_id ?? item.id ?? idx)}
+            renderItem={renderItem}
             contentContainerStyle={styles.listContent}
             ItemSeparatorComponent={() => <View style={styles.divider} />}
           />
