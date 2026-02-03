@@ -79,7 +79,34 @@ const RentApplicationForm = ({ form, setForm, styles }) => {
       </View>
       <View style={styles.templateFieldRow}>
         <Text style={styles.templateFieldLabel}>Lease Duration</Text>
-        <TextInput style={styles.templateFieldInput} value={form.leaseDuration} onChangeText={(v) => setForm(prev => ({ ...prev, leaseDuration: v }))} />
+        <View style={styles.templateRadioGroup}>
+          {[
+            { value: '6 months', label: '6 months' },
+            { value: '12 months (1 year)', label: '12 months (1 year)' },
+            { value: '18 months', label: '18 months' },
+            { value: '24 months (2 years)', label: '24 months (2 years)' },
+            { value: 'other', label: 'Other' },
+          ].map((opt) => (
+            <Pressable
+              key={opt.value}
+              style={styles.templateRadioRow}
+              onPress={() => setForm(prev => ({ ...prev, leaseDuration: opt.value }))}
+            >
+              <View style={styles.templateRadioOuter}>
+                {form.leaseDuration === opt.value ? <View style={styles.templateRadioInner} /> : null}
+              </View>
+              <Text style={styles.templateRadioLabel}>{opt.label}</Text>
+            </Pressable>
+          ))}
+        </View>
+        {form.leaseDuration === 'other' ? (
+          <TextInput
+            style={[styles.templateFieldInput, styles.templateRadioOtherInput]}
+            value={form.leaseDurationOther}
+            onChangeText={(v) => setForm(prev => ({ ...prev, leaseDurationOther: v }))}
+            placeholder="Enter lease duration"
+          />
+        ) : null}
       </View>
       <View style={styles.templateFieldRow}>
         <Text style={styles.templateFieldLabel}>Employment Status</Text>
