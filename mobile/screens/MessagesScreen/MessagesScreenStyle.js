@@ -8,7 +8,7 @@ export default StyleSheet.create({
   // on Android we add extra bottom space to stay above soft navigation bars
   // NOTE: this value must be larger if the input is absolutely positioned so list content
   // can scroll above the input area
-  listContent: { paddingHorizontal: 12, paddingBottom: Platform.OS === 'android' ? 140 : 100, paddingTop: 12},
+  listContent: { paddingHorizontal: 12, paddingBottom: Platform.OS === 'android' ? 180 : 140, paddingTop: 12},
 
   // conversation list
   convoRow: { flexDirection: 'row', paddingVertical: 12, alignItems: 'center', borderBottomWidth: 1, borderBottomColor: '#f1f1f1' },
