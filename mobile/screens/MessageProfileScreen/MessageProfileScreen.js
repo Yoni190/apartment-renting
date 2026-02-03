@@ -57,13 +57,7 @@ const MessageProfileScreen = ({ navigation, route }) => {
 	}, [receiverId, receiverName, receiverEmail, receiverPhone])
 
 	const closeScreen = () => {
-		Animated.timing(translateX, {
-			toValue: screenWidth,
-			duration: 240,
-			useNativeDriver: true,
-		}).start(() => {
-			try { navigation.goBack() } catch (e) {}
-		})
+		try { navigation.goBack() } catch (e) {}
 	}
 
 	const initials = (profile.name || 'U').charAt(0).toUpperCase()
