@@ -42,27 +42,34 @@ const LoginScreen = () => {
       console.log('login token', access_token)
 
       await SecureStore.setItemAsync('token', access_token)
-          // if a role was selected before logging in, honor that selection
-          if (selectedRoleParam !== undefined) {
-            if (selectedRoleParam === 0) navigation.replace('OwnerHome')
-            else navigation.replace('Home')
-          } else {
-            // otherwise fetch the user to determine role and redirect accordingly
-            try {
-              const userRes = await axios.get(`${API_URL}/user`, {
-                headers: { Accept: 'application/json', Authorization: `Bearer ${access_token}` }
-              })
-              const user = userRes.data
-              if (user?.role === 0) {
-                navigation.replace('OwnerHome')
-              } else {
-                navigation.replace('Home')
-              }
-            } catch (err) {
-              console.warn('Failed to fetch user after login', err?.message)
-              navigation.replace('Home')
-            }
-          }
+      // Always fetch the authenticated user so we can store user_id and determine role
+      try {
+        const userRes = await axios.get(`${API_URL}/user`, {
+          headers: { Accept: 'application/json', Authorization: `Bearer ${access_token}` }
+        })
+        const user = userRes.data
+        // persist user id for other screens (messages relies on this)
+        if (user?.id) {
+          try { await SecureStore.setItemAsync('user_id', String(user.id)) } catch (e) { /* ignore */ }
+        }
+
+        if (selectedRoleParam !== undefined) {
+          if (selectedRoleParam === 0) navigation.replace('OwnerHome')
+          else navigation.replace('Home')
+        } else {
+          if (user?.role === 0) navigation.replace('OwnerHome')
+          else navigation.replace('Home')
+        }
+      } catch (err) {
+        // if fetching user fails, still navigate but user_id won't be stored
+        console.warn('Failed to fetch user after login', err?.message)
+        if (selectedRoleParam !== undefined) {
+          if (selectedRoleParam === 0) navigation.replace('OwnerHome')
+          else navigation.replace('Home')
+        } else {
+          navigation.replace('Home')
+        }
+      }
 
             
     } catch (error) {

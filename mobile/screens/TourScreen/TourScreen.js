@@ -52,6 +52,20 @@ const OwnerTours = () => {
     }
   }, [isFocused])
 
+  const navigateToChat = (params) => {
+    try {
+      let nav = navigation
+      while (nav.getParent && nav.getParent()) {
+        const p = nav.getParent()
+        if (!p) break
+        nav = p
+      }
+      nav.navigate('Messages', params)
+    } catch (e) {
+      navigation.navigate('Messages', params)
+    }
+  }
+
   const onRefreshBookings = async () => {
     setRefreshingBookings(true)
     try {
@@ -115,7 +129,7 @@ const OwnerTours = () => {
         if (c && c.navigateToMessages) {
           // ensure any modals are closed and navigate
           setModalVisible(false)
-          navigation.navigate('OwnerMessages', { userId: c.id })
+          navigateToChat({ userId: c.id })
           return
         }
         setSelectedClient(c); setModalVisible(true)
@@ -149,7 +163,7 @@ const OwnerTours = () => {
             </View>
 
             <View style={{ flexDirection: 'row', marginTop: 16, justifyContent: 'space-between' }}>
-              <TouchableOpacity style={[styles.modalBtn, { backgroundColor: '#2563eb' }]} onPress={() => { setModalVisible(false); navigation.navigate('OwnerMessages', { userId: c.id }) }}>
+              <TouchableOpacity style={[styles.modalBtn, { backgroundColor: '#2563eb' }]} onPress={() => { setModalVisible(false); navigateToChat({ userId: c.id }) }}>
                 <Ionicons name="chatbubbles" size={18} color="#fff" />
                 <Text style={[styles.modalBtnText, { color: '#fff' }]}>Message</Text>
               </TouchableOpacity>
@@ -315,9 +329,23 @@ export function MyTours() {
       booking={item}
       isOwner={false}
       onOpenOwner={(o) => {
+        const navigateToChat = (params) => {
+          try {
+            let nav = navigation
+            while (nav.getParent && nav.getParent()) {
+              const p = nav.getParent()
+              if (!p) break
+              nav = p
+            }
+            nav.navigate('Messages', params)
+          } catch (e) {
+            navigation.navigate('Messages', params)
+          }
+        }
+
         if (o && o.navigateToMessages) {
           setOwnerModalVisible(false)
-          navigation.navigate('Messages', { userId: o.id })
+          navigateToChat({ userId: o.id })
           return
         }
         setSelectedOwner(o); setOwnerModalVisible(true)
@@ -354,7 +382,7 @@ export function MyTours() {
                 <Ionicons name="call" size={18} color="#fff" />
                 <Text style={[styles.modalBtnText, { color: '#fff' }]}>Call</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.modalBtn, { backgroundColor: '#2563eb', marginLeft: 8 }]} onPress={() => { setOwnerModalVisible(false); navigation.navigate('OwnerMessages', { userId: o.id }) }}>
+              <TouchableOpacity style={[styles.modalBtn, { backgroundColor: '#2563eb', marginLeft: 8 }]} onPress={() => { setOwnerModalVisible(false); navigateToChat({ userId: o.id }) }}>
                 <Ionicons name="chatbubbles" size={18} color="#fff" />
                 <Text style={[styles.modalBtnText, { color: '#fff' }]}>Message</Text>
               </TouchableOpacity>

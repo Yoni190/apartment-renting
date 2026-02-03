@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('apartments', function (Blueprint $table) {
-            $table->tinyInteger('is_featured')->default(0)->after('user_id');
+            if (!Schema::hasColumn('apartments', 'is_featured')) {
+                $table->tinyInteger('is_featured')->default(0)->after('user_id');
+            }
         });
     }
 
@@ -22,7 +24,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('apartments', function (Blueprint $table) {
-            $table->dropColumn('is_featured');
+            if (Schema::hasColumn('apartments', 'is_featured')) {
+                $table->dropColumn('is_featured');
+            }
         });
     }
 };

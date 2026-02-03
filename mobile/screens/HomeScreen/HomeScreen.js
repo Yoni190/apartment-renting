@@ -166,8 +166,24 @@ const HomeScreen = () => {
       Alert.alert('Contact', apartment.contact_phone ?? (apartment.meta?.contact_phone ?? 'No contact'))
     }
 
+    const navigateToChat = (params) => {
+      // navigate up to the root navigator and open the stack 'Messages' screen
+      try {
+        let nav = navigation
+        while (nav.getParent && nav.getParent()) {
+          const p = nav.getParent()
+          if (!p) break
+          nav = p
+        }
+        nav.navigate('Messages', params)
+      } catch (e) {
+        // fallback
+        navigation.navigate('Messages', params)
+      }
+    }
+
     const openMessage = (apartment) => {
-      navigation.navigate('Messages')
+      navigateToChat({ apartmentId: apartment.id })
     }
 
     // ListingCard handlers used by the card component

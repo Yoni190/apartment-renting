@@ -13,6 +13,7 @@ use Illuminate\Validation\Rules;
 use App\Services\RecommendationService;
 use App\Http\Controllers\ApartmentController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\Api\MessageApiController;
 
 // Helper: normalize common meta fields so clients receive consistent shapes
 // e.g. amenities, utilities may be sent as JSON strings or comma lists — store as arrays
@@ -832,6 +833,12 @@ Route::middleware('auth:sanctum')->get('/owner/bookings', [App\Http\Controllers\
 Route::middleware('auth:sanctum')->get('/my-tours', [App\Http\Controllers\Api\TourBookingApiController::class, 'clientBookings']);
 // Update booking status (owner only) - expects { status: 'approved'|'rejected'|'pending' }
 Route::middleware('auth:sanctum')->patch('/tour-bookings/{booking}', [App\Http\Controllers\Api\TourBookingApiController::class, 'updateStatus']);
+
+// Messaging API
+Route::middleware('auth:sanctum')->get('/messages', [MessageApiController::class, 'index']);
+Route::middleware('auth:sanctum')->post('/messages', [MessageApiController::class, 'store']);
+Route::middleware('auth:sanctum')->post('/messages/mark-read', [MessageApiController::class, 'markRead']);
+Route::middleware('auth:sanctum')->get('/conversations', [MessageApiController::class, 'conversations']);
 
 // Recommendations endpoint
 Route::get('/recommendations', function (Request $request) {

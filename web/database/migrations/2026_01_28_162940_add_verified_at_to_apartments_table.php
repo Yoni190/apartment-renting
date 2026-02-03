@@ -11,9 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('apartments', function (Blueprint $table) {
-            $table->timestamp('verified_at')->nullable();
-        });
+        // Add column only if it does not already exist (prevents duplicate column errors)
+        if (!Schema::hasColumn('apartments', 'verified_at')) {
+            Schema::table('apartments', function (Blueprint $table) {
+                $table->timestamp('verified_at')->nullable();
+            });
+        }
     }
 
     /**
@@ -21,8 +24,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('apartments', function (Blueprint $table) {
-            $table->dropColumn('verified_at');
-        });
+        if (Schema::hasColumn('apartments', 'verified_at')) {
+            Schema::table('apartments', function (Blueprint $table) {
+                $table->dropColumn('verified_at');
+            });
+        }
     }
 };
