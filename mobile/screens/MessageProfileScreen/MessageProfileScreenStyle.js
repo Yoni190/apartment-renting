@@ -69,11 +69,12 @@ const styles = StyleSheet.create({
 	},
 	infoCard: {
 		width: '88%',
+		height: '20%',
 		backgroundColor:'#0088cc',
 		borderRadius: 16,
 		paddingVertical: 12,
 		paddingHorizontal: 14,
-		gap: 10,
+		gap: 25,
 	},
 	infoRow: {
 		flexDirection: 'row',
@@ -82,12 +83,12 @@ const styles = StyleSheet.create({
 	},
 	infoLabel: {
 		color: '#c6cacf',
-		fontSize: 12,
+		fontSize: 16,
 		fontWeight: '600',
 	},
 	infoValue: {
 		color: '#ffffff',
-		fontSize: 14,
+		fontSize: 18,
 		fontWeight: '600',
 	},
 })
