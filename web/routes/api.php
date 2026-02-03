@@ -774,6 +774,24 @@ Route::post('/register', function(Request $request) {
     ]);
 });
 
+// Lookup a user by email (for starting a chat)
+Route::middleware('auth:sanctum')->post('/users/lookup', function (Request $request) {
+    $request->validate([
+        'email' => ['required', 'string', 'email', 'max:255'],
+    ]);
+
+    $user = User::where('email', $request->email)->first();
+    if (!$user) {
+        return response()->json(['message' => 'User not found'], 404);
+    }
+
+    return response()->json([
+        'id' => $user->id,
+        'name' => $user->name,
+        'email' => $user->email,
+    ]);
+});
+
 // Favorites endpoints
 Route::middleware('auth:sanctum')->post('/apartments/{apartment}/favorite', function (Request $request, Apartment $apartment) {
     $user = $request->user();
