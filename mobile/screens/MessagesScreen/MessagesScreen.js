@@ -17,7 +17,7 @@ import {
 import Header from '../../components/Header'
 import { Ionicons } from '@expo/vector-icons'
 import styles from './MessagesScreenStyle'
-import messageService, { MessagePayload, onMessageUpdate, offMessageUpdate } from '../../services/messageService'
+import messageService, { MessagePayload, onMessageUpdate, offMessageUpdate, emitMessageUpdate } from '../../services/messageService'
 import * as SecureStore from 'expo-secure-store'
 import { useIsFocused } from '@react-navigation/native'
 import { Modal } from 'react-native'
@@ -182,7 +182,7 @@ const MessagesScreen = ({ route }) => {
     try {
       if (Array.isArray(messages) && messages.length > 0) {
         const last = messages[messages.length - 1]
-        if (last) messageService.emitMessageUpdate(last)
+        if (last) emitMessageUpdate(last)
       }
     } catch (e) {}
   }, [messages])
@@ -326,6 +326,7 @@ const MessagesScreen = ({ route }) => {
       })
       // also append to allMessages so grouped view updates
       setAllMessages(prev => (prev || []).concat([tempMessage]))
+      try { emitMessageUpdate(tempMessage) } catch (e) {}
     } catch (e) {}
     setText('')
     setTimeout(() => flatRef.current?.scrollToEnd?.({ animated: true }), 50)
@@ -356,6 +357,7 @@ const MessagesScreen = ({ route }) => {
           })
           // replace temp in allMessages with server message
           setAllMessages(prev => (prev || []).map(m => (m.id === tempId ? serverMsg : m)))
+          try { emitMessageUpdate(serverMsg) } catch (e) {}
         } catch (e) {}
       } else {
         // fallback: reload conversation to pick up server-saved message
@@ -403,6 +405,7 @@ const MessagesScreen = ({ route }) => {
           final.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
           return final
         })
+        try { const last = msgs && msgs.length ? msgs[msgs.length-1] : null; if (last) emitMessageUpdate(last) } catch (e) {}
       } catch (e) {
         // ignore polling errors
       }
