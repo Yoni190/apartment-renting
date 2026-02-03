@@ -32,10 +32,10 @@ const PurchaseApplicationForm = ({ form, setForm, styles }) => {
         <Text style={styles.templateFieldLabel}>Intended Purchase Timeframe</Text>
         <View style={styles.templateRadioGroup}>
           {[
-            { value: 'immediately', label: 'Immediately / Within 1 month' },
-            { value: '1-3', label: '1–3 months' },
-            { value: '3-6', label: '3–6 months' },
-            { value: '6-12', label: '6–12 months' },
+            { value: 'Immediately / Within 1 month', label: 'Immediately / Within 1 month' },
+            { value: '1-3 months', label: '1–3 months' },
+            { value: '3-6 months', label: '3–6 months' },
+            { value: '6-12 months', label: '6–12 months' },
             { value: 'other', label: 'Other' },
           ].map((opt) => (
             <Pressable
