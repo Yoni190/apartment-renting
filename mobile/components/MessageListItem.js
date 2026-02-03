@@ -26,6 +26,11 @@ export default function MessageListItem({ recipientName, lastMessage, timestamp,
     >
       <View style={styles.avatar}>
         <Text style={styles.avatarText}>{(name || 'U').slice(0, 1).toUpperCase()}</Text>
+        {selected ? (
+          <View style={styles.selectedBadge}>
+            <Ionicons name="checkmark" size={14} color="#fff" />
+          </View>
+        ) : null}
       </View>
 
       <View style={styles.content}>
@@ -101,6 +106,21 @@ const styles = StyleSheet.create({
     backgroundColor: '#dbeafe',
     justifyContent: 'center',
     alignItems: 'center',
+    position: 'relative',
+  },
+  selectedBadge: {
+    position: 'absolute',
+    right: -2,
+    bottom: -2,
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: '#1e3a8a',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#fff',
+    elevation: 2,
   },
   avatarText: {
     color: '#0f172a',
