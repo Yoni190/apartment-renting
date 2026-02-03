@@ -10,25 +10,38 @@ use Carbon\Carbon;
 
 class MessageApiController extends Controller
 {
-    // GET /api/messages?sender_id=...&receiver_id=...
+    // GET /api/messages
+    // Supports either: ?sender_id=..&receiver_id=..  (conversation between two users)
+    // or: ?user_id=.. (all messages where user is sender or receiver)
     public function index(Request $request)
     {
-        $request->validate([
-            'sender_id' => ['required','integer'],
-            'receiver_id' => ['required','integer'],
-        ]);
+        // conversation between two users
+        if ($request->filled('sender_id') && $request->filled('receiver_id')) {
+            $s = (int)$request->input('sender_id');
+            $r = (int)$request->input('receiver_id');
 
-        $s = (int)$request->input('sender_id');
-        $r = (int)$request->input('receiver_id');
+            // eager load sender and receiver so clients can display participant names
+            $msgs = Message::with(['sender', 'receiver'])->where(function($q) use ($s,$r) {
+                $q->where('sender_id', $s)->where('receiver_id', $r);
+            })->orWhere(function($q) use ($s,$r) {
+                $q->where('sender_id', $r)->where('receiver_id', $s);
+            })->orderBy('created_at','asc')->get();
 
-        // eager load sender and receiver so clients can display participant names
-        $msgs = Message::with(['sender', 'receiver'])->where(function($q) use ($s,$r) {
-            $q->where('sender_id', $s)->where('receiver_id', $r);
-        })->orWhere(function($q) use ($s,$r) {
-            $q->where('sender_id', $r)->where('receiver_id', $s);
-        })->orderBy('created_at','asc')->get();
+            return response()->json($msgs);
+        }
 
-        return response()->json($msgs);
+        // messages for a single user (sent or received)
+        if ($request->filled('user_id')) {
+            $uid = (int)$request->input('user_id');
+            $msgs = Message::with(['sender', 'receiver'])
+                ->where(function($q) use ($uid) {
+                    $q->where('sender_id', $uid)->orWhere('receiver_id', $uid);
+                })->orderBy('created_at','asc')->get();
+
+            return response()->json($msgs);
+        }
+
+        return response()->json(['message' => 'Missing parameters'], 400);
     }
 
     // POST /api/messages

@@ -10,6 +10,24 @@ export default StyleSheet.create({
     paddingVertical: 8,
     paddingTop: 96,
   },
+  toggleRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 96,
+    marginBottom: 8,
+  },
+  toggleButton: {
+    backgroundColor: '#fff',
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 20,
+    marginHorizontal: 6,
+    elevation: 1,
+  },
+  toggleActive: {
+    backgroundColor: '#2563eb',
+  },
   itemRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -65,5 +83,13 @@ export default StyleSheet.create({
   },
   divider: {
     height: 0,
+  },
+  emptyContainer: {
+    marginTop: 140,
+    alignItems: 'center',
+  },
+  emptyTitle: {
+    color: '#94a3b8',
+    fontSize: 16,
   },
 })

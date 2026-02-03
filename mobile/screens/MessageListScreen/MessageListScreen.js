@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { SafeAreaView, View, FlatList, Text } from 'react-native'
+import { SafeAreaView, View, FlatList, Text, TouchableOpacity } from 'react-native'
+import { CommonActions } from '@react-navigation/native'
 import styles from './MessageListScreenStyle'
 import MessageListItem from '../../components/MessageListItem'
 import messageService from '../../services/messageService'
@@ -10,6 +11,8 @@ import Header from '../../components/Header'
 export default function MessageListScreen({ navigation }) {
   const [chats, setChats] = useState([])
   const [loading, setLoading] = useState(true)
+  const [showAll, setShowAll] = useState(false)
+  const [allMessages, setAllMessages] = useState([])
 
   useEffect(() => {
     let mounted = true
@@ -110,7 +113,32 @@ export default function MessageListScreen({ navigation }) {
       }
     }
 
-    loadConversations()
+    async function loadAllMessages() {
+      try {
+        const uidStr = await SecureStore.getItemAsync('user_id')
+        const uid = uidStr ? Number(uidStr) : null
+        if (!uid) {
+          if (mounted) setAllMessages([])
+          return
+        }
+        const data = await messageService.getMessagesForUser(uid)
+        // expect an array of messages
+        if (Array.isArray(data)) {
+          // sort by created_at desc
+          data.sort((a, b) => new Date(b.created_at || b.createdAt || 0) - new Date(a.created_at || a.createdAt || 0))
+          if (mounted) setAllMessages(data)
+        } else {
+          if (mounted) setAllMessages([])
+        }
+      } catch (err) {
+        console.warn('Failed to load all messages', err)
+        if (mounted) setAllMessages([])
+      }
+    }
+
+  loadConversations()
+  // preload all messages in background so toggle is snappy
+  loadAllMessages()
 
     return () => {
       mounted = false
@@ -129,14 +157,21 @@ export default function MessageListScreen({ navigation }) {
       if (!uid || !otherId) return
       // navigate to root stack's Messages screen so chat opens directly
       try {
+        console.log('MessageListScreen: navigating to Messages', { uid, otherId, receiverName })
+        // try dispatching a root navigate action for extra reliability
         let nav = navigation
         while (nav.getParent && nav.getParent()) {
           const p = nav.getParent()
           if (!p) break
           nav = p
         }
-        nav.navigate('Messages', { senderId: uid, receiverId: otherId, receiverName })
+        if (nav && nav.dispatch) {
+          nav.dispatch(CommonActions.navigate({ name: 'Messages', params: { senderId: uid, receiverId: otherId, receiverName } }))
+        } else {
+          navigation.navigate('Messages', { senderId: uid, receiverId: otherId, receiverName })
+        }
       } catch (e) {
+        console.warn('MessageListScreen navigation fallback', e)
         navigation.navigate('Messages', { senderId: uid, receiverId: otherId, receiverName })
       }
     })()
@@ -152,21 +187,87 @@ export default function MessageListScreen({ navigation }) {
     />
   )
 
+  const renderMessageItem = ({ item }) => {
+    const senderName = item.sender?.name ?? `User ${item.sender_id}`
+    const time = item.created_at ? new Date(item.created_at).toLocaleString([], { hour: '2-digit', minute: '2-digit' }) : ''
+    return (
+      <TouchableOpacity
+        style={styles.itemRow}
+        onPress={async () => {
+          // open chat with the other participant
+          const uidStr = await SecureStore.getItemAsync('user_id')
+          const uid = uidStr ? Number(uidStr) : null
+          const sid = Number(item.sender_id)
+          const rid = Number(item.receiver_id)
+          const otherId = sid === uid ? rid : sid
+          const receiverName = (otherId === sid) ? (item.sender?.name ?? `User ${sid}`) : (item.receiver?.name ?? `User ${rid}`)
+          if (!uid || !otherId) return
+          try {
+            let nav = navigation
+            while (nav.getParent && nav.getParent()) {
+              const p = nav.getParent()
+              if (!p) break
+              nav = p
+            }
+            nav.navigate('Messages', { senderId: uid, receiverId: otherId, receiverName })
+          } catch (e) {
+            navigation.navigate('Messages', { senderId: uid, receiverId: otherId, receiverName })
+          }
+        }}
+      >
+        <View style={styles.avatar}>
+          <Text style={styles.avatarText}>{(senderName || 'U').charAt(0)}</Text>
+        </View>
+        <View style={styles.content}>
+          <View style={styles.rowTop}>
+            <Text style={styles.name}>{senderName}</Text>
+            <Text style={styles.time}>{time}</Text>
+          </View>
+          <View style={styles.rowBottom}><Text numberOfLines={1} style={styles.lastMessage}>{item.message}</Text></View>
+        </View>
+      </TouchableOpacity>
+    )
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <Header title="Messages" />
+      <View style={styles.toggleRow}>
+        <TouchableOpacity
+          style={[styles.toggleButton, !showAll ? styles.toggleActive : null]}
+          onPress={() => setShowAll(false)}
+        >
+          <Text style={{ color: !showAll ? 'white' : '#0f172a', fontWeight: '600' }}>Conversations</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.toggleButton, showAll ? styles.toggleActive : null]}
+          onPress={() => setShowAll(true)}
+        >
+          <Text style={{ color: showAll ? 'white' : '#0f172a', fontWeight: '600' }}>All messages</Text>
+        </TouchableOpacity>
+      </View>
       {loading ? (
         <View style={styles.emptyContainer}><Text style={styles.emptyTitle}>Loading...</Text></View>
       ) : chats.length === 0 ? (
         <View style={styles.emptyContainer}><Text style={styles.emptyTitle}>No messages yet</Text></View>
       ) : (
-        <FlatList
-          data={chats}
-          keyExtractor={(item, idx) => String(item.user_id ?? item.id ?? idx)}
-          renderItem={renderItem}
-          contentContainerStyle={styles.listContent}
-          ItemSeparatorComponent={() => <View style={styles.divider} />}
-        />
+        showAll ? (
+          <FlatList
+            data={allMessages}
+            keyExtractor={(item, idx) => String(item.id ?? idx)}
+            renderItem={renderMessageItem}
+            contentContainerStyle={styles.listContent}
+            ItemSeparatorComponent={() => <View style={styles.divider} />}
+          />
+        ) : (
+          <FlatList
+            data={chats}
+            keyExtractor={(item, idx) => String(item.user_id ?? item.id ?? idx)}
+            renderItem={renderItem}
+            contentContainerStyle={styles.listContent}
+            ItemSeparatorComponent={() => <View style={styles.divider} />}
+          />
+        )
       )}
     </SafeAreaView>
   )

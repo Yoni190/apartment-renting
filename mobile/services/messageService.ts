@@ -47,6 +47,22 @@ export async function getMessages(senderId: number, receiverId: number) {
 }
 
 /**
+ * Fetch all messages where the user is either sender or receiver.
+ * Returns an array of message objects (may include eager-loaded sender/receiver).
+ */
+export async function getMessagesForUser(userId: number) {
+  const url = `${API_URL}/messages?user_id=${encodeURIComponent(String(userId))}`
+  try {
+    const headers = await getAuthHeaders()
+    const res = await axios.get(url, { headers })
+    return res.data
+  } catch (err) {
+    console.error('getMessagesForUser error', err)
+    throw err
+  }
+}
+
+/**
  * Send a single message. Payload must include sender_id, receiver_id and message text.
  * Returns created message object from server.
  */
@@ -188,6 +204,7 @@ const messageService = {
   markMessagesAsRead,
   getConversations,
   getListing,
+  getMessagesForUser,
 }
 
 export default messageService
