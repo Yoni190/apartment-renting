@@ -112,11 +112,13 @@ export async function sendMessage(payload: MessagePayload) {
  * Mark messages as read for the given receiver.
  * This will call a "mark-read" endpoint on the server.
  */
-export async function markMessagesAsRead(receiverId: number) {
+export async function markMessagesAsRead(receiverId: number, senderId?: number) {
   const url = `${API_URL}/messages/mark-read`
   try {
     const headers = await getAuthHeaders()
-    const res = await axios.post(url, { receiver_id: receiverId }, { headers })
+    const payload: any = { receiver_id: receiverId }
+    if (senderId) payload.sender_id = senderId
+    const res = await axios.post(url, payload, { headers })
     return res.data
   } catch (err) {
     console.error('markMessagesAsRead error', err)

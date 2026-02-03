@@ -1,7 +1,7 @@
 import React from 'react'
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 
-export default function MessageListItem({ recipientName, lastMessage, timestamp, onPress, id }) {
+export default function MessageListItem({ recipientName, lastMessage, timestamp, onPress, id, unreadCount }) {
   const name = recipientName || `User ${id ?? ''}`
   const lastAt = timestamp || ''
 
@@ -9,13 +9,11 @@ export default function MessageListItem({ recipientName, lastMessage, timestamp,
     <TouchableOpacity
       style={styles.itemRow}
       onPress={() => {
-        console.log('MessageListItem pressed', { id, name, hasOnPress: !!onPress })
+        console.log('MessageListItem pressed', { hasOnPress: !!onPress, id, name })
         if (onPress) {
           try {
-            // call without args — parent may expect no params
             onPress()
           } catch (e) {
-            // fallback: call with a small payload
             onPress({ id, recipientName: name })
           }
         }
@@ -35,6 +33,9 @@ export default function MessageListItem({ recipientName, lastMessage, timestamp,
           <Text style={styles.lastMessage} numberOfLines={1} ellipsizeMode="tail">{lastMessage}</Text>
         </View>
       </View>
+      {unreadCount ? (
+        <View style={styles.badge}><Text style={styles.badgeText}>{String(unreadCount)}</Text></View>
+      ) : null}
     </TouchableOpacity>
   )
 }
@@ -92,4 +93,15 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#6b7280',
   },
+  badge: {
+    backgroundColor: '#1778f2',
+    minWidth: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 8,
+    marginRight: 6,
+  },
+  badgeText: { color: '#fff', fontWeight: '700' },
 })
