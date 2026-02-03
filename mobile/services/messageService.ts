@@ -342,6 +342,21 @@ export async function lookupUserByEmail(email: string) {
   }
 }
 
+/**
+ * Fetch basic user profile by id.
+ */
+export async function getUserById(userId: number) {
+  const url = `${API_URL}/users/${encodeURIComponent(String(userId))}`
+  try {
+    const headers = await getAuthHeaders()
+    const res = await axios.get(url, { headers })
+    return res.data
+  } catch (err) {
+    console.error('getUserById error', err)
+    throw err
+  }
+}
+
 const messageService = {
   getMessages,
   sendMessage,
@@ -351,6 +366,7 @@ const messageService = {
   getListing,
   getMessagesForUser,
   lookupUserByEmail,
+  getUserById,
   deleteConversation,
 }
 

@@ -124,6 +124,20 @@ Route::middleware('auth:sanctum')->delete('/user', function (Request $request) {
     return response()->json(['message' => 'User deleted']);
 });
 
+// fetch public profile details for a user (name, email, phone)
+Route::middleware('auth:sanctum')->get('/users/{id}', function (Request $request, $id) {
+    $user = User::find($id);
+    if (!$user) {
+        return response()->json(['message' => 'User not found'], 404);
+    }
+    return response()->json([
+        'id' => $user->id,
+        'name' => $user->name,
+        'email' => $user->email,
+        'phone_number' => $user->phone_number,
+    ]);
+});
+
 Route::get('/apartment-list', function (Request $request) {
     // Only return active and admin-approved listings for clients
     $apartments = Apartment::where('status', 1)

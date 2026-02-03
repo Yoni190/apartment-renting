@@ -8,6 +8,7 @@ use App\Models\Message;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Schema;
 
 class MessageApiController extends Controller
 {
@@ -19,6 +20,8 @@ class MessageApiController extends Controller
         $user = $request->user();
         if (!$user) return response()->json(['message' => 'Unauthenticated'], 401);
         $uid = (int) $user->id;
+        $hasSenderDeleted = Schema::hasColumn('messages', 'sender_deleted');
+        $hasReceiverDeleted = Schema::hasColumn('messages', 'receiver_deleted');
 
         // conversation between two users
         if ($request->filled('sender_id') && $request->filled('receiver_id')) {
@@ -34,14 +37,22 @@ class MessageApiController extends Controller
                 $q->where('sender_id', $s)->where('receiver_id', $r);
             })->orWhere(function($q) use ($s,$r) {
                 $q->where('sender_id', $r)->where('receiver_id', $s);
-            })->where(function($q) use ($uid) {
-                $q->where(function($q2) use ($uid) {
-                    $q2->where('sender_id', $uid)->where(function($q3) {
-                        $q3->whereNull('sender_deleted')->orWhere('sender_deleted', false);
-                    });
-                })->orWhere(function($q2) use ($uid) {
-                    $q2->where('receiver_id', $uid)->where(function($q3) {
-                        $q3->whereNull('receiver_deleted')->orWhere('receiver_deleted', false);
+            })->when($hasSenderDeleted || $hasReceiverDeleted, function($q) use ($uid, $hasSenderDeleted, $hasReceiverDeleted) {
+                $q->where(function($q2) use ($uid, $hasSenderDeleted, $hasReceiverDeleted) {
+                    $q2->where(function($q3) use ($uid, $hasSenderDeleted) {
+                        $q3->where('sender_id', $uid);
+                        if ($hasSenderDeleted) {
+                            $q3->where(function($q4) {
+                                $q4->whereNull('sender_deleted')->orWhere('sender_deleted', false);
+                            });
+                        }
+                    })->orWhere(function($q3) use ($uid, $hasReceiverDeleted) {
+                        $q3->where('receiver_id', $uid);
+                        if ($hasReceiverDeleted) {
+                            $q3->where(function($q4) {
+                                $q4->whereNull('receiver_deleted')->orWhere('receiver_deleted', false);
+                            });
+                        }
                     });
                 });
             })->orderBy('created_at','asc')->get();
@@ -59,14 +70,22 @@ class MessageApiController extends Controller
                 ->where(function($q) use ($uid) {
                     $q->where('sender_id', $uid)->orWhere('receiver_id', $uid);
                 })
-                ->where(function($q) use ($uid) {
-                    $q->where(function($q2) use ($uid) {
-                        $q2->where('sender_id', $uid)->where(function($q3) {
-                            $q3->whereNull('sender_deleted')->orWhere('sender_deleted', false);
-                        });
-                    })->orWhere(function($q2) use ($uid) {
-                        $q2->where('receiver_id', $uid)->where(function($q3) {
-                            $q3->whereNull('receiver_deleted')->orWhere('receiver_deleted', false);
+                ->when($hasSenderDeleted || $hasReceiverDeleted, function($q) use ($uid, $hasSenderDeleted, $hasReceiverDeleted) {
+                    $q->where(function($q2) use ($uid, $hasSenderDeleted, $hasReceiverDeleted) {
+                        $q2->where(function($q3) use ($uid, $hasSenderDeleted) {
+                            $q3->where('sender_id', $uid);
+                            if ($hasSenderDeleted) {
+                                $q3->where(function($q4) {
+                                    $q4->whereNull('sender_deleted')->orWhere('sender_deleted', false);
+                                });
+                            }
+                        })->orWhere(function($q3) use ($uid, $hasReceiverDeleted) {
+                            $q3->where('receiver_id', $uid);
+                            if ($hasReceiverDeleted) {
+                                $q3->where(function($q4) {
+                                    $q4->whereNull('receiver_deleted')->orWhere('receiver_deleted', false);
+                                });
+                            }
                         });
                     });
                 })
@@ -142,6 +161,10 @@ class MessageApiController extends Controller
             return response()->json(['message' => 'Unauthenticated or unauthorized'], 401);
         }
 
+        if (!Schema::hasColumn('messages', 'read_at')) {
+            return response()->json(['updated' => 0]);
+        }
+
         $q = Message::where('receiver_id', $rid)->whereNull('read_at');
         if ($request->filled('sender_id')) {
             $q->where('sender_id', (int)$request->input('sender_id'));
@@ -186,17 +209,27 @@ class MessageApiController extends Controller
         if (!$user) return response()->json([], 200);
 
         $uid = $user->id;
+        $hasSenderDeleted = Schema::hasColumn('messages', 'sender_deleted');
+        $hasReceiverDeleted = Schema::hasColumn('messages', 'receiver_deleted');
 
         $msgs = Message::where(function($q) use ($uid) {
             $q->where('sender_id', $uid)->orWhere('receiver_id', $uid);
-        })->where(function($q) use ($uid) {
-            $q->where(function($q2) use ($uid) {
-                $q2->where('sender_id', $uid)->where(function($q3) {
-                    $q3->whereNull('sender_deleted')->orWhere('sender_deleted', false);
-                });
-            })->orWhere(function($q2) use ($uid) {
-                $q2->where('receiver_id', $uid)->where(function($q3) {
-                    $q3->whereNull('receiver_deleted')->orWhere('receiver_deleted', false);
+        })->when($hasSenderDeleted || $hasReceiverDeleted, function($q) use ($uid, $hasSenderDeleted, $hasReceiverDeleted) {
+            $q->where(function($q2) use ($uid, $hasSenderDeleted, $hasReceiverDeleted) {
+                $q2->where(function($q3) use ($uid, $hasSenderDeleted) {
+                    $q3->where('sender_id', $uid);
+                    if ($hasSenderDeleted) {
+                        $q3->where(function($q4) {
+                            $q4->whereNull('sender_deleted')->orWhere('sender_deleted', false);
+                        });
+                    }
+                })->orWhere(function($q3) use ($uid, $hasReceiverDeleted) {
+                    $q3->where('receiver_id', $uid);
+                    if ($hasReceiverDeleted) {
+                        $q3->where(function($q4) {
+                            $q4->whereNull('receiver_deleted')->orWhere('receiver_deleted', false);
+                        });
+                    }
                 });
             });
         })->orderBy('created_at','desc')->get();
