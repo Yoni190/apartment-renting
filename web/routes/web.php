@@ -35,7 +35,7 @@ Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/home', [HomeController::class, 'home'])
-        ->name('user.renter.home');
+        ->name('user.client.home');
     Route::post('/logout', [HomeController::class, 'logout'])->name('logout');
     // Owner area
     Route::get('/owner/dashboard', [App\Http\Controllers\OwnerController::class, 'dashboard'])->name('owner.dashboard');
