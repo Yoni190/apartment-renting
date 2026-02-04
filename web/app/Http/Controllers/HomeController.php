@@ -16,7 +16,7 @@ class HomeController extends Controller
 
         $featuredApartments->load('images');
         
-        return view('web.client.home', compact('featuredApartments'));
+        return view('web.home', compact('featuredApartments'));
     }
 
     public function home() {
