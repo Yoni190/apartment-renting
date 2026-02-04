@@ -71,7 +71,7 @@
                         </li>
                         <li class="nav-item ms-2">
                             <a href="{{ route('user.renter.register') }}" class="btn btn-primary btn-sm">Register as Renter</a>
-                            <a href="{{ route('user.renter.register') }}" class="btn btn-primary btn-sm">Register as Apartment Owner</a>
+                            <a href="{{ route('user.owner.register') }}" class="btn btn-primary btn-sm">Register as Apartment Owner</a>
                         </li>
                     @endauth
 
