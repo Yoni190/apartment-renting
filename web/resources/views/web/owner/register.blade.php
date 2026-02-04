@@ -63,6 +63,16 @@
             </div>
 
             <div class="mb-3">
+                <label for="fan" class="form-label">FAN</label>
+                <input type="text" 
+                       name="fan" 
+                       id="fan" 
+                       class="form-control form-control-lg" 
+                       placeholder="Fayda ID number" 
+                       required>
+            </div>
+
+            <div class="mb-3">
                 <label for="password" class="form-label">Password</label>
                 <div class="mb-3 password-wrapper">
                     <input type="password" 
