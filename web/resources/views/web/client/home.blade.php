@@ -127,7 +127,7 @@
                             <p class="text-muted mb-2">{{ $apt->location }}</p>
                             <p class="fw-bold text-primary">ETB {{ number_format($apt->price) }}/month</p>
 
-                            <a href="#" class="btn btn-primary w-100">
+                            <a href="{{ route('user.client.apartment-details', $apt->id) }}" class="btn btn-primary w-100">
                                 View Details
                             </a>
                         </div>
