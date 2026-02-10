@@ -63,7 +63,7 @@
                 </div>
 
                 <!-- Form -->
-                <form method="POST" action="">
+                <form method="POST" action="{{ route('profile.update') }}">
                     @csrf
                     @method('PUT')
 
@@ -91,7 +91,7 @@
                         <div class="col-md-12">
                             <label class="form-label">Phone</label>
                             <input type="text" 
-                                   name="phone" 
+                                   name="phone_number" 
                                    class="form-control"
                                    value="{{ old('phone', auth()->user()->phone_number) }}">
                         </div>
