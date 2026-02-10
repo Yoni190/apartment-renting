@@ -103,4 +103,8 @@ class HomeController extends Controller
     public function profile() {
         return view('web.client.profile');
     }
+
+    public function editProfileView() {
+        return view('web.client.edit-profile');
+    }
 }
