@@ -37,7 +37,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/home', [HomeController::class, 'home'])
         ->name('user.client.home');
     Route::get('/apartment-details/{apartment}', [HomeController::class, 'apartmentDetails'])->name('user.client.apartment-details');
-    Route::get('/client/profile', [HomeController::class, 'profile', 'profile'])->name('user.client.profile');
+    Route::get('/client/profile', [HomeController::class, 'profile'])->name('user.client.profile');
+    Route::get('/client/edit-profile', [HomeController::class, 'editProfileView'])->name('user.client.edit-profile');
     Route::post('/logout', [HomeController::class, 'logout'])->name('logout');
     // Owner area
     Route::get('/owner/dashboard', [App\Http\Controllers\OwnerController::class, 'dashboard'])->name('owner.dashboard');
