@@ -32,6 +32,8 @@ Route::get('/login', [HomeController::class, 'login'])->name('login');
 Route::get('/auth/google', [GoogleController::class, 'redirect'])->name('google.redirect');
 Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name('google.callback');
 
+Route::get('/about', [HomeController::class, 'about'])->name('about-us');
+
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/home', [HomeController::class, 'home'])
