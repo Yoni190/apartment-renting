@@ -122,4 +122,8 @@ class HomeController extends Controller
 
         return redirect()->route('user.client.profile')->with('success', 'Profile updated successfully!');
     }
+
+    public function about() {
+        return view('web.about');
+    }
 }
