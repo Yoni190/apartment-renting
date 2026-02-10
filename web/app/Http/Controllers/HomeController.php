@@ -95,4 +95,8 @@ class HomeController extends Controller
 
         return redirect()->route('login')->with('success', 'Logged out successfully');
     }
+
+    public function apartmentDetails(Apartment $apartment) {
+        return view('web.client.apartment-details', compact('apartment'));
+    }
 }
