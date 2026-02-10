@@ -99,4 +99,8 @@ class HomeController extends Controller
     public function apartmentDetails(Apartment $apartment) {
         return view('web.client.apartment-details', compact('apartment'));
     }
+
+    public function profile() {
+        return view('web.client.profile');
+    }
 }
