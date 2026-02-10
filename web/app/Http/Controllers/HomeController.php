@@ -107,4 +107,19 @@ class HomeController extends Controller
     public function editProfileView() {
         return view('web.client.edit-profile');
     }
+
+    public function editProfile(Request $request)
+    {
+        $user = auth()->user();
+
+        $validatedData = $request->validate([
+            'name'  => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email,' . $user->id,
+            'phone_number' => 'nullable|string|max:20',
+        ]);
+
+        $user->update($validatedData);
+
+        return redirect()->route('user.client.profile')->with('success', 'Profile updated successfully!');
+    }
 }
