@@ -64,7 +64,7 @@
             </div>
         </div>
 
-        <a href="" class="btn btn-primary">
+        <a href="{{ route('user.client.edit-profile') }}" class="btn btn-primary">
             Edit Profile
         </a>
 
