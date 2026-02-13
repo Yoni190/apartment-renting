@@ -104,4 +104,9 @@ class OwnerController extends Controller
 
         return redirect()->route('owner.dashboard')->with('success', 'Apartment Created Successfully!');
     }
+
+    public function editApartmentView(Apartment $apartment) {
+        return view('web.owner.edit-apartment', compact('apartment'));
+    }
 }
+
