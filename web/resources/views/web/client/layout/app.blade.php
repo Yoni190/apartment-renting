@@ -23,7 +23,7 @@
     <!-- NAVBAR -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="{{ url('/') }}">
+            <a class="navbar-brand fw-bold" href="{{ url('/home') }}">
                 <i class="bi bi-building"></i> Gojoye
             </a>
 
