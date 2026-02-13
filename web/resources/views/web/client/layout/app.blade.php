@@ -23,9 +23,21 @@
     <!-- NAVBAR -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="{{ url('/home') }}">
-                <i class="bi bi-building"></i> Gojoye
-            </a>
+            @if(auth()->user())
+                @if(auth()->user()->role === 0)
+                    <a class="navbar-brand fw-bold" href="{{ url('/home') }}">
+                        <i class="bi bi-building"></i> Gojoye
+                    </a>
+                @else
+                    <a class="navbar-brand fw-bold" href="{{ url('/owner/dashboard') }}">
+                        <i class="bi bi-building"></i> Gojoye
+                    </a>
+                @endif
+            @else
+                <a class="navbar-brand fw-bold" href="{{ url('/') }}">
+                    <i class="bi bi-building"></i> Gojoye
+                </a>
+            @endif
 
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
                 <span class="navbar-toggler-icon"></span>
@@ -34,15 +46,22 @@
             <div class="collapse navbar-collapse" id="mainNavbar">
                 <ul class="navbar-nav ms-auto">
 
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->is('/') ? 'active' : '' }}" href="{{ url('/home') }}">Home</a>
-                    </li>
+                    @if(auth()->user())
+                        <li class="nav-item">
+                            @if(auth()->user()->role === 0)
+                                <a class="nav-link {{ request()->is('/home') ? 'active' : '' }}" href="{{ url('/home') }}">Home</a>
+                            @else
+                                <a class="nav-link {{ request()->is('/owner/dashboard') ? 'active' : '' }}" href="{{ url('/owner/dashboard') }}">Home</a>
+                            @endif
+                        </li>
 
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->is('apartments') ? 'active' : '' }}" href="#">
-                            Apartments
-                        </a>
-                    </li>
+                    
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->is('apartments') ? 'active' : '' }}" href="#">
+                                Apartments
+                            </a>
+                        </li>
+                    @endif
 
                     <li class="nav-item">
                         <a class="nav-link {{ request()->is('about') ? 'active' : '' }}" href="{{ url('/about') }}">
