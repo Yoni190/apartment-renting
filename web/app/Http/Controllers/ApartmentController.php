@@ -730,4 +730,9 @@ class ApartmentController extends Controller
         return response()->json($apartments);
     }
 
+    public function details(Apartment $listing)
+    {
+        return view('web.owner.apartment_detail', compact('listing'));
+    }
+
 }
