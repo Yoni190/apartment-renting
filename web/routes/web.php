@@ -27,7 +27,8 @@ Route::get('/renter/register', [HomeController::class, 'registerView'])->name('u
 Route::get('/owner/register', [HomeController::class, 'ownerRegisterView'])->name('user.owner.register');
 Route::post('/renter/register', [HomeController::class, 'register'])->name('user.renter.register-user');
 Route::post('/owner/register', [HomeController::class, 'ownerRegister'])->name('user.owner.register-user');
-Route::get('/login', [HomeController::class, 'login'])->name('login');
+Route::get('/login', [HomeController::class, 'loginView'])->name('login');
+Route::post('/login', [HomeController::class, 'login'])->name('login');
 
 Route::get('/auth/google', [GoogleController::class, 'redirect'])->name('google.redirect');
 Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name('google.callback');

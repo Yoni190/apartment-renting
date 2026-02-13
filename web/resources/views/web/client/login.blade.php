@@ -29,7 +29,7 @@
 
         <h3 class="text-center mb-4">Welcome Back!</h3>
 
-        <form action="#" method="POST">
+        <form action="{{ route('login') }}" method="POST">
             @csrf
 
             <div class="mb-3">
