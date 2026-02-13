@@ -1,12 +1,50 @@
 @extends('web.client.layout.app')
 
+@section('title', 'Gojoye - Dashboard')
+
+@push('styles')
+
+<style>
+    .add-btn {
+        background: linear-gradient(135deg, #46c0e5ff, #33cfeaff);
+        color: #fff;
+        padding: 10px 18px;
+        border-radius: 999px;
+        font-weight: 500;
+        font-size: 14px;
+        text-decoration: none;
+        box-shadow: 0 6px 14px rgba(79, 70, 229, 0.25);
+        transition: all 0.25s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .add-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(79, 70, 229, 0.35);
+        color: #fff;
+    }
+
+    .add-btn:active {
+        transform: scale(0.97);
+    }
+</style>
+
+@endpush
+
 @section('content')
 <div class="container mt-4">
     <h2>Owner Dashboard</h2>
 
     <div class="row">
         <div class="col-md-6">
-            <h4>Your Listings</h4>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="mb-0">Your Listings</h4>
+                <a href="" class="add-btn">
+                    + Add Apartment
+                </a>
+            </div>
             <form method="GET" class="mb-3">
                 <div class="input-group">
                     <input type="text" name="q" value="{{ $q ?? '' }}" class="form-control" placeholder="Search bookings by listing or client" />
