@@ -55,4 +55,8 @@ class OwnerController extends Controller
         $user = $booking->user;
         return view('web.owner.client_profile', ['booking' => $booking, 'user' => $user]);
     }
+
+    public function addApartmentView() {
+        return view('web.owner.add-apartment');
+    }
 }
