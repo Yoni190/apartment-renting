@@ -78,6 +78,8 @@ class HomeController extends Controller
             'status' => 1
         ]);
 
+        Auth::login($user);
+
         return redirect()->route('owner.dashboard')
         ->with('success', 'Account Created Successfully');
 
