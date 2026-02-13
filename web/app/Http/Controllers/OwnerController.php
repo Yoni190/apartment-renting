@@ -108,5 +108,46 @@ class OwnerController extends Controller
     public function editApartmentView(Apartment $apartment) {
         return view('web.owner.edit-apartment', compact('apartment'));
     }
+
+    public function editApartment(Request $request, Apartment $apartment)
+    {
+        
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'address' => 'required|string|max:255',
+            'price' => 'required|numeric',
+            'bedrooms' => 'required|integer',
+            'bathrooms' => 'required|integer',
+            'size' => 'required|numeric',
+            'description' => 'required|string',
+            'images.*' => 'image|mimes:jpg,jpeg,png|max:2048'
+        ]);
+
+        
+        $apartment->update($validated);
+
+        
+        if ($request->hasFile('images')) {
+
+            
+            foreach ($apartment->images as $image) {
+                \Storage::delete($image->path);
+                $image->delete();
+            }
+
+            
+            foreach ($request->file('images') as $file) {
+                $path = $file->store('apartments', 'public');
+
+                $apartment->images()->create([
+                    'path' => $path
+                ]);
+            }
+        }
+
+        return redirect()
+            ->route('owner.dashboard')
+            ->with('success', 'Apartment updated successfully!');
+    }
 }
 

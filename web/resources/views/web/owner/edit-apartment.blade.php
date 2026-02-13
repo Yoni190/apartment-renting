@@ -29,7 +29,6 @@
 
             <form action="{{ route('apartment.update', $apartment) }}" method="POST" enctype="multipart/form-data">
                 @csrf
-                @method('PUT')
 
                 <!-- Title & Address -->
                 <div class="row mb-3">
