@@ -74,7 +74,7 @@ class HomeController extends Controller
             'phone_number' => $request->telNo,
             'fan' => $request->fan,
             'password' => Hash::make($request->password),
-            'role' => 1,
+            'role' => 0,
             'status' => 1
         ]);
 
@@ -145,8 +145,16 @@ class HomeController extends Controller
         if (Auth::attempt($credentials, $request->filled('remember'))) {
             $request->session()->regenerate();
 
-            return redirect()->route('user.client.home')
+
+            if(Auth::user()->role === 1) {
+                return redirect()->route('user.client.home')
                             ->with('success', 'Logged in successfully!');
+            } else {
+                return redirect()->route('owner.dashboard')
+                            ->with('success', 'Logged in successfully!');
+            }
+
+            
         }
 
         return back()->with('error', 'The provided credentials do not match our records.');
