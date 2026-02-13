@@ -83,7 +83,7 @@ class HomeController extends Controller
 
     }
 
-    public function login() {
+    public function loginView() {
         return view('web.client.login');
     }
 
@@ -125,5 +125,28 @@ class HomeController extends Controller
 
     public function about() {
         return view('web.about');
+    }
+
+    public function login(Request $request)
+    {
+        $request->validate([
+            'email'    => 'required|email',
+            'password' => 'required|string|min:6',
+        ]);
+
+        $credentials = [
+            'email' => $request->email,
+            'password' => $request->password,
+            'status' => 1,
+        ];
+
+        if (Auth::attempt($credentials, $request->filled('remember'))) {
+            $request->session()->regenerate();
+
+            return redirect()->route('user.client.home')
+                            ->with('success', 'Logged in successfully!');
+        }
+
+        return back()->with('error', 'The provided credentials do not match our records.');
     }
 }
