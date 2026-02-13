@@ -54,6 +54,16 @@
             @foreach($listings as $listing)
                 <div class="card mb-2">
                     <div class="card-body">
+                        {{-- Image --}}
+                        <div style="width:100%; height:180px; overflow:hidden; border-radius:10px; margin-bottom:10px;">
+                            @if($listing->images && count($listing->images) > 0)
+                                <img src="{{ url('/storage/' . $listing->images[0]->path) }}" 
+                                    style="width:100%; height:100%; object-fit:cover;">
+                            @else
+                                <img src="https://via.placeholder.com/400x200?text=No+Image" 
+                                    style="width:100%; height:100%; object-fit:cover;">
+                            @endif
+                        </div>
                         <h5>{{ $listing->title }}</h5>
                         <p>{{ $listing->address }}</p>
                         <a href="{{ route('bookings.create', $listing) }}" class="btn btn-sm btn-outline-primary">Request test booking (open form)</a>
