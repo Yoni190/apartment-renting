@@ -24,7 +24,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
         <div class="container">
             @if(auth()->user())
-                @if(auth()->user()->role === 0)
+                @if(auth()->user()->role === 1)
                     <a class="navbar-brand fw-bold" href="{{ url('/home') }}">
                         <i class="bi bi-building"></i> Gojoye
                     </a>
@@ -48,7 +48,7 @@
 
                     @if(auth()->user())
                         <li class="nav-item">
-                            @if(auth()->user()->role === 0)
+                            @if(auth()->user()->role === 1)
                                 <a class="nav-link {{ request()->is('/home') ? 'active' : '' }}" href="{{ url('/home') }}">Home</a>
                             @else
                                 <a class="nav-link {{ request()->is('/owner/dashboard') ? 'active' : '' }}" href="{{ url('/owner/dashboard') }}">Home</a>
