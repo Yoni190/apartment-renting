@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Apartment;
 use App\Models\TourBooking;
+use App\Models\ApartmentImage;
 
 class OwnerController extends Controller
 {
@@ -58,5 +59,49 @@ class OwnerController extends Controller
 
     public function addApartmentView() {
         return view('web.owner.add-apartment');
+    }
+
+    public function storeApartment(Request $request) {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'price' => 'required|numeric|min:0',
+            'address' => 'required|string',
+            'bedrooms' => 'required|integer|min:0',
+            'bathrooms' => 'required|integer|min:0',
+            'size' => 'nullable|numeric|min:0',
+            'images.*' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+        ]);
+
+        $apartment = Apartment::create([
+            'title' => $request->title,
+            'description' => $request->description,
+            'price' => $request->price,
+            'status' => 0,
+            'address' => $request->address,
+            'bedrooms' => $request->bedrooms,
+            'bathrooms' => $request->bathrooms,
+            'size' => $request->size,
+            'is_featured' => 0,
+            'user_id' => auth()->user()->id,
+        ]);
+
+        if($request->hasFile('images')) {
+            foreach($request->file('images') as $index => $image) {
+                // Unique file name
+                $filename = time() . '_' . uniqid() . '_' . $image->getClientOriginalName();
+
+                // Store image in storage/app/public/apartments
+                $imagePath = $image->storeAs('apartments', $filename, 'public');
+
+                // Store in apartment images
+                ApartmentImage::create([
+                    'apartment_id' => $apartment->id,
+                    'path' => $imagePath,
+                ]);
+            }
+        }
+
+        return redirect()->route('owner.dashboard')->with('success', 'Apartment Created Successfully!');
     }
 }
