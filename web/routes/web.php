@@ -55,6 +55,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/add-apartment', [OwnerController::class, 'addApartmentView'])->name('apartment-create');
     Route::post('/add-apartment', [OwnerController::class, 'storeApartment'])->name('apartment.store');
+
+    Route::get('/listings/{listing}', [ApartmentController::class, 'details'])->name('listing.details');
 });
 
 Route::prefix('admin')->group(function () {
