@@ -10,6 +10,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\ApartmentVerificationDocumentController;
+use App\Http\Controllers\OwnerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -51,6 +52,8 @@ Route::middleware(['auth'])->group(function () {
     // Tour booking routes (clients)
     Route::get('/apartments/{apartment}/book-tour', [App\Http\Controllers\TourBookingController::class, 'create'])->name('bookings.create');
     Route::post('/apartments/{apartment}/book-tour', [App\Http\Controllers\TourBookingController::class, 'store'])->name('bookings.store');
+
+    Route::get('/add-apartment', [OwnerController::class, 'addApartmentView'])->name('apartment-create');
 });
 
 Route::prefix('admin')->group(function () {
