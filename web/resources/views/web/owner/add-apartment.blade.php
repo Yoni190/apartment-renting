@@ -27,7 +27,7 @@
         <div class="card-body p-4">
             <h3 class="mb-4">Add New Apartment</h3>
 
-            <form action="" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('apartment.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
 
                 <!-- Title & Address -->
