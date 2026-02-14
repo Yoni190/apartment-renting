@@ -5,7 +5,7 @@
 @push('styles')
 <style>
     .hero-section {
-        background: url('/images/apartments/hero.jpg') center/cover no-repeat;
+        background: url('/images/apartment_hero.jpg') center/cover no-repeat;
         height: 70vh;
         border-radius: 20px;
         position: relative;
