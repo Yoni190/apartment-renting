@@ -55,6 +55,12 @@
                             @endif
                         </li>
 
+                        <li class="nav-item">
+                            @if(auth()->user()->role === 1)
+                                <a class="nav-link {{ request()->is('/favorites') ? 'active' : '' }}" href="{{ url('/favorites') }}">Favorites</a>
+                            @endif
+                        </li>
+
                     
                         <li class="nav-item">
                             <a class="nav-link {{ request()->is('apartments') ? 'active' : '' }}" href="#">
