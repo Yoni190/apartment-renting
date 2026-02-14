@@ -191,10 +191,18 @@
                 {{-- SELECT DAY --}}
                 <div class="mb-2">
                     <label class="form-label">Select Day</label>
-                    <select name="day" class="form-select" required>
+                    <select name="date" id="dateSelect" class="form-select" required>
+                        @php
+                            $today = \Carbon\Carbon::today();
+                        @endphp
                         @foreach($apartment->openHours->unique('day_of_week') as $hour)
-                            <option value="{{ $hour->day_of_week }}">
-                                {{ $daysMap[$hour->day_of_week] }}
+                            @php
+                                $dayOfWeek = $hour->day_of_week;
+                                // next date with this day
+                                $nextDate = \Carbon\Carbon::today()->next($dayOfWeek);
+                            @endphp
+                            <option value="{{ $nextDate->format('Y-m-d') }}">
+                                {{ \Carbon\Carbon::parse($nextDate)->format('l, M d') }}
                             </option>
                         @endforeach
                     </select>
