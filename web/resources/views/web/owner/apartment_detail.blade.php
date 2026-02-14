@@ -66,6 +66,70 @@
                 </div>
             </div>
         </div>
+
+        <div class="card shadow-sm mt-3" style="border-radius:15px;">
+            <div class="card-body">
+
+                <h5 class="fw-bold mb-3">Set Open Hours</h5>
+
+                <form action="{{ route('listing.hours.store', $listing) }}" method="POST">
+                    @csrf
+
+                    <div id="scheduleWrapper">
+
+                        {{-- ONE ROW --}}
+                        <div class="schedule-row border rounded p-3 mb-3" style="border-radius:12px; background:#f9fbfd;">
+
+                            <div class="row g-2">
+
+                                {{-- DAY FROM --}}
+                                <div class="col-6">
+                                    <label class="form-label small text-muted">From Day</label>
+                                    <select name="days_from[]" class="form-select">
+                                        @foreach(['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'] as $day)
+                                            <option value="{{ $day }}">{{ $day }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                {{-- DAY TO --}}
+                                <div class="col-6">
+                                    <label class="form-label small text-muted">To Day</label>
+                                    <select name="days_to[]" class="form-select">
+                                        @foreach(['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'] as $day)
+                                            <option value="{{ $day }}">{{ $day }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                {{-- TIME FROM --}}
+                                <div class="col-6">
+                                    <label class="form-label small text-muted">Open Time</label>
+                                    <input type="time" name="time_from[]" class="form-control">
+                                </div>
+
+                                {{-- TIME TO --}}
+                                <div class="col-6">
+                                    <label class="form-label small text-muted">Close Time</label>
+                                    <input type="time" name="time_to[]" class="form-control">
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    {{-- SUBMIT --}}
+                    <button type="submit" class="btn btn-primary w-100">
+                        Save Open Hours
+                    </button>
+
+                </form>
+
+            </div>
+        </div>
     </div>
 
 </div>
