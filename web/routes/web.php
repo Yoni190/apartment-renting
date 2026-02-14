@@ -59,6 +59,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/apartments/{apartment}/book-tour', [App\Http\Controllers\TourBookingController::class, 'create'])->name('bookings.create');
     Route::post('/apartments/{apartment}/book-tour', [App\Http\Controllers\TourBookingController::class, 'store'])->name('bookings.store');
 
+
+    Route::post('/{apartment}/book-tour', [TourBookingController::class, 'storeWeb'])->name('tour.store');
+
     Route::get('/add-apartment', [OwnerController::class, 'addApartmentView'])->name('apartment-create');
     Route::post('/add-apartment', [OwnerController::class, 'storeApartment'])->name('apartment.store');
 

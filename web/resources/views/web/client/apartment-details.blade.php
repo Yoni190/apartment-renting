@@ -183,7 +183,7 @@
                     </div>
                 @endforeach
             </div>
-            <form action="" method="POST" class="mt-3">
+            <form action="{{ route('tour.store', $apartment) }}" method="POST" class="mt-3">
                 @csrf
 
                 <input type="hidden" name="apartment_id" value="{{ $apartment->id }}">
@@ -237,15 +237,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const openHours = @json($apartment->openHours);
 
-    const daySelect = document.querySelector('select[name="day"]');
+    const dateSelect = document.querySelector('select[name="date"]');
     const timeSelect = document.getElementById('timeSelect');
 
-    if (!daySelect || !timeSelect) return; // safety
+    if (!dateSelect || !timeSelect) return; // safety
 
-    function generateSlots(day) {
+    function generateSlots(dateValue) {
         timeSelect.innerHTML = '<option value="">Select a time</option>';
 
-        const slots = openHours.filter(h => Number(h.day_of_week) === Number(day));
+        const selectedDate = new Date(dateValue);
+        const dayOfWeek = selectedDate.getDay(); // 0 = Sunday, 1 = Monday, ...
+
+        const slots = openHours.filter(h => Number(h.day_of_week) === dayOfWeek);
 
         slots.forEach(slot => {
             let current = new Date(`1970-01-01T${slot.start_time}`);
@@ -276,12 +279,12 @@ document.addEventListener('DOMContentLoaded', function () {
         return `${hours}:${minutes} ${ampm}`;
     }
 
-    daySelect.addEventListener('change', function () {
+    dateSelect.addEventListener('change', function () {
         generateSlots(this.value);
     });
 
     // trigger on load
-    generateSlots(daySelect.value);
+    generateSlots(dateSelect.value);
 
 });
 </script>
