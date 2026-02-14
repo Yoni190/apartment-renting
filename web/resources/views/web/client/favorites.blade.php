@@ -80,7 +80,7 @@
                                     </button>
                                 @endif
 
-                                <form action="" method="POST">
+                                <form action="{{ route('favorites.destroy', $favorite->id) }}" method="POST">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-outline-danger rounded-pill">
@@ -102,7 +102,7 @@
             <p class="text-muted mb-4">
                 Start saving apartments you like so you can easily find them later.
             </p>
-            <a href="{{ route('apartments.index') }}" class="btn btn-primary rounded-pill px-4">
+            <a href="{{ route('user.client.home') }}" class="btn btn-primary rounded-pill px-4">
                 Browse Apartments
             </a>
         </div>
