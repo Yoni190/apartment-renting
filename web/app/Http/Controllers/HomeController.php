@@ -167,4 +167,16 @@ class HomeController extends Controller
 
         return view('web.client.favorites', compact('favorites'));
     }
+
+    public function destroyFavorite($id)
+    {
+        $user = Auth::user();
+
+        // Make sure user only deletes their own favorite
+        $favorite = $user->favorites()->where('id', $id)->firstOrFail();
+
+        $favorite->delete();
+
+        return redirect()->back()->with('success', 'Removed from favorites.');
+    }
 }
