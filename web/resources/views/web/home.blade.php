@@ -6,7 +6,7 @@
 <style>
 /* Hero Section */
 .hero {
-    background: url('/images/hero-apartment.jpg') center/cover no-repeat;
+    background: url('/images/apartment_hero2.jpg') center/cover no-repeat;
     height: 70vh;
     display: flex;
     align-items: center;
