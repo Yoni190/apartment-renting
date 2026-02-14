@@ -11,6 +11,7 @@ use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\ApartmentVerificationDocumentController;
 use App\Http\Controllers\OwnerController;
+use App\Http\Controllers\TourBookingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -65,6 +66,10 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/edit-apartment/{apartment}', [OwnerController::class, 'editApartmentView'])->name('apartment.edit');
     Route::post('/edit-apartment/{apartment}', [OwnerController::class, 'editApartment'])->name('apartment.update');
+
+
+    Route::post('/listing/{listing}/open-hours', [TourBookingController::class, 'storeOpenHours'])
+    ->name('listing.hours.store');
 });
 
 Route::prefix('admin')->group(function () {
