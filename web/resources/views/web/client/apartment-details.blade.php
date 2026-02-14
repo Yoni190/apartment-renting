@@ -147,6 +147,43 @@
             </div>
             @endif
 
+            <div class="card p-3 mt-3" style="border-radius:15px;">
+                <h6 class="fw-bold mb-3">Available Tour Times</h6>
+
+                @php
+                    $daysMap = [
+                        0 => 'Sunday',
+                        1 => 'Monday',
+                        2 => 'Tuesday',
+                        3 => 'Wednesday',
+                        4 => 'Thursday',
+                        5 => 'Friday',
+                        6 => 'Saturday',
+                    ];
+
+                    $grouped = $apartment->openHours
+                        ->groupBy(fn($i) => $i->start_time . '-' . $i->end_time);
+                @endphp
+
+                @foreach($grouped as $key => $items)
+                    @php
+                        $days = $items->pluck('day_of_week')->sort()->values();
+                    @endphp
+
+                    <div class="border rounded p-2 mb-2">
+                        <strong>
+                            {{ $daysMap[$days->first()] }} - {{ $daysMap[$days->last()] }}
+                        </strong>
+                        <br>
+                        <small class="text-muted">
+                            {{ \Carbon\Carbon::parse($items->first()->start_time)->format('h:i A') }}
+                            -
+                            {{ \Carbon\Carbon::parse($items->first()->end_time)->format('h:i A') }}
+                        </small>
+                    </div>
+                @endforeach
+            </div>
+
         </div>
 
     </div>
