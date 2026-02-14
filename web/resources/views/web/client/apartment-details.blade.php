@@ -183,6 +183,35 @@
                     </div>
                 @endforeach
             </div>
+            <form action="" method="POST" class="mt-3">
+                @csrf
+
+                <input type="hidden" name="apartment_id" value="{{ $apartment->id }}">
+
+                {{-- SELECT DAY --}}
+                <div class="mb-2">
+                    <label class="form-label">Select Day</label>
+                    <select name="day" class="form-select" required>
+                        @foreach($apartment->openHours->unique('day_of_week') as $hour)
+                            <option value="{{ $hour->day_of_week }}">
+                                {{ $daysMap[$hour->day_of_week] }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+            {{-- SELECT TIME --}}
+            <div class="mb-2">
+                <label class="form-label">Select Time</label>
+                <select name="time" id="timeSelect" class="form-select" required>
+                    <option value="">Select a time</option>
+                </select>
+            </div>
+
+                <button type="submit" class="btn btn-success w-100">
+                    Request Tour
+                </button>
+            </form>
 
         </div>
 
@@ -191,3 +220,61 @@
 </div>
 
 @endsection
+
+
+@push('scripts')
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const openHours = @json($apartment->openHours);
+
+    const daySelect = document.querySelector('select[name="day"]');
+    const timeSelect = document.getElementById('timeSelect');
+
+    if (!daySelect || !timeSelect) return; // safety
+
+    function generateSlots(day) {
+        timeSelect.innerHTML = '<option value="">Select a time</option>';
+
+        const slots = openHours.filter(h => Number(h.day_of_week) === Number(day));
+
+        slots.forEach(slot => {
+            let current = new Date(`1970-01-01T${slot.start_time}`);
+            let endTime = new Date(`1970-01-01T${slot.end_time}`);
+
+            while (current < endTime) {
+                let hours = String(current.getHours()).padStart(2, '0');
+                let minutes = String(current.getMinutes()).padStart(2, '0');
+
+                let option = document.createElement('option');
+                option.value = `${hours}:${minutes}:00`;
+                option.textContent = formatTime(current);
+
+                timeSelect.appendChild(option);
+
+                current.setMinutes(current.getMinutes() + 30);
+            }
+        });
+    }
+
+    function formatTime(date) {
+        let hours = date.getHours();
+        let minutes = date.getMinutes().toString().padStart(2, '0');
+        let ampm = hours >= 12 ? 'PM' : 'AM';
+
+        hours = hours % 12 || 12;
+
+        return `${hours}:${minutes} ${ampm}`;
+    }
+
+    daySelect.addEventListener('change', function () {
+        generateSlots(this.value);
+    });
+
+    // trigger on load
+    generateSlots(daySelect.value);
+
+});
+</script>
+@endpush
