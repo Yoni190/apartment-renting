@@ -83,11 +83,48 @@
                                 <form action="{{ route('favorites.destroy', $favorite->id) }}" method="POST">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-outline-danger rounded-pill">
+                                    <button type="button"
+                                        class="btn btn-outline-danger rounded-pill"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#deleteModal{{ $favorite->id }}">
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </form>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal fade" id="deleteModal{{ $favorite->id }}" tabindex="-1">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content rounded-4 border-0 shadow">
+                            
+                            <div class="modal-body text-center p-4">
+                                <div class="mb-3">
+                                    <i class="bi bi-exclamation-triangle text-danger fs-1"></i>
+                                </div>
+
+                                <h5 class="fw-bold">Remove from Favorites?</h5>
+                                <p class="text-muted small">
+                                    This apartment will be removed from your saved listings.
+                                </p>
+
+                                <div class="d-flex gap-2 mt-4">
+                                    <button type="button" class="btn btn-light w-100 rounded-pill" data-bs-dismiss="modal">
+                                        Cancel
+                                    </button>
+
+                                    <form action="{{ route('favorites.destroy', $favorite->id) }}" method="POST" class="w-100">
+                                        @csrf
+                                        @method('DELETE')
+
+                                        <button type="submit" class="btn btn-danger w-100 rounded-pill">
+                                            Yes, Remove
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>
