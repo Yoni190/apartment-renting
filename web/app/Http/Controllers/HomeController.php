@@ -159,4 +159,12 @@ class HomeController extends Controller
 
         return back()->with('error', 'The provided credentials do not match our records.');
     }
+
+    public function favorites() {
+        $user = Auth::user();
+
+        $favorites = $user->favorites()->with('apartment')->latest()->get();
+
+        return view('web.client.favorites', compact('favorites'));
+    }
 }
