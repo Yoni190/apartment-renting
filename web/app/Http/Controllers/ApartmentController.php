@@ -732,7 +732,28 @@ class ApartmentController extends Controller
 
     public function details(Apartment $listing)
     {
-        return view('web.owner.apartment_detail', compact('listing'));
+        $listing->load('openHours');
+
+        $grouped = [];
+
+        $listing->openHours
+            ->sortBy('day_of_week')
+            ->groupBy(function ($item) {
+                return $item->start_time . '-' . $item->end_time;
+            })
+            ->each(function ($items) use (&$grouped) {
+
+                $days = $items->pluck('day_of_week')->sort()->values();
+
+                $grouped[] = [
+                    'from_day' => $days->first(),
+                    'to_day' => $days->last(),
+                    'start_time' => $items->first()->start_time,
+                    'end_time' => $items->first()->end_time,
+                ];
+            });
+
+        return view('web.owner.apartment_detail', compact('listing', 'grouped'));
     }
 
 }
