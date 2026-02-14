@@ -40,6 +40,7 @@ Route::get('/about', [HomeController::class, 'about'])->name('about-us');
 Route::middleware(['auth'])->group(function () {
     Route::get('/home', [HomeController::class, 'home'])
         ->name('user.client.home');
+    Route::get('/favorites', [HomeController::class, 'favorites'])->name('user.client.favorites');
     Route::get('/apartment-details/{apartment}', [HomeController::class, 'apartmentDetails'])->name('user.client.apartment-details');
     Route::get('/profile', [HomeController::class, 'profile'])->name('user.client.profile');
     Route::get('/edit-profile', [HomeController::class, 'editProfileView'])->name('user.client.edit-profile');
