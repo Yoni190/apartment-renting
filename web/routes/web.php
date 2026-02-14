@@ -41,6 +41,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/home', [HomeController::class, 'home'])
         ->name('user.client.home');
     Route::get('/favorites', [HomeController::class, 'favorites'])->name('user.client.favorites');
+    Route::post('/favorites', [HomeController::class, 'storeFavorite'])
+    ->name('favorites.store');
     Route::delete('/favorites/{id}', [HomeController::class, 'destroyFavorite'])
     ->name('favorites.destroy');
     Route::get('/apartment-details/{apartment}', [HomeController::class, 'apartmentDetails'])->name('user.client.apartment-details');

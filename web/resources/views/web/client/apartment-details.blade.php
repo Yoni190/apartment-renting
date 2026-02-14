@@ -127,9 +127,15 @@
                     Contact Owner
                 </button>
 
-                <button class="btn btn-outline-secondary w-100">
-                    Save Listing
-                </button>
+                <form action="{{ route('favorites.store') }}" method="POST">
+                    @csrf
+
+                    <input type="hidden" name="apartment_id" value="{{ $apartment->id }}">
+
+                    <button type="submit" class="btn btn-outline-secondary w-100">
+                        Save Listing
+                    </button>
+                </form>
             </div>
 
             <!-- Owner Info (optional if relation exists) -->
