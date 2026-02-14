@@ -89,4 +89,51 @@ class TourBookingController extends Controller
 
         return redirect()->back()->with('success', 'Tour requested — owner will receive a notification.');
     }
+
+    public function storeOpenHours(Request $request, $listingId)
+    {
+        // Optional: clear existing hours (so user can reset)
+        ListingOpenHour::where('listing_id', $listingId)->delete();
+
+        $daysMap = [
+            'Sunday' => 0,
+            'Monday' => 1,
+            'Tuesday' => 2,
+            'Wednesday' => 3,
+            'Thursday' => 4,
+            'Friday' => 5,
+            'Saturday' => 6,
+        ];
+
+        foreach ($request->days_from as $index => $fromDay) {
+
+            $toDay = $request->days_to[$index];
+            $startTime = $request->time_from[$index];
+            $endTime = $request->time_to[$index];
+
+            $startIndex = $daysMap[$fromDay];
+            $endIndex = $daysMap[$toDay];
+
+            
+            if ($startIndex <= $endIndex) {
+                $range = range($startIndex, $endIndex);
+            } else {
+                $range = array_merge(
+                    range($startIndex, 6),
+                    range(0, $endIndex)
+                );
+            }
+
+            foreach ($range as $day) {
+                ListingOpenHour::create([
+                    'listing_id' => $listingId,
+                    'day_of_week' => $day,
+                    'start_time' => $startTime,
+                    'end_time' => $endTime,
+                ]);
+            }
+        }
+
+        return back()->with('success', 'Open hours saved successfully!');
+    }
 }
