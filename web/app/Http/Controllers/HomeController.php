@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Favorite;
 
 class HomeController extends Controller
 {
@@ -172,11 +173,28 @@ class HomeController extends Controller
     {
         $user = Auth::user();
 
-        // Make sure user only deletes their own favorite
         $favorite = $user->favorites()->where('id', $id)->firstOrFail();
 
         $favorite->delete();
 
         return redirect()->back()->with('success', 'Removed from favorites.');
+    }
+
+    public function storeFavorite(Request $request)
+    {
+        $user = Auth::user();
+
+        $exists = Favorite::where('user_id', $user->id)
+            ->where('apartment_id', $request->apartment_id)
+            ->exists();
+
+        if (!$exists) {
+            Favorite::create([
+                'user_id' => $user->id,
+                'apartment_id' => $request->apartment_id,
+            ]);
+        }
+
+        return back()->with('success', 'Listing saved to favorites.');
     }
 }
