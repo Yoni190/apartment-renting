@@ -209,4 +209,27 @@ class TourBookingController extends Controller
 
         return redirect()->back()->with('success', 'Tour requested — owner will receive a notification.');
     }
+
+    public function cancelTour(TourBooking $tour)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        if ($tour->user_id !== $user->id) {
+            abort(403);
+        }
+
+        if ($tour->status !== TourBooking::STATUS_PENDING) {
+            return back()->with('error', 'Only pending tours can be canceled.');
+        }
+
+        $tour->update([
+            'status' => TourBooking::STATUS_CANCELED
+        ]);
+
+        return back()->with('success', 'Tour request canceled successfully.');
+    }
 }
