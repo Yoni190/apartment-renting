@@ -114,7 +114,7 @@
                                 </a>
 
                                 @if($tour->status === \App\Models\TourBooking::STATUS_PENDING)
-                                    <form method="POST" action="">
+                                    <form method="POST" action="{{ route('tours.cancel', $tour->id) }}">
                                         @csrf
                                         @method('PATCH')
                                         <button class="btn btn-sm btn-outline-danger">
