@@ -94,7 +94,9 @@
                                     <small>{{ ucfirst($b->status) }}</small>
                                 </div>
                                 <div class="text-muted">{{ $b->listing->address }}</div>
-                                <div class="mt-2">Requested: {{ $b->scheduled_at->toDayDateTimeString() }}</div>
+                                <div class="mt-2">
+                                    Requested: {{ \Carbon\Carbon::parse($b->scheduled_at)->toDayDateTimeString() }}
+                                </div>
                                 <div class="text-muted">Client: {{ $b->user->name }} — {{ $b->user->email }}</div>
                             </div>
                         </div>
