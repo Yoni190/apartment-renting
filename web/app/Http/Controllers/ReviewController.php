@@ -50,4 +50,22 @@ class ReviewController extends Controller
             'total_reviews' => $reviews->count(),
         ]);
     }
+
+    public function storeWeb(Request $request)
+    {
+        $request->validate([
+            'apartment_id' => 'required|exists:apartments,id',
+            'rating' => 'required|integer|min:1|max:5',
+            'comment' => 'required|string|max:1000',
+        ]);
+
+        Review::create([
+            'user_id' => auth()->id(),
+            'apartment_id' => $request->apartment_id,
+            'rating' => $request->rating,
+            'comment' => $request->comment,
+        ]);
+
+        return back()->with('success', 'Review added!');
+    }
 }
