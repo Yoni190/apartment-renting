@@ -150,6 +150,15 @@ class TourBookingController extends Controller
             return redirect()->route('login');
         }
 
+        $existingPending = TourBooking::where('listing_id', $apartment->id)
+            ->where('user_id', $user->id)
+            ->where('status', TourBooking::STATUS_PENDING)
+            ->exists();
+
+        if ($existingPending) {
+            return back()->with('error', 'You already have a pending request for this apartment.');
+        }
+
         // Combine date and time into Carbon instance
         try {
             $scheduled = Carbon::parse($request->input('date').' '.$request->input('time'));
