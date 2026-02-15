@@ -59,6 +59,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/apartments/{apartment}/book-tour', [App\Http\Controllers\TourBookingController::class, 'create'])->name('bookings.create');
     Route::post('/apartments/{apartment}/book-tour', [App\Http\Controllers\TourBookingController::class, 'store'])->name('bookings.store');
 
+    Route::get('/client/tours', [HomeController::class, 'tours'])->name('tours');
+
 
     Route::post('/{apartment}/book-tour', [TourBookingController::class, 'storeWeb'])->name('tour.store');
 
