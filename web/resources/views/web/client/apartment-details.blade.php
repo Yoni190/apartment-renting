@@ -61,6 +61,18 @@
 .info-card h3 {
     color: #111827;
 }
+/* Interactive stars */
+.star {
+    font-size: 1.4rem;
+    color: #d1d5db;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.star.active,
+.star.hovered {
+    color: #f59e0b;
+}
 </style>
 @endpush
 
@@ -188,7 +200,40 @@
 
             <hr>
 
+            <h6 class="fw-bold mb-3">Leave a Review</h6>
 
+            @auth
+            <form action="{{ route('reviews.store') }}" method="POST">
+                @csrf
+
+                <input type="hidden" name="apartment_id" value="{{ $apartment->id }}">
+
+                <!-- Star Rating -->
+                <div class="mb-3">
+                    <label class="form-label">Your Rating</label>
+                    <div id="starRating" class="d-flex gap-1">
+                        @for($i = 1; $i <= 5; $i++)
+                            <i class="bi bi-star star" data-value="{{ $i }}"></i>
+                        @endfor
+                    </div>
+                    <input type="hidden" name="rating" id="ratingInput" required>
+                </div>
+
+                <!-- Comment -->
+                <div class="mb-3">
+                    <label class="form-label">Your Review</label>
+                    <textarea name="comment" class="form-control" rows="3" placeholder="Write your experience..." required></textarea>
+                </div>
+
+                <button class="btn btn-primary">
+                    Submit Review
+                </button>
+            </form>
+            @else
+            <p class="text-muted">
+                Please <a href="{{ route('login') }}">login</a> to leave a review.
+            </p>
+            @endauth
 
         </div>
 
@@ -366,5 +411,38 @@ document.addEventListener('DOMContentLoaded', function () {
     generateSlots(dateSelect.value);
 
 });
+
+// Star rating interaction
+const stars = document.querySelectorAll('.star');
+const ratingInput = document.getElementById('ratingInput');
+
+let selectedRating = 0;
+
+stars.forEach(star => {
+    star.addEventListener('click', () => {
+        selectedRating = star.getAttribute('data-value');
+        ratingInput.value = selectedRating;
+
+        updateStars(selectedRating);
+    });
+
+    star.addEventListener('mouseover', () => {
+        updateStars(star.getAttribute('data-value'));
+    });
+
+    star.addEventListener('mouseleave', () => {
+        updateStars(selectedRating);
+    });
+});
+
+function updateStars(rating) {
+    stars.forEach(star => {
+        if (star.getAttribute('data-value') <= rating) {
+            star.classList.add('active');
+        } else {
+            star.classList.remove('active');
+        }
+    });
+}
 </script>
 @endpush
