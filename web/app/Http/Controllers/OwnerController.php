@@ -149,5 +149,24 @@ class OwnerController extends Controller
             ->route('owner.dashboard')
             ->with('success', 'Apartment updated successfully!');
     }
+
+    public function destroy(Apartment $apartment)
+    {   
+        if ($apartment->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $apartment->bookings()->delete();
+
+        foreach ($apartment->images as $image) {
+            \Storage::delete($image->path);
+            $image->delete();
+        }
+
+        $apartment->delete();
+
+        return redirect()->route('owner.dashboard')
+            ->with('success', 'Listing deleted successfully.');
+    }
 }
 
