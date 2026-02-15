@@ -73,6 +73,14 @@
 .star.hovered {
     color: #f59e0b;
 }
+.review-item {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 </style>
 @endpush
 
@@ -145,38 +153,13 @@
             </div>
 
             <!-- Reviews -->
-            <div class="info-card mb-4">
-                <h5 class="fw-bold mb-3">Reviews</h5>
-
-                @php
-                    $avg = round($apartment->averageRating(), 1);
-                    $count = $apartment->reviews->count();
-                @endphp
-
-                <!-- Summary -->
-                <div class="d-flex align-items-center mb-3">
-                    <h3 class="fw-bold me-2 mb-0">{{ $avg ?? '0.0' }}</h3>
-
-                    <!-- Stars -->
-                    <div class="me-2">
-                        @for($i = 1; $i <= 5; $i++)
-                            <i class="bi {{ $i <= round($avg) ? 'bi-star-fill text-warning' : 'bi-star text-muted' }}"></i>
-                        @endfor
-                    </div>
-
-                    <span class="text-muted">({{ $count }} reviews)</span>
-                </div>
-
-                <hr>
-
-                <!-- Review List -->
-                @forelse($apartment->reviews as $review)
-                    <div class="mb-3 pb-3 border-bottom">
+            <div id="reviewsContainer">
+                @forelse($apartment->reviews->take(3) as $review)
+                    <div class="mb-3 pb-3 border-bottom review-item">
 
                         <div class="d-flex justify-content-between">
                             <strong>{{ $review->user->name ?? 'Anonymous' }}</strong>
 
-                            <!-- Rating -->
                             <div>
                                 @for($i = 1; $i <= 5; $i++)
                                     <i class="bi {{ $i <= $review->rating ? 'bi-star-fill text-warning' : 'bi-star text-muted' }}"></i>
@@ -195,8 +178,13 @@
                 @empty
                     <p class="text-muted mb-0">No reviews yet.</p>
                 @endforelse
-
             </div>
+
+            @if($apartment->reviews->count() > 3)
+                <button id="loadMoreBtn" class="btn btn-outline-primary w-100 mt-2">
+                    Show More Reviews
+                </button>
+            @endif
 
             <hr>
 
@@ -444,5 +432,49 @@ function updateStars(rating) {
         }
     });
 }
+</script>
+
+<script>
+    const allReviews = @json($apartment->reviews);
+    let currentIndex = 3;
+    const step = 3;
+
+    const container = document.getElementById('reviewsContainer');
+    const btn = document.getElementById('loadMoreBtn');
+
+    if (btn) {
+        btn.addEventListener('click', () => {
+
+            const nextReviews = allReviews.slice(currentIndex, currentIndex + step);
+
+            nextReviews.forEach(review => {
+
+                let stars = '';
+                for (let i = 1; i <= 5; i++) {
+                    stars += `<i class="bi ${i <= review.rating ? 'bi-star-fill text-warning' : 'bi-star text-muted'}"></i>`;
+                }
+
+                const html = `
+                    <div class="mb-3 pb-3 border-bottom review-item">
+                        <div class="d-flex justify-content-between">
+                            <strong>${review.user?.name ?? 'Anonymous'}</strong>
+                            <div>${stars}</div>
+                        </div>
+                        <small class="text-muted">just now</small>
+                        <p class="mt-2 text-muted mb-0">${review.comment}</p>
+                    </div>
+                `;
+
+                container.insertAdjacentHTML('beforeend', html);
+            });
+
+            currentIndex += step;
+
+            // Hide button if no more reviews
+            if (currentIndex >= allReviews.length) {
+                btn.style.display = 'none';
+            }
+        });
+    }
 </script>
 @endpush
