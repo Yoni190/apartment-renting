@@ -67,6 +67,12 @@
                                 Apartments
                             </a>
                         </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->is('tours') ? 'active' : '' }}" href="{{ url('/client/tours') }}">
+                                Tours
+                            </a>
+                        </li>
                     @endif
 
                     <li class="nav-item">
