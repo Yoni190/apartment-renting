@@ -78,6 +78,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/edit-apartment/{apartment}', [OwnerController::class, 'editApartmentView'])->name('apartment.edit');
     Route::post('/edit-apartment/{apartment}', [OwnerController::class, 'editApartment'])->name('apartment.update');
+    Route::delete('/apartment/{apartment}', [OwnerController::class, 'destroy'])
+    ->name('apartment.destroy');
 
 
     Route::post('/listing/{listing}/open-hours', [TourBookingController::class, 'storeOpenHours'])
