@@ -40,6 +40,27 @@
     border-radius: 20px;
     font-size: 0.8rem;
 }
+
+/* Review stars */
+.bi-star-fill {
+    font-size: 0.9rem;
+}
+.bi-star {
+    font-size: 0.9rem;
+}
+
+/* Review hover effect */
+.info-card .border-bottom:hover {
+    background: #f9fafb;
+    border-radius: 8px;
+    padding: 10px;
+    transition: 0.2s ease;
+}
+
+/* Rating number */
+.info-card h3 {
+    color: #111827;
+}
 </style>
 @endpush
 
@@ -110,6 +131,64 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Reviews -->
+            <div class="info-card mb-4">
+                <h5 class="fw-bold mb-3">Reviews</h5>
+
+                @php
+                    $avg = round($apartment->averageRating(), 1);
+                    $count = $apartment->reviews->count();
+                @endphp
+
+                <!-- Summary -->
+                <div class="d-flex align-items-center mb-3">
+                    <h3 class="fw-bold me-2 mb-0">{{ $avg ?? '0.0' }}</h3>
+
+                    <!-- Stars -->
+                    <div class="me-2">
+                        @for($i = 1; $i <= 5; $i++)
+                            <i class="bi {{ $i <= round($avg) ? 'bi-star-fill text-warning' : 'bi-star text-muted' }}"></i>
+                        @endfor
+                    </div>
+
+                    <span class="text-muted">({{ $count }} reviews)</span>
+                </div>
+
+                <hr>
+
+                <!-- Review List -->
+                @forelse($apartment->reviews as $review)
+                    <div class="mb-3 pb-3 border-bottom">
+
+                        <div class="d-flex justify-content-between">
+                            <strong>{{ $review->user->name ?? 'Anonymous' }}</strong>
+
+                            <!-- Rating -->
+                            <div>
+                                @for($i = 1; $i <= 5; $i++)
+                                    <i class="bi {{ $i <= $review->rating ? 'bi-star-fill text-warning' : 'bi-star text-muted' }}"></i>
+                                @endfor
+                            </div>
+                        </div>
+
+                        <small class="text-muted">
+                            {{ $review->created_at->diffForHumans() }}
+                        </small>
+
+                        <p class="mt-2 text-muted mb-0">
+                            {{ $review->comment }}
+                        </p>
+                    </div>
+                @empty
+                    <p class="text-muted mb-0">No reviews yet.</p>
+                @endforelse
+
+            </div>
+
+            <hr>
+
+
 
         </div>
 
