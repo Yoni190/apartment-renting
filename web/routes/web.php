@@ -65,6 +65,11 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/{apartment}/book-tour', [TourBookingController::class, 'storeWeb'])->name('tour.store');
     Route::patch('/tours/{tour}/cancel', [TourBookingController::class, 'cancelTour'])
     ->name('tours.cancel');
+    Route::patch('/owner/bookings/{booking}/accept', [TourBookingController::class, 'acceptBooking'])
+        ->name('owner.bookings.accept');
+
+    Route::patch('/owner/bookings/{booking}/reject', [TourBookingController::class, 'rejectBooking'])
+        ->name('owner.bookings.reject');
 
     Route::get('/add-apartment', [OwnerController::class, 'addApartmentView'])->name('apartment-create');
     Route::post('/add-apartment', [OwnerController::class, 'storeApartment'])->name('apartment.store');

@@ -98,6 +98,27 @@
                                     Requested: {{ \Carbon\Carbon::parse($b->scheduled_at)->toDayDateTimeString() }}
                                 </div>
                                 <div class="text-muted">Client: {{ $b->user->name }} — {{ $b->user->email }}</div>
+                                @if($b->status === \App\Models\TourBooking::STATUS_PENDING)
+                                    <div class="mt-3 d-flex gap-2">
+                                        {{-- Accept --}}
+                                        <form method="POST" action="{{ route('owner.bookings.accept', $b->id) }}">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button class="btn btn-sm btn-success">
+                                                Accept
+                                            </button>
+                                        </form>
+
+                                        {{-- Reject --}}
+                                        <form method="POST" action="{{ route('owner.bookings.reject', $b->id) }}">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button class="btn btn-sm btn-danger">
+                                                Reject
+                                            </button>
+                                        </form>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     </a>
