@@ -244,4 +244,41 @@ class TourBookingController extends Controller
 
         return back()->with('success', 'Tour request canceled successfully.');
     }
+
+    public function acceptBooking(TourBooking $booking)
+    {
+        if ($booking->status !== TourBooking::STATUS_PENDING) {
+            return back()->with('error', 'This booking has already been processed.');
+        }
+
+        $conflict = TourBooking::where('listing_id', $booking->listing_id)
+            ->where('scheduled_at', $booking->scheduled_at)
+            ->where('id', '!=', $booking->id)
+            ->where('status', TourBooking::STATUS_APPROVED)
+            ->exists();
+
+        if ($conflict) {
+            return back()->with('error', 'Another booking has already been approved for this time.');
+        }
+
+        $booking->update([
+            'status' => TourBooking::STATUS_APPROVED
+        ]);
+
+        return back()->with('success', 'Booking accepted.');
+    }
+
+
+    public function rejectBooking(TourBooking $booking)
+    {
+        if ($booking->status !== TourBooking::STATUS_PENDING) {
+            return back()->with('error', 'This booking has already been processed.');
+        }
+
+        $booking->update([
+            'status' => TourBooking::STATUS_REJECTED
+        ]);
+
+        return back()->with('success', 'Booking rejected.');
+    }
 }
