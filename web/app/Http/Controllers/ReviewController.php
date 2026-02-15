@@ -59,6 +59,14 @@ class ReviewController extends Controller
             'comment' => 'required|string|max:1000',
         ]);
 
+        $existingReview = Review::where('user_id', auth()->id())
+            ->where('apartment_id', $request->apartment_id)
+            ->first();
+
+        if ($existingReview) {
+            return back()->with('error', 'You have already reviewed this apartment.');
+        }
+
         Review::create([
             'user_id' => auth()->id(),
             'apartment_id' => $request->apartment_id,
