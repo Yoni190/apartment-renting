@@ -70,12 +70,15 @@ $daysMap = [
                     </a>
 
                     {{-- Delete Listing --}}
-                    <form method="POST" action="{{ route('apartment.destroy', $listing->id) }}"
-                        onsubmit="return confirm('Are you sure you want to delete this listing? This action cannot be undone.');">
+                    <form method="POST" action="{{ route('apartment.destroy', $listing->id) }}">
                         @csrf
                         @method('DELETE')
 
-                        <button class="btn btn-danger w-100 mb-2">
+                        {{-- Delete Listing Trigger --}}
+                        <button type="button"
+                                class="btn btn-danger w-100 mb-2"
+                                data-bs-toggle="modal"
+                                data-bs-target="#deleteModal">
                             Delete Listing
                         </button>
                     </form>
@@ -199,5 +202,55 @@ $daysMap = [
         </div>
     </div>
 
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow" style="border-radius:15px;">
+
+            <div class="modal-body text-center p-4">
+
+                {{-- Icon --}}
+                <div class="mb-3">
+                    <div style="
+                        width:70px;
+                        height:70px;
+                        background:#ffe5e5;
+                        border-radius:50%;
+                        display:flex;
+                        align-items:center;
+                        justify-content:center;
+                        margin:auto;
+                    ">
+                        <i class="bi bi-trash-fill text-danger" style="font-size:28px;"></i>
+                    </div>
+                </div>
+
+                {{-- Title --}}
+                <h5 class="fw-bold mb-2">Delete Listing?</h5>
+
+                {{-- Message --}}
+                <p class="text-muted mb-4" style="font-size:14px;">
+                    This action cannot be undone. All related bookings and data will be permanently removed.
+                </p>
+
+                {{-- Actions --}}
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-light w-50" data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+
+                    <form method="POST" action="{{ route('apartment.destroy', $listing->id) }}" class="w-50">
+                        @csrf
+                        @method('DELETE')
+
+                        <button class="btn btn-danger w-100">
+                            Yes, Delete
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
 </div>
 @endsection
