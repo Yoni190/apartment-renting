@@ -136,4 +136,68 @@ class TourBookingController extends Controller
 
         return back()->with('success', 'Open hours saved successfully!');
     }
+
+    public function storeWeb(Request $request, Apartment $apartment)
+    {
+        $request->validate([
+            'date' => 'required|date',
+            'time' => 'required', // HH:MM or HH:MM:SS
+            'note' => 'nullable|string'
+        ]);
+
+        $user = Auth::user();
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        // Combine date and time into Carbon instance
+        try {
+            $scheduled = Carbon::parse($request->input('date').' '.$request->input('time'));
+        } catch (\Exception $e) {
+            return back()->withErrors(['time' => 'Invalid date or time']);
+        }
+
+        // Get the day of week
+        $dayOfWeek = $scheduled->dayOfWeek; // 0=Sun, 1=Mon, etc.
+
+        // Find open hours for that day
+        $slots = $apartment->openHours()->where('day_of_week', $dayOfWeek)->get();
+
+        if ($slots->isEmpty()) {
+            return back()->withErrors(['time' => 'No tours are available on this day.']);
+        }
+
+        // Check if selected time falls within any open slot
+        $valid = false;
+        foreach ($slots as $slot) {
+            $start = Carbon::parse($slot->start_time);
+            $end   = Carbon::parse($slot->end_time);
+            $scheduledTime = Carbon::parse($scheduled->format('H:i')); // only time
+
+            if ($scheduledTime->between($start, $end)) {
+                $valid = true;
+                break;
+            }
+        }
+
+        if (!$valid) {
+            return back()->withErrors(['time' => 'Selected time is outside available tour hours.']);
+        }
+
+        // Save booking
+        $booking = TourBooking::create([
+            'listing_id'   => $apartment->id,
+            'user_id'      => $user->id,
+            'scheduled_at' => $scheduled,
+            'status'       => TourBooking::STATUS_PENDING,
+            'note'         => $request->input('note'),
+        ]);
+
+        // Notify owner
+        if ($apartment->owner) {
+            $apartment->owner->notify(new TourRequested($booking));
+        }
+
+        return redirect()->back()->with('success', 'Tour requested — owner will receive a notification.');
+    }
 }
