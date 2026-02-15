@@ -77,12 +77,12 @@
     <!-- Categories -->
     <h3 class="fw-bold mb-3">Explore Categories</h3>
     <div class="row g-4 mb-5">
-        <div class="col-md-3">
+        <a href="{{ route('client.apartments') }}" class="col-md-3 text-decoration-none">
             <div class="card category-card p-4 text-center shadow-sm">
                 <i class="bi bi-building display-4 text-primary"></i>
                 <h5 class="mt-3">Apartments</h5>
             </div>
-        </div>
+        </a>
 
         <div class="col-md-3">
             <div class="card category-card p-4 text-center shadow-sm">
