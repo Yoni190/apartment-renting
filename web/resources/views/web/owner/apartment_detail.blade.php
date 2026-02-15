@@ -69,6 +69,17 @@ $daysMap = [
                         Edit Listing
                     </a>
 
+                    {{-- Delete Listing --}}
+                    <form method="POST" action="{{ route('apartment.destroy', $listing->id) }}"
+                        onsubmit="return confirm('Are you sure you want to delete this listing? This action cannot be undone.');">
+                        @csrf
+                        @method('DELETE')
+
+                        <button class="btn btn-danger w-100 mb-2">
+                            Delete Listing
+                        </button>
+                    </form>
+
                     <a href="{{ route('owner.dashboard') }}"
                        class="btn btn-outline-secondary w-100">
                         Back
