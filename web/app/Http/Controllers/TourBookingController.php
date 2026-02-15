@@ -193,6 +193,18 @@ class TourBookingController extends Controller
             return back()->withErrors(['time' => 'Selected time is outside available tour hours.']);
         }
 
+        $alreadyBooked = TourBooking::where('listing_id', $apartment->id)
+            ->where('scheduled_at', $scheduled)
+            ->whereIn('status', [
+                TourBooking::STATUS_PENDING,
+                TourBooking::STATUS_APPROVED,
+            ])
+            ->exists();
+
+        if ($alreadyBooked) {
+            return back()->with('error', 'This time slot has already been booked. Please choose another time.');
+        }
+
         // Save booking
         $booking = TourBooking::create([
             'listing_id'   => $apartment->id,
