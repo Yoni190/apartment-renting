@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Favorite;
+use App\Models\TourBooking;
 
 class HomeController extends Controller
 {
@@ -196,5 +197,21 @@ class HomeController extends Controller
         }
 
         return back()->with('success', 'Listing saved to favorites.');
+    }
+
+    public function tours()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $tours = TourBooking::with('listing')
+            ->where('user_id', $user->id)
+            ->latest('scheduled_at')
+            ->get();
+
+        return view('web.client.tours', compact('tours'));
     }
 }
