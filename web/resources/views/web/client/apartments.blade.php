@@ -100,7 +100,7 @@
                         </div>
 
                         {{-- Button --}}
-                        <a href="" 
+                        <a href="{{ route('user.client.apartment-details', $apartment->id) }}" 
                            class="btn btn-dark w-100 mt-auto">
                             View Details
                         </a>
