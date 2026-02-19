@@ -217,22 +217,35 @@ class HomeController extends Controller
 
     public function apartments(Request $request)
     {
-        $search = $request->query('search');
-
-        $apartments = Apartment::with('mainImage')
+        $apartments = Apartment::query()
+            ->with('mainImage')
             ->withAvg('reviews', 'rating')
-            ->when($search, function ($query, $search) {
+            ->where('status', 1)
+            ->when($request->filled('search'), function ($query) use ($request) {
+                $search = $request->search;
+
                 $query->where(function ($q) use ($search) {
                     $q->where('title', 'like', "%{$search}%")
                     ->orWhere('address', 'like', "%{$search}%")
                     ->orWhere('description', 'like', "%{$search}%");
                 });
             })
-            ->where('status', 1)
-            ->latest()
+            ->when($request->filled('min_price'), fn ($query) => $query->where('price', '>=', $request->min_price))
+            ->when($request->filled('max_price'), fn ($query) => $query->where('price', '<=', $request->max_price))
+            ->when($request->filled('bedrooms'), fn ($query) => $query->where('bedrooms', $request->bedrooms))
+            ->when($request->filled('bathrooms'), fn ($query) => $query->where('bathrooms', $request->bathrooms))
+            ->when($request->filled('sort'), function ($query) use ($request) {
+                match ($request->sort) {
+                    'price_asc' => $query->orderBy('price', 'asc'),
+                    'price_desc' => $query->orderBy('price', 'desc'),
+                    'rating_desc' => $query->orderByDesc('reviews_avg_rating'),
+                    'newest' => $query->latest(),
+                    default => $query->latest(),
+                };
+            }, fn ($query) => $query->latest())
             ->paginate(10)
             ->withQueryString();
 
-        return view('web.client.apartments', compact('apartments', 'search'));
+        return view('web.client.apartments', compact('apartments'));
     }
 }
