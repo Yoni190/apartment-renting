@@ -215,13 +215,24 @@ class HomeController extends Controller
         return view('web.client.tours', compact('tours'));
     }
 
-    public function apartments() {
+    public function apartments(Request $request)
+    {
+        $search = $request->query('search');
+
         $apartments = Apartment::with('mainImage')
             ->withAvg('reviews', 'rating')
+            ->when($search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('address', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
+                });
+            })
             ->where('status', 1)
             ->latest()
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
 
-        return view('web.client.apartments', compact('apartments'));
+        return view('web.client.apartments', compact('apartments', 'search'));
     }
 }
