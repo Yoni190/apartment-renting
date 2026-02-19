@@ -63,14 +63,6 @@
         <div class="hero-content">
             <h1 class="display-4 fw-bold">Find Your Next Apartment</h1>
             <p class="lead mb-4">Browse beautiful homes, studios, and condos crafted for your lifestyle.</p>
-
-            <!-- Search bar -->
-            <form action="#" method="GET" class="d-flex justify-content-center">
-                <input type="text" 
-                       name="search" 
-                       class="form-control form-control-lg w-75 rounded-pill px-4" 
-                       placeholder="Search city, neighborhood, or apartment type...">
-            </form>
         </div>
     </div>
 
