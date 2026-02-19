@@ -214,4 +214,12 @@ class HomeController extends Controller
 
         return view('web.client.tours', compact('tours'));
     }
+
+    public function apartments() {
+        $apartments = Apartment::with(['images', 'reviews'])
+            ->latest()
+            ->paginate(10);
+
+        return view('web.client.apartments', compact('apartments'));
+    }
 }
