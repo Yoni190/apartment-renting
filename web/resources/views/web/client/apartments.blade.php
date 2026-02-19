@@ -45,8 +45,8 @@
     <div class="row g-4">
         @foreach($apartments as $apartment)
             @php
-                $image = $apartment->images->first();
-                $avg = round($apartment->averageRating(), 1);
+                $image = $apartment->mainImage;
+                $avg = round($apartment->reviews_avg_rating, 1);
             @endphp
 
             <div class="col-md-6 col-lg-4">

@@ -79,4 +79,8 @@ class Apartment extends Model
         return $this->morphMany(Log::class, 'entity');
     }
 
+    public function mainImage() {
+        return $this->hasOne(ApartmentImage::class)->latest();
+    }
+
 }

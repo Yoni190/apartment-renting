@@ -216,7 +216,9 @@ class HomeController extends Controller
     }
 
     public function apartments() {
-        $apartments = Apartment::with(['images', 'reviews'])
+        $apartments = Apartment::with('mainImage')
+            ->withAvg('reviews', 'rating')
+            ->where('status', 1)
             ->latest()
             ->paginate(10);
 
