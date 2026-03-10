@@ -24,6 +24,7 @@ use App\Http\Controllers\ApartmentVerificationDocumentController;
 
 Route::get('/', [HomeController::class, 'index']);
 Route::get('/renter/register', [HomeController::class, 'registerView'])->name('user.renter.register');
+Route::get('/owner/register', [HomeController::class, 'ownerRegisterView'])->name('user.owner.register');
 Route::post('/renter/register', [HomeController::class, 'register'])->name('user.renter.register-user');
 Route::get('/login', [HomeController::class, 'login'])->name('login');
 
