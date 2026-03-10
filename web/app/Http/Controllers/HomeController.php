@@ -23,11 +23,15 @@ class HomeController extends Controller
         $featuredApartments = Apartment::where('is_featured', 1)->take(6)->get();
 
         $featuredApartments->load('images');
-        return view('web.client.renter.home', compact('featuredApartments'));
+        return view('web.client.home', compact('featuredApartments'));
     }
 
     public function registerView() {
-        return view('web.client.renter.register');
+        return view('web.client.register');
+    }
+
+    public function ownerRegisterView() {
+        return view('web.owner.register');
     }
 
     public function register(Request $request) {
@@ -49,12 +53,12 @@ class HomeController extends Controller
 
         Auth::login($user);
 
-        return redirect()->route('user.renter.home')
+        return redirect()->route('user.client.home')
         ->with('success', 'Account created successfully!');
     }
 
     public function login() {
-        return view('web.client.renter.login');
+        return view('web.client.login');
     }
 
     public function logout(Request $request) {
