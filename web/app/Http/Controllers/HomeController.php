@@ -66,16 +66,19 @@ class HomeController extends Controller
             'password' => ['required', 'confirmed', Password::defaults()],
         ]);
 
+        
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'phone_number' => $request->telNo,
+            'fan' => $request->fan,
             'password' => Hash::make($request->password),
             'role' => 1,
             'status' => 1
         ]);
 
-        return redirect()->route('user.owner.home')
+        return redirect()->route('owner.dashboard')
         ->with('success', 'Account Created Successfully');
 
     }
