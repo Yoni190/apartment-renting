@@ -47,7 +47,7 @@ class HomeController extends Controller
             'email' => $request->email,
             'phone_number' => $request->telNo,
             'password' => Hash::make($request->password),
-            'role' => 0,
+            'role' => 1,
             'status' => 1
         ]);
 
@@ -55,6 +55,29 @@ class HomeController extends Controller
 
         return redirect()->route('user.client.home')
         ->with('success', 'Account created successfully!');
+    }
+
+    public function ownerRegister(Request $request) {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email',
+            'telNo' => 'required|unique:users,phone_number',
+            'fan' => 'required|unique:users,fan',
+            'password' => ['required', 'confirmed', Password::defaults()],
+        ]);
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone_number' => $request->telNo,
+            'password' => Hash::make($request->password),
+            'role' => 1,
+            'status' => 1
+        ]);
+
+        return redirect()->route('user.owner.home')
+        ->with('success', 'Account Created Successfully');
+
     }
 
     public function login() {
