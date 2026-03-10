@@ -29,7 +29,7 @@
 
         <h3 class="text-center mb-4">Create an Account</h3>
 
-        <form action="{{ route('user.renter.register-user') }}" method="POST">
+        <form action="{{ route('user.owner.register-user') }}" method="POST">
             @csrf
 
             <div class="mb-3">
