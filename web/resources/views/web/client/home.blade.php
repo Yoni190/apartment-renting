@@ -133,7 +133,7 @@
     <div class="mt-5 p-5 bg-light rounded-4 shadow-sm text-center">
         <h3 class="fw-bold mb-3">Still Searching for the Perfect Home?</h3>
         <p class="text-muted mb-4">We help renters find verified apartments with reliable landlords.</p>
-        <a href="#" class="btn btn-lg btn-dark px-5">Browse All Apartments</a>
+        <a href="{{ route('client.apartments') }}" class="btn btn-lg btn-dark px-5">Browse All Apartments</a>
     </div>
 </div>
 
