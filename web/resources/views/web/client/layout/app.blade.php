@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>@yield('title', 'Gojoye')</title>
+    <title>@yield('title', __('Gojoye'))</title>
 
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -26,16 +26,16 @@
             @if(auth()->user())
                 @if(auth()->user()->role === 1)
                     <a class="navbar-brand fw-bold" href="{{ url('/home') }}">
-                        <i class="bi bi-building"></i> Gojoye
+                        <i class="bi bi-building"></i> {{ __('Gojoye') }}
                     </a>
                 @else
                     <a class="navbar-brand fw-bold" href="{{ url('/owner/dashboard') }}">
-                        <i class="bi bi-building"></i> Gojoye
+                        <i class="bi bi-building"></i> {{ __('Gojoye') }}
                     </a>
                 @endif
             @else
                 <a class="navbar-brand fw-bold" href="{{ url('/') }}">
-                    <i class="bi bi-building"></i> Gojoye
+                    <i class="bi bi-building"></i> {{ __('Gojoye') }}
                 </a>
             @endif
 
@@ -49,35 +49,35 @@
                     @if(auth()->user())
                         <li class="nav-item">
                             @if(auth()->user()->role === 1)
-                                <a class="nav-link {{ request()->is('/home') ? 'active' : '' }}" href="{{ url('/home') }}">Home</a>
+                                <a class="nav-link {{ request()->is('/home') ? 'active' : '' }}" href="{{ url('/home') }}">{{ __('Home') }}</a>
                             @else
-                                <a class="nav-link {{ request()->is('/owner/dashboard') ? 'active' : '' }}" href="{{ url('/owner/dashboard') }}">Home</a>
+                                <a class="nav-link {{ request()->is('/owner/dashboard') ? 'active' : '' }}" href="{{ url('/owner/dashboard') }}">{{ __('Home') }}</a>
                             @endif
                         </li>
 
                         <li class="nav-item">
                             @if(auth()->user()->role === 1)
-                                <a class="nav-link {{ request()->is('/favorites') ? 'active' : '' }}" href="{{ url('/favorites') }}">Favorites</a>
+                                <a class="nav-link {{ request()->is('/favorites') ? 'active' : '' }}" href="{{ url('/favorites') }}">{{ __('Favorites') }}</a>
                             @endif
                         </li>
 
                     
                         <li class="nav-item">
                             <a class="nav-link {{ request()->is('apartments') ? 'active' : '' }}" href="#">
-                                Apartments
+                                {{ __('Apartments') }}
                             </a>
                         </li>
 
                         <li class="nav-item">
                             <a class="nav-link {{ request()->is('tours') ? 'active' : '' }}" href="{{ url('/client/tours') }}">
-                                Tours
+                                {{ __('Tours') }}
                             </a>
                         </li>
                     @endif
 
                     <li class="nav-item">
                         <a class="nav-link {{ request()->is('about') ? 'active' : '' }}" href="{{ url('/about') }}">
-                            About Us
+                            {{ __('About Us') }}
                         </a>
                     </li>
 
@@ -92,22 +92,22 @@
                                 <i class="bi bi-person-circle"></i> {{ auth()->user()->name }}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="{{ route('user.client.profile') }}">Profile</a></li>
+                                <li><a class="dropdown-item" href="{{ route('user.client.profile') }}">{{ __('Profile') }}</a></li>
                                 <li>
                                     <form action="{{ route('logout') }}" method="POST">
                                         @csrf
-                                        <button class="dropdown-item" type="submit">Logout</button>
+                                        <button class="dropdown-item" type="submit">{{ __('Logout') }}</button>
                                     </form>
                                 </li>
                             </ul>
                         </li>
                     @else
                         <li class="nav-item ms-2">
-                            <a href="{{ route('login') }}" class="btn btn-outline-light btn-sm">Login</a>
+                            <a href="{{ route('login') }}" class="btn btn-outline-light btn-sm">{{ __('Login') }}</a>
                         </li>
                         <li class="nav-item ms-2">
-                            <a href="{{ route('user.renter.register') }}" class="btn btn-primary btn-sm">Register as Renter</a>
-                            <a href="{{ route('user.owner.register') }}" class="btn btn-primary btn-sm">Register as Apartment Owner</a>
+                            <a href="{{ route('user.renter.register') }}" class="btn btn-primary btn-sm">{{ __('Register as Renter') }}</a>
+                            <a href="{{ route('user.owner.register') }}" class="btn btn-primary btn-sm">{{ __('Register as Apartment Owner') }}</a>
                         </li>
                     @endauth
 
@@ -146,8 +146,8 @@
     <!-- FOOTER -->
     <footer class="bg-dark text-white py-4 mt-5">
         <div class="container text-center">
-            <p class="mb-1">© {{ date('Y') }} Gojoye. All rights reserved.</p>
-            <small>Find your perfect apartment with ease.</small>
+            <p class="mb-1">© {{ date('Y') }} {{ __('Gojoye. All rights reserved.') }}</p>
+            <small>{{ __('Find your perfect apartment with ease.') }}</small>
         </div>
     </footer>
 
