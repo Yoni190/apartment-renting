@@ -1,6 +1,6 @@
 @extends('web.client.layout.app')
 
-@section('title', 'Gojoye - About Us')
+@section('title', __('Gojoye - About Us'))
 
 @push('styles')
 <style>
@@ -68,35 +68,32 @@
 <!-- Hero -->
 <section class="about-hero mb-5">
     <div class="container position-relative">
-        <h1 class="display-4 fw-bold">About Gojoye</h1>
-        <p class="lead">Connecting you with your dream apartment easily and reliably</p>
+        <h1 class="display-4 fw-bold">{{ __('About Gojoye') }}</h1>
+        <p class="lead">{{ __('Connecting you with your dream apartment easily and reliably') }}</p>
     </div>
 </section>
 
 <!-- Our Story -->
 <section class="about-section container">
-    <h2>Our Story</h2>
+    <h2>{{ __('Our Story') }}</h2>
     <p>
-        Gojoye was founded with a mission to simplify apartment renting and buying for everyone. 
-        Whether you are looking for your first home or an investment property, we make the process smooth, fast, and transparent. 
-        Our team is dedicated to connecting clients with landlords, providing verified listings, and offering a seamless online experience.
+        {{ __('Gojoye was founded with a mission to simplify apartment renting and buying for everyone. Whether you are looking for your first home or an investment property, we make the process smooth, fast, and transparent. Our team is dedicated to connecting clients with landlords, providing verified listings, and offering a seamless online experience.') }}
     </p>
 </section>
 
 <!-- Our Mission -->
 <section class="about-section bg-light">
     <div class="container">
-        <h2>Our Mission</h2>
+        <h2>{{ __('Our Mission') }}</h2>
         <p>
-            We aim to make apartment renting and buying stress-free, trustworthy, and enjoyable. 
-            With a focus on verified listings, responsive support, and a user-friendly platform, Gojoye strives to empower renters to make informed choices.
+            {{ __('We aim to make apartment renting and buying stress-free, trustworthy, and enjoyable. With a focus on verified listings, responsive support, and a user-friendly platform, Gojoye strives to empower renters to make informed choices.') }}
         </p>
     </div>
 </section>
 
 <!-- Our Team -->
 <section class="about-section container">
-    <h2>Meet Our Team</h2>
+    <h2>{{ __('Meet Our Team') }}</h2>
     <div class="row g-4 mt-3">
 
         @php
