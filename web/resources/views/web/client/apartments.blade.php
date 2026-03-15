@@ -1,6 +1,6 @@
 @extends('web.client.layout.app')
 
-@section('title', 'Gojoye - Apartments')
+@section('title', __('Gojoye - Apartments'))
 
 @push('styles')
 <style>
@@ -45,23 +45,23 @@
 <div class="container py-5">
 
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
-        <h2 class="fw-bold mb-0">Explore Apartments</h2>
+        <h2 class="fw-bold mb-0">{{ __('Explore Apartments') }}</h2>
 
         <form method="GET" action="{{ route('client.apartments') }}" class="search-box w-100 mb-4">
             <div class="row g-3">
                 <div class="col-md-4">
-                    <label class="form-label small text-muted">Search</label>
+                    <label class="form-label small text-muted">{{ __('Search') }}</label>
                     <input
                         type="text"
                         name="search"
                         class="form-control"
-                        placeholder="Search by title, address, description..."
+                        placeholder="{{ __('Search by title, address, description...') }}"
                         value="{{ request('search') }}"
                     >
                 </div>
 
                 <div class="col-md-2">
-                    <label class="form-label small text-muted">Min Price</label>
+                    <label class="form-label small text-muted">{{ __('Min Price') }}</label>
                     <input
                         type="number"
                         name="min_price"
@@ -72,7 +72,7 @@
                 </div>
 
                 <div class="col-md-2">
-                    <label class="form-label small text-muted">Max Price</label>
+                    <label class="form-label small text-muted">{{ __('Max Price') }}</label>
                     <input
                         type="number"
                         name="max_price"
@@ -83,7 +83,7 @@
                 </div>
 
                 <div class="col-md-2">
-                    <label class="form-label small text-muted">Bedrooms</label>
+                    <label class="form-label small text-muted">{{ __('Bedrooms') }}</label>
                     <select name="bedrooms" class="form-select">
                         <option value="">Any</option>
                         @foreach([1,2,3,4,5,6] as $num)
@@ -95,7 +95,7 @@
                 </div>
 
                 <div class="col-md-2">
-                    <label class="form-label small text-muted">Bathrooms</label>
+                    <label class="form-label small text-muted">{{ __('Bathrooms') }}</label>
                     <select name="bathrooms" class="form-select">
                         <option value="">Any</option>
                         @foreach([1,2,3,4,5,6] as $num)
@@ -107,18 +107,18 @@
                 </div>
 
                 <div class="col-md-3">
-                    <label class="form-label small text-muted">Sort By</label>
+                    <label class="form-label small text-muted">{{ __('Sort By') }}</label>
                     <select name="sort" class="form-select">
-                        <option value="" @selected(!request('sort'))>Newest</option>
-                        <option value="price_asc" @selected(request('sort') === 'price_asc')>Price: Low to High</option>
-                        <option value="price_desc" @selected(request('sort') === 'price_desc')>Price: High to Low</option>
-                        <option value="rating_desc" @selected(request('sort') === 'rating_desc')>Top Rated</option>
+                        <option value="" @selected(!request('sort'))>{{ __('Newest') }}</option>
+                        <option value="price_asc" @selected(request('sort') === 'price_asc')>{{ __('Price: Low to High') }}</option>
+                        <option value="price_desc" @selected(request('sort') === 'price_desc')>{{ __('Price: High to Low') }}</option>
+                        <option value="rating_desc" @selected(request('sort') === 'rating_desc')>{{ __('Top Rated') }}</option>
                     </select>
                 </div>
 
                 <div class="col-md-9 d-flex align-items-end gap-2">
-                    <button class="btn btn-dark" type="submit">Apply Filters</button>
-                    <a href="{{ route('client.apartments') }}" class="btn btn-outline-secondary">Reset</a>
+                    <button class="btn btn-dark" type="submit">{{ __('Apply Filters') }}</button>
+                    <a href="{{ route('client.apartments') }}" class="btn btn-outline-secondary">{{ __('Reset') }}</a>
                 </div>
             </div>
         </form>
@@ -127,9 +127,9 @@
     @if(request('search'))
         <div class="mb-3">
             <span class="text-muted">
-                Showing results for: <strong>{{ request('search') }}</strong>
+                {{ __('Showing results for:') }} <strong>{{ request('search') }}</strong>
             </span>
-            <a href="{{ route('client.apartments') }}" class="ms-2 text-decoration-none">Clear</a>
+            <a href="{{ route('client.apartments') }}" class="ms-2 text-decoration-none">{{ __('Clear') }}</a>
         </div>
     @endif
 
@@ -152,12 +152,12 @@
 
                         @if($apartment->is_featured)
                             <span class="badge bg-warning text-dark position-absolute top-0 start-0 m-2">
-                                Featured
+                                {{ __('Featured') }}
                             </span>
                         @endif
 
                         <span class="price-badge">
-                            {{ number_format($apartment->price) }} Birr
+                            {{ __('ETB') }} {{ number_format($apartment->price) }}
                         </span>
                     </div>
 
@@ -169,8 +169,8 @@
                         </p>
 
                         <div class="d-flex justify-content-between small text-muted mb-2">
-                            <span>🛏 {{ $apartment->bedrooms }} Beds</span>
-                            <span>🛁 {{ $apartment->bathrooms }} Baths</span>
+                            <span>🛏 {{ $apartment->bedrooms }} {{ __('Beds') }}</span>
+                            <span>🛁 {{ $apartment->bathrooms }} {{ __('Baths') }}</span>
                             <span>📐 {{ $apartment->size }} m²</span>
                         </div>
 
@@ -178,13 +178,13 @@
                             @if($avg)
                                 ⭐ {{ $avg }}
                             @else
-                                <span class="text-muted small">No reviews yet</span>
+                                <span class="text-muted small">{{ __('No reviews yet') }}</span>
                             @endif
                         </div>
 
                         <a href="{{ route('user.client.apartment-details', $apartment->id) }}"
                            class="btn btn-dark w-100 mt-auto">
-                            View Details
+                            {{ __('View Details') }}
                         </a>
                     </div>
                 </div>
@@ -192,7 +192,7 @@
         @empty
             <div class="col-12">
                 <div class="alert alert-light border text-center py-5">
-                    No apartments found.
+                    {{ __('No apartments found.') }}
                 </div>
             </div>
         @endforelse
