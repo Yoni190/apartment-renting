@@ -5,13 +5,13 @@
 
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
         <div>
-            <h2 class="fw-bold mb-1">My Favorites</h2>
-            <p class="text-muted mb-0">All apartments you saved in one place.</p>
+            <h2 class="fw-bold mb-1">{{ __('My Favorites') }}</h2>
+            <p class="text-muted mb-0">{{ __('All apartments you saved in one place.') }}</p>
         </div>
 
         <div class="mt-3 mt-md-0">
             <span class="badge bg-primary px-3 py-2 rounded-pill">
-                {{ $favorites->count() }} Saved
+                {{ $favorites->count() }} {{ __('Saved') }}
             </span>
         </div>
     </div>
@@ -36,14 +36,14 @@
                                 <div class="w-100 h-100 d-flex align-items-center justify-content-center text-muted">
                                     <div class="text-center">
                                         <i class="bi bi-house-door fs-1 d-block mb-2"></i>
-                                        <span>No image available</span>
+                                        <span>{{ __('No image available') }}</span>
                                     </div>
                                 </div>
                             @endif
 
                             <div class="position-absolute top-0 end-0 p-3">
                                 <span class="badge bg-white text-dark shadow-sm rounded-pill px-3 py-2">
-                                    Saved
+                                    {{ __('Saved') }}
                                 </span>
                             </div>
                         </div>
@@ -51,12 +51,12 @@
                         <div class="card-body p-4 d-flex flex-column">
                             <div class="mb-2">
                                 <h5 class="card-title fw-bold mb-1">
-                                    {{ $apartment->title ?? 'Apartment #' . $favorite->apartment_id }}
+                                    {{ $apartment->title ?? __('Apartment #') . $favorite->apartment_id }}
                                 </h5>
 
                                 <p class="text-muted small mb-0">
                                     <i class="bi bi-geo-alt me-1"></i>
-                                    {{ $apartment->location ?? 'Location not available' }}
+                                    {{ $apartment->location ?? __('Location not available') }}
                                 </p>
                             </div>
 
@@ -65,18 +65,18 @@
                                     {{ $apartment->price ?? 'N/A' }}
                                 </span>
                                 @if($apartment && isset($apartment->price))
-                                    <span class="text-muted">/ month</span>
+                                    <span class="text-muted">/ {{ __('month') }}</span>
                                 @endif
                             </div>
 
                             <div class="mt-auto d-flex gap-2">
                                 @if($apartment)
                                     <a href="{{ route('user.client.apartment-details', $apartment) }}" class="btn btn-primary flex-fill rounded-pill">
-                                        View Details
+                                        {{ __('View Details') }}
                                     </a>
                                 @else
                                     <button class="btn btn-secondary flex-fill rounded-pill" disabled>
-                                        View Details
+                                        {{ __('View Details') }}
                                     </button>
                                 @endif
 
@@ -104,14 +104,14 @@
                                     <i class="bi bi-exclamation-triangle text-danger fs-1"></i>
                                 </div>
 
-                                <h5 class="fw-bold">Remove from Favorites?</h5>
+                                <h5 class="fw-bold">{{ __('Remove from Favorites?') }}</h5>
                                 <p class="text-muted small">
-                                    This apartment will be removed from your saved listings.
+                                    {{ __('This apartment will be removed from your saved listings.') }}
                                 </p>
 
                                 <div class="d-flex gap-2 mt-4">
                                     <button type="button" class="btn btn-light w-100 rounded-pill" data-bs-dismiss="modal">
-                                        Cancel
+                                        {{ __('Cancel') }}
                                     </button>
 
                                     <form action="{{ route('favorites.destroy', $favorite->id) }}" method="POST" class="w-100">
@@ -119,7 +119,7 @@
                                         @method('DELETE')
 
                                         <button type="submit" class="btn btn-danger w-100 rounded-pill">
-                                            Yes, Remove
+                                            {{ __('Yes, Remove') }}
                                         </button>
                                     </form>
                                 </div>
@@ -135,12 +135,12 @@
             <div class="mb-3">
                 <i class="bi bi-heart fs-1 text-muted"></i>
             </div>
-            <h4 class="fw-bold">No favorites yet</h4>
+            <h4 class="fw-bold">{{ __('No favorites yet') }}</h4>
             <p class="text-muted mb-4">
-                Start saving apartments you like so you can easily find them later.
+                {{ __('Start saving apartments you like so you can easily find them later.') }}
             </p>
             <a href="{{ route('user.client.home') }}" class="btn btn-primary rounded-pill px-4">
-                Browse Apartments
+                {{ __('Browse Apartments') }}
             </a>
         </div>
     @endif
