@@ -63,7 +63,7 @@
 
                     
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->is('apartments') ? 'active' : '' }}" href="#">
+                            <a class="nav-link {{ request()->is('apartments') ? 'active' : '' }}" href="{{ route('client.apartments') }}">
                                 {{ __('Apartments') }}
                             </a>
                         </li>
