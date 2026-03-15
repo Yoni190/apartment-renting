@@ -89,5 +89,16 @@
   "Yes, Remove": "አዎ, አስወግድ",
   "No favorites yet": "እስካሁን የተወደዱ የሉም",
   "Start saving apartments you like so you can easily find them later.": "የሚወዱትን አፓርታማዎች መቀመጥ ጀምሩ እንዲቀጥሉ በቀላሉ ሊያገኙት ይችላሉ።",
-  "Browse Apartments": "አፓርታማዎችን ይመልከቱ"
+  "Browse Apartments": "አፓርታማዎችን ይመልከቱ",
+  "Gojoye - Tours": "ጎጆዬ - ጉዞዎች",
+  "My Tour Requests": "የእኔ የጉዞ ጥያቄዎች",
+  "Track and manage your apartment tour bookings": "የአፓርታማ ጉዞዎችዎን እንዴት እንደሚቆጣጠሩ ተከታትሉ",
+  "No tour requests yet": "እስካሁን የጉዞ ጥያቄዎች የሉም",
+  "Start exploring apartments and book your first tour.": "አፓርታማዎችን መምረር ጀምሩ እና የመጀመሪያውን ጉዞ ይያዙ።",
+  "View": "ይመልከቱ",
+  "Pending": "በመጠባበቅ",
+  "Approved": "የተፈቀደ",
+  "Rejected": "የተከለከለ",
+  "Canceled": "ተሰርዟል",
+  "Completed": "ተጠናቀቀ"
 }

@@ -1,6 +1,6 @@
 @extends('web.client.layout.app')
 
-@section('title', 'Gojoye - Tours')
+@section('title', __('Gojoye - Tours'))
 
 @push('styles')
 <style>
@@ -49,15 +49,15 @@
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="fw-bold mb-1">My Tour Requests</h2>
-            <p class="text-muted mb-0">Track and manage your apartment tour bookings</p>
+            <h2 class="fw-bold mb-1">{{ __('My Tour Requests') }}</h2>
+            <p class="text-muted mb-0">{{ __('Track and manage your apartment tour bookings') }}</p>
         </div>
     </div>
 
     @if($tours->isEmpty())
         <div class="empty-state">
-            <h4 class="fw-semibold">No tour requests yet</h4>
-            <p>Start exploring apartments and book your first tour.</p>
+            <h4 class="fw-semibold">{{ __('No tour requests yet') }}</h4>
+            <p>{{ __('Start exploring apartments and book your first tour.') }}</p>
         </div>
     @else
         <div class="row g-4">
@@ -83,7 +83,7 @@
 
                             <!-- Title -->
                             <h5 class="fw-semibold mb-1">
-                                {{ $tour->listing->title ?? 'Apartment' }}
+                                {{ $tour->listing->title ?? __('Apartment') }}
                             </h5>
 
                             <!-- Date -->
@@ -94,7 +94,7 @@
                             <!-- Status -->
                             <div class="mb-3">
                                 <span class="status-badge status-{{ str_replace(' ', '-', $tour->status) }}">
-                                    {{ $tour->status }}
+                                    {{ __($tour->status) }}
                                 </span>
                             </div>
 
@@ -110,7 +110,7 @@
 
                                 <a href="{{ route('listing.details', $tour->listing) }}" 
                                    class="btn btn-sm btn-outline-primary">
-                                    View
+                                    {{ __('View') }}
                                 </a>
 
                                 @if($tour->status === \App\Models\TourBooking::STATUS_PENDING)
@@ -118,7 +118,7 @@
                                         @csrf
                                         @method('PATCH')
                                         <button class="btn btn-sm btn-outline-danger">
-                                            Cancel
+                                            {{ __('Cancel') }}
                                         </button>
                                     </form>
                                 @endif
