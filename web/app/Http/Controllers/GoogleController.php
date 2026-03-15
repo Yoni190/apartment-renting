@@ -9,19 +9,25 @@ use Illuminate\Support\Facades\Auth;
 
 class GoogleController extends Controller
 {
-    public function redirect() {
+    public function redirect(Request $request) {
+
+        session(['google_role' => $request->role]);
+
         return Socialite::driver('google')->redirect();
     }
 
     public function callback() {
         $googleUser = Socialite::driver('google')->stateless()->user();
 
+        $role = session('google_role', 1);
+
         $user = User::firstOrCreate(
             ['email' => $googleUser->getEmail()],
             [
                 'name' => $googleUser->getName(),
                 'password' => bcrypt(str()->random(16)),
-                'phone_number' => null
+                'phone_number' => null,
+                'role' => $role
             ]
             );
 
