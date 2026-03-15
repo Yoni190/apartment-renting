@@ -32,7 +32,12 @@ class GoogleController extends Controller
             );
 
         Auth::login($user);
-
-        return redirect()->route('user.client.home');
+        
+        if ($role === 1) {
+            return redirect()->route('user.client.home');
+        } else {
+            return redirect()->route('owner.dashboard');
+        }
+        
     }
 }
