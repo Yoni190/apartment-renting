@@ -1,6 +1,6 @@
 @extends('web.client.layout.app')
 
-@section('title', 'Gojoye - Edit Profile')
+@section('title', __('edit_profile.title'))
 
 @push('styles')
 <style>
@@ -57,8 +57,10 @@
                     </div>
 
                     <div>
-                        <h4 class="mb-0">Edit Profile</h4>
-                        <small class="text-muted">Update your personal information</small>
+                        <h4 class="mb-0">{{ __('edit_profile.heading') }}</h4>
+                        <small class="text-muted">
+                            {{ __('edit_profile.subheading') }}
+                        </small>
                     </div>
                 </div>
 
@@ -71,7 +73,7 @@
 
                         <!-- Name -->
                         <div class="col-md-6">
-                            <label class="form-label">Full Name</label>
+                            <label class="form-label">{{ __('edit_profile.full_name') }}</label>
                             <input type="text" 
                                    name="name" 
                                    class="form-control"
@@ -80,7 +82,7 @@
 
                         <!-- Email -->
                         <div class="col-md-6">
-                            <label class="form-label">Email</label>
+                            <label class="form-label">{{ __('edit_profile.email') }}</label>
                             <input type="email" 
                                    name="email" 
                                    class="form-control"
@@ -89,7 +91,7 @@
 
                         <!-- Phone -->
                         <div class="col-md-12">
-                            <label class="form-label">Phone</label>
+                            <label class="form-label">{{ __('edit_profile.phone') }}</label>
                             <input type="text" 
                                    name="phone_number" 
                                    class="form-control"
@@ -101,7 +103,7 @@
                     <!-- Submit -->
                     <div class="mt-4">
                         <button type="submit" class="btn btn-primary btn-save w-100">
-                            Update Profile
+                            {{ __('edit_profile.update_button') }}
                         </button>
                     </div>
 

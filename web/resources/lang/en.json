@@ -122,5 +122,14 @@
   "profile.account_info": "Account Information",
   "profile.joined": "Joined",
   "profile.status": "Status",
-  "profile.active": "Active"
+  "profile.active": "Active",
+  "edit_profile.title": "Gojoye - Edit Profile",
+  "edit_profile.heading": "Edit Profile",
+  "edit_profile.subheading": "Update your personal information",
+
+  "edit_profile.full_name": "Full Name",
+  "edit_profile.email": "Email",
+  "edit_profile.phone": "Phone",
+
+  "edit_profile.update_button": "Update Profile"
 }

@@ -121,5 +121,14 @@
   "profile.account_info": "የአካውንት መረጃ",
   "profile.joined": "ተመዝግቧል",
   "profile.status": "ሁኔታ",
-  "profile.active": "ንቁ"
+  "profile.active": "ንቁ",
+  "edit_profile.title": "Gojoye - ፕሮፋይል አርትዕ",
+  "edit_profile.heading": "ፕሮፋይል አርትዕ",
+  "edit_profile.subheading": "የግል መረጃዎን ያዘምኑ",
+
+  "edit_profile.full_name": "ሙሉ ስም",
+  "edit_profile.email": "ኢሜይል",
+  "edit_profile.phone": "ስልክ",
+
+  "edit_profile.update_button": "ፕሮፋይል አዘምን"
 }
