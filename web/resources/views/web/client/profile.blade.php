@@ -1,6 +1,6 @@
 @extends('web.client.layout.app')
 
-@section('title', 'Gojoye - Profile')
+@section('title', __('profile.title'))
 
 @push('styles')
 <style>
@@ -59,13 +59,13 @@
             </div>
 
             <div>
-                <h4 class="mb-1">{{ auth()->user()->name ?? 'User Name' }}</h4>
+                <h4 class="mb-1">{{ auth()->user()->name ?? __('profile.user_name') }}</h4>
                 <p class="text-muted mb-0">{{ auth()->user()->email ?? 'email@example.com' }}</p>
             </div>
         </div>
 
         <a href="{{ route('user.client.edit-profile') }}" class="btn btn-primary">
-            Edit Profile
+            {{ __('profile.edit_profile') }}
         </a>
 
     </div>
@@ -76,20 +76,20 @@
         <!-- Personal Info -->
         <div class="col-md-6">
             <div class="profile-card h-100">
-                <h5 class="section-title">Personal Information</h5>
+                <h5 class="section-title">{{ __('profile.personal_info') }}</h5>
 
                 <div class="mb-3">
-                    <div class="info-label">Full Name</div>
+                    <div class="info-label">{{ __('profile.full_name') }}</div>
                     <div class="info-value">{{ auth()->user()->name ?? '-' }}</div>
                 </div>
 
                 <div class="mb-3">
-                    <div class="info-label">Email</div>
+                    <div class="info-label">{{ __('profile.email') }}</div>
                     <div class="info-value">{{ auth()->user()->email ?? '-' }}</div>
                 </div>
 
                 <div class="mb-3">
-                    <div class="info-label">Phone</div>
+                    <div class="info-label">{{ __('profile.phone') }}</div>
                     <div class="info-value">{{ auth()->user()->phone_number ?? '-' }}</div>
                 </div>
             </div>
@@ -98,19 +98,19 @@
         <!-- Account Info -->
         <div class="col-md-6">
             <div class="profile-card h-100">
-                <h5 class="section-title">Account Information</h5>
+                <h5 class="section-title">{{ __('profile.account_info') }}</h5>
 
                 <div class="mb-3">
-                    <div class="info-label">Joined</div>
+                    <div class="info-label">{{ __('profile.joined') }}</div>
                     <div class="info-value">
                         {{ \Carbon\Carbon::parse(auth()->user()->created_at)->format('M d, Y') }}
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <div class="info-label">Status</div>
+                    <div class="info-label">{{ __('profile.status') }}</div>
                     <div class="info-value text-success">
-                        Active
+                        {{ __('profile.active') }}
                     </div>
                 </div>
             </div>

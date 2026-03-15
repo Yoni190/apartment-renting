@@ -109,5 +109,18 @@
   "Gojoye was founded with a mission to simplify apartment renting and buying for everyone. Whether you are looking for your first home or an investment property, we make the process smooth, fast, and transparent. Our team is dedicated to connecting clients with landlords, providing verified listings, and offering a seamless online experience.": "Gojoye was founded with a mission to simplify apartment renting and buying for everyone. Whether you are looking for your first home or an investment property, we make the process smooth, fast, and transparent. Our team is dedicated to connecting clients with landlords, providing verified listings, and offering a seamless online experience.",
   "Our Mission": "Our Mission",
   "We aim to make apartment renting and buying stress-free, trustworthy, and enjoyable. With a focus on verified listings, responsive support, and a user-friendly platform, Gojoye strives to empower renters to make informed choices.": "We aim to make apartment renting and buying stress-free, trustworthy, and enjoyable. With a focus on verified listings, responsive support, and a user-friendly platform, Gojoye strives to empower renters to make informed choices.",
-  "Meet Our Team": "Meet Our Team"
+  "Meet Our Team": "Meet Our Team",
+  "profile.title": "Gojoye - Profile",
+  "profile.user_name": "User Name",
+  "profile.edit_profile": "Edit Profile",
+
+  "profile.personal_info": "Personal Information",
+  "profile.full_name": "Full Name",
+  "profile.email": "Email",
+  "profile.phone": "Phone",
+
+  "profile.account_info": "Account Information",
+  "profile.joined": "Joined",
+  "profile.status": "Status",
+  "profile.active": "Active"
 }
