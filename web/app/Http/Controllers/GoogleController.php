@@ -27,6 +27,6 @@ class GoogleController extends Controller
 
         Auth::login($user);
 
-        return redirect()->route('user.renter.home');
+        return redirect()->route('user.client.home');
     }
 }
