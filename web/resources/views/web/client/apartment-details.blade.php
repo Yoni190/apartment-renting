@@ -112,11 +112,11 @@
 
             <!-- Overview -->
             <div class="info-card mb-4">
-                <h5 class="fw-bold mb-3">Overview</h5>
+                <h5 class="fw-bold mb-3">{{ __('Overview') }}</h5>
 
                 <div class="d-flex gap-3 mb-3 flex-wrap">
-                    <span class="badge-soft">{{ $apartment->bedrooms }} Bedrooms</span>
-                    <span class="badge-soft">{{ $apartment->bathrooms }} Bathrooms</span>
+                    <span class="badge-soft">{{ $apartment->bedrooms }} {{ __('Bedrooms') }}</span>
+                    <span class="badge-soft">{{ $apartment->bathrooms }} {{ __('Bathrooms') }}</span>
                     <span class="badge-soft">{{ $apartment->size }} m²</span>
                 </div>
 
@@ -127,27 +127,27 @@
 
             <!-- Details -->
             <div class="info-card mb-4">
-                <h5 class="fw-bold mb-3">Details</h5>
+                <h5 class="fw-bold mb-3">{{ __('Details') }}</h5>
 
                 <div class="row">
                     <div class="col-md-6 mb-2">
-                        <strong>Status:</strong> 
-                        {{ $apartment->status ? 'Available' : 'Not Available' }}
+                        <strong>{{ __('Status') }}:</strong> 
+                        {{ $apartment->status ? __('Available') : __('Not Available') }}
                     </div>
 
                     <div class="col-md-6 mb-2">
-                        <strong>Verification:</strong> 
+                        <strong>{{ __('Verification') }}:</strong> 
                         {{ ucfirst($apartment->verification_status) }}
                     </div>
 
                     <div class="col-md-6 mb-2">
-                        <strong>Listed On:</strong> 
+                        <strong>{{ __('Listed On') }}:</strong> 
                         {{ \Carbon\Carbon::parse($apartment->created_at)->format('M d, Y') }}
                     </div>
 
                     <div class="col-md-6 mb-2">
-                        <strong>Featured:</strong> 
-                        {{ $apartment->is_featured ? 'Yes' : 'No' }}
+                        <strong>{{ __('Featured') }}:</strong> 
+                        {{ $apartment->is_featured ? __('Yes') : __('No') }}
                     </div>
                 </div>
             </div>
@@ -176,19 +176,19 @@
                         </p>
                     </div>
                 @empty
-                    <p class="text-muted mb-0">No reviews yet.</p>
+                    <p class="text-muted mb-0">{{ __('No reviews yet.') }}</p>
                 @endforelse
             </div>
 
             @if($apartment->reviews->count() > 3)
                 <button id="loadMoreBtn" class="btn btn-outline-primary w-100 mt-2">
-                    Show More Reviews
+                    {{ __('Show More Reviews') }}
                 </button>
             @endif
 
             <hr>
 
-            <h6 class="fw-bold mb-3">Leave a Review</h6>
+            <h6 class="fw-bold mb-3">{{ __('Leave a Review') }}</h6>
 
             @auth
             <form action="{{ route('reviews.store') }}" method="POST">
@@ -198,7 +198,7 @@
 
                 <!-- Star Rating -->
                 <div class="mb-3">
-                    <label class="form-label">Your Rating</label>
+                    <label class="form-label">{{ __('Your Rating') }}</label>
                     <div id="starRating" class="d-flex gap-1">
                         @for($i = 1; $i <= 5; $i++)
                             <i class="bi bi-star star" data-value="{{ $i }}"></i>
@@ -209,17 +209,17 @@
 
                 <!-- Comment -->
                 <div class="mb-3">
-                    <label class="form-label">Your Review</label>
-                    <textarea name="comment" class="form-control" rows="3" placeholder="Write your experience..." required></textarea>
+                    <label class="form-label">{{ __('Your Review') }}</label>
+                    <textarea name="comment" class="form-control" rows="3" placeholder="{{ __('Write your experience...') }}" required></textarea>
                 </div>
 
                 <button class="btn btn-primary">
-                    Submit Review
+                    {{ __('Submit Review') }}
                 </button>
             </form>
             @else
             <p class="text-muted">
-                Please <a href="{{ route('login') }}">login</a> to leave a review.
+                {{ __('Please') }} <a href="{{ route('login') }}">{{ __('login') }}</a> {{ __('to leave a review.') }}
             </p>
             @endauth
 
@@ -231,12 +231,12 @@
             <!-- Price Box -->
             <div class="price-box mb-4">
                 <h3 class="fw-bold text-primary">
-                    ${{ number_format($apartment->price) }}
+                    {{ __('ETB') }} {{ number_format($apartment->price) }}
                 </h3>
-                <p class="text-muted mb-3">per month</p>
+                <p class="text-muted mb-3">{{ __('per month') }}</p>
 
                 <button class="btn btn-primary w-100 mb-2">
-                    Contact Owner
+                    {{ __('Contact Owner') }}
                 </button>
 
                 <form action="{{ route('favorites.store') }}" method="POST">
@@ -245,7 +245,7 @@
                     <input type="hidden" name="apartment_id" value="{{ $apartment->id }}">
 
                     <button type="submit" class="btn btn-outline-secondary w-100">
-                        Save Listing
+                        {{ __('Save Listing') }}
                     </button>
                 </form>
             </div>
@@ -253,14 +253,14 @@
             <!-- Owner Info (optional if relation exists) -->
             @if(isset($apartment->owner))
             <div class="info-card">
-                <h6 class="fw-bold mb-3">Owner</h6>
+                <h6 class="fw-bold mb-3">{{ __('Owner') }}</h6>
                 <p class="mb-1">{{ $apartment->owner->name ?? 'Owner' }}</p>
-                <small class="text-muted">Property Owner</small>
+                <small class="text-muted">{{ __('Property Owner') }}</small>
             </div>
             @endif
 
             <div class="card p-3 mt-3" style="border-radius:15px;">
-                <h6 class="fw-bold mb-3">Available Tour Times</h6>
+                <h6 class="fw-bold mb-3">{{ __('Available Tour Times') }}</h6>
 
                 @php
                     $daysMap = [
@@ -302,7 +302,7 @@
 
                 {{-- SELECT DAY --}}
                 <div class="mb-2">
-                    <label class="form-label">Select Day</label>
+                    <label class="form-label">{{ __('Select Day') }}</label>
                     <select name="date" id="dateSelect" class="form-select" required>
                         @php
                             $today = \Carbon\Carbon::today();
@@ -322,14 +322,14 @@
 
             {{-- SELECT TIME --}}
             <div class="mb-2">
-                <label class="form-label">Select Time</label>
+                <label class="form-label">{{ __('Select Time') }}</label>
                 <select name="time" id="timeSelect" class="form-select" required>
-                    <option value="">Select a time</option>
+                    <option value="">{{ __('Select Time') }}</option>
                 </select>
             </div>
 
                 <button type="submit" class="btn btn-success w-100">
-                    Request Tour
+                    {{ __('Request Tour') }}
                 </button>
             </form>
 
@@ -355,7 +355,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!dateSelect || !timeSelect) return; // safety
 
     function generateSlots(dateValue) {
-        timeSelect.innerHTML = '<option value="">Select a time</option>';
+        timeSelect.innerHTML = `<option value="">{{ __('Select Time') }}</option>`;
 
         const selectedDate = new Date(dateValue);
         const dayOfWeek = selectedDate.getDay(); // 0 = Sunday, 1 = Monday, ...
