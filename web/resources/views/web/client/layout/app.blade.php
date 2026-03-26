@@ -81,6 +81,11 @@
                         </a>
                     </li>
 
+                    <li class="nav-item">
+                        <a href="/lang/en" class="btn btn-sm btn-outline-light">EN</a>
+                        <a href="/lang/am" class="btn btn-sm btn-outline-light">አማ</a>
+                    </li>
+
                     @auth('web')
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">
