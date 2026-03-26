@@ -38,6 +38,14 @@ Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name
 
 Route::get('/about', [HomeController::class, 'about'])->name('about-us');
 
+Route::get('/lang/{locale}', function ($locale) {
+    if (! in_array($locale, ['en', 'am'])) abort(400);
+
+    session(['locale' => $locale]);
+
+    return redirect()->back();
+});
+
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/home', [HomeController::class, 'home'])
