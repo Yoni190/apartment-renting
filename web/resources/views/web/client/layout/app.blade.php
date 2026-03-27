@@ -16,6 +16,21 @@
     <!-- Custom Styles -->
     <!-- <link rel="stylesheet" href="{{ asset('css/main.css') }}"> -->
 
+    <style>
+        #chatbot-box {
+    border-radius: 12px;
+        }
+
+        #chatbot-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #chatbot-messages::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 10px;
+        }
+    </style>
+
     @stack('styles')
 </head>
 <body class="bg-light">
@@ -161,8 +176,87 @@
         });
         toastList.forEach(toast => toast.show());
     </script>
+    
 
     @stack('scripts')
+        <!-- Chatbot Button -->
+        <div id="chatbot-toggle" class="btn btn-primary position-fixed bottom-0 end-0 m-4 rounded-circle shadow">
+            <i class="bi bi-chat-dots"></i>
+        </div>
 
+        <!-- Chatbox -->
+        <div id="chatbot-box" class="card shadow position-fixed bottom-0 end-0 m-4" style="width: 380px; height: 500px; display:none;">
+            <div class="card-header bg-primary text-white d-flex justify-content-between">
+                <span>Chat</span>
+                <button class="btn-close btn-close-white" id="chatbot-close"></button>
+            </div>
+            <div id="chatbot-messages" class="card-body" style="height: 380px; overflow-y:auto;"></div>
+            <div class="card-footer d-flex">
+                <input type="text" id="chatbot-input" class="form-control me-2" placeholder="Ask something...">
+                <button class="btn btn-primary" id="chatbot-send">Send</button>
+            </div>
+        </div>
+
+        <script>
+            const toggleBtn = document.getElementById('chatbot-toggle');
+            const chatBox = document.getElementById('chatbot-box');
+            const closeBtn = document.getElementById('chatbot-close');
+            const sendBtn = document.getElementById('chatbot-send');
+            const input = document.getElementById('chatbot-input');
+            const messages = document.getElementById('chatbot-messages');
+
+            toggleBtn.onclick = () => chatBox.style.display = 'block';
+            closeBtn.onclick = () => chatBox.style.display = 'none';
+
+            sendBtn.onclick = sendMessage;
+            input.addEventListener("keypress", function(e) {
+                if (e.key === "Enter") sendMessage();
+            });
+
+            function appendMessage(text, sender) {
+                const div = document.createElement('div');
+                div.className = sender === 'user' ? 'text-end mb-2' : 'text-start mb-2';
+
+                const bubble = document.createElement('div');
+                bubble.className = sender === 'user'
+                    ? 'bg-primary text-white p-2 rounded'
+                    : 'bg-light border p-2 rounded';
+
+                bubble.style.maxWidth = "75%";
+                bubble.style.wordWrap = "break-word";
+                bubble.style.whiteSpace = "pre-wrap";
+
+                bubble.innerText = text;
+
+                div.appendChild(bubble);
+                messages.appendChild(div);
+
+                messages.scrollTop = messages.scrollHeight;
+            }
+
+            function sendMessage() {
+                const text = input.value.trim();
+                if (!text) return;
+
+                appendMessage(text, 'user');
+                input.value = '';
+
+                fetch("{{ route('chat') }}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                    },
+                    body: JSON.stringify({ message: text })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    appendMessage(data.reply, 'bot');
+                })
+                .catch(() => {
+                    appendMessage("Error connecting to AI", 'bot');
+                });
+            }
+            </script>
 </body>
 </html>
