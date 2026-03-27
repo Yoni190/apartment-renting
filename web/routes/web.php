@@ -13,6 +13,7 @@ use App\Http\Controllers\ApartmentVerificationDocumentController;
 use App\Http\Controllers\OwnerController;
 use App\Http\Controllers\TourBookingController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\ChatBotController;
 
 /*
 |--------------------------------------------------------------------------
@@ -45,6 +46,8 @@ Route::get('/lang/{locale}', function ($locale) {
 
     return redirect()->back();
 });
+
+Route::post('/chat', [ChatBotController::class, 'chat'])->name('chat');
 
 
 Route::middleware(['auth'])->group(function () {
