@@ -50,7 +50,7 @@
 
             <div class="form-card">
 
-                <!-- Header -->
+            
                 <div class="d-flex align-items-center gap-3 mb-4">
                     <div class="profile-avatar">
                         {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}
@@ -64,14 +64,14 @@
                     </div>
                 </div>
 
-                <!-- Form -->
+                
                 <form method="POST" action="{{ route('profile.update') }}">
                     @csrf
                     @method('PUT')
 
                     <div class="row g-3">
 
-                        <!-- Name -->
+                    
                         <div class="col-md-6">
                             <label class="form-label">{{ __('edit_profile.full_name') }}</label>
                             <input type="text" 
@@ -80,7 +80,7 @@
                                    value="{{ old('name', auth()->user()->name) }}">
                         </div>
 
-                        <!-- Email -->
+                        
                         <div class="col-md-6">
                             <label class="form-label">{{ __('edit_profile.email') }}</label>
                             <input type="email" 
@@ -89,7 +89,7 @@
                                    value="{{ old('email', auth()->user()->email) }}">
                         </div>
 
-                        <!-- Phone -->
+                        
                         <div class="col-md-12">
                             <label class="form-label">{{ __('edit_profile.phone') }}</label>
                             <input type="text" 
@@ -100,7 +100,7 @@
 
                     </div>
 
-                    <!-- Submit -->
+                    
                     <div class="mt-4">
                         <button type="submit" class="btn btn-primary btn-save w-100">
                             {{ __('edit_profile.update_button') }}
