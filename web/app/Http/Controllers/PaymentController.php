@@ -32,8 +32,8 @@ class PaymentController extends Controller
     {
         $user = Auth::user();
 
-        $amount = $request->input('amount'); // 2000 or 5000
-        $planType = $request->input('plan_type'); // basic or premium
+        $amount = (float) $request->input('amount'); // cast to float
+        $planType = $request->input('plan_type', 'basic');
 
         $reference = $this->reference;
 
@@ -41,20 +41,25 @@ class PaymentController extends Controller
             'amount' => $amount,
             'email' => $user->email,
             'tx_ref' => $reference,
-            'currency' => "ETB",
+            'currency' => 'ETB',
             'callback_url' => route('callback', [$reference]),
-            'first_name' => $user->name,
-            'last_name' => '',
+            'first_name' => $user->name ?? 'User',
+            'last_name' => ' ',
+            'phone_number' => $user->phone_number ?? null,
             "customization" => [
-                "title" => ucfirst($planType) . ' Plan Subscription',
+                "title" => ucfirst($planType) . " Plan",
                 "description" => "Subscription for {$planType} plan"
             ]
         ];
 
-        $payment = Chapa::initializePayment($data);
+        try {
+            $payment = Chapa::initializePayment($data);
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Payment initialization failed: ' . $e->getMessage());
+        }
 
         if ($payment['status'] !== 'success') {
-            return redirect()->back()->with('error', 'Something went wrong while initiating payment.');
+            return redirect()->back()->with('error', 'Something went wrong while initiating payment. Response: ' . json_encode($payment));
         }
 
         return redirect($payment['data']['checkout_url']);
