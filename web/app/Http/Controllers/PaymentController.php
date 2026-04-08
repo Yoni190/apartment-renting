@@ -59,4 +59,23 @@ class PaymentController extends Controller
 
         return redirect($payment['data']['checkout_url']);
     }
+
+    public function callback($reference)
+    {
+        $data = Chapa::verifyTransaction($reference);
+
+        if ($data['status'] === 'success') {
+            $user = Auth::user();
+            $planType = $data['data']['customization']['title'] ?? 'basic';
+            $user->subscribed = 1;
+            $user->plan_type = strtolower($planType);
+            $user->subscription_expires_at = Carbon::now()->addYear(); // 1 year subscription
+            $user->save();
+
+            return redirect()->route('user.client.dashboard')
+                             ->with('success', "Your {$planType} plan subscription was successful!");
+        }
+
+        return redirect()->route('subscription.page')->with('error', 'Payment failed or canceled.');
+    }
 }
