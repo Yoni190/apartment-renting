@@ -18,7 +18,8 @@ class ChatBotController extends Controller
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . env('GROQ_API_KEY'),
             'Content-Type' => 'application/json',
-        ])->post('https://api.groq.com/openai/v1/chat/completions', [
+        ])->withoutVerifying()
+        ->post('https://api.groq.com/openai/v1/chat/completions', [
             "model" => "llama-3.3-70b-versatile",
             "messages" => [
                 ["role" => "system", "content" => "
