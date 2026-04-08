@@ -14,6 +14,7 @@ use App\Http\Controllers\OwnerController;
 use App\Http\Controllers\TourBookingController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ChatBotController;
+use App\Http\Controllers\PaymentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -99,6 +100,9 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/listing/{listing}/open-hours', [TourBookingController::class, 'storeOpenHours'])
     ->name('listing.hours.store');
+
+    Route::get('/subscription', [PaymentController::class, 'index'])
+        ->name('subscription.page');
 });
 
 Route::prefix('admin')->group(function () {
