@@ -6,6 +6,8 @@ use Chapa\Chapa\Facades\Chapa as Chapa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 
 class PaymentController extends Controller
 {
@@ -28,42 +30,6 @@ class PaymentController extends Controller
         return view('web.owner.subscription');
     }
 
-    public function initialize(Request $request)
-    {
-        $user = Auth::user();
-
-        $amount = (float) $request->input('amount'); // cast to float
-        $planType = $request->input('plan_type', 'basic');
-
-        $reference = $this->reference;
-
-        $data = [
-            'amount' => $amount,
-            'email' => $user->email,
-            'tx_ref' => $reference,
-            'currency' => 'ETB',
-            'callback_url' => route('callback', [$reference]),
-            'first_name' => $user->name ?? 'User',
-            'last_name' => ' ',
-            'phone_number' => $user->phone_number ?? null,
-            "customization" => [
-                "title" => ucfirst($planType) . " Plan",
-                "description" => "Subscription for {$planType} plan"
-            ]
-        ];
-
-        try {
-            $payment = Chapa::initializePayment($data);
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Payment initialization failed: ' . $e->getMessage());
-        }
-
-        if ($payment['status'] !== 'success') {
-            return redirect()->back()->with('error', 'Something went wrong while initiating payment. Response: ' . json_encode($payment));
-        }
-
-        return redirect($payment['data']['checkout_url']);
-    }
 
     public function callback($reference)
     {
@@ -77,10 +43,51 @@ class PaymentController extends Controller
             $user->subscription_expires_at = Carbon::now()->addYear(); // 1 year subscription
             $user->save();
 
-            return redirect()->route('user.client.dashboard')
+            return redirect()->route('user.client.profile')
                              ->with('success', "Your {$planType} plan subscription was successful!");
         }
 
-        return redirect()->route('subscription.page')->with('error', 'Payment failed or canceled.');
+        return redirect()->route('web.owner.subscription')->with('error', 'Payment failed or canceled.');
+    }
+
+
+    public function initialize(Request $request)
+    {
+        $user = Auth::user();
+
+        $amount = (float) $request->input('amount', 2000); // default to 2000
+        $planType = $request->input('plan_type', 'basic');
+
+        // Generate a unique reference
+        $refNo = strtoupper(Str::random(10));
+
+        $secretKey = env('CHAPA_SECRET_KEY');
+
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $secretKey,
+            'Content-Type' => 'application/json',
+        ])->post('https://api.chapa.co/v1/transaction/initialize', [
+            "amount" => $amount,
+            "currency" => "ETB",
+            "first_name" => $user->name ?? 'User',
+            "last_name" => '', 
+            "email" => $user->email,
+            "phone_number" => $user->phone_number ?? null,
+            "tx_ref" => $refNo,
+            "return_url" => route('callback', ['reference' => $refNo]), // callback route
+            "customization" => [
+                "title" => substr(ucfirst($planType) . " Plan", 0, 16), // Chapa max 16 chars
+                "description" => "Subscription for {$planType} plan",
+            ]
+        ]);
+
+        if ($response->successful()) {
+            $checkoutUrl = $response->json('data.checkout_url');
+
+            // Redirect user to Chapa checkout page
+            return redirect()->away($checkoutUrl);
+        } else {
+            return redirect()->back()->with('error', 'Failed to initialize transaction: ' . $response->body());
+        }
     }
 }
