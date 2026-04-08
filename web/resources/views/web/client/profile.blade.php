@@ -64,9 +64,17 @@
             </div>
         </div>
 
-        <a href="{{ route('user.client.edit-profile') }}" class="btn btn-primary">
-            {{ __('profile.edit_profile') }}
-        </a>
+        <div class="d-flex">
+            <a href="{{ route('user.client.edit-profile') }}" class="btn btn-primary">
+                {{ __('profile.edit_profile') }}
+            </a>
+
+            @if(auth()->user()->role === 0 && auth()->user()->subscribed === 0)
+                <a href="{{ route('subscription.page') }}" class="btn btn-warning ms-2">
+                    {{ __('profile.subscribe_now') }}
+                </a>
+            @endif
+        </div>
 
     </div>
 
