@@ -10,12 +10,11 @@ class PaymentController extends Controller
     {
         $user = auth()->user();
 
-        // Optional: redirect subscribed users
         if ($user->subscribed) {
             return redirect()->route('user.client.dashboard')
                              ->with('info', 'You are already subscribed.');
         }
 
-        return view('web.client.subscription'); // Make sure this Blade exists
+        return view('web.owner.subscription');
     }
 }
