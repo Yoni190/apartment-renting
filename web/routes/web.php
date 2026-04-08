@@ -103,6 +103,9 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/subscription', [PaymentController::class, 'index'])
         ->name('subscription.page');
+
+    Route::post('/pay', [PaymentController::class, 'initialize'])->name('pay');
+    Route::get('/callback/{reference}', [PaymentController::class, 'callback'])->name('callback');
 });
 
 Route::prefix('admin')->group(function () {
