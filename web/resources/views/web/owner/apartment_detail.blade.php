@@ -59,7 +59,7 @@ $daysMap = [
                 <div class="card-body">
 
                     <h4 class="fw-bold mb-3">
-                        ${{ $listing->price }}
+                        {{ $listing->price }} Birr
                         <span class="text-muted fs-6">/ month</span>
                     </h4>
 
