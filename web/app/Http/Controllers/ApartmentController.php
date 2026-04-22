@@ -565,7 +565,6 @@ class ApartmentController extends Controller
         if ($wasPreviouslyApproved) {
             $apartment->verification_status = 'pending';
             $apartment->verified_at = null;
-            $apartment->verified_by = null;
             // Keep any rejection_reason untouched (should be null for approved), do not alter images or other fields
             $apartment->save();
         }
