@@ -131,7 +131,6 @@ const HomeScreen = () => {
       console.log(`User: ${user}`)
       if (apartments.length && user) {
         updateApartmentsWithFavorites(user);
-        console.log(apartments)
       }
     }, [user]);
 
