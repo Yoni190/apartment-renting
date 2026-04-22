@@ -82,6 +82,7 @@
 </section>
 
 <!-- Search / Filter Bar -->
+ {{--
 <section id="searchSection" class="container search-bar mb-5">
     <form method="GET" action="#" class="row g-3 align-items-center">
         <div class="col-md-3">
@@ -106,6 +107,7 @@
         </div>
     </form>
 </section>
+ --}}
 
 <!-- Featured Apartments -->
 <section class="container mb-5">
