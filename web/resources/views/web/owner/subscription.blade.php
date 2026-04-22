@@ -9,13 +9,13 @@
         <!-- Basic Plan -->
         <div class="col-md-6 col-lg-5">
             <div class="card shadow-sm h-100 p-4 border-0 rounded-4">
-                <h4 class="mb-2">Basic Plan</h4>
-                <p class="text-muted mb-3">2000 birr / annually</p>
+                <h4 class="mb-2">{{ __('basic_plan') }}</h4>
+                <p class="text-muted mb-3">{{ __('basic_plan_price') }}</p>
 
                 <ul class="mb-4">
-                    <li>Access to basic features</li>
-                    <li>Annual subscription</li>
-                    <li>Affordable option</li>
+                    <li>{{ __('basic_plan_feature_1') }}</li>
+                    <li>{{ __('basic_plan_feature_2') }}</li>
+                    <li>{{ __('basic_plan_feature_3') }}</li>
                 </ul>
 
                 <form method="POST" action="{{ route('pay') }}">
@@ -23,7 +23,7 @@
                     <input type="hidden" name="amount" value="2000">
                     <input type="hidden" name="plan_type" value="basic">
                     <button type="submit" class="btn btn-primary w-100">
-                        Subscribe to Basic
+                        {{ __('subscribe_to_basic') }}
                     </button>
                 </form>
             </div>
@@ -32,13 +32,13 @@
         <!-- Premium Plan -->
         <div class="col-md-6 col-lg-5">
             <div class="card shadow-sm h-100 p-4 border-0 rounded-4">
-                <h4 class="mb-2">Premium Plan</h4>
-                <p class="text-muted mb-3">5000 birr / annually</p>
+                <h4 class="mb-2">{{ __('premium_plan') }}</h4>
+                <p class="text-muted mb-3">{{ __('premium_plan_price') }}</p>
 
                 <ul class="mb-4">
-                    <li>All basic features</li>
-                    <li>Premium support</li>
-                    <li>Full access to advanced features</li>
+                    <li>{{ __('premium_plan_feature_1') }}</li>
+                    <li>{{ __('premium_plan_feature_2') }}</li>
+                    <li>{{ __('premium_plan_feature_3') }}</li>
                 </ul>
 
                 <form method="POST" action="{{ route('pay') }}">
@@ -46,7 +46,7 @@
                     <input type="hidden" name="amount" value="5000">
                     <input type="hidden" name="plan_type" value="premium">
                     <button type="submit" class="btn btn-success w-100">
-                        Subscribe to Premium
+                        {{ __('subscribe_to_premium') }}
                     </button>
                 </form>
             </div>
