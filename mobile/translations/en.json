@@ -45,5 +45,21 @@
   "please_wait": "Please wait...",
   "start": "Start",
   "my_tours": "My Tours",
-  "no_tours_booked": "No tours booked"
+  "no_tours_booked": "No tours booked",
+  "client": "Client",
+  "owner": "Owner",
+  "message": "Message",
+  "call": "Call",
+  "listing": "Listing",
+  "pending": "PENDING",
+  "no_time_set": "No time set",
+  "no_phone_available": "No phone number available",
+  "cancel_tour": "Cancel Tour",
+  "request_cancellation": "Request Cancellation",
+  "approve": "Approve",
+  "reject": "Reject",
+  "approve_cancellation": "Approve Cancellation",
+  "reject_cancellation": "Reject Cancellation",
+  "mark_completed": "Mark as Completed",
+  "mark_no_show": "Mark as No Show"
 }
