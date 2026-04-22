@@ -30,5 +30,18 @@
   "filters": "Filters",
   "bedrooms": "Bedrooms",
   "price_range": "Price Range",
-  "apply": "Apply"
+  "apply": "Apply",
+  "loading": "Loading...",
+  "search_conversations": "Search conversations",
+  "clear": "Clear",
+  "all_messages": "All messages ({{count}})",
+  "unread": "Unread ({{count}})",
+  "selected_count": "{{count}} selected",
+  "mark_read": "Mark read",
+  "delete": "Delete",
+  "no_unread_messages": "No unread messages.",
+  "start_new_message": "Start new message",
+  "enter_user_email": "Enter user email",
+  "please_wait": "Please wait...",
+  "start": "Start"
 }
