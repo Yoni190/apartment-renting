@@ -132,5 +132,19 @@
   "edit_profile.phone": "Phone",
 
   "edit_profile.update_button": "Update Profile",
-  "profile.subscribe_now": "Subscribe Now"
+  "profile.subscribe_now": "Subscribe Now",
+  "basic_plan": "Basic Plan",
+  "basic_plan_price": "2000 birr / annually",
+  "basic_plan_feature_1": "Access to basic features",
+  "basic_plan_feature_2": "Annual subscription",
+  "basic_plan_feature_3": "Affordable option",
+  "subscribe_to_basic": "Subscribe to Basic",
+
+  "premium_plan": "Premium Plan",
+  "premium_plan_price": "5000 birr / annually",
+  "premium_plan_feature_1": "All basic features",
+  "premium_plan_feature_2": "Premium support",
+  "premium_plan_feature_3": "Full access to advanced features",
+  "subscribe_to_premium": "Subscribe to Premium",
+  "subscription.title": "Subscription Plans"
 }
