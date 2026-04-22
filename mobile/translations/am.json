@@ -35,5 +35,21 @@
   "please_wait": "እባክዎ ትንሽ ይጠብቁ...",
   "start": "ጀምር",
   "my_tours": "የእኔ ጉዞዎች",
-  "no_tours_booked": "ምንም ጉዞ አልተያዘም"
+  "no_tours_booked": "ምንም ጉዞ አልተያዘም",
+  "client": "ደንበኛ",
+  "owner": "ባለቤት",
+  "message": "መልዕክት",
+  "call": "ይደውሉ",
+  "listing": "ዝርዝር",
+  "pending": "በመጠባበቅ ላይ",
+  "no_time_set": "ጊዜ አልተዘጋጀም",
+  "no_phone_available": "ስልክ ቁጥር የለም",
+  "cancel_tour": "ጉዞ ሰርዝ",
+  "request_cancellation": "የስረዛ ጥያቄ አቅርብ",
+  "approve": "አጽድቅ",
+  "reject": "አልቀበል",
+  "approve_cancellation": "የስረዛ አጽድቅ",
+  "reject_cancellation": "የስረዛ አልቀበል",
+  "mark_completed": "ተጠናቋል ብለህ ምልክት አድርግ",
+  "mark_no_show": "አልተገኘም ብለህ ምልክት አድርግ"
 }
