@@ -8,9 +8,11 @@ import messageService from '../../services/messageService'
 import { onMessageUpdate, offMessageUpdate, emitMessageUpdate, setLocalReadState, getLocalReadState } from '../../services/messageService'
 import * as SecureStore from 'expo-secure-store'
 import Header from '../../components/Header'
+import { useTranslation } from 'react-i18next'
 
 // MessageListScreen: fetches conversation previews for the logged-in user
 export default function MessageListScreen({ navigation }) {
+  const { t } = useTranslation()
   const [chats, setChats] = useState([])
   const [loading, setLoading] = useState(true)
   const [allMessages, setAllMessages] = useState([])
@@ -720,14 +722,14 @@ export default function MessageListScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Header title="Messages" />
+      <Header title={t('messages')} />
       {loading ? (
         <View style={styles.emptyContainer}><Text style={styles.emptyTitle}>Loading...</Text></View>
       ) : (
         <View style={styles.screenContent}>
           <View style={styles.searchContainer}>
             <TextInput
-              placeholder="Search conversations"
+              placeholder={t('search_conversations')}
               value={query}
               onChangeText={setQuery}
               style={styles.searchInput}
@@ -745,13 +747,13 @@ export default function MessageListScreen({ navigation }) {
               style={[styles.tabButton, activeTab === 'all' && styles.tabButtonActive]}
               onPress={() => setActiveTab('all')}
             >
-              <Text style={[styles.tabText, activeTab === 'all' && styles.tabTextActive]}>All messages ({totalUnread})</Text>
+              <Text style={[styles.tabText, activeTab === 'all' && styles.tabTextActive]}>{t('all_messages', { count: totalUnread })}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.tabButton, activeTab === 'unread' && styles.tabButtonActive]}
               onPress={() => setActiveTab('unread')}
             >
-              <Text style={[styles.tabText, activeTab === 'unread' && styles.tabTextActive]}>Unread ({totalUnread})</Text>
+              <Text style={[styles.tabText, activeTab === 'unread' && styles.tabTextActive]}>{t('unread', { count: totalUnread })}</Text>
             </TouchableOpacity>
           </View>
           {hasSelection ? (
@@ -759,13 +761,13 @@ export default function MessageListScreen({ navigation }) {
               <Text style={styles.selectionText}>{Object.keys(selectedMap).length} selected</Text>
               <View style={styles.selectionActions}>
                 <TouchableOpacity style={styles.selectionBtn} onPress={onMarkSelectedRead}>
-                  <Text style={styles.selectionBtnText}>Mark read</Text>
+                  <Text style={styles.selectionBtnText}>{t('mark_read')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={[styles.selectionBtn, styles.selectionBtnDanger]} onPress={onDeleteSelected}>
-                  <Text style={[styles.selectionBtnText, styles.selectionBtnTextDanger]}>Delete</Text>
+                  <Text style={[styles.selectionBtnText, styles.selectionBtnTextDanger]}>{t('delete')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.selectionBtnGhost} onPress={clearSelection}>
-                  <Text style={styles.selectionBtnGhostText}>Cancel</Text>
+                  <Text style={styles.selectionBtnGhostText}>{t('cancel')}</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -787,7 +789,7 @@ export default function MessageListScreen({ navigation }) {
                       { transform: [{ scale: emptyAnim }], opacity: emptyAnim },
                     ]}
                   >
-                    <Text style={styles.emptyUnreadText}>No unread messages.</Text>
+                    <Text style={styles.emptyUnreadText}>{t('no_unread_messages')}</Text>
                   </Animated.View>
                 )
               }
@@ -800,7 +802,7 @@ export default function MessageListScreen({ navigation }) {
                     ]}
                   >
                     <Ionicons name="chatbubble-ellipses" size={52} color="#94a3b8" />
-                    <Text style={styles.emptyAllText}>No messages yet</Text>
+                    <Text style={styles.emptyAllText}>{t('no_messages_yet')}</Text>
                   </Animated.View>
                 )
               }
@@ -816,9 +818,9 @@ export default function MessageListScreen({ navigation }) {
           <Modal visible={showNewModal} transparent animationType="slide">
             <View style={styles.modalOverlay}>
               <View style={styles.modalCard}>
-                <Text style={styles.modalTitle}>Start new message</Text>
+                <Text style={styles.modalTitle}>{t('start_new_message')}</Text>
                 <TextInput
-                  placeholder="Enter user email"
+                  placeholder={t('enter_user_email')}
                   value={newEmail}
                   onChangeText={(t) => { setNewEmail(t); setNewError('') }}
                   style={styles.modalInput}
@@ -828,10 +830,14 @@ export default function MessageListScreen({ navigation }) {
                 {newError ? <Text style={styles.modalError}>{newError}</Text> : null}
                 <View style={styles.modalActions}>
                   <TouchableOpacity onPress={() => setShowNewModal(false)} style={styles.modalBtnGhost}>
-                    <Text style={styles.modalBtnGhostText}>Cancel</Text>
+                    <Text style={styles.modalBtnGhostText}>{t('cancel')}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity onPress={onStartChatByEmail} style={styles.modalBtnPrimary} disabled={newLoading}>
-                    <Text style={styles.modalBtnPrimaryText}>{newLoading ? 'Please wait...' : 'Start'}</Text>
+                    <Text style={styles.modalBtnPrimaryText}>
+                      {newLoading
+                    ? t('please_wait')
+                    : t('start')}
+                    </Text>
                   </TouchableOpacity>
                 </View>
               </View>
