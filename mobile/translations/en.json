@@ -61,5 +61,6 @@
   "approve_cancellation": "Approve Cancellation",
   "reject_cancellation": "Reject Cancellation",
   "mark_completed": "Mark as Completed",
-  "mark_no_show": "Mark as No Show"
+  "mark_no_show": "Mark as No Show",
+  "no_results_found": "No results found"
 }
