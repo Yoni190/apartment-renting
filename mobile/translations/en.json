@@ -43,5 +43,7 @@
   "start_new_message": "Start new message",
   "enter_user_email": "Enter user email",
   "please_wait": "Please wait...",
-  "start": "Start"
+  "start": "Start",
+  "my_tours": "My Tours",
+  "no_tours_booked": "No tours booked"
 }
