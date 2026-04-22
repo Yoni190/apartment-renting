@@ -131,5 +131,6 @@
   "edit_profile.email": "Email",
   "edit_profile.phone": "Phone",
 
-  "edit_profile.update_button": "Update Profile"
+  "edit_profile.update_button": "Update Profile",
+  "profile.subscribe_now": "Subscribe Now"
 }
