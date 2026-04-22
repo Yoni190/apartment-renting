@@ -51,5 +51,6 @@
   "approve_cancellation": "የስረዛ አጽድቅ",
   "reject_cancellation": "የስረዛ አልቀበል",
   "mark_completed": "ተጠናቋል ብለህ ምልክት አድርግ",
-  "mark_no_show": "አልተገኘም ብለህ ምልክት አድርግ"
+  "mark_no_show": "አልተገኘም ብለህ ምልክት አድርግ",
+  "no_results_found": "ምንም ውጤት አልተገኘም"
 }
