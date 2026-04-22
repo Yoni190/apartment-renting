@@ -141,7 +141,7 @@
                     <p class="card-text flex-grow-1">{{ Str::limit($apartment->description, 80) }}</p>
                     <div class="mt-auto">
                         <p class="fw-bold text-primary mb-2">${{ number_format($apartment->price) }} / month</p>
-                        <a href="#" class="btn btn-outline-primary btn-sm w-100">View Details</a>
+                        <a href="{{ route('login') }}" class="btn btn-outline-primary btn-sm w-100">View Details</a>
                     </div>
                 </div>
             </div>
