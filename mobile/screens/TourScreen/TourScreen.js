@@ -8,8 +8,10 @@ import { useNavigation, useIsFocused } from '@react-navigation/native'
 import { Ionicons } from '@expo/vector-icons'
 import styles from './TourScreenStyle'
 import TourRequestCard from '../../components/TourRequestCard'
+import { useTranslation } from 'react-i18next'
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8000'
+
 
 /*
   OwnerTours: default export (used by OwnerTabs)
@@ -233,6 +235,7 @@ export function MyTours() {
   const [ownerModalVisible, setOwnerModalVisible] = useState(false)
   const [updatingBookingId, setUpdatingBookingId] = useState(null)
   const [updatingBookingAction, setUpdatingBookingAction] = useState(null)
+  const { t } = useTranslation()
 
   const fetchMyTours = async () => {
     try {
@@ -399,9 +402,9 @@ export function MyTours() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#f9f9f9' }}>
-      <Header title="My Tours" />
+      <Header title={t("my_tours")} />
   <View style={{ paddingHorizontal: 16, paddingTop: 90, paddingBottom: 20 }}>
-        {loading ? <ActivityIndicator /> : bookings.length === 0 ? <Text style={{ color: '#6b7280' }}>No tours booked.</Text> : (
+        {loading ? <ActivityIndicator /> : bookings.length === 0 ? <Text style={{ color: '#6b7280' }}>{t('no_tours_booked')}</Text> : (
           <FlatList data={bookings} keyExtractor={(b) => String(b.id)} renderItem={renderItem} ItemSeparatorComponent={() => <View style={{ height: 12 }} />} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefreshMyTours} />} />
         )}
       </View>
