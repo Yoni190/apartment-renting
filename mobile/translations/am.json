@@ -20,5 +20,18 @@
   "search": "ፈልግ",
   "searchPlaceholder": "ለአፓርታማዎች፣ ስፍራዎች ይፈልጉ...",
   "noResultsFound": "ውጤቶች አልተገኙም",
-  "searchSubtitle": "የፈለጉትን ለማግኘት ፍለጋዎን መለዋወጥ ይሞክሩ."
+  "searchSubtitle": "የፈለጉትን ለማግኘት ፍለጋዎን መለዋወጥ ይሞክሩ.",
+  "loading": "በመጫን ላይ...",
+  "search_conversations": "ውይይቶችን ፈልግ",
+  "clear": "አጥፋ",
+  "all_messages": "ሁሉም መልዕክቶች ({{count}})",
+  "unread": "ያልተነበቡ ({{count}})",
+  "selected_count": "ተመርጠዋል {{count}}",
+  "mark_read": "እንደተነበበ ምልክት አድርግ",
+  "delete": "ሰርዝ",
+  "no_unread_messages": "ያልተነበቡ መልዕክቶች የሉም።",
+  "start_new_message": "አዲስ መልዕክት ጀምር",
+  "enter_user_email": "የተጠቃሚ ኢሜይል አስገባ",
+  "please_wait": "እባክዎ ትንሽ ይጠብቁ...",
+  "start": "ጀምር"
 }
