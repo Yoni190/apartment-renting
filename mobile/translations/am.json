@@ -33,5 +33,7 @@
   "start_new_message": "አዲስ መልዕክት ጀምር",
   "enter_user_email": "የተጠቃሚ ኢሜይል አስገባ",
   "please_wait": "እባክዎ ትንሽ ይጠብቁ...",
-  "start": "ጀምር"
+  "start": "ጀምር",
+  "my_tours": "የእኔ ጉዞዎች",
+  "no_tours_booked": "ምንም ጉዞ አልተያዘም"
 }
