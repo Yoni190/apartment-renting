@@ -121,6 +121,12 @@
                         {{ __('profile.active') }}
                     </div>
                 </div>
+                @if(auth()->user()->role === 0 && auth()->user()->subscribed === 1)
+                    <div class="mb-3">
+                        <div class="info-label">{{ __('subscription_plan') }}</div>
+                        <div class="info-value">{{ ucfirst(auth()->user()->plan_type) }}</div>
+                    </div>
+                @endif
             </div>
         </div>
 
