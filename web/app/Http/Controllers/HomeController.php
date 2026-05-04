@@ -39,7 +39,8 @@ class HomeController extends Controller
 
     public function register(Request $request) {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'f_name' => 'required|string|max:255',
+            'l_name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email',
             'telNo' => 'required|unique:users,phone_number',
             'password' => ['required', 'confirmed', Password::defaults()],
