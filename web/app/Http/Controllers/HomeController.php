@@ -82,7 +82,7 @@ class HomeController extends Controller
         
 
         $user = User::create([
-            'name' => $request->name,
+            'name' => $request->f_name . ' ' . $request->l_name,
             'email' => $request->email,
             'phone_number' => $request->telNo,
             'fan' => $request->fan,
