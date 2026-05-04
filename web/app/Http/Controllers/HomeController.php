@@ -10,6 +10,7 @@ use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Favorite;
 use App\Models\TourBooking;
+use Illuminate\Support\Facades\Http;
 
 class HomeController extends Controller
 {
@@ -72,6 +73,7 @@ class HomeController extends Controller
         $first_name = $parts[0];
         $last_name = $parts[1];
 
+        
         
 
         $user = User::create([
