@@ -68,6 +68,10 @@ class HomeController extends Controller
             'password' => ['required', 'confirmed', Password::defaults()],
         ]);
 
+        $parts = explode(' ', $request->name, 2);
+        $first_name = $parts[0];
+        $last_name = $parts[1];
+
         
 
         $user = User::create([
