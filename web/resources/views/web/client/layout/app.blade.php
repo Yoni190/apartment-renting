@@ -215,7 +215,9 @@
 
             function appendMessage(text, sender) {
                 const div = document.createElement('div');
-                div.className = sender === 'user' ? 'text-end mb-2' : 'text-start mb-2';
+                div.className = sender === 'user'
+                    ? 'd-flex justify-content-end mb-2'
+                    : 'd-flex justify-content-start mb-2';
 
                 const bubble = document.createElement('div');
                 bubble.className = sender === 'user'
