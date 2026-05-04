@@ -71,10 +71,10 @@ class HomeController extends Controller
             'password' => ['required', 'confirmed', Password::defaults()],
         ]);
 
-        $response = Http::post('http://localhost:8001/api/verify-national-id', [
+        $response = Http::post(config('services.national_id.url') . '/api/verify-national-id', [
             'national_id' => $request->fan,
-            'first_name' => $request->f_name,
-            'last_name' => $request->l_name
+            'first_name'  => $request->f_name,
+            'last_name'   => $request->l_name,
         ]);
 
         if(!$response->successful() || !$response->json('valid')) {   
