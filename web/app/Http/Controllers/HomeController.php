@@ -62,21 +62,18 @@ class HomeController extends Controller
 
     public function ownerRegister(Request $request) {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'f_name' => 'required|string|max:255',
+            'l_name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email',
             'telNo' => 'required|unique:users,phone_number',
             'fan' => 'required|unique:users,fan',
             'password' => ['required', 'confirmed', Password::defaults()],
         ]);
 
-        $parts = explode(' ', $request->name, 2);
-        $first_name = $parts[0];
-        $last_name = $parts[1];
-
         $response = Http::post('http://localhost:8001/api/verify-national-id', [
             'national_id' => $request->fan,
-            'first_name' => $first_name,
-            'last_name' => $last_name
+            'first_name' => $request->f_name,
+            'last_name' => $request->l_name
         ]);
 
         if(!$response->successful() || !$response->json('valid')) {   
