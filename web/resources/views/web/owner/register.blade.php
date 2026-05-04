@@ -33,12 +33,22 @@
             @csrf
 
             <div class="mb-3">
-                <label for="name" class="form-label">Full Name</label>
+                <label for="f_name" class="form-label">First Name</label>
                 <input type="text" 
-                       name="name" 
-                       id="name" 
+                       name="f_name" 
+                       id="f_name" 
                        class="form-control form-control-lg" 
-                       placeholder="John Doe" 
+                       placeholder="John" 
+                       required>
+            </div>
+
+            <div class="mb-3">
+                <label for="name" class="form-label">Last Name</label>
+                <input type="text" 
+                       name="l_name" 
+                       id="l_name" 
+                       class="form-control form-control-lg" 
+                       placeholder="Doe" 
                        required>
             </div>
 
