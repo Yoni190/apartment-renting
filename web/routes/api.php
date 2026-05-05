@@ -763,7 +763,6 @@ Route::post('/login', function (Request $request) {
 
 
 Route::post('/register', function(Request $request) {
-    logger($request->role);
     $request->validate([
         'fName' => ['required', 'string', 'max:255'],
         'lName' => ['required', 'string', 'max:255'],
@@ -771,11 +770,19 @@ Route::post('/register', function(Request $request) {
         'password' => ['required', 'confirmed', Rules\Password::defaults()],
         'device_name' => ['required'],
         'role' => ['required'],
-        'fan' => ['required'],
+        'fan' => ['required', 'unique:users'],
         'phone_number' => ['nullable', 'string', 'max:30']
     ]);
 
-    
+    $response = Http::post(config('services.national_id.url') . '/api/verify-national-id', [
+        'national_id' => $request->fan,
+        'first_name'  => $request->fName,
+        'last_name'   => $request->lName,
+    ]);
+
+    if(!$response->successful() || !$response->json('valid')) {   
+        return response()->json(['message' => 'You must have a valid FAN.'], 404);
+    }
 
     $user = User::create([
         'name' => $request->fName . ' ' . $request->lName,
