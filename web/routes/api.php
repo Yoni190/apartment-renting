@@ -14,6 +14,7 @@ use App\Services\RecommendationService;
 use App\Http\Controllers\ApartmentController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\Api\MessageApiController;
+use Illuminate\Support\Facades\Http;
 
 // Helper: normalize common meta fields so clients receive consistent shapes
 // e.g. amenities, utilities may be sent as JSON strings or comma lists — store as arrays
@@ -764,7 +765,8 @@ Route::post('/login', function (Request $request) {
 Route::post('/register', function(Request $request) {
     logger($request->role);
     $request->validate([
-        'name' => ['required', 'string', 'max:255'],
+        'fName' => ['required', 'string', 'max:255'],
+        'lName' => ['required', 'string', 'max:255'],
         'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
         'password' => ['required', 'confirmed', Rules\Password::defaults()],
         'device_name' => ['required'],
@@ -773,8 +775,10 @@ Route::post('/register', function(Request $request) {
         'phone_number' => ['nullable', 'string', 'max:30']
     ]);
 
+    
+
     $user = User::create([
-        'name' => $request->name,
+        'name' => $request->fName . ' ' . $request->lName,
         'email' => $request->email,
         'password' => Hash::make($request->password),
         'role' => $request->role,
