@@ -12,6 +12,10 @@ class Authenticate extends Middleware
      */
     protected function redirectTo(Request $request): ?string
     {
+        if ($request->is('gojoye-telescope') || $request->is('gojoye-telescope/*')) {
+            return route('admin.login');
+        }
+        
         return $request->expectsJson() ? null : route('login');
     }
 }
