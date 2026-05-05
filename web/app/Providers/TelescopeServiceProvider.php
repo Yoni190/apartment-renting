@@ -17,6 +17,8 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
     {
         // Telescope::night();
 
+        $this->authorization();
+
         $this->hideSensitiveRequestDetails();
 
         $isLocal = $this->app->environment('local');
@@ -49,6 +51,21 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
         ]);
     }
 
+    protected function authorization(): void
+    {
+        $this->gate();
+
+        Telescope::auth(function ($request) {
+            $user = $request->user('admin');
+
+            if (!$user) {
+                return false;
+            }
+
+            return in_array($user->email, ['admin@gojoye.com']);
+        });
+    }
+
     /**
      * Register the Telescope gate.
      *
@@ -58,7 +75,7 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
     {
         Gate::define('viewTelescope', function (User $user) {
             return in_array($user->email, [
-                //
+                'admin@gojoye.com'
             ]);
         });
     }
