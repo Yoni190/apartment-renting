@@ -128,7 +128,7 @@ const RegisterScreen = () => {
                 onChangeText={(text) => setEmail(text)}
                 autoCapitalize='none'
               />
-              {errors && Object.keys(errors).length > 0 && errors.errors.email && (
+              {errors && Object.keys(errors).length > 0 && errors?.errors?.email && (
                 <Text style={styles.errorText}>{errors.errors.email}</Text>
               )}
 
@@ -149,6 +149,10 @@ const RegisterScreen = () => {
                 value={fan}
                 onChangeText={(text) => setFAN(text)}
               />
+
+              {errors?.message && (
+                <Text style={styles.errorText}>{errors.message}</Text>
+              )}
               
               <View style={styles.passwordContainer}>
                 <TextInput 
@@ -158,7 +162,7 @@ const RegisterScreen = () => {
                     value={password}
                     onChangeText={(text) => setPassword(text)}
                 />
-                {errors && Object.keys(errors).length > 0 && errors.errors.password && (
+                {errors && Object.keys(errors).length > 0 && errors?.errors?.password && (
                     <Text style={styles.errorText}>{errors.errors.password}</Text>
                 )}
                 <TouchableOpacity onPress={() => setPassStatus(!passStatus)}>
