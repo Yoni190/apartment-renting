@@ -43,6 +43,7 @@ class HomeController extends Controller
             'l_name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email',
             'telNo' => 'required|unique:users,phone_number',
+            'fan' => 'required|unique:users,fan',
             'password' => ['required', 'confirmed', Password::defaults()],
         ]);
 
@@ -50,9 +51,10 @@ class HomeController extends Controller
             'name' => $request->f_name . ' ' . $request->l_name,
             'email' => $request->email,
             'phone_number' => $request->telNo,
+            'fan' => $request->fan,
             'password' => Hash::make($request->password),
             'role' => 1,
-            'status' => 1
+            'status' => 1,
         ]);
 
         Auth::login($user);
