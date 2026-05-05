@@ -11,7 +11,7 @@
 
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-
+    <link rel="icon" type="image/png" href="{{ asset('images/logo2.png') }}">
 
     <!-- Custom Styles -->
     <!-- <link rel="stylesheet" href="{{ asset('css/main.css') }}"> -->
