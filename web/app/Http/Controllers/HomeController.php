@@ -47,6 +47,16 @@ class HomeController extends Controller
             'password' => ['required', 'confirmed', Password::defaults()],
         ]);
 
+        $response = Http::post(config('services.national_id.url') . '/api/verify-national-id', [
+            'national_id' => $request->fan,
+            'first_name'  => $request->f_name,
+            'last_name'   => $request->l_name,
+        ]);
+
+        if(!$response->successful() || !$response->json('valid')) {   
+            return back()->with('error', 'The provided credentials do not match our records.');
+        }
+
         $user = User::create([
             'name' => $request->f_name . ' ' . $request->l_name,
             'email' => $request->email,
