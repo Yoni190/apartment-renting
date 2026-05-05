@@ -9,15 +9,17 @@ import Header from '../../components/Header'
 
 
 const RegisterScreen = () => {
-    const [name, setName] = useState("")
-    const [email, setEmail] = useState("")
-    const [phone, setPhone] = useState("")
-    const [password, setPassword] = useState("")
-    const [passwordConfirmation, setPasswordConfirmation] = useState("")
-    const [errors, setErrors] = useState({})
-    const [loading, setLoading] = useState(false)
-    const [passStatus, setPassStatus] = useState(true)
-    const [confirmPassStatus, setConfirmPassStatus] = useState(true)
+  const [fName, setFName] = useState("")
+  const [lName, setLName] = useState("")
+  const [name, setName] = useState("")
+  const [email, setEmail] = useState("")
+  const [phone, setPhone] = useState("")
+  const [password, setPassword] = useState("")
+  const [passwordConfirmation, setPasswordConfirmation] = useState("")
+  const [errors, setErrors] = useState({})
+  const [loading, setLoading] = useState(false)
+  const [passStatus, setPassStatus] = useState(true)
+  const [confirmPassStatus, setConfirmPassStatus] = useState(true)
   const navigation = useNavigation()
   const route = useRoute()
   // role param if user selected before navigating; default to client (1)
@@ -103,15 +105,20 @@ const RegisterScreen = () => {
                 <Text style={styles.subTitle}>Register to Continue</Text>
 
                 <TextInput 
-                    placeholder='Name'
+                    placeholder='First Name'
                     style={styles.textInput}
                     placeholderTextColor="#999"
-                    value={name}
-                    onChangeText={(text) => setName(text)}
+                    value={fName}
+                    onChangeText={(text) => setFName(text)}
                 />
-                {errors && Object.keys(errors).length > 0 && errors.errors.name && (
-                <Text style={styles.errorText}>{errors.errors.name}</Text>
-              )}
+                <TextInput 
+                    placeholder='Last Name'
+                    style={styles.textInput}
+                    placeholderTextColor="#999"
+                    value={lName}
+                    onChangeText={(text) => setLName(text)}
+                />
+                
               <TextInput 
                 placeholder='Email Address'
                 keyboardType='email-address'
