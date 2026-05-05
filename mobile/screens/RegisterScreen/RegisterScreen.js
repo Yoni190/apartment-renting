@@ -11,7 +11,6 @@ import Header from '../../components/Header'
 const RegisterScreen = () => {
   const [fName, setFName] = useState("")
   const [lName, setLName] = useState("")
-  const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [phone, setPhone] = useState("")
   const [password, setPassword] = useState("")
@@ -37,7 +36,8 @@ const RegisterScreen = () => {
         setLoading(true)
         try {
       const response = await axios.post(`${API_URL}/register`, {
-        name,
+        fName,
+        lName,
         email,
         password,
         password_confirmation: passwordConfirmation,
