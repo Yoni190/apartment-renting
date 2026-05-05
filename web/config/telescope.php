@@ -5,6 +5,8 @@ use Laravel\Telescope\Watchers;
 
 return [
 
+    // Use php artisan telescope:prune --hours=1 inorder to prune telescope entries
+
     /*
     |--------------------------------------------------------------------------
     | Telescope Master Switch
