@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use App\Models\AdminRole;
 
 class Admin extends Authenticatable
 {
@@ -23,10 +22,6 @@ class Admin extends Authenticatable
         'password'
     ];
 
-
-    public function role() {
-        return $this->belongsTo(AdminRole::class, 'admin_role_id');
-    }
 
     public function logs() {
         return $this->hasMany(Log::class);
