@@ -112,7 +112,8 @@ class AdminController extends Controller
     }
 
     function addView() {
-        return view('web.admin.admins.add');
+        $roles = ['admin', 'superadmin'];
+        return view('web.admin.admins.add', compact('roles'));
     }
 
     function add(Request $request) {
