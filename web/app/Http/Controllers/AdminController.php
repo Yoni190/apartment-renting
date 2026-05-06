@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Admin;
-use App\Models\AdminRole;
 use App\Models\Api;
 use App\Models\Apartment;
 use App\Models\Log;
@@ -113,8 +112,7 @@ class AdminController extends Controller
     }
 
     function addView() {
-        $roles = AdminRole::all();
-        return view('web.admin.admins.add', compact('roles'));
+        return view('web.admin.admins.add');
     }
 
     function add(Request $request) {
