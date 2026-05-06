@@ -112,7 +112,11 @@ class AdminController extends Controller
     }
 
     function addView() {
-        $roles = ['admin', 'superadmin'];
+        $roles = ['admin', 'super_admin'];
+        $roles = [
+            ['name' => 'Admin', 'value' => 'admin'],
+            ['name' => 'Superadmin', 'value' => 'super_admin']
+        ];
         return view('web.admin.admins.add', compact('roles'));
     }
 
@@ -121,13 +125,13 @@ class AdminController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|unique:admins|email|max:255',
             'password' => 'required|max:255',
-            'role' => 'required|exists:admin_roles,id',
+            'role' => 'required',
         ]);
 
         $admin = new Admin();
         $admin->name = $request->name;
         $admin->email = $request->email;
-        $admin->admin_role_id = $request->role;
+        $admin->role = $request->role;
         $admin->password = Hash::make($request->password);
         $admin->save();
 
