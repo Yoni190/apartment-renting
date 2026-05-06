@@ -65,7 +65,7 @@
                             <td>{{ $admin->id }}</td>
                             <td>{{ $admin->name }}</td>
                             <td>{{ $admin->email }}</td>
-                            <td>{{ $admin->role->name }}</td>
+                            <td>{{ $admin->role }}</td>
                             
                             <td class="text-end">
                                 <form action="{{ route('admin.delete', $admin) }}" method="POST" class="delete-form">
