@@ -61,7 +61,7 @@
     position: absolute;
     top: 10px;
     left: 10px;
-    background: #0d6efd;
+    background: #9fc5f8;
     color: #fff;
     padding: 5px 10px;
     border-radius: 5px;
