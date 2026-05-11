@@ -67,6 +67,22 @@
     border-radius: 5px;
     font-size: 0.8rem;
 }
+
+.btn-primary {
+    background-color: white;
+    color: #5b9def;
+    border: none;
+    border-radius: 10px;
+    padding: 7px 16px;
+    font-weight: 600;
+    transition: 0.25s;
+}
+
+.btn-primary:hover {
+    background-color: #edf5ff;
+    color: black;
+    transform: translateY(-1px);
+}
 </style>
 @endpush
 
