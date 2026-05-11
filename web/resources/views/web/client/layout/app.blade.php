@@ -36,7 +36,8 @@
 <body class="bg-light">
 
     <!-- NAVBAR -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+    <nav class="navbar navbar-expand-lg navbar-light shadow-sm"
+     style="background-color: #9fc5f8;">
         <div class="container">
             @if(auth()->user())
                 @if(auth()->user()->role === 1)
