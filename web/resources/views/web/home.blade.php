@@ -68,7 +68,7 @@
     font-size: 0.8rem;
 }
 
-.btn-primary {
+.btn-primary, .btn-outline-primary {
     background-color: white;
     color: #5b9def;
     border: none;
@@ -78,10 +78,18 @@
     transition: 0.25s;
 }
 
-.btn-primary:hover {
+.btn-primary:hover, .btn-outline-primary:hover {
     background-color: #edf5ff;
     color: black;
     transform: translateY(-1px);
+}
+
+.btn-outline-primary {
+    border: 2px solid #9fc5f8;
+}
+
+.btn-outline-primary:hover {
+    border: 2px solid #9fc5f8;
 }
 </style>
 @endpush
