@@ -16,28 +16,145 @@
     <!-- Custom Styles -->
     <!-- <link rel="stylesheet" href="{{ asset('css/main.css') }}"> -->
 
-    <style>
-        #chatbot-box {
-    border-radius: 12px;
+<style>
+    body {
+        background-color: #f8fafc;
+    }
+
+    /* NAVBAR */
+    .custom-navbar {
+        background: #9fc5f8;
+        padding-top: 14px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid rgba(255,255,255,0.3);
+        backdrop-filter: blur(10px);
+    }
+
+    .custom-navbar .navbar-brand {
+        color: #ffffff !important;
+        font-size: 1.4rem;
+        letter-spacing: 0.5px;
+        transition: 0.3s;
+    }
+
+    .custom-navbar .navbar-brand:hover {
+        opacity: 0.9;
+    }
+
+    .custom-navbar .nav-link {
+        color: rgba(255,255,255,0.9) !important;
+        font-weight: 500;
+        margin-left: 8px;
+        margin-right: 8px;
+        padding: 8px 14px !important;
+        border-radius: 10px;
+        transition: all 0.25s ease;
+    }
+
+    .custom-navbar .nav-link:hover {
+        background-color: rgba(255,255,255,0.18);
+        color: #fff !important;
+    }
+
+    .custom-navbar .nav-link.active {
+        background-color: rgba(255,255,255,0.28);
+        color: #fff !important;
+        font-weight: 600;
+    }
+
+    /* Dropdown */
+    .dropdown-menu {
+        border: none;
+        border-radius: 14px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        padding: 10px;
+    }
+
+    .dropdown-item {
+        border-radius: 8px;
+        padding: 10px 14px;
+        transition: 0.2s;
+    }
+
+    .dropdown-item:hover {
+        background-color: #eef5ff;
+    }
+
+    /* Buttons */
+    .btn-navbar-outline {
+        border: 1px solid rgba(255,255,255,0.7);
+        color: white;
+        border-radius: 10px;
+        padding: 6px 14px;
+        transition: 0.25s;
+    }
+
+    .btn-navbar-outline:hover {
+        background-color: white;
+        color: #5b9def;
+    }
+
+    .btn-navbar-primary {
+        background-color: white;
+        color: #5b9def;
+        border: none;
+        border-radius: 10px;
+        padding: 7px 16px;
+        font-weight: 600;
+        transition: 0.25s;
+    }
+
+    .btn-navbar-primary:hover {
+        background-color: #edf5ff;
+        transform: translateY(-1px);
+    }
+
+    /* Language Buttons */
+    .lang-btn {
+        border-radius: 8px;
+        border: 1px solid rgba(255,255,255,0.6);
+        color: white;
+        transition: 0.2s;
+    }
+
+    .lang-btn:hover {
+        background: white;
+        color: #5b9def;
+    }
+
+    /* Mobile */
+    @media (max-width: 991px) {
+        .custom-navbar .navbar-nav {
+            margin-top: 16px;
         }
 
-        #chatbot-messages::-webkit-scrollbar {
-            width: 6px;
+        .custom-navbar .nav-link {
+            margin-bottom: 6px;
         }
+    }
 
-        #chatbot-messages::-webkit-scrollbar-thumb {
-            background: #ccc;
-            border-radius: 10px;
-        }
-    </style>
+    /* Chatbot */
+    #chatbot-box {
+        border-radius: 18px;
+        overflow: hidden;
+    }
+
+    #chatbot-messages::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    #chatbot-messages::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 10px;
+    }
+</style>
 
     @stack('styles')
 </head>
 <body class="bg-light">
 
     <!-- NAVBAR -->
-    <nav class="navbar navbar-expand-lg navbar-light shadow-sm"
-     style="background-color: #9fc5f8;">
+    <nav class="navbar navbar-expand-lg navbar-light shadow-sm custom-navbar">
         <div class="container">
             @if(auth()->user())
                 @if(auth()->user()->role === 1)
@@ -98,8 +215,8 @@
                     </li>
 
                     <li class="nav-item">
-                        <a href="/lang/en" class="btn btn-sm btn-outline-light">EN</a>
-                        <a href="/lang/am" class="btn btn-sm btn-outline-light">አማ</a>
+                        <a href="/lang/en" class="btn btn-sm lang-btn">EN</a>
+                        <a href="/lang/am" class="btn btn-sm lang-btn">አማ</a>
                     </li>
 
                     @auth('web')
@@ -119,11 +236,11 @@
                         </li>
                     @else
                         <li class="nav-item ms-2">
-                            <a href="{{ route('login') }}" class="btn btn-outline-light btn-sm">{{ __('Login') }}</a>
+                            <a href="{{ route('login') }}" class="btn btn-navbar-outline btn-sm">{{ __('Login') }}</a>
                         </li>
                         <li class="nav-item ms-2">
-                            <a href="{{ route('user.renter.register') }}" class="btn btn-primary btn-sm">{{ __('Register as Renter') }}</a>
-                            <a href="{{ route('user.owner.register') }}" class="btn btn-primary btn-sm">{{ __('Register as Apartment Owner') }}</a>
+                            <a href="{{ route('user.renter.register') }}" class="btn btn-navbar-primary btn-sm">{{ __('Register as Renter') }}</a>
+                            <a href="{{ route('user.owner.register') }}" class="btn btn-navbar-primary btn-sm">{{ __('Register as Apartment Owner') }}</a>
                         </li>
                     @endauth
 
