@@ -91,6 +91,10 @@
 .btn-outline-primary:hover {
     border: 2px solid #9fc5f8;
 }
+
+.bg-custom {
+    background-color: #9fc5f8;
+}
 </style>
 @endpush
 
@@ -191,7 +195,7 @@
 </section>
 --}}
 <!-- Call to Action -->
-<section class="bg-primary text-white py-5">
+<section class="bg-custom text-white py-5">
     <div class="container text-center">
         <h2 class="fw-bold">List Your Apartment with Us</h2>
         <p class="lead">Reach thousands of potential renters quickly and easily</p>
