@@ -290,7 +290,7 @@
     </main>
 
     <!-- FOOTER -->
-    <footer class="bg-dark text-white py-4 mt-5">
+    <footer class="text-white py-4 mt-5" style="background-color: #9fc5f8">
         <div class="container text-center">
             <p class="mb-1">© {{ date('Y') }} {{ __('Gojoye. All rights reserved.') }}</p>
             <small>{{ __('Find your perfect apartment with ease.') }}</small>
