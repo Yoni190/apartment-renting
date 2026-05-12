@@ -103,9 +103,9 @@
 <!-- Hero Section -->
 <section class="hero mb-5">
     <div class="container position-relative">
-        <h1 class="display-4 fw-bold">Find Your Dream Apartment</h1>
-        <p class="lead">Browse thousands of apartments for rent in your city</p>
-        <a href="{{ route('login') }}" class="btn btn-primary btn-lg mt-3">Start Searching</a>
+        <h1 class="display-4 fw-bold">{{__('Find Your Dream Apartment')}}</h1>
+        <p class="lead">{{__('Browse thousands of apartments for rent in your city')}}</p>
+        <a href="{{ route('login') }}" class="btn btn-primary btn-lg mt-3">{{__('Start Searching')}}</a>
     </div>
 </section>
 
@@ -139,13 +139,13 @@
 
 <!-- Featured Apartments -->
 <section class="container mb-5">
-    <h2 class="mb-4">Featured Apartments</h2>
+    <h2 class="mb-4">{{__('Featured Apartments')}}</h2>
     <div class="row g-4">
         @foreach($featuredApartments as $apartment)
         <div class="col-md-4">
             <div class="card apartment-card position-relative h-100">
                 @if($apartment->is_featured)
-                <div class="featured-label">Featured</div>
+                <div class="featured-label">{{__('Featured')}}</div>
                 @endif
                 @if($apartment->images && $apartment->images->count() > 0)
                     @php
@@ -168,8 +168,8 @@
                     <h5 class="card-title">{{ $apartment->title }}</h5>
                     <p class="card-text flex-grow-1">{{ Str::limit($apartment->description, 80) }}</p>
                     <div class="mt-auto">
-                        <p class="fw-bold mb-2">{{ number_format($apartment->price) }} Birr / month</p>
-                        <a href="{{ route('login') }}" class="btn btn-outline-primary btn-sm w-100">View Details</a>
+                        <p class="fw-bold mb-2">{{ number_format($apartment->price) }} {{__('ETB')}} / {{__('month')}}</p>
+                        <a href="{{ route('login') }}" class="btn btn-outline-primary btn-sm w-100">{{__('View Details')}}</a>
                     </div>
                 </div>
             </div>
@@ -197,9 +197,9 @@
 <!-- Call to Action -->
 <section class="bg-custom text-white py-5">
     <div class="container text-center">
-        <h2 class="fw-bold">List Your Apartment with Us</h2>
-        <p class="lead">Reach thousands of potential renters quickly and easily</p>
-        <a href="{{ route('login') }}" class="btn btn-light btn-lg">Add Your Apartment</a>
+        <h2 class="fw-bold">{{__('List Your Apartment with Us')}}</h2>
+        <p class="lead">{{__('Reach thousands of potential renters quickly and easily')}}</p>
+        <a href="{{ route('login') }}" class="btn btn-light btn-lg">{{__('Add Your Apartment')}}</a>
     </div>
 </section>
 
