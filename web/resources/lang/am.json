@@ -36,7 +36,7 @@
   "Not Available": "አይገኝም",
   "Verification": "ማረጋገጫ",
   "Listed On": "ተዘዋዋሪ ቀን",
-  "Featured": "ተቀማጭ",
+  "Featured": "ተመራጭ",
   "Yes": "አዎ",
   "No": "አይ",
   "Leave a Review": "ግምገማ ይተው",
@@ -146,5 +146,12 @@
   "premium_plan_feature_3": "ሙሉ መዳረሻ ወደ የላቀ ባህሪያት",
   "subscribe_to_premium": "ለፕሪሚየም ፕላን ይመዝገቡ",
   "subscription.title": "ምዝገባ ፕላኖች",
-  "subscription_plan": "የምዝገባ ፕላን"
+  "subscription_plan": "የምዝገባ ፕላን",
+
+  "Find Your Dream Apartment": "የህልምዎን አፓርታማ ያግኙ",
+  "Browse thousands of apartments for rent in your city": "በከተማዎ ውስጥ ለኪራይ / ለሽያጭ የተዘጋጁ በሺዎች የሚቆጠሩ አፓርታማዎችን ይመልከቱ",
+  "Start Searching": "ፍለጋ ጀምር",
+  "List Your Apartment with Us": "አፓርታማዎን ከእኛ ጋር ይዘርዝሩ",
+  "Reach thousands of potential renters quickly and easily": "በፍጥነት እና በቀላሉ በሺዎች የሚቆጠሩ ተከራዮች ላይ ይድረሱ",
+  "Add Your Apartment": "አፓርታማ ያክሉ"
 }
