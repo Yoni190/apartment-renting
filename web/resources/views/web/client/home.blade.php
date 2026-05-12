@@ -14,6 +14,7 @@
         align-items: center;
         justify-content: center;
         color: white;
+        z-index: -100;
     }
 
     .hero-section::after {
