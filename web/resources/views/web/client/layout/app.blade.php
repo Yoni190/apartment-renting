@@ -219,6 +219,12 @@
                     </li>
 
                     <li class="nav-item">
+                        <a class="nav-link {{ request()->is('help') ? 'active' : '' }}" href="{{ url('/help') }}">
+                            {{ __('Help') }}
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
                         <a href="/lang/en" class="btn btn-sm lang-btn">EN</a>
                         <a href="/lang/am" class="btn btn-sm lang-btn">አማ</a>
                     </li>
