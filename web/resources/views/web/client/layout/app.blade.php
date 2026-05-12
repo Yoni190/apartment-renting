@@ -196,9 +196,11 @@
 
                     
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->is('apartments') ? 'active' : '' }}" href="{{ route('client.apartments') }}">
-                                {{ __('Apartments') }}
-                            </a>
+                            @if(auth()->user()->role === 1)
+                                <a class="nav-link {{ request()->is('apartments') ? 'active' : '' }}" href="{{ route('client.apartments') }}">
+                                    {{ __('Apartments') }}
+                                </a>
+                            @endif
                         </li>
 
                         <li class="nav-item">
