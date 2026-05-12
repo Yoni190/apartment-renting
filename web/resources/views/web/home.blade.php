@@ -105,7 +105,7 @@
     <div class="container position-relative">
         <h1 class="display-4 fw-bold">Find Your Dream Apartment</h1>
         <p class="lead">Browse thousands of apartments for rent in your city</p>
-        <a href="#searchSection" class="btn btn-primary btn-lg mt-3">Start Searching</a>
+        <a href="{{ route('login') }}" class="btn btn-primary btn-lg mt-3">Start Searching</a>
     </div>
 </section>
 
@@ -199,7 +199,7 @@
     <div class="container text-center">
         <h2 class="fw-bold">List Your Apartment with Us</h2>
         <p class="lead">Reach thousands of potential renters quickly and easily</p>
-        <a href="#" class="btn btn-light btn-lg">Add Your Apartment</a>
+        <a href="{{ route('login') }}" class="btn btn-light btn-lg">Add Your Apartment</a>
     </div>
 </section>
 
