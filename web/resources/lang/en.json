@@ -154,5 +154,41 @@
   "Start Searching": "Start Searching",
   "List Your Apartment with Us": "List Your Apartment with Us",
   "Reach thousands of potential renters quickly and easily": "Reach thousands of potential renters quickly and easily",
-  "Add Your Apartment": "Add Your Apartment"
+  "Add Your Apartment": "Add Your Apartment",
+  "Gojoye - Help": "Gojoye - Help",
+  "How Gojoye Works": "How Gojoye Works",
+  "Find help for renters, buyers, and property owners": "Find help for renters, buyers, and property owners",
+
+  "What is Gojoye?": "What is Gojoye?",
+  "Gojoye is a real estate platform where property owners can list apartments for rent or sale after subscribing, and clients can easily browse, book, and communicate with owners.": "Gojoye is a real estate platform where property owners can list apartments for rent or sale after subscribing, and clients can easily browse, book, and communicate with owners.",
+
+  "For Property Owners": "For Property Owners",
+  "Subscribe": "Subscribe",
+  "Choose a subscription plan to start listing your properties.": "Choose a subscription plan to start listing your properties.",
+  "Add Properties": "Add Properties",
+  "Post your apartments for rent or sale with images and details.": "Post your apartments for rent or sale with images and details.",
+  "Manage Requests": "Manage Requests",
+  "Receive booking requests and chat with potential clients.": "Receive booking requests and chat with potential clients.",
+
+  "For Clients": "For Clients",
+  "Browse Listings": "Browse Listings",
+  "Search apartments by location, price, or type.": "Search apartments by location, price, or type.",
+  "Make Booking Requests": "Make Booking Requests",
+  "Request to view or reserve apartments easily.": "Request to view or reserve apartments easily.",
+  "Chat with Owners": "Chat with Owners",
+  "Communicate directly to ask questions or negotiate.": "Communicate directly to ask questions or negotiate.",
+
+  "Frequently Asked Questions": "Frequently Asked Questions",
+  "Do I need to pay to browse apartments?": "Do I need to pay to browse apartments?",
+  "No, browsing apartments is completely free for clients.": "No, browsing apartments is completely free for clients.",
+
+  "How do property owners post listings?": "How do property owners post listings?",
+  "Owners must subscribe to a plan before they can add properties.": "Owners must subscribe to a plan before they can add properties.",
+
+  "Can I chat with property owners?": "Can I chat with property owners?",
+  "Yes, clients can directly chat with owners after viewing a property.": "Yes, clients can directly chat with owners after viewing a property.",
+
+  "Need more help?": "Need more help?",
+  "Contact our support team anytime.": "Contact our support team anytime.",
+  "Contact Support": "Contact Support"
 }
