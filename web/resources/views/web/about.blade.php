@@ -5,7 +5,7 @@
 @push('styles')
 <style>
 .about-hero {
-    background: url('/images/about-hero.jpg') center/cover no-repeat;
+    background: linear-gradient(135deg, #9fc5f8, #5b9def);
     height: 50vh;
     display: flex;
     align-items: center;
@@ -21,7 +21,6 @@
     position: absolute;
     top:0; left:0;
     width:100%; height:100%;
-    background: rgba(0,0,0,0.5);
     border-radius: 12px;
 }
 
