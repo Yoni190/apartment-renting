@@ -153,5 +153,41 @@
   "Start Searching": "ፍለጋ ጀምር",
   "List Your Apartment with Us": "አፓርታማዎን ከእኛ ጋር ይዘርዝሩ",
   "Reach thousands of potential renters quickly and easily": "በፍጥነት እና በቀላሉ በሺዎች የሚቆጠሩ ተከራዮች ላይ ይድረሱ",
-  "Add Your Apartment": "አፓርታማ ያክሉ"
+  "Add Your Apartment": "አፓርታማ ያክሉ",
+  "Gojoye - Help": "ጎጆዬ - እገዛ",
+  "How Gojoye Works": "ጎጆዬ እንዴት ይሰራል",
+  "Find help for renters, buyers, and property owners": "ለተከራዮች፣ ለገዢዎች እና ለንብረት ባለቤቶች እገዛ ያግኙ",
+
+  "What is Gojoye?": "ጎጆዬ ምንድነው?",
+  "Gojoye is a real estate platform where property owners can list apartments for rent or sale after subscribing, and clients can easily browse, book, and communicate with owners.": "ጎጆዬ የንብረት መሸጫ እና ኪራይ መድረክ ሲሆን የንብረት ባለቤቶች ከምዝገባ በኋላ አፓርታማዎቻቸውን ለኪራይ ወይም ለሽያጭ ሊያስቀምጡ ይችላሉ፣ ደንበኞችም በቀላሉ መፈለግ፣ መያዝ እና ከባለቤቶች ጋር መገናኘት ይችላሉ",
+
+  "For Property Owners": "ለንብረት ባለቤቶች",
+  "Subscribe": "ይመዝገቡ",
+  "Choose a subscription plan to start listing your properties.": "ንብረቶችዎን ለማስቀመጥ የምዝገባ እቅድ ይምረጡ",
+  "Add Properties": "ንብረት ያክሉ",
+  "Post your apartments for rent or sale with images and details.": "አፓርታማዎችዎን ከምስሎች እና ዝርዝሮች ጋር ለኪራይ ወይም ለሽያጭ ያስቀምጡ",
+  "Manage Requests": "ጥያቄዎችን ያስተዳድሩ",
+  "Receive booking requests and chat with potential clients.": "የመያዣ ጥያቄዎችን ይቀበሉ እና ከደንበኞች ጋር ይወያዩ",
+
+  "For Clients": "ለደንበኞች",
+  "Browse Listings": "ዝርዝሮችን ይመልከቱ",
+  "Search apartments by location, price, or type.": "በቦታ፣ በዋጋ ወይም በአይነት አፓርታማዎችን ይፈልጉ",
+  "Make Booking Requests": "የመያዣ ጥያቄ ያድርጉ",
+  "Request to view or reserve apartments easily.": "አፓርታማ ለመመልከት ወይም ለመያዝ በቀላሉ ጥያቄ ያቀርቡ",
+  "Chat with Owners": "ከባለቤቶች ጋር ይወያዩ",
+  "Communicate directly to ask questions or negotiate.": "ጥያቄ ለመጠየቅ ወይም ለመደራደር በቀጥታ ይገናኙ",
+
+  "Frequently Asked Questions": "በተደጋጋሚ የሚጠየቁ ጥያቄዎች",
+  "Do I need to pay to browse apartments?": "አፓርታማዎችን ለመመልከት መክፈል አለብኝ?",
+  "No, browsing apartments is completely free for clients.": "አይ፣ አፓርታማ መመልከት ለደንበኞች ሙሉ በሙሉ ነፃ ነው",
+
+  "How do property owners post listings?": "የንብረት ባለቤቶች እንዴት ዝርዝር ያስቀምጣሉ?",
+  "Owners must subscribe to a plan before they can add properties.": "ባለቤቶች ንብረት ለማከል በፊት የምዝገባ እቅድ መመዝገብ አለባቸው",
+
+  "Can I chat with property owners?": "ከንብረት ባለቤቶች ጋር መወያየት እችላለሁ?",
+  "Yes, clients can directly chat with owners after viewing a property.": "አዎ፣ ደንበኞች ንብረት ካዩ በኋላ በቀጥታ ከባለቤቶች ጋር መወያየት ይችላሉ",
+
+  "Need more help?": "ተጨማሪ እገዛ ይፈልጋሉ?",
+  "Contact our support team anytime.": "በማንኛውም ጊዜ የእኛን የድጋፍ ቡድን ያግኙ",
+  "Contact Support": "የድጋፍ ቡድን ያግኙ"
 }
