@@ -204,9 +204,11 @@
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->is('tours') ? 'active' : '' }}" href="{{ url('/client/tours') }}">
-                                {{ __('Tours') }}
-                            </a>
+                            @if(auth()->user()->role === 1)
+                                <a class="nav-link {{ request()->is('tours') ? 'active' : '' }}" href="{{ url('/client/tours') }}">
+                                    {{ __('Tours') }}
+                                </a>
+                            @endif
                         </li>
                     @endif
 
