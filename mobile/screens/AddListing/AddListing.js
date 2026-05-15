@@ -16,6 +16,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Header from '../../components/Header'
 import styles from './AddListingStyle'
+import { colors, spacing, radius } from '../../theme'
 import axios from 'axios'
 import * as SecureStore from 'expo-secure-store'
 import { useNavigation, useRoute } from '@react-navigation/native'
@@ -174,7 +175,7 @@ const AddListing = () => {
       try {
         const token = await SecureStore.getItemAsync('token')
         if (!token) return
-        const res = await axios.get(`${API_URL}/apartments/${listingId}`, { headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } })
+        const res = await axios.get(`${API_URL}/api/apartments/${listingId}`, { headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } })
         const apt = res.data
         // populate fields defensively
         setTitle(apt.title || '')
@@ -422,7 +423,7 @@ const AddListing = () => {
           const docType = (type === 'nationalId' ? 'national_id' : (type === 'ownershipCertificate' ? 'ownership_certificate' : (type === 'utilityBill' ? 'utility_bill' : (type === 'rentalAuthorizationLetter' ? 'rental_authorization_letter' : 'agent_authorization_letter'))))
           fd.append('document_type', docType)
           fd.append('file', fileObj)
-          const res = await axios.post(`${API_URL}/apartments/${listingId}/verification-docs`, fd, { headers: { 'Content-Type': 'multipart/form-data', Accept: 'application/json', Authorization: `Bearer ${token}` } })
+          const res = await axios.post(`${API_URL}/api/apartments/${listingId}/verification-docs`, fd, { headers: { 'Content-Type': 'multipart/form-data', Accept: 'application/json', Authorization: `Bearer ${token}` } })
           const path = res.data.path
           const previewUri = `${API_URL}/storage/${path}`
           switch (type) {
@@ -499,7 +500,7 @@ const AddListing = () => {
     try {
       const token = await SecureStore.getItemAsync('token')
       if (!token) throw new Error('Not authenticated')
-      await axios.delete(`${API_URL}/apartments/${listingId}/verification-docs`, { data: { document_type: documentType }, headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } })
+      await axios.delete(`${API_URL}/api/apartments/${listingId}/verification-docs`, { data: { document_type: documentType }, headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } })
       // clear corresponding preview state
       switch (documentType) {
         case 'national_id':
@@ -717,7 +718,7 @@ const AddListing = () => {
           purpose,
           meta: metaObj
         }
-  const res = await axios.patch(`${API_URL}/apartments/${listingId}`, payload, { headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } })
+  const res = await axios.patch(`${API_URL}/api/apartments/${listingId}`, payload, { headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } })
   const serverMsg = res?.data?.message || 'Listing Update submitted and awaiting admin verification.'
   Alert.alert('Success', serverMsg)
   navigation.goBack()
@@ -790,7 +791,7 @@ const AddListing = () => {
           }
         }
 
-        const res = await axios.post(`${API_URL}/apartments`, formData, {
+        const res = await axios.post(`${API_URL}/api/apartments`, formData, {
           headers: { 'Content-Type': 'multipart/form-data', Accept: 'application/json', Authorization: `Bearer ${token}` }
         })
         const serverMsg = res?.data?.message || 'Listing posted'
@@ -814,7 +815,7 @@ const AddListing = () => {
       >
         <ScrollView 
           ref={scrollRef} 
-          contentContainerStyle={[styles.container, { paddingBottom: 12, flexGrow: 1 }]} 
+          contentContainerStyle={[styles.container, { paddingBottom: spacing.md, flexGrow: 1 }]} 
           keyboardShouldPersistTaps="handled" 
           keyboardDismissMode="on-drag"
           showsVerticalScrollIndicator={false}
@@ -841,7 +842,7 @@ const AddListing = () => {
     value={title} 
     onChangeText={setTitle} 
     placeholder="e.g. Spacious 2-bedroom apartment"
-    placeholderTextColor="#94a3b8"
+    placeholderTextColor={colors.textMuted}
   />
 
         <Text style={styles.label}>Property type</Text>
@@ -871,7 +872,7 @@ const AddListing = () => {
           onChangeText={setCity}
           onFocus={() => setFocusedInput('city')}
           onBlur={() => setFocusedInput(null)}
-          placeholderTextColor="#94a3b8"
+          placeholderTextColor={colors.textMuted}
         />
 
   <Text style={styles.label}>Sub-city</Text>
@@ -883,7 +884,7 @@ const AddListing = () => {
     value={subCity} 
     onChangeText={setSubCity} 
     placeholder="e.g. Bole"
-    placeholderTextColor="#94a3b8"
+    placeholderTextColor={colors.textMuted}
   />
 
   <Text style={styles.label}>Area / Neighborhood</Text>
@@ -895,7 +896,7 @@ const AddListing = () => {
     value={area} 
     onChangeText={setArea} 
     placeholder="e.g. Around XYZ"
-    placeholderTextColor="#94a3b8"
+    placeholderTextColor={colors.textMuted}
   />
 
   <Text style={styles.label}>Street or landmark (optional)</Text>
@@ -907,15 +908,15 @@ const AddListing = () => {
     value={landmark} 
     onChangeText={setLandmark} 
     placeholder="Nearby landmark or street"
-    placeholderTextColor="#94a3b8"
+    placeholderTextColor={colors.textMuted}
   />
 
         <Text style={styles.label}>Map location</Text>
-        <View style={{ marginBottom: 12 }}>
+        <View style={{ marginBottom: spacing.md }}>
           <TouchableOpacity style={[styles.optionPill, styles.mapBtn]} onPress={() => setShowMapModal(true)}>
             <Text style={[styles.optionText, styles.mapBtnText]}>Open map to pick location</Text>
           </TouchableOpacity>
-          <Text style={{ marginTop: 8, color: '#555' }}>{mapMarker ? `Selected: ${mapMarker.latitude.toFixed(5)}, ${mapMarker.longitude.toFixed(5)}` : (latitude && longitude ? `${latitude}, ${longitude}` : 'No location selected')}</Text>
+          <Text style={{ marginTop: spacing.sm, color: colors.textSecondary }}>{mapMarker ? `Selected: ${mapMarker.latitude.toFixed(5)}, ${mapMarker.longitude.toFixed(5)}` : (latitude && longitude ? `${latitude}, ${longitude}` : 'No location selected')}</Text>
         </View>
 
         <Modal visible={showMapModal} animationType="slide">
@@ -925,8 +926,8 @@ const AddListing = () => {
                 {mapMarker && <Marker coordinate={mapMarker} />}
               </MapView>
             </View>
-            <View style={{ padding: 12, flexDirection: 'row', justifyContent: 'space-between' }}>
-              <TouchableOpacity style={[styles.btn, { flex: 1, marginRight: 8 }]} onPress={() => setShowMapModal(false)}>
+            <View style={{ padding: spacing.md, flexDirection: 'row', justifyContent: 'space-between' }}>
+              <TouchableOpacity style={[styles.btn, { flex: 1, marginRight: spacing.sm }]} onPress={() => setShowMapModal(false)}>
                 <Text style={styles.btnText}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity style={[styles.btn, { flex: 1 }]} onPress={() => { setShowMapModal(false); if (mapMarker) { setLatitude(String(mapMarker.latitude)); setLongitude(String(mapMarker.longitude)); } }}>
@@ -948,7 +949,7 @@ const AddListing = () => {
     onChangeText={setPrice} 
     placeholder="Numeric amount" 
     keyboardType={Platform.OS === 'web' ? 'default' : 'numeric'}
-    placeholderTextColor="#94a3b8"
+    placeholderTextColor={colors.textMuted}
   />
 
         <Text style={styles.label}>Payment period</Text>
@@ -979,7 +980,7 @@ const AddListing = () => {
               onChangeText={setDepositAmount} 
               keyboardType={Platform.OS === 'web' ? 'default' : 'numeric'} 
               placeholder="e.g. 5000"
-              placeholderTextColor="#94a3b8"
+              placeholderTextColor={colors.textMuted}
             />
           </>
         )}
@@ -1004,7 +1005,7 @@ const AddListing = () => {
     value={bedrooms} 
     onChangeText={setBedrooms} 
     keyboardType={Platform.OS === 'web' ? 'default' : 'numeric'}
-    placeholderTextColor="#94a3b8"
+    placeholderTextColor={colors.textMuted}
   />
 
   <Text style={styles.label}>Number of bathrooms</Text>
@@ -1016,7 +1017,7 @@ const AddListing = () => {
     value={bathrooms} 
     onChangeText={setBathrooms} 
     keyboardType={Platform.OS === 'web' ? 'default' : 'numeric'}
-    placeholderTextColor="#94a3b8"
+    placeholderTextColor={colors.textMuted}
   />
 
   <Text style={styles.label}>Total size (sqm) — optional</Text>
@@ -1028,7 +1029,7 @@ const AddListing = () => {
     value={size} 
     onChangeText={setSize} 
     keyboardType={Platform.OS === 'web' ? 'default' : 'numeric'}
-    placeholderTextColor="#94a3b8"
+    placeholderTextColor={colors.textMuted}
   />
 
   <Text style={styles.label}>Floor number</Text>
@@ -1040,7 +1041,7 @@ const AddListing = () => {
     value={floor} 
     onChangeText={setFloor} 
     keyboardType={Platform.OS === 'web' ? 'default' : 'numeric'}
-    placeholderTextColor="#94a3b8"
+    placeholderTextColor={colors.textMuted}
   />
 
         <Text style={styles.label}>Furnishing status</Text>
@@ -1065,14 +1066,14 @@ const AddListing = () => {
         {/* Unique features - bullet list input */}
         <Text style={styles.sectionTitle}>Unique features</Text>
         <Text style={styles.label}>Add a feature (single short line)</Text>
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: spacing.sm }}>
             <TextInput
               ref={uniqueFeatureInputRef}
               style={[styles.input, styles.featureInput, { flex: 1 }, focusedInput === 'uniqueFeature' && styles.inputFocused]}
               value={uniqueFeatureInput}
               onChangeText={setUniqueFeatureInput}
               placeholder="e.g. Panoramic city view"
-              placeholderTextColor="#94a3b8"
+              placeholderTextColor={colors.textMuted}
               returnKeyType="done"
               onFocus={() => { setFocusedInput('uniqueFeature'); scrollToInput(uniqueFeatureInputRef); }}
               onBlur={() => setFocusedInput(null)}
@@ -1089,12 +1090,12 @@ const AddListing = () => {
         </View>
 
         {uniqueFeatures.length > 0 && (
-          <View style={{ marginBottom: 12 }}>
+          <View style={{ marginBottom: spacing.md }}>
             {uniqueFeatures.map((f, i) => (
-              <View key={i} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+              <View key={i} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.xs }}>
                 <Text>• {f}</Text>
                 <TouchableOpacity onPress={() => setUniqueFeatures(prev => prev.filter((_, idx) => idx !== i))}>
-                  <Text style={{ color: '#a00' }}>Remove</Text>
+                  <Text style={{ color: colors.danger }}>Remove</Text>
                 </TouchableOpacity>
               </View>
             ))}
@@ -1113,11 +1114,11 @@ const AddListing = () => {
     onChangeText={setDescription} 
     multiline 
     placeholder="Describe the property, nearby facilities, transport, etc."
-    placeholderTextColor="#94a3b8"
+    placeholderTextColor={colors.textMuted}
   />
 
         <Text style={styles.label}>Images</Text>
-        <ScrollView style={{ marginBottom: 8 }} horizontal showsHorizontalScrollIndicator={false}>
+        <ScrollView style={{ marginBottom: spacing.sm }} horizontal showsHorizontalScrollIndicator={false}>
           <View style={styles.imagesRow}>
             {images.map((img, i) => {
               const uri = typeof img === 'string' ? img : (img?.uri || null)
@@ -1128,7 +1129,7 @@ const AddListing = () => {
             </TouchableOpacity>
           </View>
         </ScrollView>
-        {premiumMessage ? <Text style={{ color: '#a10e0e', marginBottom: 8 }}>{premiumMessage}</Text> : null}
+        {premiumMessage ? <Text style={{ color: colors.danger, marginBottom: spacing.sm }}>{premiumMessage}</Text> : null}
 
         {/* Availability & Contact */}
         <Text style={styles.sectionTitle}>Availability & Contact Preferences</Text>
@@ -1141,7 +1142,7 @@ const AddListing = () => {
 
         <Text style={styles.label}>Open for tour (date range)</Text>
         <View style={{ flexDirection: 'row' }}>
-          <TouchableOpacity style={[styles.input, styles.datePickerButton, { flex: 1, marginRight: 8 }]} onPress={() => showPicker('tourFrom')}>
+          <TouchableOpacity style={[styles.input, styles.datePickerButton, { flex: 1, marginRight: spacing.sm }]} onPress={() => showPicker('tourFrom')}>
             <Text style={[styles.datePickerText, !tourDateFrom && styles.datePickerPlaceholder]}>
               {tourDateFrom ? tourDateFrom.toISOString().slice(0,10) : 'From'}
             </Text>
@@ -1155,7 +1156,7 @@ const AddListing = () => {
 
         <Text style={styles.label}>Open for tour (time range)</Text>
         <View style={{ flexDirection: 'row' }}>
-          <TouchableOpacity style={[styles.input, styles.datePickerButton, { flex: 1, marginRight: 8 }]} onPress={() => showPicker('timeFrom')}>
+          <TouchableOpacity style={[styles.input, styles.datePickerButton, { flex: 1, marginRight: spacing.sm }]} onPress={() => showPicker('timeFrom')}>
             <Text style={[styles.datePickerText, !tourTimeFrom && styles.datePickerPlaceholder]}>
               {tourTimeFrom ? tourTimeFrom.toTimeString().slice(0,5) : 'From'}
             </Text>
@@ -1202,7 +1203,7 @@ const AddListing = () => {
     onChangeText={setContactPhone} 
     keyboardType={Platform.OS === 'web' ? 'default' : 'phone-pad'} 
     placeholder="e.g. +2519xxxxxxx"
-    placeholderTextColor="#94a3b8"
+    placeholderTextColor={colors.textMuted}
   />
 
         <Text style={styles.label}>Preferred contact method</Text>
@@ -1222,14 +1223,14 @@ const AddListing = () => {
         {/* Optional verification / identity (these are optional and only visible to admins in the server) */}
         <View style={styles.verificationCard}>
           <Text style={styles.sectionTitle}>Optional verification & identity</Text>
-          <Text style={[styles.label, { marginTop: 6 }]}>Owner full name </Text>
+          <Text style={[styles.label, { marginTop: spacing.xs }]}>Owner full name </Text>
           <TextInput
             style={[styles.input, focusedInput === 'ownerFullName' && styles.inputFocused]}
             value={ownerFullName}
             onChangeText={setOwnerFullName}
             onFocus={() => { setFocusedInput('ownerFullName'); scrollToInput(null); }}
             placeholder="Owner full name"
-            placeholderTextColor="#94a3b8"
+            placeholderTextColor={colors.textMuted}
           />
 
           <Text style={styles.label}>Owner phone </Text>
@@ -1239,11 +1240,11 @@ const AddListing = () => {
             onChangeText={setOwnerPhoneNumber}
             onFocus={() => { setFocusedInput('ownerPhone'); scrollToInput(null); }}
             placeholder="e.g. +2519xxxxxxx"
-            placeholderTextColor="#94a3b8"
+            placeholderTextColor={colors.textMuted}
             keyboardType={Platform.OS === 'web' ? 'default' : 'phone-pad'}
           />
 
-          <Text style={[styles.label, { marginTop: 6 }]}>National ID</Text>
+          <Text style={[styles.label, { marginTop: spacing.xs }]}>National ID</Text>
           <View style={styles.docRow}>
             <TouchableOpacity style={styles.docTile} onPress={() => pickDocument('nationalId')}>
                 {(nationalIdImage || nationalIdPreview) ? (
@@ -1262,7 +1263,7 @@ const AddListing = () => {
                       }
                     </TouchableOpacity>
                     <Text style={styles.docTileLabel}>National ID attached</Text>
-                    <View style={[styles.docTileActions, { justifyContent: 'space-between' }]}>
+                    <View style={styles.docTileActions}>
                       <TouchableOpacity style={styles.docActionButton} onPress={() => pickDocument('nationalId')}>
                         <Text style={styles.docActionText}>Replace</Text>
                       </TouchableOpacity>
@@ -1277,7 +1278,7 @@ const AddListing = () => {
                 ) : (
                   <>
                     <Text style={styles.docTileLabel}>No ID attached</Text>
-                    <TouchableOpacity style={[styles.btn, { marginTop: 8 }]} onPress={() => pickDocument('nationalId')}>
+                    <TouchableOpacity style={[styles.btn, { marginTop: spacing.sm }]} onPress={() => pickDocument('nationalId')}>
                       <Text style={styles.btnText}>Upload national ID</Text>
                     </TouchableOpacity>
                   </>
@@ -1286,8 +1287,8 @@ const AddListing = () => {
           </View>
           <Text style={styles.docSmallNote}>Upload a photo of the owner's national ID or passport (optional). Accepted types: JPG, PNG. Max 5MB.</Text>
 
-          <Text style={[styles.label, { marginTop: 12 }]}>Ownership / authority documents </Text>
-          <Text style={{ color: '#333', fontStyle: 'italic', marginBottom: 8 }}>Upload ONE of the following documents to verify ownership or authority:</Text>
+          <Text style={[styles.label, { marginTop: spacing.md }]}>Ownership / authority documents </Text>
+          <Text style={{ color: colors.textPrimary, fontStyle: 'italic', marginBottom: spacing.sm }}>Upload ONE of the following documents to verify ownership or authority:</Text>
           <View style={styles.docRow}>
             <TouchableOpacity style={styles.docTile} onPress={() => pickDocument('ownershipCertificate')}>
               {(ownershipCertificate || ownershipCertificatePreview) ? (
@@ -1321,7 +1322,7 @@ const AddListing = () => {
               ) : (
                 <>
                   <Text style={styles.docTileLabel}>Ownership certificate</Text>
-                  <TouchableOpacity style={[styles.optionPill, { marginTop: 8 }]} onPress={() => pickDocument('ownershipCertificate')}>
+                  <TouchableOpacity style={[styles.optionPill, { marginTop: spacing.sm }]} onPress={() => pickDocument('ownershipCertificate')}>
                     <Text style={styles.optionText}>Upload</Text>
                   </TouchableOpacity>
                 </>
@@ -1371,8 +1372,8 @@ const AddListing = () => {
           
         </View>
 
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-          <Text style={{ marginRight: 8 }}>Posting as agent?</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: spacing.sm }}>
+          <Text style={{ marginRight: spacing.sm }}>Posting as agent?</Text>
           <TouchableOpacity style={[styles.toggle, isAgent && styles.toggleOn]} onPress={() => setIsAgent(!isAgent)}>
             <Text style={isAgent ? styles.toggleTextOn : styles.toggleText}>{isAgent ? 'Yes' : 'No'}</Text>
           </TouchableOpacity>
@@ -1381,13 +1382,13 @@ const AddListing = () => {
         {isAgent && (
           <View style={styles.agentCard}>
             <Text style={styles.sectionTitle}>Agent details</Text>
-            <Text style={[styles.label, { marginTop: 6 }]}>Agent ID </Text>
+            <Text style={[styles.label, { marginTop: spacing.xs }]}>Agent ID </Text>
             <TextInput
               style={[styles.input]}
               value={agentId}
               onChangeText={setAgentId}
               placeholder="Agent ID"
-              placeholderTextColor="#94a3b8"
+              placeholderTextColor={colors.textMuted}
             />
 
             <Text style={styles.label}>Agent phone</Text>
@@ -1396,11 +1397,11 @@ const AddListing = () => {
               value={agentPhone}
               onChangeText={setAgentPhone}
               placeholder="Agent phone"
-              placeholderTextColor="#94a3b8"
+              placeholderTextColor={colors.textMuted}
               keyboardType={Platform.OS === 'web' ? 'default' : 'phone-pad'}
             />
 
-            <Text style={[styles.label, { marginTop: 6 }]}>Agent authorization letter</Text>
+            <Text style={[styles.label, { marginTop: spacing.xs }]}>Agent authorization letter</Text>
             <View style={styles.docRow}>
               <TouchableOpacity style={styles.docTile} onPress={() => pickDocument('agentAuthorizationLetter')}>
                 {(agentAuthorizationLetter || agentAuthorizationPreview) ? (
@@ -1434,7 +1435,7 @@ const AddListing = () => {
                 ) : (
                   <>
                     <Text style={styles.docTileLabel}>No authorization letter</Text>
-                    <TouchableOpacity style={[styles.btn, { marginTop: 8 }]} onPress={() => pickDocument('agentAuthorizationLetter')}>
+                    <TouchableOpacity style={[styles.btn, { marginTop: spacing.sm }]} onPress={() => pickDocument('agentAuthorizationLetter')}>
                       <Text style={styles.btnText}>Upload auth letter</Text>
                     </TouchableOpacity>
                   </>
@@ -1446,7 +1447,7 @@ const AddListing = () => {
         )}
 
         {/* Submit button */}
-        <View style={{ marginTop: 12, marginBottom: 24 }}>
+        <View style={{ marginTop: spacing.md, marginBottom: spacing.xxl }}>
           <TouchableOpacity style={styles.btn} onPress={handleSubmit} disabled={loading}>
             <Text style={styles.btnText}>{loading ? 'Please wait...' : (isEditMode ? 'Update listing' : 'Post listing')}</Text>
           </TouchableOpacity>

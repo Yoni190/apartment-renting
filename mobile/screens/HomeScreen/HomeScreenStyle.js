@@ -1,55 +1,54 @@
 import {StyleSheet} from 'react-native'
+import { colors, spacing, radius, shadows, typography } from '../../theme'
 
 export default StyleSheet.create({
     textInput: {
         borderWidth: 1,
-        borderRadius: 10,
+        borderRadius: radius.sm,
         flex: 1,
-        padding: 10,
-        marginHorizontal: 5
+        padding: spacing.md,
+        marginHorizontal: spacing.xs
     },
     recommendations: {
         width: 200,
-        borderRadius: 12,
+        borderRadius: radius.md,
         borderWidth: 1,
-        borderColor: '#e6e6e6',
-        marginRight: 12,
-        padding: 12,
-        backgroundColor: '#fff',
+        borderColor: colors.border,
+        marginRight: spacing.md,
+        padding: spacing.md,
+        backgroundColor: colors.white,
         },
     recommendationsContainer: {
         flexDirection: 'row',
     },
     title: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginTop: 16,
-        padding: 10,
+        ...typography.h4,
+        marginTop: spacing.lg,
+        padding: spacing.md,
     },
     recommendationsImage: {
         width: '100%',
         height: 120,
-        borderRadius: 10,
-        marginBottom: 10,
+        borderRadius: radius.sm,
+        marginBottom: spacing.md,
     },
     placeholderImage: {
         width: '100%',
         height: 120,
-        borderRadius: 10,
-        marginBottom: 10,
-        backgroundColor: '#f2f2f2',
+        borderRadius: radius.sm,
+        marginBottom: spacing.md,
+        backgroundColor: colors.background,
         alignItems: 'center',
         justifyContent: 'center'
     },
     apartmentTitle: {
-        fontSize: 16,
-        fontWeight: '700',
-        color: '#0f172a',
-        marginBottom: 6,
+        ...typography.button,
+        color: colors.textPrimary,
+        marginBottom: spacing.xs,
         lineHeight: 20,
     },
     location: {
-        fontSize: 12,
+        ...typography.caption,
     },
     apartmentInfo: {
         flexDirection: 'row',
@@ -59,38 +58,38 @@ export default StyleSheet.create({
     recommendationPrice: {
         fontSize: 14,
         fontWeight: '700',
-        color: '#111',
+        color: colors.textPrimary,
     },
     apartmentsContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'space-between',
-        paddingHorizontal: 10,
+        paddingHorizontal: spacing.md,
     },
     apartments: {
         width: '48%',
-        borderRadius: 12,
+        borderRadius: radius.md,
         borderWidth: 1,
-        borderColor: '#ddd',
-        marginBottom: 12,
-        backgroundColor: '#fff',
-        padding: 10,
+        borderColor: colors.border,
+        marginBottom: spacing.md,
+        backgroundColor: colors.white,
+        padding: spacing.md,
     },
         heartWrap: {
             position: 'absolute',
-            top: 8,
-            right: 8,
-            backgroundColor: 'rgba(0,0,0,0.3)',
+            top: spacing.sm,
+            right: spacing.sm,
+            backgroundColor: colors.overlay,
             width: 36,
             height: 36,
-            borderRadius: 18,
+            borderRadius: radius.full,
             alignItems: 'center',
             justifyContent: 'center'
         },
         msgBtn: {
             flex: 1,
-            paddingVertical: 8,
-            borderRadius: 8,
+            paddingVertical: spacing.sm,
+            borderRadius: radius.sm,
             alignItems: 'center'
         }
 })

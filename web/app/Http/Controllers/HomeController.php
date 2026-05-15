@@ -47,14 +47,19 @@ class HomeController extends Controller
             'password' => ['required', 'confirmed', Password::defaults()],
         ]);
 
-        $response = Http::post(config('services.national_id.url') . '/api/verify-national-id', [
-            'national_id' => $request->fan,
-            'first_name'  => $request->f_name,
-            'last_name'   => $request->l_name,
-        ]);
+        try {
+            $response = Http::timeout(5)->post(config('services.national_id.url') . '/api/verify-national-id', [
+                'national_id' => $request->fan,
+                'first_name'  => $request->f_name,
+                'last_name'   => $request->l_name,
+            ]);
 
-        if(!$response->successful() || !$response->json('valid')) {   
-            return back()->with('error', 'The provided credentials do not match our records.');
+            if(!$response->successful() || !$response->json('valid')) {
+                $reason = $response->json('reason', 'FAN verification failed');
+                return back()->with('error', 'Registration failed: ' . $reason);
+            }
+        } catch (\Exception $e) {
+            return back()->with('error', 'Registration is temporarily unavailable. Please try again later.');
         }
 
         $user = User::create([
@@ -83,14 +88,19 @@ class HomeController extends Controller
             'password' => ['required', 'confirmed', Password::defaults()],
         ]);
 
-        $response = Http::post(config('services.national_id.url') . '/api/verify-national-id', [
-            'national_id' => $request->fan,
-            'first_name'  => $request->f_name,
-            'last_name'   => $request->l_name,
-        ]);
+        try {
+            $response = Http::timeout(5)->post(config('services.national_id.url') . '/api/verify-national-id', [
+                'national_id' => $request->fan,
+                'first_name'  => $request->f_name,
+                'last_name'   => $request->l_name,
+            ]);
 
-        if(!$response->successful() || !$response->json('valid')) {   
-            return back()->with('error', 'The provided credentials do not match our records.');
+            if(!$response->successful() || !$response->json('valid')) {
+                $reason = $response->json('reason', 'FAN verification failed');
+                return back()->with('error', 'Registration failed: ' . $reason);
+            }
+        } catch (\Exception $e) {
+            return back()->with('error', 'Registration is temporarily unavailable. Please try again later.');
         }
         
 

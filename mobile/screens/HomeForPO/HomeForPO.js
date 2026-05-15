@@ -9,6 +9,7 @@ import * as SecureStore from 'expo-secure-store'
 import { useNavigation } from '@react-navigation/native'
 import { useIsFocused } from '@react-navigation/native'
 import ListingCard from '../../components/ListingCard'
+import { colors, spacing, radius, shadows, typography } from '../../theme'
 
 const HomeForPO = () => {
   const [listings, setListings] = useState([])
@@ -28,7 +29,7 @@ const HomeForPO = () => {
           return
         }
 
-        const res = await axios.get(`${API_URL}/my-apartments`, {
+        const res = await axios.get(`${API_URL}/api/my-apartments`, {
           headers: { Accept: 'application/json', Authorization: `Bearer ${token}` }
         })
         setListings(res.data || [])
@@ -59,10 +60,10 @@ const HomeForPO = () => {
       try {
         const token = await SecureStore.getItemAsync('token')
         if (!token) return
-        await axios.post(`${API_URL}/apartments/${apt.id}/deactivate`, { active: apt.status ? 0 : 1 }, { headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' } })
+        await axios.post(`${API_URL}/api/apartments/${apt.id}/deactivate`, { active: apt.status ? 0 : 1 }, { headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' } })
         // refresh listings
         setLoading(true)
-        const res = await axios.get(`${API_URL}/my-apartments`, { headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' } })
+        const res = await axios.get(`${API_URL}/api/my-apartments`, { headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' } })
         setListings(res.data || [])
       } catch (e) {
         console.warn('Failed to toggle deactivate', e.message)
@@ -92,10 +93,10 @@ const HomeForPO = () => {
           try {
             const token = await SecureStore.getItemAsync('token')
             if (!token) return
-            await axios.delete(`${API_URL}/apartments/${apt.id}`, { headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' } })
+            await axios.delete(`${API_URL}/api/apartments/${apt.id}`, { headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' } })
             // refresh
             setLoading(true)
-            const res = await axios.get(`${API_URL}/my-apartments`, { headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' } })
+            const res = await axios.get(`${API_URL}/api/my-apartments`, { headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' } })
             setListings(res.data || [])
           } catch (e) {
             console.warn('Failed to delete listing', e.message)
@@ -122,7 +123,7 @@ const HomeForPO = () => {
         <View style={styles.statsContainer}>
           <View style={styles.statCard}>
             <View style={styles.statIconContainer}>
-              <Ionicons name="home-outline" size={24} color="#1778f2" />
+              <Ionicons name="home-outline" size={24} color={colors.primary} />
             </View>
             <View style={styles.statContent}>
               <Text style={styles.statNumber}>{listings.length}</Text>
@@ -131,7 +132,7 @@ const HomeForPO = () => {
           </View>
           <View style={styles.statCard}>
             <View style={[styles.statIconContainer, styles.statIconActive]}>
-              <Ionicons name="checkmark-circle-outline" size={24} color="#10b981" />
+              <Ionicons name="checkmark-circle-outline" size={24} color={colors.success} />
             </View>
             <View style={styles.statContent}>
               <Text style={[styles.statNumber, styles.statNumberActive]}>{activeListings}</Text>
@@ -183,7 +184,7 @@ const HomeForPO = () => {
 
         {loading ? (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#1778f2" />
+            <ActivityIndicator size="large" color={colors.primary} />
             <Text style={styles.loadingText}>Loading your listings...</Text>
           </View>
         ) : listings.length === 0 ? (
@@ -200,24 +201,22 @@ const HomeForPO = () => {
               onPress={handleAdd} 
               activeOpacity={0.85}
             >
-              <Ionicons name="add-circle" size={24} color="#fff" style={styles.addButtonIcon} />
+              <Ionicons name="add-circle" size={24} color={colors.white} style={styles.addButtonIcon} />
               <Text style={styles.addButtonText}>Add Your First Listing</Text>
             </TouchableOpacity>
           </View>
         ) : (
           <View style={styles.listingsContainer}>
-            {/* Group listings by verification_status but keep all listings visible */}
             {(() => {
               const pending = listings.filter(l => (l.verification_status || '').toString().toLowerCase() === 'pending')
               const approved = listings.filter(l => (l.verification_status || '').toString().toLowerCase() === 'approved')
               const rejected = listings.filter(l => (l.verification_status || '').toString().toLowerCase() === 'rejected')
 
-              // Render only the active tab's listings
               const selected = activeTab === 'pending' ? pending : (activeTab === 'approved' ? approved : rejected)
               const selectedLabel = activeTab === 'pending' ? 'Pending Verification' : (activeTab === 'approved' ? 'Approved' : 'Rejected')
               if (selected.length === 0) {
                 return (
-                  <View style={{ width: '100%', paddingVertical: 40, alignItems: 'center' }}>
+                  <View style={{ width: '100%', paddingVertical: spacing.xxxxl, alignItems: 'center' }}>
                     <Text style={styles.sectionSubtitle}>No {selectedLabel.toLowerCase()} listings</Text>
                   </View>
                 )
@@ -225,8 +224,8 @@ const HomeForPO = () => {
 
               return (
                 <>
-                  <View style={{ width: '100%', marginBottom: 8 }}>
-                    <Text style={{ fontSize: 18, fontWeight: '700', color: '#0f172a', marginBottom: 6 }}>{selectedLabel} {`(${selected.length})`}</Text>
+                  <View style={{ width: '100%', marginBottom: spacing.sm }}>
+                    <Text style={{ fontSize: 18, fontWeight: '700', color: colors.textPrimary, marginBottom: spacing.xs }}>{selectedLabel} {`(${selected.length})`}</Text>
                   </View>
                   {selected.map((item) => {
                     const images = (item.images || []).map(img => 
@@ -251,8 +250,8 @@ const HomeForPO = () => {
                           onPress={() => navigation.navigate('ApartmentDetails', { listingId: item.id })}
                         />
                         {item.rejection_reason && activeTab === 'rejected' ? (
-                          <View style={{ width: '100%', paddingHorizontal: 12, marginBottom: 12 }}>
-                            <Text style={{ color: '#b91c1c' }}>Rejection reason: {item.rejection_reason}</Text>
+                          <View style={{ width: '100%', paddingHorizontal: spacing.md, marginBottom: spacing.md }}>
+                            <Text style={{ color: colors.danger }}>Rejection reason: {item.rejection_reason}</Text>
                           </View>
                         ) : null}
                       </React.Fragment>
@@ -272,7 +271,7 @@ const HomeForPO = () => {
           onPress={handleAdd}
           activeOpacity={0.9}
         >
-          <Ionicons name="add" size={32} color="#fff" />
+          <Ionicons name="add" size={32} color={colors.white} />
         </TouchableOpacity>
       )}
     </SafeAreaView>

@@ -7,6 +7,7 @@ import OwnerTours from './TourScreen/TourScreen'
 import MessagesScreen from './MessagesScreen/MessagesScreen'
 import MessageListScreen from './MessageListScreen/MessageListScreen'
 import ProfileScreen from './ProfileScreen/ProfileScreen'
+import { colors } from '../theme'
 
 const Tab = createBottomTabNavigator()
 
@@ -17,7 +18,7 @@ const OwnerTabs = () => {
         headerShown: false,
         tabBarShowLabel: false,
         tabBarStyle: {
-          backgroundColor: '#9fc5f8',
+          backgroundColor: colors.primary,
           borderTopWidth: 0,
           elevation: 10,
           height: 60,

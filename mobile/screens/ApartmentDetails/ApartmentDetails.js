@@ -21,15 +21,11 @@ import * as SecureStore from 'expo-secure-store'
 import Header from '../../components/Header'
 import styles from './ApartmentDetailsStyle'
 import DateTimePickerModal from 'react-native-modal-datetime-picker'
+import { colors, spacing, radius, shadows, typography } from '../../theme'
 
 const { width } = Dimensions.get('window')
 const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8000'
 
-/**
- * ApartmentDetails (ListingDetails)
- * - Expects route.params.listingId
- * - Fetches `/apartments/{id}` and renders only owner-provided fields.
- */
 export default function ApartmentDetails() {
   const route = useRoute()
   const navigation = useNavigation()
@@ -56,18 +52,14 @@ export default function ApartmentDetails() {
   const [bookingLoading, setBookingLoading] = useState(false)
   const flatListRef = useRef(null)
 
-  // For submission
   const [rating, setRating] = useState(0)
   const [reviewText, setReviewText] = useState('')
   const [reviewLoading, setReviewLoading] = useState(false)
 
-  // For displaying
   const [reviews, setReviews] = useState([])
   const [averageRating, setAverageRating] = useState(0)
   const [totalReviews, setTotalReviews] = useState(0)
   const [reviewsLoading, setReviewsLoading] = useState(false)
-
-
 
   useEffect(() => {
     if (!listingId) return
@@ -77,27 +69,22 @@ export default function ApartmentDetails() {
       try {
         const token = await SecureStore.getItemAsync('token')
 
-        // fetch listing
-        const res = await axios.get(`${API_URL}/apartments/${listingId}`, {
+        const res = await axios.get(`${API_URL}/api/apartments/${listingId}`, {
           headers: { Accept: 'application/json', Authorization: token ? `Bearer ${token}` : undefined },
         })
         setListing(res.data)
         setIsFavourite(res.data.is_favorite || false)
 
-        // Owner data should be included in the listing response
         if (res.data.owner) {
           setOwner(res.data.owner)
         }
 
-        // fetch user if token available (to determine owner controls)
         if (token) {
           try {
-            const u = await axios.get(`${API_URL}/user`, { headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } })
+            const u = await axios.get(`${API_URL}/api/user`, { headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } })
             setUser(u.data)
           } catch (e) {
-            // ignore; user remains null
           }
-              // use open_for_tour from listing meta (authoritative)
               try {
                 const oftRaw = res.data?.meta?.open_for_tour || res.data?.meta?.openForTour || null
                 let oft = null
@@ -105,7 +92,7 @@ export default function ApartmentDetails() {
                   oft = typeof oftRaw === 'string' ? JSON.parse(oftRaw) : oftRaw
                 }
                 if (oft) {
-                  setOpenHours([oft]) // store single meta object for simplicity
+                  setOpenHours([oft])
                 } else {
                   setOpenHours([])
                 }
@@ -137,13 +124,11 @@ export default function ApartmentDetails() {
     return img
   }
 
-  // Get all images from listing
   const images = useMemo(() => {
     if (!listing?.images || !Array.isArray(listing.images)) return []
     return listing.images.map(img => getImageUrl(img)).filter(Boolean)
   }, [listing])
 
-  // Format date string as dd-MM-yyyy
   const formatDate = (input) => {
     if (!input) return ''
     const d = new Date(input)
@@ -154,7 +139,6 @@ export default function ApartmentDetails() {
     return `${dd}-${mm}-${yyyy}`
   }
 
-  // Address composition: prefer structured meta.location fields when present
   const addressText = useMemo(() => {
     const loc = listing?.meta?.location || listing?.location || {}
     const parts = []
@@ -166,7 +150,6 @@ export default function ApartmentDetails() {
     return listing?.address || ''
   }, [listing])
 
-  // Map coordinates
   const coords = useMemo(() => {
     const loc = listing?.meta?.location || listing?.location || {}
     const lat = loc.lat || loc.latitude || loc.lat_dd || null
@@ -175,7 +158,6 @@ export default function ApartmentDetails() {
     return null
   }, [listing])
 
-  // Owner name - try multiple sources
   const ownerName = useMemo(() => {
     if (owner?.name) return owner.name
     if (listing?.owner?.name) return listing.owner.name
@@ -183,7 +165,6 @@ export default function ApartmentDetails() {
     return 'N/A'
   }, [owner, listing])
 
-  // Owner phone
   const ownerPhone = useMemo(() => {
     return listing?.meta?.contact_phone || listing?.contact_phone || owner?.phone_number || listing?.owner?.phone_number || listing?.user?.phone_number || null
   }, [listing, owner])
@@ -201,7 +182,6 @@ export default function ApartmentDetails() {
         if (canOpen) {
           await Linking.openURL(url)
         } else {
-          // Fallback to Google Maps web
           await Linking.openURL(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`)
         }
       } catch (e) {
@@ -209,7 +189,6 @@ export default function ApartmentDetails() {
         Alert.alert('Error', 'Could not open maps application')
       }
     } else if (addressText) {
-      // Use address for search if coordinates not available
       const encodedAddress = encodeURIComponent(addressText)
       const url = Platform.select({
         ios: `maps://maps.apple.com/?q=${encodedAddress}`,
@@ -232,7 +211,6 @@ export default function ApartmentDetails() {
     }
   }
 
-  // Parse utilities - handle both array and string
   const utilitiesList = useMemo(() => {
     const utils = listing?.meta?.utilities
     if (!utils) return []
@@ -248,9 +226,7 @@ export default function ApartmentDetails() {
     return []
   }, [listing])
 
-  // Parse amenities - handle both array and string
   const amenitiesList = useMemo(() => {
-    // Accept amenities from several possible locations/shapes for backward compatibility
     const candidates = [
       listing?.meta?.amenities,
       listing?.amenities,
@@ -269,27 +245,20 @@ export default function ApartmentDetails() {
 
     if (!amens) return []
 
-    // If it's already an array, return it
     if (Array.isArray(amens)) return amens
 
-    // If it's an object, use keys with truthy values or stringify values
     if (typeof amens === 'object') {
       try {
         const keys = Object.keys(amens)
         if (keys.length > 0) return keys.filter(k => !!amens[k])
       } catch (e) {
-        // fallthrough
       }
       return []
     }
 
-    // Now handle string shapes. Some rows store JSON-encoded arrays as strings,
-    // sometimes double-encoded. Try to JSON.parse up to two times, then fall
-    // back to splitting by comma/newline.
     if (typeof amens === 'string') {
       let s = amens.trim()
 
-      // Attempt up to two JSON parses to handle double-encoded strings
       for (let i = 0; i < 2; i++) {
         if ((s.startsWith('[') && s.endsWith(']')) || (s.startsWith('{') && s.endsWith('}'))) {
           try {
@@ -299,10 +268,8 @@ export default function ApartmentDetails() {
               const keys = Object.keys(parsed)
               if (keys.length > 0) return keys.filter(k => !!parsed[k])
             }
-            // If parsed to a primitive, set s to the parsed value and continue
             s = typeof parsed === 'string' ? parsed : String(parsed)
           } catch (e) {
-            // not JSON, break out
             break
           }
         } else {
@@ -310,14 +277,12 @@ export default function ApartmentDetails() {
         }
       }
 
-      // Final fallback: split on commas or newlines
       const parts = s.split(/\r?\n|,/).map(p => p.trim()).filter(Boolean)
       return parts.length > 0 ? parts : [s]
     }
     return []
   }, [listing])
 
-  // Map amenity text to a small emoji for quick visual recognition
   const getAmenityEmoji = (amenity) => {
     if (!amenity) return '✔️'
     const s = String(amenity).toLowerCase()
@@ -347,14 +312,12 @@ export default function ApartmentDetails() {
       }
 
       if (isFavourite) {
-        // Remove from favorites
-        await axios.delete(`${API_URL}/apartments/${listingId}/favorite`, {
+        await axios.delete(`${API_URL}/api/apartments/${listingId}/favorite`, {
           headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
         })
         setIsFavourite(false)
       } else {
-        // Add to favorites
-        await axios.post(`${API_URL}/apartments/${listingId}/favorite`, {}, {
+        await axios.post(`${API_URL}/api/apartments/${listingId}/favorite`, {}, {
           headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
         })
         setIsFavourite(true)
@@ -380,23 +343,17 @@ export default function ApartmentDetails() {
         return
       }
 
-      // build available dates and show the tour panel (date list + time list)
       const oft = getMetaOpenForTour()
       const dates = buildAvailableDates(oft)
       setAvailableDates(dates)
-      // Do not auto-select a date; user must pick one to view times
       setSelectedDateIndex(null)
       setSelectedDate(null)
       setSelectedTime(null)
       setShowAllDates(false)
-      // Open tour panel even if there are no dates so we can show a helpful message
       setTourPanelVisible(true)
     })()
   }
 
-  // When the tour panel is open, refresh available dates periodically so slots
-  // that cross from future->past are removed dynamically while the user is
-  // looking at the panel. We refresh every 60 seconds.
   useEffect(() => {
     if (!tourPanelVisible) return undefined
 
@@ -404,7 +361,6 @@ export default function ApartmentDetails() {
       const oft = getMetaOpenForTour()
       const dates = buildAvailableDates(oft)
       setAvailableDates(dates)
-      // if selected date now has no slots, clear selection
       if (selectedDateIndex !== null) {
         const slots = generateTimeSlots(oft?.time_from || oft?.timeFrom, oft?.time_to || oft?.timeTo, 30, availableDates[selectedDateIndex])
         if (!slots || slots.length === 0) {
@@ -415,7 +371,6 @@ export default function ApartmentDetails() {
       }
     }
 
-    // initial refresh
     refresh()
     const id = setInterval(refresh, 60 * 1000)
     return () => clearInterval(id)
@@ -431,12 +386,7 @@ export default function ApartmentDetails() {
     }
   }
 
-  // Generate Date objects for times between timeFrom and timeTo on a given date.
-  // If forDate is provided it will attach the time to that date. Otherwise the
-  // current date is used. Slots that have already passed (relative to now)
-  // are removed so callers always receive only current/future slots.
   const generateTimeSlots = (timeFrom, timeTo, intervalMinutes = 30, forDate = null) => {
-    // timeFrom/timeTo are strings like '09:00' or '09:00:00'
     const normalize = t => {
       const parts = String(t).split(':')
       const hh = parseInt(parts[0] || '0', 10)
@@ -448,7 +398,6 @@ export default function ApartmentDetails() {
     const slots = []
     const now = new Date()
 
-    // Start and end use the provided date (forDate) if present, otherwise today
     const cur = forDate ? new Date(forDate) : new Date()
     cur.setHours(from.hh, from.mm, 0, 0)
     const end = forDate ? new Date(forDate) : new Date()
@@ -459,14 +408,9 @@ export default function ApartmentDetails() {
       cur.setTime(cur.getTime() + intervalMinutes * 60000)
     }
 
-    // Remove any slots that are already in the past relative to now. This
-    // ensures today's early slots don't appear.
     return slots.filter(s => s.getTime() >= now.getTime())
   }
 
-  // Build an array of available date objects (Date) from meta.open_for_tour
-  // Build an array of available date objects (Date) from meta.open_for_tour
-  // but only include dates that have at least one future timeslot.
   const buildAvailableDates = (oft, maxDays = 14) => {
     const dates = []
     if (!oft) return dates
@@ -474,14 +418,10 @@ export default function ApartmentDetails() {
       const from = oft.date_from ? new Date(oft.date_from) : null
       const to = oft.date_to ? new Date(oft.date_to) : null
 
-      // Helper to push sequential dates between a start and end while
-      // ensuring we only include dates that have at least one future slot.
       const pushDatesBetween = (start, end) => {
         let cur = new Date(start)
         let added = 0
         while (cur <= end && added < maxDays) {
-          // generate slots for this date and only include the date if there
-          // is at least one future slot remaining
           const slots = generateTimeSlots(oft.time_from || oft.timeFrom, oft.time_to || oft.timeTo, 30, cur)
           if (slots.length > 0) {
             dates.push(new Date(cur))
@@ -494,12 +434,10 @@ export default function ApartmentDetails() {
       if (from && to) {
         pushDatesBetween(from, to)
       } else if (from && !to) {
-        // next maxDays from 'from'
         pushDatesBetween(from, new Date(from.getTime() + (maxDays - 1) * 24 * 60 * 60 * 1000))
       } else if (!from && to) {
         pushDatesBetween(new Date(), to)
       } else {
-        // fallback: next maxDays days starting today
         pushDatesBetween(new Date(), new Date(new Date().getTime() + (maxDays - 1) * 24 * 60 * 60 * 1000))
       }
     } catch (e) {
@@ -514,7 +452,6 @@ export default function ApartmentDetails() {
     return `${days[d.getDay()]} ${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`
   }
 
-  // Format date for pill: 'Sun, Jan 4'
   const formatDatePill = (d) => {
     if (!d) return ''
     try {
@@ -529,7 +466,6 @@ export default function ApartmentDetails() {
     }
   }
 
-  // Format a HH:MM (24-hour) string into 12-hour display like '1:30 PM'
   const formatTime12FromHHMM = (hhmm) => {
     if (!hhmm || typeof hhmm !== 'string') return hhmm
     const parts = hhmm.split(':')
@@ -558,7 +494,6 @@ export default function ApartmentDetails() {
   }
 
   const submitBookingForPill = async (timeStr) => {
-    // timeStr like '09:00'
     const dateObj = availableDates[selectedDateIndex]
     if (!dateObj) return Alert.alert('Error', 'No date selected')
     const combined = new Date(dateObj)
@@ -570,7 +505,7 @@ export default function ApartmentDetails() {
       const token = await SecureStore.getItemAsync('token')
       const dateStr = combined.toISOString().slice(0,10)
       const timeOnly = combined.toTimeString().slice(0,5)
-      await axios.post(`${API_URL}/apartments/${listingId}/book-tour`, { date: dateStr, time: timeOnly }, {
+      await axios.post(`${API_URL}/api/apartments/${listingId}/book-tour`, { date: dateStr, time: timeOnly }, {
         headers: { Accept: 'application/json', Authorization: `Bearer ${token}` }
       })
       Alert.alert('Success', 'Tour requested — the owner will receive a notification.')
@@ -591,7 +526,6 @@ export default function ApartmentDetails() {
       Alert.alert('Not available', 'This listing does not have open for tour information set by the owner.')
       return
     }
-    // validate date within date_from..date_to if provided
     if (oft.date_from || oft.date_to) {
       const from = oft.date_from ? new Date(oft.date_from) : null
       const to = oft.date_to ? new Date(oft.date_to) : null
@@ -609,7 +543,6 @@ export default function ApartmentDetails() {
 
     setSelectedDate(date)
     setDatePickerVisible(false)
-  // create timeslots from meta time range for the selected date and show modal
   const oftObj = getMetaOpenForTour()
   const slots = generateTimeSlots(oftObj.time_from || oftObj.timeFrom, oftObj.time_to || oftObj.timeTo, 30, date)
   setTimeSlots(slots)
@@ -619,17 +552,15 @@ export default function ApartmentDetails() {
   const selectTimeSlot = async (slot) => {
     setTimeSlotsModalVisible(false)
     if (!selectedDate) return
-    // combine selectedDate and slot time
     const combined = new Date(selectedDate)
     combined.setHours(slot.getHours(), slot.getMinutes(), 0, 0)
 
-    // submit booking
     try {
       setBookingLoading(true)
       const token = await SecureStore.getItemAsync('token')
       const dateStr = combined.toISOString().slice(0,10)
       const timeStr = combined.toTimeString().slice(0,5)
-      const res = await axios.post(`${API_URL}/apartments/${listingId}/book-tour`, { date: dateStr, time: timeStr }, {
+      const res = await axios.post(`${API_URL}/api/apartments/${listingId}/book-tour`, { date: dateStr, time: timeStr }, {
         headers: { Accept: 'application/json', Authorization: `Bearer ${token}` }
       })
       Alert.alert('Success', 'Tour requested — the owner will receive a notification.')
@@ -660,7 +591,6 @@ export default function ApartmentDetails() {
     })
   }
 
-  // Get floor plan data (first one or default values)
   const floorPlan = useMemo(() => {
     const plans = listing?.floor_plans || []
     if (plans.length > 0) {
@@ -674,7 +604,6 @@ export default function ApartmentDetails() {
         image: plan.image || (images.length > 0 ? images[0] : null),
       }
     }
-    // If no floor plans, use listing data
     const price = listing?.price || listing?.meta?.price_range || 'N/A'
     const formattedPrice = typeof price === 'number' ? `$${price.toLocaleString()}` : price
     return {
@@ -703,7 +632,7 @@ const submitReview = async () => {
       }
 
       await axios.post(
-        `${API_URL}/apartments/${listingId}/reviews`,
+        `${API_URL}/api/apartments/${listingId}/reviews`,
         {
           rating,
           comment: reviewText,
@@ -718,11 +647,9 @@ const submitReview = async () => {
 
       Alert.alert('Success', 'Your review has been submitted 🎉')
 
-      // reset form
       setRating(0)
       setReviewText('')
 
-      // **REFETCH REVIEWS**
       fetchReviews()
 
     } catch (err) {
@@ -742,7 +669,7 @@ const submitReview = async () => {
       setReviewsLoading(true)
 
       const res = await axios.get(
-        `${API_URL}/apartments/${listingId}/reviews`,
+        `${API_URL}/api/apartments/${listingId}/reviews`,
         { headers: { Accept: 'application/json' } }
       )
 
@@ -774,7 +701,7 @@ const submitReview = async () => {
     return (
       <SafeAreaView style={{ flex: 1 }}>
         <Header title="Listing Details" />
-        <View style={{ padding: 20 }}>
+        <View style={{ padding: spacing.xl }}>
           <Text>Listing not found.</Text>
         </View>
       </SafeAreaView>
@@ -782,7 +709,7 @@ const submitReview = async () => {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#f8fafc' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       <Header title={listing.title || 'Listing Details'} />
 
       <ScrollView 
@@ -830,7 +757,7 @@ const submitReview = async () => {
                 <Ionicons 
                   name={isFavourite ? 'heart' : 'heart-outline'} 
                   size={28} 
-                  color={isFavourite ? '#e0245e' : '#666'} 
+                  color={isFavourite ? colors.heartActive : colors.textSecondary} 
                 />
               </TouchableOpacity>
             )}
@@ -839,11 +766,10 @@ const submitReview = async () => {
           {addressText ? <Text style={styles.headerAddress}>{addressText}</Text> : null}
 
           <TouchableOpacity style={styles.mapButton} onPress={openMap}>
-            <Ionicons name="map-outline" size={20} color="#fff" />
+            <Ionicons name="map-outline" size={20} color={colors.white} />
             <Text style={styles.mapButtonText}>View Map</Text>
           </TouchableOpacity>
 
-          {/* Last updated date */}
           {listing?.updated_at && (
             <Text style={styles.updatedText}>Last Updated: {formatDate(listing.updated_at)}</Text>
           )}
@@ -905,7 +831,6 @@ const submitReview = async () => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Unique Features</Text>
           
-          {/* Owner's unique features description with bullets */}
           {listing.meta?.unique_features && (
             <View style={styles.uniqueFeaturesDescription}>
               {Array.isArray(listing.meta.unique_features) ? (
@@ -918,7 +843,6 @@ const submitReview = async () => {
               ) : typeof listing.meta.unique_features === 'string' ? (
                 (() => {
                   const raw = listing.meta.unique_features
-                  // If string looks like JSON array (e.g. "[\"a\",\"b\"]"), try parse
                   try {
                     const maybe = raw.trim()
                     if ((maybe.startsWith('[') && maybe.endsWith(']')) || (maybe.startsWith('{') && maybe.endsWith('}'))) {
@@ -933,13 +857,11 @@ const submitReview = async () => {
                       }
                     }
                   } catch (e) {
-                    // fall through to newline split
                   }
 
                   return raw.split('\n').map((feature, index) => {
                     const trimmed = feature.trim()
                     if (!trimmed) return null
-                    // Remove bullet if already present
                     const cleanFeature = trimmed.replace(/^[•\-\*]\s*/, '')
                     return (
                       <View key={index} style={styles.bulletPoint}>
@@ -953,7 +875,6 @@ const submitReview = async () => {
             </View>
           )}
 
-          {/* Structured unique features */}
           <View style={styles.featuresGrid}>
             {listing.meta?.floor && (
               <View style={styles.featureItem}>
@@ -1000,7 +921,6 @@ const submitReview = async () => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Ratings & Reviews</Text>
 
-          {/* Rating summary */}
           <View style={styles.ratingSummary}>
             <Text style={styles.ratingValue}>{averageRating ? averageRating.toFixed(1) : '0.0'}</Text>
 
@@ -1030,7 +950,6 @@ const submitReview = async () => {
           <View style={styles.writeReviewCard}>
             <Text style={styles.writeReviewTitle}>Write a Review</Text>
 
-            {/* Star input (visual only) */}
             <View style={styles.writeStarsRow}>
               {[1, 2, 3, 4, 5].map((value) => (
                 <TouchableOpacity key={value} onPress={() => setRating(value)}>
@@ -1044,7 +963,6 @@ const submitReview = async () => {
             </View>
 
 
-            {/* Review input placeholder */}
             <View style={styles.reviewInputMock}>
               <TextInput
                 value={reviewText}
@@ -1052,21 +970,20 @@ const submitReview = async () => {
                 placeholder="Share your experience about this apartment..."
                 multiline
                 style={styles.reviewInput}
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor={colors.textMuted}
               />
             </View>
 
-            {/* Submit button (disabled look) */}
             <TouchableOpacity
               onPress={submitReview}
               style={styles.submitReviewBtn}
               disabled={reviewLoading}
               activeOpacity={0.8}>
               {reviewLoading ? (
-                <ActivityIndicator color="#fff" />
+                <ActivityIndicator color={colors.white} />
               ) : (
                 <>
-                  <Ionicons name="send-outline" size={16} color="#fff" />
+                  <Ionicons name="send-outline" size={16} color={colors.white} />
                   <Text style={styles.submitReviewText}>Submit Review</Text>
                 </>
               )}
@@ -1075,11 +992,11 @@ const submitReview = async () => {
 
 
           {reviewsLoading && (
-            <Text style={{ padding: 12 }}>Loading reviews...</Text>
+            <Text style={{ padding: spacing.md }}>Loading reviews...</Text>
           )}
 
           {!reviewsLoading && reviews.length === 0 && (
-            <Text style={{ padding: 12, color: '#6b7280' }}>
+            <Text style={{ padding: spacing.md, color: colors.textSecondary }}>
               No reviews yet. Be the first to review!
             </Text>
           )}
@@ -1110,7 +1027,6 @@ const submitReview = async () => {
           ))}
 
 
-          {/* View all button */}
           {totalReviews > 3 && (
               <TouchableOpacity
                 style={styles.viewAllReviewsBtn}
@@ -1169,21 +1085,20 @@ const submitReview = async () => {
       {/* Bottom Navigation Bar */}
       <View style={styles.bottomNavBar}>
         <TouchableOpacity style={styles.bottomNavButton} onPress={handleTour}>
-          <Ionicons name="calendar-outline" size={22} color="#1778f2" />
+          <Ionicons name="calendar-outline" size={22} color={colors.primary} />
           <Text style={styles.bottomNavButtonText}>Tour</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.bottomNavButton} onPress={handleMessage}>
-          <Ionicons name="chatbubble-outline" size={22} color="#1778f2" />
+          <Ionicons name="chatbubble-outline" size={22} color={colors.primary} />
           <Text style={styles.bottomNavButtonText}>Message</Text>
         </TouchableOpacity>
         {ownerPhone && (
           <TouchableOpacity style={styles.bottomNavButton} onPress={handleCall}>
-            <Ionicons name="call-outline" size={22} color="#1778f2" />
+            <Ionicons name="call-outline" size={22} color={colors.primary} />
             <Text style={styles.bottomNavButtonText}>Call</Text>
           </TouchableOpacity>
         )}
       </View>
-      {/* Date & Time pickers for booking */}
       <DateTimePickerModal
         isVisible={isDatePickerVisible}
         mode="date"
@@ -1198,45 +1113,40 @@ const submitReview = async () => {
           return oft && oft.date_to ? new Date(oft.date_to) : undefined
         })()}
       />
-      {/* time is selected from generated slots modal; no free-form time picker shown */}
 
-      {/* Modal list of generated time slots (strict) */}
       {timeSlotsModalVisible && (
-        <View style={{ position: 'absolute', left: 0, right: 0, top: 120, bottom: 0, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', alignItems: 'center' }}>
-                <View style={{ width: '90%', maxHeight: '60%', backgroundColor: '#fff', borderRadius: 8, padding: 12 }}>
-            <Text style={{ fontWeight: '600', marginBottom: 8 }}>Select a time</Text>
+        <View style={{ position: 'absolute', left: 0, right: 0, top: 120, bottom: 0, backgroundColor: colors.overlay, justifyContent: 'center', alignItems: 'center' }}>
+                <View style={{ width: '90%', maxHeight: '60%', backgroundColor: colors.white, borderRadius: radius.sm, padding: spacing.md }}>
+            <Text style={{ fontWeight: '600', marginBottom: spacing.sm }}>Select a time</Text>
             <ScrollView>
               {timeSlots.map((s, idx) => (
-                <TouchableOpacity key={idx} onPress={() => selectTimeSlot(s)} style={{ padding: 10, borderBottomWidth: 1, borderBottomColor: '#eee' }}>
+                <TouchableOpacity key={idx} onPress={() => selectTimeSlot(s)} style={{ padding: spacing.md, borderBottomWidth: 1, borderBottomColor: colors.border }}>
                   <Text>{formatTime12FromDate(s)}</Text>
                 </TouchableOpacity>
               ))}
             </ScrollView>
-            <TouchableOpacity onPress={() => setTimeSlotsModalVisible(false)} style={{ marginTop: 8, padding: 8 }}>
-              <Text style={{ textAlign: 'center', color: '#d00' }}>Cancel</Text>
+            <TouchableOpacity onPress={() => setTimeSlotsModalVisible(false)} style={{ marginTop: spacing.sm, padding: spacing.sm }}>
+              <Text style={{ textAlign: 'center', color: colors.danger }}>Cancel</Text>
             </TouchableOpacity>
           </View>
         </View>
       )}
 
-      {/* Apartments.com-like Tour Panel: date pills + time pills */}
       {tourPanelVisible && (
         <View style={styles.tourPanelOverlay}>
           <View style={styles.tourPanel}>
             <View style={styles.tourPanelHeader}>
-              <Text style={{ fontSize: 18, fontWeight: '700', marginBottom: 4 }}>Request a tour</Text>
-              <Text style={{ color: '#6b7280' }}>Choose a date and available time</Text>
+              <Text style={{ fontSize: 18, fontWeight: '700', marginBottom: spacing.xs }}>Request a tour</Text>
+              <Text style={{ color: colors.textSecondary }}>Choose a date and available time</Text>
             </View>
 
             <View style={styles.tourPanelBody}>
-              {/* If there are no available dates show a friendly message */}
               {(!availableDates || availableDates.length === 0) ? (
-                <View style={{ padding: 24, justifyContent: 'center', alignItems: 'center' }}>
-                  <Text style={{ color: '#6b7280', textAlign: 'center', marginBottom: 8 }}>No open slots available right now.</Text>
-                  <Text style={{ color: '#6b7280', textAlign: 'center' }}>Please try again later.</Text>
+                <View style={{ padding: spacing.xxl, justifyContent: 'center', alignItems: 'center' }}>
+                  <Text style={{ color: colors.textSecondary, textAlign: 'center', marginBottom: spacing.sm }}>No open slots available right now.</Text>
+                  <Text style={{ color: colors.textSecondary, textAlign: 'center' }}>Please try again later.</Text>
                 </View>
               ) : (
-                // Two-column vertical layout: dates (left) and times (right)
                 <View style={styles.tourPanelContent}>
                   <View style={styles.datesColumn}>
                     <ScrollView contentContainerStyle={styles.dateList}>
@@ -1266,17 +1176,17 @@ const submitReview = async () => {
                   <View style={styles.timesColumn}>
                     {selectedDateIndex === null ? (
                       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                        <Text style={{ color: '#6b7280' }}>Please pick a date above to see available times</Text>
+                        <Text style={{ color: colors.textSecondary }}>Please pick a date above to see available times</Text>
                       </View>
                     ) : (
                       (() => {
                         const oft = getMetaOpenForTour()
-                        if (!oft) return <Text style={{ color: '#6b7280', textAlign: 'center' }}>No time range set</Text>
+                        if (!oft) return <Text style={{ color: colors.textSecondary, textAlign: 'center' }}>No time range set</Text>
                         const slots = generateTimeSlots(oft.time_from || oft.timeFrom, oft.time_to || oft.timeTo, 30, availableDates[selectedDateIndex])
                         if (!slots || slots.length === 0) {
                           return (
-                            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 16 }}>
-                              <Text style={{ color: '#6b7280', textAlign: 'center' }}>No open times for this date. Please pick another date.</Text>
+                            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: spacing.lg }}>
+                              <Text style={{ color: colors.textSecondary, textAlign: 'center' }}>No open times for this date. Please pick another date.</Text>
                             </View>
                           )
                         }
@@ -1303,7 +1213,7 @@ const submitReview = async () => {
               {selectedTime ? (
                 <TouchableOpacity style={styles.confirmBtn} onPress={() => submitBookingForPill(selectedTime)} disabled={bookingLoading}>
                   {bookingLoading ? (
-                    <ActivityIndicator color="#fff" />
+                    <ActivityIndicator color={colors.white} />
                   ) : (
                     <Text style={styles.confirmBtnText}>Request tour — {availableDates[selectedDateIndex] ? `${formatDate(availableDates[selectedDateIndex])} ${formatTime12FromHHMM(selectedTime)}` : formatTime12FromHHMM(selectedTime)}</Text>
                   )}

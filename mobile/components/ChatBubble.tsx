@@ -1,6 +1,7 @@
 import React from 'react'
 import { View, Text, StyleSheet } from 'react-native'
 import type { ChatMessage } from '../types/message'
+import { colors, radius, spacing } from '../theme'
 
 interface Props {
   message: ChatMessage
@@ -24,8 +25,8 @@ export default ChatBubble
 
 const styles = StyleSheet.create({
   row: {
-    marginVertical: 6,
-    paddingHorizontal: 12,
+    marginVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
     flexDirection: 'row',
   },
   rowRight: {
@@ -36,36 +37,36 @@ const styles = StyleSheet.create({
   },
   bubble: {
     maxWidth: '75%',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 18,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.lg,
   },
   bubbleRight: {
-    backgroundColor: '#1778f2',
+    backgroundColor: colors.primary,
     borderTopRightRadius: 6,
-    borderTopLeftRadius: 18,
-    borderBottomLeftRadius: 18,
-    borderBottomRightRadius: 18,
+    borderTopLeftRadius: radius.lg,
+    borderBottomLeftRadius: radius.lg,
+    borderBottomRightRadius: radius.lg,
   },
   bubbleLeft: {
-    backgroundColor: '#f0f0f0',
+    backgroundColor: colors.background,
     borderTopLeftRadius: 6,
-    borderTopRightRadius: 18,
-    borderBottomLeftRadius: 18,
-    borderBottomRightRadius: 18,
+    borderTopRightRadius: radius.lg,
+    borderBottomLeftRadius: radius.lg,
+    borderBottomRightRadius: radius.lg,
   },
   messageText: {
     fontSize: 15,
     lineHeight: 20,
   },
   messageTextRight: {
-    color: '#fff',
+    color: colors.white,
   },
   messageTextLeft: {
-    color: '#111',
+    color: colors.textPrimary,
   },
   timeText: {
-    marginTop: 6,
+    marginTop: spacing.sm,
     fontSize: 11,
     alignSelf: 'flex-end',
   },
@@ -73,6 +74,6 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.85)',
   },
   timeTextLeft: {
-    color: '#888',
+    color: colors.textMuted,
   },
 })

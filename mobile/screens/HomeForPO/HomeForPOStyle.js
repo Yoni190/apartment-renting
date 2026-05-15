@@ -1,15 +1,16 @@
 import { StyleSheet, Platform, Dimensions } from 'react-native'
+import { colors, spacing, radius, shadows, typography } from '../../theme'
 
 const { width } = Dimensions.get('window')
 
 export default StyleSheet.create({
   container: { 
     flex: 1, 
-    backgroundColor: '#f8fafc'
+    backgroundColor: colors.background
   },
   scrollContent: { 
     paddingTop: 70,
-    paddingHorizontal: 20,
+    paddingHorizontal: spacing.xl,
     paddingBottom: 100,
   },
 
@@ -21,68 +22,54 @@ export default StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 20,
+    backgroundColor: colors.white,
+    borderRadius: radius.lg,
+    padding: spacing.xl,
     flexDirection: 'row',
     alignItems: 'center',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOpacity: 0.08,
-        shadowRadius: 12,
-        shadowOffset: { width: 0, height: 4 },
-      },
-      android: {
-        elevation: 3,
-      },
-    }),
+    ...shadows.md,
   },
   statIconContainer: {
     width: 56,
     height: 56,
-    borderRadius: 16,
-    backgroundColor: '#eff6ff',
+    borderRadius: radius.lg,
+    backgroundColor: colors.primaryLight,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
+    marginRight: spacing.lg,
   },
   statIconActive: {
-    backgroundColor: '#d1fae5',
+    backgroundColor: colors.successLight,
   },
   statContent: {
     flex: 1,
   },
   statNumber: {
-    fontSize: 28,
-    fontWeight: '800',
-    color: '#0f172a',
-    marginBottom: 4,
+    ...typography.h1,
+    marginBottom: spacing.xs,
   },
   statNumberActive: {
-    color: '#10b981',
+    color: colors.success,
   },
   statLabel: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#64748b',
+    color: colors.textSecondary,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
 
   // Section Header
   sectionHeader: {
-    marginBottom: 20,
+    marginBottom: spacing.xl,
   },
   sectionTitle: {
-    fontSize: 26,
-    fontWeight: '800',
-    color: '#0f172a',
-    marginBottom: 6,
+    ...typography.h2,
+    marginBottom: spacing.xs,
   },
   sectionSubtitle: {
     fontSize: 15,
-    color: '#64748b',
+    color: colors.textSecondary,
     fontWeight: '500',
   },
 
@@ -91,27 +78,27 @@ export default StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 14,
-    gap: 8,
+    gap: spacing.sm,
   },
   tabButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 10,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.sm,
     borderWidth: 1,
-    borderColor: '#e6e6e6',
+    borderColor: colors.border,
     backgroundColor: 'transparent',
   },
   tabButtonActive: {
-    backgroundColor: '#1778f2',
-    borderColor: '#1778f2',
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   tabButtonText: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#0f172a',
+    color: colors.textPrimary,
   },
   tabButtonTextActive: {
-    color: '#ffffff',
+    color: colors.white,
   },
 
   // Loading State
@@ -122,9 +109,9 @@ export default StyleSheet.create({
     paddingVertical: 60,
   },
   loadingText: {
-    marginTop: 16,
+    marginTop: spacing.lg,
     fontSize: 15,
-    color: '#64748b',
+    color: colors.textSecondary,
     fontWeight: '500',
   },
 
@@ -133,43 +120,41 @@ export default StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 60,
-    paddingHorizontal: 20,
+    paddingHorizontal: spacing.xl,
   },
   emptyIconContainer: {
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: colors.background,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: spacing.xxl,
   },
   emptyTitle: {
-    fontSize: 24,
-    fontWeight: '800',
-    color: '#0f172a',
-    marginBottom: 12,
+    ...typography.h2,
+    marginBottom: spacing.md,
     textAlign: 'center',
   },
   emptySubtitle: {
     fontSize: 16,
-    color: '#64748b',
+    color: colors.textSecondary,
     textAlign: 'center',
     lineHeight: 24,
-    marginBottom: 32,
-    paddingHorizontal: 20,
+    marginBottom: spacing.xxxl,
+    paddingHorizontal: spacing.xl,
   },
   addButton: {
-    backgroundColor: '#1778f2',
+    backgroundColor: colors.primary,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 32,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.xxxl,
     borderRadius: 14,
     ...Platform.select({
       ios: {
-        shadowColor: '#1778f2',
+        shadowColor: colors.primary,
         shadowOpacity: 0.3,
         shadowRadius: 12,
         shadowOffset: { width: 0, height: 6 },
@@ -180,10 +165,10 @@ export default StyleSheet.create({
     }),
   },
   addButtonIcon: {
-    marginRight: 8,
+    marginRight: spacing.sm,
   },
   addButtonText: {
-    color: '#fff',
+    color: colors.white,
     fontSize: 16,
     fontWeight: '700',
     letterSpacing: 0.3,
@@ -192,23 +177,23 @@ export default StyleSheet.create({
   // Listings Container
   listingsContainer: {
     alignItems: 'center',
-    gap: 20,
+    gap: spacing.xl,
   },
 
   // Floating Action Button
   fab: {
     position: 'absolute',
-    right: 20,
+    right: spacing.xl,
     bottom: 30,
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: '#1778f2',
+    backgroundColor: colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
     ...Platform.select({
       ios: {
-        shadowColor: '#1778f2',
+        shadowColor: colors.primary,
         shadowOpacity: 0.4,
         shadowRadius: 16,
         shadowOffset: { width: 0, height: 8 },

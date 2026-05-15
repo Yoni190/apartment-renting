@@ -2,107 +2,43 @@
 
 @section('title', __('edit_profile.title'))
 
-@push('styles')
-<style>
-.form-card {
-    border-radius: 12px;
-    padding: 25px;
-    background: #fff;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-}
-
-.profile-avatar {
-    width: 90px;
-    height: 90px;
-    border-radius: 50%;
-    background: #e9ecef;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 32px;
-    font-weight: bold;
-    color: #6c757d;
-}
-
-.section-title {
-    font-weight: 600;
-    margin-bottom: 20px;
-}
-
-.form-control {
-    border-radius: 8px;
-}
-
-.btn-save {
-    border-radius: 8px;
-    padding: 10px;
-    font-weight: 500;
-}
-</style>
-@endpush
-
 @section('content')
-
 <div class="container my-5">
-
     <div class="row justify-content-center">
-        <div class="col-lg-8">
+        <div class="col-lg-8 mx-auto">
+            <div class="info-card">
 
-            <div class="form-card">
-
-            
                 <div class="d-flex align-items-center gap-3 mb-4">
                     <div class="profile-avatar">
                         {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}
                     </div>
-
                     <div>
                         <h4 class="mb-0">{{ __('edit_profile.heading') }}</h4>
-                        <small class="text-muted">
-                            {{ __('edit_profile.subheading') }}
-                        </small>
+                        <small class="text-muted">{{ __('edit_profile.subheading') }}</small>
                     </div>
                 </div>
 
-                
                 <form method="POST" action="{{ route('profile.update') }}">
                     @csrf
                     @method('PUT')
 
                     <div class="row g-3">
-
-                    
                         <div class="col-md-6">
                             <label class="form-label">{{ __('edit_profile.full_name') }}</label>
-                            <input type="text" 
-                                   name="name" 
-                                   class="form-control"
-                                   value="{{ old('name', auth()->user()->name) }}">
+                            <input type="text" name="name" class="form-control" value="{{ old('name', auth()->user()->name) }}">
                         </div>
-
-                        
                         <div class="col-md-6">
                             <label class="form-label">{{ __('edit_profile.email') }}</label>
-                            <input type="email" 
-                                   name="email" 
-                                   class="form-control"
-                                   value="{{ old('email', auth()->user()->email) }}">
+                            <input type="email" name="email" class="form-control" value="{{ old('email', auth()->user()->email) }}">
                         </div>
-
-                        
                         <div class="col-md-12">
                             <label class="form-label">{{ __('edit_profile.phone') }}</label>
-                            <input type="text" 
-                                   name="phone_number" 
-                                   class="form-control"
-                                   value="{{ old('phone', auth()->user()->phone_number) }}">
+                            <input type="text" name="phone_number" class="form-control" value="{{ old('phone', auth()->user()->phone_number) }}">
                         </div>
-
                     </div>
 
-                    
                     <div class="mt-4">
-                        <button type="submit" class="btn btn-primary btn-save w-100">
+                        <button type="submit" class="btn btn-primary w-100 rounded-pill">
                             {{ __('edit_profile.update_button') }}
                         </button>
                     </div>
@@ -110,10 +46,7 @@
                 </form>
 
             </div>
-
         </div>
     </div>
-
 </div>
-
 @endsection

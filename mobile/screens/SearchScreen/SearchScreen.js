@@ -8,6 +8,7 @@ import axios from 'axios'
 import ListingCard from '../../components/ListingCard'
 import { useNavigation } from '@react-navigation/native'
 import { useTranslation } from 'react-i18next'
+import { colors, spacing, radius, shadows, typography } from '../../theme'
 
 
 
@@ -89,7 +90,7 @@ const SearchScreen = () => {
               ...(filters.price ? { price_range: filters.price } : {}),
           }
 
-          const response = await axios.get(`${API_URL}/search`, { params })
+          const response = await axios.get(`${API_URL}/api/search`, { params })
           setResults(response.data)
           } catch (error) {
           console.log(error)
@@ -117,17 +118,17 @@ const SearchScreen = () => {
 
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff', paddingTop: 50 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.white, paddingTop: 50 }}>
       <Header title={t('search')} />
 
       <View style={styles.searchContainer}>
         {/* Search Icon */}
-        <Search size={20} color="#999" />
+        <Search size={20} color={colors.textMuted} />
 
         {/* Input */}
         <TextInput
           placeholder={t('search...')}
-          placeholderTextColor="#999"
+          placeholderTextColor={colors.textMuted}
           style={styles.input}
           value={query}
           onChangeText={searchApartments}
@@ -137,7 +138,7 @@ const SearchScreen = () => {
         <TouchableOpacity onPress={() => setShowFilters(!showFilters)}>
             <SlidersHorizontal
             size={20}
-            color="#999" />
+            color={colors.textMuted} />
         </TouchableOpacity>
       </View>
 
@@ -155,11 +156,11 @@ const SearchScreen = () => {
                   key={n}
                   style={[
                     styles.filterOption,
-                    bedroomFilter === n && { backgroundColor: '#007AFF' }
+                    bedroomFilter === n && { backgroundColor: colors.primary }
                   ]}
                   onPress={() => setBedroomFilter(n)}
                 >
-                  <Text style={{ color: bedroomFilter === n ? 'white' : 'black' }}>{n}+</Text>
+                  <Text style={{ color: bedroomFilter === n ? colors.white : colors.black }}>{n}+</Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -172,35 +173,35 @@ const SearchScreen = () => {
                   key={p}
                   style={[
                     styles.filterOption,
-                    priceFilter === p && { backgroundColor: '#007AFF' }
+                    priceFilter === p && { backgroundColor: colors.primary }
                   ]}
                   onPress={() => setPriceFilter(p)}
                 >
-                  <Text style={{ color: priceFilter === p ? 'white' : 'black' }}>{p}</Text>
+                  <Text style={{ color: priceFilter === p ? colors.white : colors.black }}>{p}</Text>
                 </TouchableOpacity>
               ))}
             </View>
 
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: spacing.xl }}>
               <TouchableOpacity
-                  style={[styles.closeButton, { backgroundColor: '#f39c12', flex: 1, marginRight: 10 }]}
+                  style={[styles.closeButton, { backgroundColor: colors.accent, flex: 1, marginRight: spacing.md }]}
                   onPress={resetFilters}
               >
-                  <Text style={{ color: 'white', textAlign: 'center' }}>{t('reset')}</Text>
+                  <Text style={{ color: colors.white, textAlign: 'center' }}>{t('reset')}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                  style={[styles.closeButton, { backgroundColor: '#ccc', flex: 1, marginRight: 10 }]}
+                  style={[styles.closeButton, { backgroundColor: colors.border, flex: 1, marginRight: spacing.md }]}
                   onPress={() => setShowFilters(false)}
               >
-                  <Text style={{ color: 'white', textAlign: 'center' }}>{t('cancel')}</Text>
+                  <Text style={{ color: colors.white, textAlign: 'center' }}>{t('cancel')}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                   style={[styles.closeButton, { flex: 1 }]}
                   onPress={applyFilters}
               >
-                  <Text style={{ color: 'white', textAlign: 'center' }}>{t('apply')}</Text>
+                  <Text style={{ color: colors.white, textAlign: 'center' }}>{t('apply')}</Text>
               </TouchableOpacity>
           </View>
 
@@ -211,7 +212,7 @@ const SearchScreen = () => {
 
       {query.length === 0 ? (
         <View style={styles.placeholderContainer}>
-            <Search size={48} color="#ccc" />
+            <Search size={48} color={colors.border} />
             <Text style={styles.placeholderTitle}>{t('start_searching')}</Text>
             <Text style={styles.placeholderText}>
             {t('find_apartments_by_title')}
@@ -220,11 +221,11 @@ const SearchScreen = () => {
         ) : (
         <ScrollView showsVerticalScrollIndicator={false} style={styles.resultsContainer}>
             {loading && (
-            <Text style={{ padding: 20 }}>{t('searching...')}</Text>
+            <Text style={{ padding: spacing.xl }}>{t('searching...')}</Text>
             )}
 
             {!loading && results.length === 0 && (
-            <Text style={{ padding: 20 }}>{t('no_results_found')}</Text>
+            <Text style={{ padding: spacing.xl }}>{t('no_results_found')}</Text>
             )}
 
             {results.map((a) => {

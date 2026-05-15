@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react'
 import { ScrollView, View, Text, TextInput, Pressable, Platform } from 'react-native'
 import DateTimePicker from '@react-native-community/datetimepicker'
+import { colors, spacing, radius, typography } from '../theme'
 
 const RentApplicationForm = ({ form, setForm, styles }) => {
   const [showPicker, setShowPicker] = useState(false)
