@@ -1,28 +1,28 @@
 import { StyleSheet } from 'react-native'
+import { colors, spacing, radius, typography } from '../../theme'
 
 export default StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    paddingHorizontal: 20,
+    backgroundColor: colors.surface,
+    paddingHorizontal: spacing.xl,
     paddingTop: 120,
   },
 
   screenTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    ...typography.h4,
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: spacing.xl,
   },
 
   card: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 16,
-    paddingVertical: 24,
-    paddingHorizontal: 16,
+    borderColor: colors.border,
+    borderRadius: radius.lg,
+    paddingVertical: spacing.xxl,
+    paddingHorizontal: spacing.lg,
     alignItems: 'center',
-    backgroundColor: '#f7f7f7',
+    backgroundColor: colors.background,
   },
 
   iconCircle: {
@@ -30,57 +30,57 @@ export default StyleSheet.create({
     height: 64,
     borderRadius: 32,
     borderWidth: 1,
-    borderColor: '#000',
+    borderColor: colors.black,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
 
   cardTitle: {
     fontSize: 16,
     fontWeight: '700',
-    marginBottom: 6,
+    marginBottom: spacing.xs,
   },
 
   cardDesc: {
     fontSize: 13,
     textAlign: 'center',
-    color: '#555',
-    lineHeight: 18,
+    color: colors.textSecondary,
+    lineHeight: spacing.lg,
   },
 
   orRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 18,
+    marginVertical: spacing.xl,
   },
 
   line: {
     flex: 1,
     height: 1,
-    backgroundColor: '#ccc',
+    backgroundColor: colors.border,
   },
 
   orText: {
-    marginHorizontal: 10,
-    fontSize: 12,
-    color: '#555',
+    ...typography.caption,
+    color: colors.textSecondary,
+    marginHorizontal: spacing.sm,
   },
   languageWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'flex-end',
-    marginBottom: 15,
-    paddingHorizontal: 10,
+    marginBottom: spacing.lg,
+    paddingHorizontal: spacing.sm,
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 20,
-    backgroundColor: '#fafafa',
+    borderColor: colors.border,
+    borderRadius: radius.xl,
+    backgroundColor: colors.background,
   },
 
   languagePicker: {
     width: 140,
     height: 55,
-    marginLeft: 5,
+    marginLeft: spacing.xs,
   },
 })

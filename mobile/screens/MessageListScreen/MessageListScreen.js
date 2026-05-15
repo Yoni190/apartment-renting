@@ -9,6 +9,7 @@ import { onMessageUpdate, offMessageUpdate, emitMessageUpdate, setLocalReadState
 import * as SecureStore from 'expo-secure-store'
 import Header from '../../components/Header'
 import { useTranslation } from 'react-i18next'
+import { colors } from '../../theme'
 
 // MessageListScreen: fetches conversation previews for the logged-in user
 export default function MessageListScreen({ navigation }) {
@@ -738,7 +739,7 @@ export default function MessageListScreen({ navigation }) {
             />
             {query ? (
               <TouchableOpacity style={styles.searchClear} onPress={() => setQuery('')}>
-                <Text style={{ color: '#6b7280' }}>✕</Text>
+                <Text style={{ color: colors.textSecondary }}>✕</Text>
               </TouchableOpacity>
             ) : null}
           </View>
@@ -801,7 +802,7 @@ export default function MessageListScreen({ navigation }) {
                       { transform: [{ scale: emptyAllAnim }], opacity: emptyAllAnim },
                     ]}
                   >
-                    <Ionicons name="chatbubble-ellipses" size={52} color="#94a3b8" />
+                    <Ionicons name="chatbubble-ellipses" size={52} color={colors.textMuted} />
                     <Text style={styles.emptyAllText}>{t('no_messages_yet')}</Text>
                   </Animated.View>
                 )

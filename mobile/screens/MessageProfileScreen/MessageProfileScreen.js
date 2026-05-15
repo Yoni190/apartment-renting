@@ -3,6 +3,7 @@ import { View, Text, Animated, Dimensions, Pressable, SafeAreaView } from 'react
 import { Ionicons } from '@expo/vector-icons'
 import messageService from '../../services/messageService'
 import styles from './MessageProfileScreenStyle'
+import { colors } from '../../theme'
 
 const MessageProfileScreen = ({ navigation, route }) => {
 	const { receiverName, receiverId, receiverEmail, receiverPhone } = route?.params || {}
@@ -68,7 +69,7 @@ const MessageProfileScreen = ({ navigation, route }) => {
 			>
 				<View style={styles.header}>
 					<Pressable onPress={closeScreen} style={styles.backBtn}>
-						<Ionicons name="chevron-back" size={22} color="#ffffff" />
+						<Ionicons name="chevron-back" size={22} color={colors.white} />
 					</Pressable>
 					<Text style={styles.headerTitle}>Profile</Text>
 					<View style={styles.headerRight} />

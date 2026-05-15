@@ -33,6 +33,7 @@ import messageService, {
   getLocalReadState,
 } from '../../services/messageService'
 import styles from './MessagesScreenStyle'
+import { colors, spacing, radius, typography } from '../../theme'
 
 const MessagesScreen = ({ route }) => {
   const [messages, setMessages] = useState([])
@@ -790,12 +791,12 @@ const MessagesScreen = ({ route }) => {
                 </Pressable>
               ) : (
                 <TouchableOpacity style={styles.mediaPlaceholder} onPress={() => handleDownloadMedia(item)}>
-                  <Ionicons name="arrow-down-circle" size={36} color="#fff" />
+                  <Ionicons name="arrow-down-circle" size={36} color={colors.white} />
                 </TouchableOpacity>
               )}
               {(downloading && !downloaded) || (item.temp && item.uploading) ? (
                 <View style={styles.mediaLoadingOverlay}>
-                  <ActivityIndicator size="large" color="#fff" />
+                  <ActivityIndicator size="large" color={colors.white} />
                 </View>
               ) : null}
             </View>
@@ -807,7 +808,7 @@ const MessagesScreen = ({ route }) => {
           )}
           <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
             {isSent ? (
-              <Ionicons name={(item.is_read || item.read_at) ? 'checkmark-done' : 'checkmark'} size={14} color={'#ffffff'} style={{ marginRight: 6 }} />
+              <Ionicons name={(item.is_read || item.read_at) ? 'checkmark-done' : 'checkmark'} size={14} color={colors.white} style={{ marginRight: spacing.sm }} />
             ) : null}
             <Text style={styles.timeText}>{time}</Text>
           </View>
@@ -992,20 +993,20 @@ const MessagesScreen = ({ route }) => {
             )}
 
             <TouchableOpacity style={styles.fab} onPress={() => setShowNewModal(true)}>
-              <Ionicons name="add" size={28} color="#fff" />
+              <Ionicons name="add" size={28} color={colors.white} />
             </TouchableOpacity>
 
             <Modal visible={showNewModal} transparent animationType="slide">
-              <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.4)' }}>
-                <View style={{ backgroundColor: '#fff', padding: 16, borderTopLeftRadius: 12, borderTopRightRadius: 12 }}>
-                  <Text style={{ fontSize: 16, fontWeight: '700', marginBottom: 8 }}>Start new message</Text>
-                  <TextInput placeholder="Receiver user id" value={newReceiverId} onChangeText={setNewReceiverId} style={[styles.input, { backgroundColor: '#fff' }]} keyboardType="numeric" />
-                  <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 12 }}>
-                    <TouchableOpacity onPress={() => setShowNewModal(false)} style={{ marginRight: 12 }}>
-                      <Text style={{ color: '#6b7280' }}>Cancel</Text>
+              <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: colors.overlay }}>
+                <View style={{ backgroundColor: colors.surface, padding: spacing.lg, borderTopLeftRadius: radius.md, borderTopRightRadius: radius.md }}>
+                  <Text style={{ ...typography.h4, marginBottom: spacing.sm }}>Start new message</Text>
+                  <TextInput placeholder="Receiver user id" value={newReceiverId} onChangeText={setNewReceiverId} style={[styles.input, { backgroundColor: colors.surface }]} keyboardType="numeric" />
+                  <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: spacing.md }}>
+                    <TouchableOpacity onPress={() => setShowNewModal(false)} style={{ marginRight: spacing.md }}>
+                      <Text style={{ color: colors.textSecondary }}>Cancel</Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={openNewConversation}>
-                      <Text style={{ color: '#1778f2', fontWeight: '700' }}>Open</Text>
+                      <Text style={{ color: colors.primary, fontWeight: '700' }}>Open</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -1037,7 +1038,7 @@ const MessagesScreen = ({ route }) => {
                 style={[styles.scrollToBottomBtn, { bottom: effectiveInputBottom + 80 }]}
                 onPress={scrollToBottom}
               >
-                <Ionicons name="chevron-down" size={22} color="#fff" />
+                <Ionicons name="chevron-down" size={22} color={colors.white} />
               </TouchableOpacity>
             ) : null}
 
@@ -1051,7 +1052,7 @@ const MessagesScreen = ({ route }) => {
                     <Text style={styles.replyComposerText} numberOfLines={1}>{replyTo.message}</Text>
                   </View>
                   <TouchableOpacity onPress={() => setReplyTo(null)} style={styles.replyComposerClose}>
-                    <Ionicons name="close" size={18} color="#6b7280" />
+                    <Ionicons name="close" size={18} color={colors.textSecondary} />
                   </TouchableOpacity>
                 </View>
               ) : null}
@@ -1067,20 +1068,20 @@ const MessagesScreen = ({ route }) => {
                   }}
                 />
                 <TouchableOpacity style={styles.templateBtn} onPress={() => setShowTemplateModal(true)} accessibilityLabel="Templates">
-                  <Ionicons name="document-text" size={18} color="#0f172a" />
+                  <Ionicons name="document-text" size={18} color={colors.navBg} />
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.mediaBtn} onPress={handlePickMedia} accessibilityLabel="Add media">
                   <Text style={styles.mediaBtnText}>+</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.sendBtn} onPress={handleSend} accessibilityLabel="Send">
-                  <Ionicons name="send" size={20} color="#fff" />
+                  <Ionicons name="send" size={20} color={colors.white} />
                 </TouchableOpacity>
               </View>
             </Animated.View>
             <Modal visible={viewerVisible} transparent animationType="fade" onRequestClose={() => setViewerVisible(false)}>
               <View style={styles.viewerOverlay}>
                 <TouchableOpacity style={styles.viewerClose} onPress={() => setViewerVisible(false)}>
-                  <Ionicons name="close" size={24} color="#fff" />
+                  <Ionicons name="close" size={24} color={colors.white} />
                 </TouchableOpacity>
                 <View style={styles.viewerBody}>
                   <View style={styles.viewerScrollContent} {...pinchResponder.panHandlers}>

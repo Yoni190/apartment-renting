@@ -2,165 +2,37 @@
 
 @section('title', 'Home - Rent Your Dream Apartment')
 
-@push('styles')
-<style>
-/* Hero Section */
-.hero {
-    background: url('/images/apartment_hero2.jpg') center/cover no-repeat;
-    height: 70vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    text-align: center;
-    position: relative;
-}
-
-.hero::before {
-    content: "";
-    position: absolute;
-    top:0; left:0;
-    width:100%; height:100%;
-    background: rgba(0,0,0,0.5);
-}
-
-/* Search Bar */
-.search-bar {
-    position: relative;
-    top: -50px;
-    background: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-}
-
-/* Apartment Card */
-.apartment-card {
-    transition: transform 0.3s;
-}
-.apartment-card:hover {
-    transform: translateY(-5px);
-}
-
-/* Categories */
-.category-card {
-    text-align: center;
-    padding: 30px;
-    border-radius: 10px;
-    transition: transform 0.3s, box-shadow 0.3s;
-    cursor: pointer;
-    background: #f8f9fa;
-}
-.category-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-}
-
-/* Featured */
-.featured-label {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    background: #9fc5f8;
-    color: #fff;
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-size: 0.8rem;
-}
-
-.btn-primary, .btn-outline-primary {
-    background-color: white;
-    color: #5b9def;
-    border: none;
-    border-radius: 10px;
-    padding: 7px 16px;
-    font-weight: 600;
-    transition: 0.25s;
-}
-
-.btn-primary:hover, .btn-outline-primary:hover {
-    background-color: #edf5ff;
-    color: black;
-    transform: translateY(-1px);
-}
-
-.btn-outline-primary {
-    border: 2px solid #9fc5f8;
-}
-
-.btn-outline-primary:hover {
-    border: 2px solid #9fc5f8;
-}
-
-.bg-custom {
-    background-color: #9fc5f8;
-}
-</style>
-@endpush
-
 @section('content')
 
-<!-- Hero Section -->
-<section class="hero mb-5">
-    <div class="container position-relative">
+<section class="hero-section mb-5" style="background-image: url('/images/apartment_hero2.jpg'); background-size: cover; background-position: center;">
+    <div class="hero-content">
         <h1 class="display-4 fw-bold">{{__('Find Your Dream Apartment')}}</h1>
-        <p class="lead">{{__('Browse thousands of apartments for rent in your city')}}</p>
+        <p class="lead">{{__('Browse thousands of apartments for rent/sale in your city')}}</p>
         <a href="{{ route('login') }}" class="btn btn-primary btn-lg mt-3">{{__('Start Searching')}}</a>
     </div>
 </section>
 
-<!-- Search / Filter Bar -->
- {{--
-<section id="searchSection" class="container search-bar mb-5">
-    <form method="GET" action="#" class="row g-3 align-items-center">
-        <div class="col-md-3">
-            <input type="text" name="location" class="form-control" placeholder="City or Address">
-        </div>
-        <div class="col-md-2">
-            <input type="number" name="min_price" class="form-control" placeholder="Min Price">
-        </div>
-        <div class="col-md-2">
-            <input type="number" name="max_price" class="form-control" placeholder="Max Price">
-        </div>
-        <div class="col-md-2">
-            <select name="bedrooms" class="form-select">
-                <option value="">Bedrooms</option>
-                @for($i=1; $i<=5; $i++)
-                <option value="{{ $i }}">{{ $i }}+</option>
-                @endfor
-            </select>
-        </div>
-        <div class="col-md-3 d-grid">
-            <button class="btn btn-primary">Search Apartments</button>
-        </div>
-    </form>
-</section>
- --}}
-
-<!-- Featured Apartments -->
 <section class="container mb-5">
     <h2 class="mb-4">{{__('Featured Apartments')}}</h2>
     <div class="row g-4">
         @foreach($featuredApartments as $apartment)
         <div class="col-md-4">
-            <div class="card apartment-card position-relative h-100">
+            <div class="card apartment-card h-100 shadow-sm">
                 @if($apartment->is_featured)
-                <div class="featured-label">{{__('Featured')}}</div>
+                <span class="badge-soft">{{__('Featured')}}</span>
                 @endif
                 @if($apartment->images && $apartment->images->count() > 0)
                     @php
                         $firstImage = $apartment->images->first();
                     @endphp
-                    <img src="{{ asset('storage/' . $firstImage->path) }}" 
-                         class="card-img-top" 
-                         alt="{{ $apartment->title }}"
-                         style="height: 250px; object-fit: cover;">
+                    <img src="{{ asset('storage/' . $firstImage->path) }}"
+                         class="card-img-top"
+                         alt="{{ $apartment->title }}">
                 @else
-                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
-                         style="height: 250px;">
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center p-5">
                         <div class="text-center text-muted">
                             <i class="bi bi-image fs-1"></i>
-                            <p class="mt-2">No Image</p>
+                            <p class="mt-2">{{__('No Image')}}</p>
                         </div>
                     </div>
                 @endif
@@ -168,8 +40,8 @@
                     <h5 class="card-title">{{ $apartment->title }}</h5>
                     <p class="card-text flex-grow-1">{{ Str::limit($apartment->description, 80) }}</p>
                     <div class="mt-auto">
-                        <p class="fw-bold mb-2">{{ number_format($apartment->price) }} {{__('ETB')}} / {{__('month')}}</p>
-                        <a href="{{ route('login') }}" class="btn btn-outline-primary btn-sm w-100">{{__('View Details')}}</a>
+                        <span class="badge-price">{{ number_format($apartment->price) }} {{__('ETB')}} / {{__('month')}}</span>
+                        <a href="{{ route('login') }}" class="btn btn-outline-primary btn-sm w-100 mt-2">{{__('View Details')}}</a>
                     </div>
                 </div>
             </div>
@@ -178,24 +50,7 @@
     </div>
 </section>
 
-{{--
-<!-- Apartment Categories -->
-<section class="container mb-5">
-    <h2 class="mb-4">Browse by Category</h2>
-    <div class="row g-4">
-        @foreach($categories as $category)
-        <div class="col-md-3">
-            <div class="category-card" onclick="window.location='{{ route('apartments.index', ['category' => $category->id]) }}'">
-                <i class="{{ $category->icon }} fs-1 mb-3 text-primary"></i>
-                <h5>{{ $category->name }}</h5>
-            </div>
-        </div>
-        @endforeach
-    </div>
-</section>
---}}
-<!-- Call to Action -->
-<section class="bg-custom text-white py-5">
+<section class="bg-dark text-white py-5">
     <div class="container text-center">
         <h2 class="fw-bold">{{__('List Your Apartment with Us')}}</h2>
         <p class="lead">{{__('Reach thousands of potential renters quickly and easily')}}</p>

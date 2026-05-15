@@ -1,32 +1,33 @@
 import { StyleSheet, Platform } from 'react-native'
+import { colors, spacing, radius, shadows, typography } from '../../theme'
 
 export default StyleSheet.create({
   container: {
-    padding: 20,
-    paddingTop: 12,
-    paddingBottom: 40,
-    backgroundColor: '#f8fafc',
+    padding: spacing.xl,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.xxxxl,
+    backgroundColor: colors.background,
   },
   label: {
     fontSize: 15,
     fontWeight: '600',
-    marginBottom: 8,
-    marginTop: 4,
-    color: '#1e293b',
+    marginBottom: spacing.sm,
+    marginTop: spacing.xs,
+    color: colors.textPrimary,
     letterSpacing: 0.2
   },
   input: {
     borderWidth: 1.5,
-    borderColor: '#e2e8f0',
+    borderColor: colors.border,
     padding: 14,
-    borderRadius: 12,
-    marginBottom: 16,
-    backgroundColor: '#ffffff',
+    borderRadius: radius.md,
+    marginBottom: spacing.lg,
+    backgroundColor: colors.white,
     fontSize: 15,
-    color: '#1e293b',
+    color: colors.textPrimary,
     ...Platform.select({
       ios: {
-        shadowColor: '#000',
+        shadowColor: colors.black,
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.05,
         shadowRadius: 2,
@@ -37,11 +38,11 @@ export default StyleSheet.create({
     }),
   },
   inputFocused: {
-    borderColor: '#3b82f6',
+    borderColor: colors.primary,
     borderWidth: 2,
     ...Platform.select({
       ios: {
-        shadowColor: '#3b82f6',
+        shadowColor: colors.primary,
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.15,
         shadowRadius: 4,
@@ -52,12 +53,12 @@ export default StyleSheet.create({
     }),
   },
   btn: {
-    backgroundColor: '#3b82f6',
-    paddingVertical: 16,
+    backgroundColor: colors.primary,
+    paddingVertical: spacing.lg,
     borderRadius: 14,
-    marginTop: 24,
+    marginTop: spacing.xxl,
     alignItems: 'center',
-    shadowColor: '#3b82f6',
+    shadowColor: colors.primary,
     shadowOpacity: 0.3,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 8 },
@@ -65,7 +66,7 @@ export default StyleSheet.create({
     borderWidth: 0,
   },
   btnText: {
-    color: '#fff',
+    color: colors.white,
     fontWeight: '700',
     fontSize: 16,
     letterSpacing: 0.5
@@ -73,28 +74,28 @@ export default StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    marginTop: 20,
-    marginBottom: 12,
-    color: '#0f172a',
+    marginTop: spacing.xl,
+    marginBottom: spacing.md,
+    color: colors.textPrimary,
     letterSpacing: 0.3
   },
   rowOptions: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginBottom: 12
+    marginBottom: spacing.md
   },
   optionPill: {
-    paddingVertical: 10,
-    paddingHorizontal: 16,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
     borderRadius: 24,
-    marginRight: 10,
-    marginBottom: 10,
-    backgroundColor: '#f1f5f9',
+    marginRight: spacing.md,
+    marginBottom: spacing.md,
+    backgroundColor: colors.background,
     borderWidth: 1.5,
-    borderColor: '#e2e8f0',
+    borderColor: colors.border,
     ...Platform.select({
       ios: {
-        shadowColor: '#000',
+        shadowColor: colors.black,
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.05,
         shadowRadius: 2,
@@ -105,11 +106,11 @@ export default StyleSheet.create({
     }),
   },
   optionPillActive: {
-    backgroundColor: '#3b82f6',
-    borderColor: '#3b82f6',
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
     ...Platform.select({
       ios: {
-        shadowColor: '#3b82f6',
+        shadowColor: colors.primary,
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.2,
         shadowRadius: 4,
@@ -120,27 +121,27 @@ export default StyleSheet.create({
     }),
   },
   optionText: {
-    color: '#475569',
+    color: colors.textSecondary,
     fontWeight: '600',
     fontSize: 14
   },
   optionTextActive: {
-    color: '#fff',
+    color: colors.white,
     fontWeight: '700',
     fontSize: 14
   },
   radio: {
-    paddingVertical: 10,
-    paddingHorizontal: 16,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
     borderRadius: 24,
-    marginRight: 10,
-    marginBottom: 10,
-    backgroundColor: '#f1f5f9',
+    marginRight: spacing.md,
+    marginBottom: spacing.md,
+    backgroundColor: colors.background,
     borderWidth: 1.5,
-    borderColor: '#e2e8f0',
+    borderColor: colors.border,
     ...Platform.select({
       ios: {
-        shadowColor: '#000',
+        shadowColor: colors.black,
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.05,
         shadowRadius: 2,
@@ -151,11 +152,11 @@ export default StyleSheet.create({
     }),
   },
   radioActive: {
-    backgroundColor: '#3b82f6',
-    borderColor: '#3b82f6',
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
     ...Platform.select({
       ios: {
-        shadowColor: '#3b82f6',
+        shadowColor: colors.primary,
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.2,
         shadowRadius: 4,
@@ -166,12 +167,12 @@ export default StyleSheet.create({
     }),
   },
   radioText: {
-    color: '#475569',
+    color: colors.textSecondary,
     fontWeight: '600',
     fontSize: 14
   },
   radioTextActive: {
-    color: '#fff',
+    color: colors.white,
     fontWeight: '700',
     fontSize: 14
   },
@@ -179,18 +180,18 @@ export default StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12
+    marginBottom: spacing.md
   },
   toggle: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
     borderRadius: 24,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: colors.background,
     borderWidth: 1.5,
-    borderColor: '#e2e8f0',
+    borderColor: colors.border,
     ...Platform.select({
       ios: {
-        shadowColor: '#000',
+        shadowColor: colors.black,
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.05,
         shadowRadius: 2,
@@ -201,11 +202,11 @@ export default StyleSheet.create({
     }),
   },
   toggleOn: {
-    backgroundColor: '#3b82f6',
-    borderColor: '#3b82f6',
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
     ...Platform.select({
       ios: {
-        shadowColor: '#3b82f6',
+        shadowColor: colors.primary,
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.2,
         shadowRadius: 4,
@@ -216,32 +217,32 @@ export default StyleSheet.create({
     }),
   },
   toggleText: {
-    color: '#475569',
+    color: colors.textSecondary,
     fontWeight: '600',
     fontSize: 14
   },
   toggleTextOn: {
-    color: '#fff',
+    color: colors.white,
     fontWeight: '700',
     fontSize: 14
   },
   rowOptionsWrap: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginBottom: 12
+    marginBottom: spacing.md
   },
   checkbox: {
-    paddingVertical: 10,
+    paddingVertical: spacing.md,
     paddingHorizontal: 14,
-    borderRadius: 20,
+    borderRadius: spacing.xl,
     borderWidth: 1.5,
-    borderColor: '#e2e8f0',
-    marginRight: 10,
-    marginBottom: 10,
-    backgroundColor: '#ffffff',
+    borderColor: colors.border,
+    marginRight: spacing.md,
+    marginBottom: spacing.md,
+    backgroundColor: colors.white,
     ...Platform.select({
       ios: {
-        shadowColor: '#000',
+        shadowColor: colors.black,
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.05,
         shadowRadius: 2,
@@ -252,11 +253,11 @@ export default StyleSheet.create({
     }),
   },
   checkboxChecked: {
-    backgroundColor: '#3b82f6',
-    borderColor: '#3b82f6',
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
     ...Platform.select({
       ios: {
-        shadowColor: '#3b82f6',
+        shadowColor: colors.primary,
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.2,
         shadowRadius: 4,
@@ -267,27 +268,27 @@ export default StyleSheet.create({
     }),
   },
   checkboxText: { 
-    color: '#475569',
+    color: colors.textSecondary,
     fontWeight: '600',
     fontSize: 14
   },
   checkboxTextChecked: { 
-    color: '#fff',
+    color: colors.white,
     fontWeight: '700',
     fontSize: 14
   },
   amenityPill: {
-    paddingVertical: 10,
+    paddingVertical: spacing.md,
     paddingHorizontal: 14,
-    borderRadius: 20,
-    backgroundColor: '#ffffff',
+    borderRadius: spacing.xl,
+    backgroundColor: colors.white,
     borderWidth: 1.5,
-    borderColor: '#e2e8f0',
-    marginRight: 10,
-    marginBottom: 10,
+    borderColor: colors.border,
+    marginRight: spacing.md,
+    marginBottom: spacing.md,
     ...Platform.select({
       ios: {
-        shadowColor: '#000',
+        shadowColor: colors.black,
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.05,
         shadowRadius: 2,
@@ -298,11 +299,11 @@ export default StyleSheet.create({
     }),
   },
   amenityPillActive: { 
-    backgroundColor: '#3b82f6',
-    borderColor: '#3b82f6',
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
     ...Platform.select({
       ios: {
-        shadowColor: '#3b82f6',
+        shadowColor: colors.primary,
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.2,
         shadowRadius: 4,
@@ -313,37 +314,37 @@ export default StyleSheet.create({
     }),
   },
   amenityText: { 
-    color: '#475569',
+    color: colors.textSecondary,
     fontWeight: '600',
     fontSize: 14
   },
   amenityTextActive: { 
-    color: '#fff',
+    color: colors.white,
     fontWeight: '700',
     fontSize: 14
   },
   /* Unique feature UI */
   featureInput: {
-    paddingVertical: 12,
+    paddingVertical: spacing.md,
     paddingHorizontal: 14,
-    borderRadius: 12,
+    borderRadius: radius.md,
     borderWidth: 1.5,
-    borderColor: '#e2e8f0',
-    backgroundColor: '#ffffff',
+    borderColor: colors.border,
+    backgroundColor: colors.white,
     fontSize: 15,
-    color: '#1e293b',
+    color: colors.textPrimary,
   },
   addFeatureBtn: {
-    marginLeft: 10,
-    backgroundColor: '#3b82f6',
-    paddingVertical: 12,
+    marginLeft: spacing.md,
+    backgroundColor: colors.primary,
+    paddingVertical: spacing.md,
     paddingHorizontal: 18,
-    borderRadius: 12,
+    borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
     ...Platform.select({
       ios: {
-        shadowColor: '#3b82f6',
+        shadowColor: colors.primary,
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.2,
         shadowRadius: 4,
@@ -354,7 +355,7 @@ export default StyleSheet.create({
     }),
   },
   addFeatureBtnText: {
-    color: '#fff',
+    color: colors.white,
     fontWeight: '700',
     fontSize: 14
   },
@@ -363,12 +364,12 @@ export default StyleSheet.create({
     width: '100%',
     maxWidth: 900,
     alignSelf: 'center',
-    backgroundColor: '#ffffff',
-    borderRadius: 20,
-    padding: 24,
+    backgroundColor: colors.white,
+    borderRadius: spacing.xl,
+    padding: spacing.xxl,
     ...Platform.select({
       ios: {
-        shadowColor: '#000',
+        shadowColor: colors.black,
         shadowOpacity: 0.08,
         shadowRadius: 20,
         shadowOffset: { width: 0, height: 8 },
@@ -380,26 +381,26 @@ export default StyleSheet.create({
     borderWidth: 0,
   },
   /* subtle spacing to separate header */
-  formCardTopSpacer: { marginTop: 8 },
+  formCardTopSpacer: { marginTop: spacing.sm },
   sectionCard: {
-    backgroundColor: '#fafcff',
+    backgroundColor: colors.primaryLight,
     padding: 14,
-    borderRadius: 10,
-    marginBottom: 12,
+    borderRadius: radius.sm,
+    marginBottom: spacing.md,
     borderWidth: 1,
-    borderColor: '#eef6ff'
+    borderColor: colors.border
   },
   /* Verification / identity */
   verificationCard: {
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.white,
     borderRadius: 14,
     padding: 14,
-    marginBottom: 16,
+    marginBottom: spacing.lg,
     borderWidth: 1,
-    borderColor: '#e6eefc',
+    borderColor: colors.border,
     ...Platform.select({
       ios: {
-        shadowColor: '#000',
+        shadowColor: colors.black,
         shadowOpacity: 0.04,
         shadowRadius: 8,
         shadowOffset: { width: 0, height: 4 },
@@ -412,66 +413,66 @@ export default StyleSheet.create({
   docRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: spacing.md,
   },
   docTile: {
     flex: 1,
-    borderRadius: 12,
+    borderRadius: radius.md,
     borderWidth: 1.5,
     borderStyle: 'dashed',
-    borderColor: '#e2e8f0',
-    backgroundColor: '#f8fafc',
-    padding: 10,
+    borderColor: colors.border,
+    backgroundColor: colors.background,
+    padding: spacing.md,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 8,
+    marginRight: spacing.sm,
     minHeight: 170,
   },
   docTileLast: {
     marginRight: 0,
   },
   docTileLabel: {
-    color: '#475569',
+    color: colors.textSecondary,
     fontSize: 13,
     fontWeight: '600',
-    marginBottom: 6,
+    marginBottom: spacing.xs,
     textAlign: 'center'
   },
   docTileActions: {
     flexDirection: 'row',
     width: '100%',
     justifyContent: 'flex-start',
-    marginTop: 8,
+    marginTop: spacing.sm,
   },
   docActionButton: {
     marginRight: 14,
   },
   docActionText: {
-    color: '#3b82f6',
+    color: colors.primary,
     fontSize: 13,
     fontWeight: '600',
   },
   docActionTextRemove: {
-    color: '#ef4444',
+    color: colors.danger,
     fontSize: 13,
     fontWeight: '600',
   },
   docSmallNote: {
-    color: '#64748b',
+    color: colors.textSecondary,
     fontSize: 12,
-    marginTop: 6,
+    marginTop: spacing.xs,
   },
   /* Agent-specific card (mirrors verification card) */
   agentCard: {
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.white,
     borderRadius: 14,
     padding: 14,
-    marginBottom: 16,
+    marginBottom: spacing.lg,
     borderWidth: 1,
-    borderColor: '#e6eefc',
+    borderColor: colors.border,
     ...Platform.select({
       ios: {
-        shadowColor: '#000',
+        shadowColor: colors.black,
         shadowOpacity: 0.04,
         shadowRadius: 8,
         shadowOffset: { width: 0, height: 4 },
@@ -483,23 +484,23 @@ export default StyleSheet.create({
   },
   fieldRow: {
     flexDirection: 'row',
-    gap: 12,
-    marginBottom: 10,
+    gap: spacing.md,
+    marginBottom: spacing.md,
   },
   fieldHalf: {
     flex: 1,
   },
   /* Map button styling */
   mapBtn: {
-    backgroundColor: '#3b82f6',
-    paddingVertical: 12,
+    backgroundColor: colors.primary,
+    paddingVertical: spacing.md,
     paddingHorizontal: 18,
-    borderRadius: 12,
+    borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
     ...Platform.select({
       ios: {
-        shadowColor: '#3b82f6',
+        shadowColor: colors.primary,
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
         shadowRadius: 8,
@@ -510,23 +511,23 @@ export default StyleSheet.create({
     }),
   },
   mapBtnText: {
-    color: '#fff',
+    color: colors.white,
     fontWeight: '700',
     fontSize: 15
   },
   imagesRow: { 
     flexDirection: 'row', 
     alignItems: 'center', 
-    marginBottom: 12 
+    marginBottom: spacing.md 
   },
   thumb: { 
     width: 80, 
     height: 80, 
-    borderRadius: 12, 
-    marginRight: 10,
+    borderRadius: radius.md, 
+    marginRight: spacing.md,
     ...Platform.select({
       ios: {
-        shadowColor: '#000',
+        shadowColor: colors.black,
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 4,
@@ -539,29 +540,29 @@ export default StyleSheet.create({
   imageAdd: { 
     width: 80, 
     height: 80, 
-    borderRadius: 12, 
+    borderRadius: radius.md, 
     borderWidth: 2, 
-    borderColor: '#e2e8f0',
+    borderColor: colors.border,
     borderStyle: 'dashed',
     alignItems: 'center', 
     justifyContent: 'center',
-    backgroundColor: '#f8fafc'
+    backgroundColor: colors.background
   },
   imageAddText: { 
-    color: '#64748b',
+    color: colors.textSecondary,
     fontWeight: '600',
     fontSize: 14
   },
   errorBox: { 
-    backgroundColor: '#fef2f2', 
+    backgroundColor: colors.dangerLight, 
     padding: 14, 
-    borderRadius: 12, 
-    marginBottom: 16, 
+    borderRadius: radius.md, 
+    marginBottom: spacing.lg, 
     borderWidth: 1.5, 
-    borderColor: '#fecaca',
+    borderColor: colors.dangerLight,
     ...Platform.select({
       ios: {
-        shadowColor: '#ef4444',
+        shadowColor: colors.danger,
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 4,
@@ -572,7 +573,7 @@ export default StyleSheet.create({
     }),
   },
   errorText: { 
-    color: '#dc2626',
+    color: colors.danger,
     fontSize: 14,
     fontWeight: '500'
   },
@@ -582,11 +583,11 @@ export default StyleSheet.create({
   },
   datePickerText: {
     fontSize: 15,
-    color: '#1e293b',
+    color: colors.textPrimary,
     fontWeight: '500'
   },
   datePickerPlaceholder: {
-    color: '#94a3b8',
+    color: colors.textMuted,
     fontWeight: '400'
   }
   ,
@@ -596,7 +597,7 @@ export default StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.6)',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20
+    padding: spacing.xl
   },
   previewModalCloseArea: {
     flex: 1,
@@ -605,8 +606,8 @@ export default StyleSheet.create({
   previewModalContent: {
     width: '100%',
     maxWidth: 760,
-    backgroundColor: '#fff',
-    borderRadius: 12,
+    backgroundColor: colors.white,
+    borderRadius: radius.md,
     padding: 14,
     alignItems: 'center',
     justifyContent: 'center'
@@ -614,19 +615,18 @@ export default StyleSheet.create({
   previewImage: {
     width: '100%',
     height: 420,
-    borderRadius: 10,
-    backgroundColor: '#fff'
+    borderRadius: radius.sm,
+    backgroundColor: colors.white
   },
   previewCloseBtn: {
-    marginTop: 12,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 10,
-    backgroundColor: '#3b82f6'
+    marginTop: spacing.md,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    borderRadius: radius.sm,
+    backgroundColor: colors.primary
   },
   previewCloseText: {
-    color: '#fff',
+    color: colors.white,
     fontWeight: '700'
   }
 })
-

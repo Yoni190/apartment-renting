@@ -1,44 +1,45 @@
 import {StyleSheet} from 'react-native'
+import { colors, spacing, radius, shadows, typography } from '../../theme'
 
 export default StyleSheet.create({
     searchContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginHorizontal: 16,
-        marginTop: 32,
-        paddingHorizontal: 12,
+        marginHorizontal: spacing.lg,
+        marginTop: spacing.xxxl,
+        paddingHorizontal: spacing.md,
         height: 50,
-        borderRadius: 12,
-        backgroundColor: '#f2f2f2',
+        borderRadius: radius.md,
+        backgroundColor: colors.background,
     },
     input: {
         flex: 1,
-        marginHorizontal: 10,
+        marginHorizontal: spacing.md,
         fontSize: 16,
-        color: '#000',
+        color: colors.black,
     },
     placeholderContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        paddingHorizontal: 40,
+        paddingHorizontal: spacing.xxxxl,
         },
 
         placeholderTitle: {
-        marginTop: 16,
+        marginTop: spacing.lg,
         fontSize: 18,
         fontWeight: '600',
-        color: '#444',
+        color: colors.textSecondary,
         },
 
         placeholderText: {
-        marginTop: 8,
+        marginTop: spacing.sm,
         fontSize: 14,
-        color: '#888',
+        color: colors.textMuted,
         textAlign: 'center',
         },
         resultsContainer: {
-            marginTop: 40
+            marginTop: spacing.xxxxl
         },
         filterOverlay: {
             position: 'absolute',
@@ -46,7 +47,7 @@ export default StyleSheet.create({
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: 'rgba(0,0,0,0.5)',
+            backgroundColor: colors.overlay,
             justifyContent: 'center',
             alignItems: 'center',
             zIndex: 100,
@@ -54,41 +55,41 @@ export default StyleSheet.create({
 
             filterMenu: {
             width: '80%',
-            backgroundColor: '#fff',
-            borderRadius: 12,
-            padding: 20,
+            backgroundColor: colors.white,
+            borderRadius: radius.md,
+            padding: spacing.xl,
             elevation: 5,
             },
 
             filterTitle: {
             fontSize: 18,
             fontWeight: 'bold',
-            marginBottom: 10,
+            marginBottom: spacing.md,
             },
 
             filterLabel: {
-            marginTop: 10,
+            marginTop: spacing.md,
             fontWeight: '600',
             },
 
             filterOptions: {
             flexDirection: 'row',
             justifyContent: 'space-between',
-            marginVertical: 5,
+            marginVertical: spacing.xs,
             },
 
             filterOption: {
-            padding: 10,
+            padding: spacing.md,
             borderWidth: 1,
-            borderColor: '#ccc',
-            borderRadius: 8,
+            borderColor: colors.border,
+            borderRadius: radius.sm,
             },
 
             closeButton: {
-            marginTop: 20,
-            backgroundColor: '#007AFF',
-            padding: 10,
-            borderRadius: 8,
+            marginTop: spacing.xl,
+            backgroundColor: colors.primary,
+            padding: spacing.md,
+            borderRadius: radius.sm,
             alignItems: 'center',
             },
 

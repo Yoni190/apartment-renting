@@ -1,6 +1,7 @@
 import React from 'react'
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
+import { colors, spacing, radius, shadows, typography } from '../theme'
 
 export default function MessageListItem({ recipientName, lastMessage, timestamp, onPress, onLongPress, id, unreadCount, lastMessageFromMe, lastMessageIsRead, lastMessageId, lastMessageWasReceived, lastMessageReadAt, lastMessageTimestamp, lastMessageLocallyRead, selected }) {
   const name = recipientName || `User ${id ?? ''}`
@@ -28,7 +29,7 @@ export default function MessageListItem({ recipientName, lastMessage, timestamp,
         <Text style={styles.avatarText}>{(name || 'U').slice(0, 1).toUpperCase()}</Text>
         {selected ? (
           <View style={styles.selectedBadge}>
-            <Ionicons name="checkmark" size={14} color="#fff" />
+            <Ionicons name="checkmark" size={14} color={colors.white} />
           </View>
         ) : null}
       </View>
@@ -38,28 +39,21 @@ export default function MessageListItem({ recipientName, lastMessage, timestamp,
           <Text style={styles.name} numberOfLines={1}>{name}</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             {(() => {
-              // If the latest message was RECEIVED by the current user, hide any tick icons.
               if (lastMessageWasReceived) return null
-              // Only show double-check when the last message was sent by the current user,
-              // is marked read (we require an actual read timestamp), the read timestamp
-              // corresponds to that message (or later), and we have a concrete message id.
-              // Otherwise show a single check for sent messages.
               let showDouble = false
               try {
                 if (lastMessageFromMe && lastMessageId) {
-                  // local override (immediate UX) — if we marked this message read locally, honor it
                   if (lastMessageLocallyRead === true) showDouble = true
                   else if (lastMessageReadAt) {
                     const ra = new Date(lastMessageReadAt).getTime()
                     const ca = lastMessageTimestamp ? new Date(lastMessageTimestamp).getTime() : null
-                    // require read_at to be a valid time and not older than the message created_at
                     if (!isNaN(ra) && (!ca || ra >= ca)) showDouble = true
                   }
                 }
               } catch (e) { showDouble = false }
               const showSingle = Boolean(lastMessageFromMe) && !showDouble
               const iconName = showDouble ? 'checkmark-done' : (showSingle ? 'checkmark' : null)
-              if (iconName) return <Ionicons name={iconName} size={16} color={'#0b63d6'} style={{ marginRight: 6 }} />
+              if (iconName) return <Ionicons name={iconName} size={16} color={colors.primary} style={{ marginRight: spacing.sm }} />
               return null
             })()}
             <Text style={styles.time}>{lastAt}</Text>
@@ -71,9 +65,6 @@ export default function MessageListItem({ recipientName, lastMessage, timestamp,
         </View>
       </View>
       <View style={styles.rightMeta}>
-        {/* Only show unread badge when the latest message was RECEIVED by the current user
-            and there are unread messages. Do not show badge for messages sent by the
-            current user. */}
         {(lastMessageWasReceived && Number(unreadCount) > 0) ? (
           <View style={styles.badge}><Text style={styles.badgeText}>{String(unreadCount)}</Text></View>
         ) : null}
@@ -86,24 +77,24 @@ const styles = StyleSheet.create({
   itemRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    backgroundColor: '#fff',
-    marginHorizontal: 12,
-    borderRadius: 12,
-    marginVertical: 6,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    backgroundColor: colors.surface,
+    marginHorizontal: spacing.md,
+    borderRadius: radius.md,
+    marginVertical: spacing.sm,
     elevation: 1,
   },
   itemRowSelected: {
     borderWidth: 2,
-    borderColor: '#2563eb',
-    backgroundColor: '#eff6ff',
+    borderColor: colors.primary,
+    backgroundColor: colors.primaryLight,
   },
   avatar: {
     width: 48,
     height: 48,
-    borderRadius: 24,
-    backgroundColor: '#dbeafe',
+    borderRadius: radius.xl,
+    backgroundColor: colors.primaryLight,
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
@@ -114,22 +105,22 @@ const styles = StyleSheet.create({
     bottom: -2,
     width: 18,
     height: 18,
-    borderRadius: 9,
-    backgroundColor: '#1e3a8a',
+    borderRadius: radius.sm,
+    backgroundColor: colors.primaryDark,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: '#fff',
+    borderColor: colors.white,
     elevation: 2,
   },
   avatarText: {
-    color: '#0f172a',
+    color: colors.navBg,
     fontWeight: '700',
-    fontSize: 18,
+    fontSize: typography.h4.fontSize,
   },
   content: {
     flex: 1,
-    marginLeft: 12,
+    marginLeft: spacing.md,
     justifyContent: 'center',
   },
   rowTop: {
@@ -138,37 +129,37 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   name: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '700',
-    color: '#0f172a',
+    color: colors.navBg,
     flex: 1,
-    marginRight: 8,
+    marginRight: spacing.md,
   },
   time: {
-    fontSize: 12,
-    color: '#94a3b8',
+    ...typography.caption,
+    color: colors.textMuted,
   },
   rowBottom: {
-    marginTop: 4,
+    marginTop: spacing.xs,
   },
   lastMessage: {
     fontSize: 13,
-    color: '#6b7280',
+    color: colors.textSecondary,
   },
   rightMeta: {
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: 8,
+    marginLeft: spacing.md,
   },
   badge: {
-    backgroundColor: '#1778f2',
+    backgroundColor: colors.primary,
     minWidth: 28,
     height: 28,
-    borderRadius: 14,
+    borderRadius: radius.lg,
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: 8,
-    marginRight: 6,
+    marginLeft: spacing.md,
+    marginRight: spacing.sm,
   },
-  badgeText: { color: '#fff', fontWeight: '700' },
+  badgeText: { color: colors.white, fontWeight: '700' },
 })

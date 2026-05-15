@@ -11,44 +11,11 @@ import {
   AccessibilityInfo,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
-
-/**
- * ListingCard
- *
- * Props:
- * - images: array of image URLs or objects ({ url } or { path }).
- * - hasVideo: boolean (true if there's a video)
- * - hasVirtualTour: boolean (true if there's a virtual tour)
- * - priceRange: string (e.g. "2,150 – 8,699")
- * - bedroomRange: string (e.g. "Studio – 3 Beds")
- * - title: string
- * - address: string (full address: street, area, city)
- * - amenities: array of strings
- * - showAmenities: boolean (whether to render amenities below address). Default: false
- * - phoneEnabled: boolean (owner allowed phone contact)
- * - contactPhone: string (owner phone number) — used only if phoneEnabled true
- * - saved: boolean (is saved by current user) — controls heart state
- * - onSave: fn called when user taps save
- * - onUnsave: fn called when user taps unsave
- * - onMessage: fn called when user taps Message
- * - onCall: fn called when user taps Call
- * - isOwnerMode: boolean (true when rendering on owner dashboard)
- * - onEdit: fn owner action
- * - onDeactivate: fn owner action
- * - style: optional style overrides
- *
- * Behavior:
- * - shows nothing for fields that are missing (no placeholder/fake data)
- * - images load from provided URLs; if images is empty/undefined the image area is omitted
- *
- * Responsive:
- * - adapts height based on screen width
- */
+import { colors, spacing, radius, shadows, typography } from '../theme'
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 const CARD_HORIZONTAL_PADDING = 16
 const CARD_WIDTH = Math.min(1000, SCREEN_WIDTH - CARD_HORIZONTAL_PADDING * 2)
-// Slightly taller image to mimic modern listing apps (approx 3:2)
 const IMAGE_HEIGHT = Math.round(CARD_WIDTH * 0.66)
 
 export default function ListingCard({
@@ -77,13 +44,11 @@ export default function ListingCard({
   style,
   showAmenities = false,
 }) {
-  // Normalize images to an array of URL strings (if image objects are provided)
   const normalizedImages = Array.isArray(images)
     ? images
         .map((img) => {
           if (!img) return null
           if (typeof img === 'string') return img
-          // prefer url, then path
           return img.url || (img.path ? normalizeStoragePath(img.path) : null)
         })
         .filter(Boolean)
@@ -93,15 +58,10 @@ export default function ListingCard({
   const flatRef = useRef(null)
 
   useEffect(() => {
-    // when images change, reset index
     setIndex(0)
   }, [images])
 
   function normalizeStoragePath(path) {
-    // If backend returns a storage path like "apartments/xxx.jpg", construct a URL
-    // NOTE: caller should pass full URLs when possible. If path is returned, derive
-    // using expo env variable or API base. Do not invent base on behalf of user if not available.
-    // Here we just return the path (consumer may provide full url).
     return path
   }
 
@@ -128,9 +88,7 @@ export default function ListingCard({
   }
 
   const renderImageItem = ({ item }) => {
-    // item expected to be a URL string
     if (!item) return null
-    // If the backend supplies relative paths, the parent should have converted to absolute URLs.
     return (
       <Image
         source={{ uri: item }}
@@ -153,7 +111,6 @@ export default function ListingCard({
       disabled={!onPress}
       accessibilityRole={onPress ? 'button' : undefined}
     >
-      {/* Favorite (heart) button placed below the images at the top-right of the card */}
       {!isOwnerMode && (onSave || onUnsave) && (
         <TouchableOpacity
           style={styles.favoriteBtnAbsolute}
@@ -162,11 +119,9 @@ export default function ListingCard({
           accessibilityLabel={saved ? 'Remove from favourites' : 'Add to favourites'}
           hitSlop={{ top: 8, left: 8, right: 8, bottom: 8 }}
         >
-          {/* Use a visible color for the outline state and red for saved state */}
-          <Ionicons name={saved ? 'heart' : 'heart-outline'} size={22} color={saved ? '#e0245e' : '#666'} />
+          <Ionicons name={saved ? 'heart' : 'heart-outline'} size={22} color={saved ? colors.danger : colors.textSecondary} />
         </TouchableOpacity>
       )}
-      {/* Absolute badge sits on top-left of the card (over image when present) */}
       {isOwnerMode && (
         <View style={styles.badgeAbsoluteContainer} pointerEvents="none">
           {verificationStatus === 'approved' ? (
@@ -184,7 +139,6 @@ export default function ListingCard({
           )}
         </View>
       )}
-      {/* Image carousel (only render if owner provided images) */}
       {normalizedImages.length > 0 && (
         <View style={styles.imageContainer}>
           <FlatList
@@ -206,7 +160,6 @@ export default function ListingCard({
             style={{ width: CARD_WIDTH }}
           />
 
-          {/* Left / Right arrows */}
           {normalizedImages.length > 1 && (
             <>
               <TouchableOpacity
@@ -215,7 +168,7 @@ export default function ListingCard({
                 accessibilityRole="button"
                 accessibilityLabel="Previous image"
               >
-                <Ionicons name="chevron-back" size={22} color="#fff" />
+                <Ionicons name="chevron-back" size={22} color={colors.white} />
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -224,10 +177,9 @@ export default function ListingCard({
                 accessibilityRole="button"
                 accessibilityLabel="Next image"
               >
-                <Ionicons name="chevron-forward" size={22} color="#fff" />
+                <Ionicons name="chevron-forward" size={22} color={colors.white} />
               </TouchableOpacity>
 
-              {/* pagination dots */}
               <View style={styles.pagination}>
                 {normalizedImages.map((_, i) => (
                   <View key={i} style={[styles.dot, i === index && styles.dotActive]} />
@@ -236,7 +188,6 @@ export default function ListingCard({
             </>
           )}
 
-          {/* Overlay: Videos | Virtual Tours */}
           {(hasVideo || hasVirtualTour) && (
             <View style={styles.overlay}>
               <Text style={styles.overlayText}>
@@ -249,46 +200,33 @@ export default function ListingCard({
         </View>
       )}
 
-      {/* Content area */}
       <View style={styles.body}>
-        {/* (Badge moved to absolute overlay on top-left) */}
-        {/* top row: price + save (if not owner) */}
         <View style={styles.topRow}>
-          {/* Left block: price above the title (name) */}
           <View style={styles.titleRow}>
             {title ? <Text style={styles.titleText} numberOfLines={2}>{title}</Text> : null}
             {priceRange ? <Text style={styles.priceText}>{priceRange} Birr</Text> : null}
             {bedroomRange ? <Text style={styles.bedroomText}>{bedroomRange}</Text> : null}
           </View>
-
-          {/* favorite control is shown as an absolute button below the images */}
         </View>
 
-        
-
-        {/* address */}
   {address ? <Text style={styles.addressText} numberOfLines={2}>{address}</Text> : null}
 
-    {/* amenities (optional) */}
   {showAmenities && amenitiesText ? <Text style={styles.amenitiesText} numberOfLines={2}>{amenitiesText}</Text> : null}
 
-        {/* actions row */}
         <View style={styles.actionsRow}>
-          {/* If both message and call are available, show two equal-width primary buttons */}
           {onMessage && contactPhone && onCall && (
             <>
-              <TouchableOpacity style={[styles.primaryBtn, styles.splitBtn, { marginRight: 8 }]} onPress={onMessage} accessibilityRole="button" accessibilityLabel="Message">
-                <Ionicons name="chatbubble-ellipses-outline" size={16} color="#fff" style={{ marginRight: 8 }} />
+              <TouchableOpacity style={[styles.primaryBtn, styles.splitBtn, { marginRight: spacing.md }]} onPress={onMessage} accessibilityRole="button" accessibilityLabel="Message">
+                <Ionicons name="chatbubble-ellipses-outline" size={16} color={colors.white} style={{ marginRight: spacing.md }} />
                 <Text style={styles.primaryBtnText}>Message</Text>
               </TouchableOpacity>
               <TouchableOpacity style={[styles.primaryBtn, styles.splitBtn]} onPress={() => onCall(contactPhone)} accessibilityRole="button" accessibilityLabel={`Call ${contactPhone}`}>
-                <Ionicons name="call-outline" size={16} color="#fff" style={{ marginRight: 8 }} />
+                <Ionicons name="call-outline" size={16} color={colors.white} style={{ marginRight: spacing.md }} />
                 <Text style={styles.primaryBtnText}>Call</Text>
               </TouchableOpacity>
             </>
           ) }
 
-          {/* Owner-only actions */}
           {isOwnerMode && (
             <View style={styles.ownerActions}>
               {onEdit ? (
@@ -297,13 +235,13 @@ export default function ListingCard({
                 </TouchableOpacity>
               ) : null}
               {onDeactivate ? (
-                <TouchableOpacity style={[styles.ownerBtn, { backgroundColor: '#f5f5f5' }]} onPress={onDeactivate}>
-                  <Text style={[styles.ownerBtnText, { color: '#333' }]}>Deactivate</Text>
+                <TouchableOpacity style={[styles.ownerBtn, { backgroundColor: colors.background }]} onPress={onDeactivate}>
+                  <Text style={[styles.ownerBtnText, { color: colors.textPrimary }]}>Deactivate</Text>
                 </TouchableOpacity>
               ) : null}
               {onDelete ? (
-                <TouchableOpacity style={[styles.ownerBtn, { backgroundColor: '#ffecec' }]} onPress={onDelete}>
-                  <Text style={[styles.ownerBtnText, { color: '#b91c1c' }]}>Delete</Text>
+                <TouchableOpacity style={[styles.ownerBtn, { backgroundColor: colors.dangerLight }]} onPress={onDelete}>
+                  <Text style={[styles.ownerBtnText, { color: colors.danger }]}>Delete</Text>
                 </TouchableOpacity>
               ) : null}
             </View>
@@ -317,34 +255,20 @@ export default function ListingCard({
 const styles = StyleSheet.create({
   card: {
     width: CARD_WIDTH,
-    borderRadius: 12,
+    borderRadius: radius.md,
     overflow: 'hidden',
-    backgroundColor: '#ffffff',
-    borderColor: '#e6e6e6',
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
     borderWidth: 1,
     position: 'relative',
-    marginBottom: 16,
+    marginBottom: spacing.lg,
     alignSelf: 'center',
-    // shadow
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOpacity: 0.06,
-        shadowRadius: 8,
-        shadowOffset: { width: 0, height: 4 },
-      },
-      android: {
-        elevation: 2,
-      },
-      web: {
-        boxShadow: '0 6px 18px rgba(0,0,0,0.06)',
-      },
-    }),
+    ...shadows.sm,
   },
   imageContainer: {
     width: CARD_WIDTH,
     height: IMAGE_HEIGHT,
-    backgroundColor: '#f2f2f2',
+    backgroundColor: colors.background,
     position: 'relative',
   },
   image: {
@@ -357,21 +281,21 @@ const styles = StyleSheet.create({
     marginTop: -20,
     width: 40,
     height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(0,0,0,0.35)',
+    borderRadius: radius.lg,
+    backgroundColor: colors.overlay,
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 10,
   },
   leftArrow: {
-    left: 10,
+    left: spacing.md,
   },
   rightArrow: {
-    right: 10,
+    right: spacing.md,
   },
   pagination: {
     position: 'absolute',
-    bottom: 8,
+    bottom: spacing.sm,
     left: 0,
     right: 0,
     flexDirection: 'row',
@@ -383,33 +307,32 @@ const styles = StyleSheet.create({
     height: 6,
     borderRadius: 3,
     backgroundColor: 'rgba(255,255,255,0.5)',
-    marginHorizontal: 4,
+    marginHorizontal: spacing.xs,
   },
   dotActive: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.white,
     width: 8,
     height: 8,
   },
   overlay: {
     position: 'absolute',
-    left: 12,
-    top: 12,
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    backgroundColor: 'rgba(0,0,0,0.45)',
-    borderRadius: 20,
+    left: spacing.md,
+    top: spacing.md,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.md,
+    backgroundColor: colors.overlay,
+    borderRadius: radius.lg,
   },
   overlayText: {
-    color: '#fff',
+    color: colors.white,
     fontSize: 13,
     fontWeight: '600',
   },
   body: {
-    // reduce top padding to bring price closer to image and shorten the content area
-    paddingTop: 2,
-    paddingRight: 16,
-    paddingBottom: 12,
-    paddingLeft: 16,
+    paddingTop: spacing.xs,
+    paddingRight: spacing.lg,
+    paddingBottom: spacing.md,
+    paddingLeft: spacing.lg,
   },
   topRow: {
     flexDirection: 'row',
@@ -417,153 +340,132 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   priceText: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#111',
+    ...typography.h3,
     marginTop: 0,
-    marginBottom: 5,
+    marginBottom: spacing.xs,
     alignSelf: 'flex-start',
   },
   saveBtn: {
-    padding: 6,
-    marginLeft: 12,
+    padding: spacing.xs,
+    marginLeft: spacing.md,
   },
   favoriteBtnAbsolute: {
     position: 'absolute',
-    right: 12,
-    // place just below the image area
-    top: IMAGE_HEIGHT + 8,
+    right: spacing.md,
+    top: IMAGE_HEIGHT + spacing.sm,
     zIndex: 60,
-    backgroundColor: '#ffffff',
-    padding: 8,
-    borderRadius: 22,
+    backgroundColor: colors.surface,
+    padding: spacing.sm,
+    borderRadius: radius.xl,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.06)',
-    // subtle shadow
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOpacity: 0.08,
-        shadowRadius: 8,
-        shadowOffset: { width: 0, height: 4 },
-      },
-      android: {
-        elevation: 3,
-      },
-      web: {
-        boxShadow: '0 6px 16px rgba(14,30,37,0.06)',
-      },
-    }),
+    borderColor: colors.border,
+    ...shadows.sm,
   },
   titleRow: {
-    marginTop: 8,
-    marginBottom: 6,
+    marginTop: spacing.sm,
+    marginBottom: spacing.xs,
     flex: 1,
     flexDirection: 'column',
   },
   bedroomText: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 2,
+    ...typography.bodySmall,
+    marginBottom: spacing.xs,
   },
   titleText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#111',
-    marginTop: 1,
+    ...typography.h4,
+    marginTop: spacing.xs,
   },
   statusRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   badgeAbsoluteContainer: {
     position: 'absolute',
-    top: 12,
-    right: 12,
+    top: spacing.md,
+    right: spacing.md,
     zIndex: 40,
   },
   statusBadge: {
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 16,
-    marginRight: 8,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.lg,
+    marginRight: spacing.md,
   },
   statusBadgeText: {
-    color: '#fff',
+    color: colors.white,
     fontWeight: '700',
-    fontSize: 12,
+    fontSize: typography.caption.fontSize,
   },
   statusBadgeVerified: {
-    backgroundColor: '#10b981',
+    backgroundColor: colors.success,
   },
   statusBadgePending: {
-    backgroundColor: '#f59e0b',
+    backgroundColor: colors.accent,
   },
   statusBadgeRejected: {
-    backgroundColor: '#ef4444',
+    backgroundColor: colors.danger,
   },
   rejectionText: {
-    color: '#b91c1c',
-    fontSize: 12,
+    color: colors.danger,
+    fontSize: typography.caption.fontSize,
     flex: 1,
   },
   addressText: {
-    marginTop: 1,
-    color: '#666',
-    fontSize: 14,
+    ...typography.bodySmall,
+    marginTop: spacing.xs,
   },
   amenitiesText: {
-    marginTop: 8,
-    color: '#666',
+    marginTop: spacing.md,
+    color: colors.textSecondary,
     fontSize: 13,
   },
   actionsRow: {
-    marginTop: 12,
+    marginTop: spacing.md,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-start',
   },
   primaryBtn: {
-    backgroundColor: '#1778f2',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 10,
-    marginRight: 8,
+    backgroundColor: colors.primary,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    borderRadius: radius.sm,
+    marginRight: spacing.md,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
   },
   primaryBtnText: {
-    color: '#fff',
+    color: colors.white,
     fontWeight: '700',
   },
   callBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    borderColor: '#e6f0ff',
+    backgroundColor: colors.white,
+    borderColor: colors.border,
     borderWidth: 1,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderRadius: 10,
-    marginRight: 8,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.sm,
+    marginRight: spacing.md,
   },
   callBtnText: {
-    color: '#1778f2',
+    color: colors.primary,
     fontWeight: '700',
   },
   secondaryBtn: {
-    backgroundColor: '#f2f2f2',
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-    borderRadius: 8,
-    marginRight: 8,
+    backgroundColor: colors.background,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.sm,
+    marginRight: spacing.md,
   },
   secondaryBtnText: {
-    color: '#111',
+    color: colors.textPrimary,
     fontWeight: '700',
   },
   ownerActions: {
@@ -571,16 +473,16 @@ const styles = StyleSheet.create({
     marginLeft: 'auto',
   },
   ownerBtn: {
-    backgroundColor: '#fff',
-    borderColor: '#ddd',
+    backgroundColor: colors.white,
+    borderColor: colors.border,
     borderWidth: 1,
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 6,
-    marginLeft: 8,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.sm,
+    marginLeft: spacing.md,
   },
   ownerBtnText: {
-    color: '#1778f2',
+    color: colors.primary,
     fontWeight: '700',
   },
   splitBtn: {

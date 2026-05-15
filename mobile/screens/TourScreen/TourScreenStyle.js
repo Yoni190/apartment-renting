@@ -1,186 +1,178 @@
 import { StyleSheet } from 'react-native'
+import { colors, spacing, radius, shadows, typography } from '../../theme'
 
 export default StyleSheet.create({
 	searchContainer: {
 		flexDirection: 'row',
 		alignItems: 'center',
 		paddingHorizontal: 15,
-		marginTop: 10,
+		marginTop: spacing.md,
 	},
 	searchBox: {
 		flex: 1,
 		flexDirection: 'row',
 		alignItems: 'center',
-		backgroundColor: '#fff',
-		borderRadius: 12,
-		paddingHorizontal: 12,
-		paddingVertical: 8,
-		marginRight: 10,
-		elevation: 2,
-		shadowColor: '#000',
-		shadowOpacity: 0.1,
-		shadowRadius: 4,
+		backgroundColor: colors.white,
+		borderRadius: radius.md,
+		paddingHorizontal: spacing.md,
+		paddingVertical: spacing.sm,
+		marginRight: spacing.md,
+		...shadows.sm,
 	},
 	textInput: {
 		flex: 1,
 		fontSize: 16,
-		color: '#333',
+		color: colors.textPrimary,
 	},
 	iconButton: {
 		width: 42,
 		height: 42,
-		borderRadius: 12,
-		backgroundColor: '#fff',
+		borderRadius: radius.md,
+		backgroundColor: colors.white,
 		justifyContent: 'center',
 		alignItems: 'center',
-		marginLeft: 8,
-		elevation: 2,
-		shadowColor: '#000',
-		shadowOpacity: 0.08,
-		shadowRadius: 3,
+		marginLeft: spacing.sm,
+		...shadows.sm,
 	},
 	bookingCard: {
 		width: 280,
-		backgroundColor: '#fff',
-		borderRadius: 12,
-		padding: 12,
-		marginRight: 12,
+		backgroundColor: colors.white,
+		borderRadius: radius.md,
+		padding: spacing.md,
+		marginRight: spacing.md,
 		flexDirection: 'row',
 		alignItems: 'center',
 		elevation: 2,
 	},
 	bookingCardAlt: {
 		width: '100%',
-		backgroundColor: '#fff',
+		backgroundColor: colors.white,
 		borderRadius: 14,
-		padding: 12,
+		padding: spacing.md,
 		flexDirection: 'column',
 		alignItems: 'flex-start',
-		elevation: 3,
-		shadowColor: '#000',
-		shadowOpacity: 0.06,
-		shadowRadius: 8,
+		...shadows.sm,
 		paddingLeft: 0,
 	},
 	bookingThumbWrap: {
-		marginRight: 12,
+		marginRight: spacing.md,
 		width: 120,
 		alignItems: 'center',
 	},
 	bookingThumb: {
 		width: 84,
 		height: 84,
-		borderRadius: 10,
-		backgroundColor: '#eef2f7'
+		borderRadius: radius.sm,
+		backgroundColor: colors.background
 	},
 	bookingTitle: {
 		fontSize: 15,
 		fontWeight: '700',
-		color: '#0f172a'
+		color: colors.textPrimary
 	},
 	bookingMeta: {
 		fontSize: 13,
-		color: '#6b7280',
-		marginTop: 6
+		color: colors.textSecondary,
+		marginTop: spacing.xs
 	},
 	bookingTime: {
 		fontSize: 13,
-		color: '#475569',
-		marginTop: 6
+		color: colors.textSecondary,
+		marginTop: spacing.xs
 	},
 	statusBadge: {
-		paddingHorizontal: 8,
-		paddingVertical: 4,
-		borderRadius: 12,
+		paddingHorizontal: spacing.sm,
+		paddingVertical: spacing.xs,
+		borderRadius: radius.md,
 	},
 	statusPending: {
-		backgroundColor: '#fef3c7'
+		backgroundColor: colors.statusPending
 	},
 	statusPrimary: {
-		backgroundColor: '#e0f2fe'
+		backgroundColor: colors.statusPrimary
 	},
 	statusFinal: {
-		backgroundColor: '#f1f5f9'
+		backgroundColor: colors.background
 	},
 	statusText: {
 		fontSize: 12,
 		fontWeight: '700',
-		color: '#92400e'
+		color: colors.statusPendingText
 	},
 	actionBtn: {
 		flexDirection: 'row',
 		alignItems: 'center',
-		marginLeft: 10,
+		marginLeft: spacing.md,
 	},
 	actionText: {
-		marginLeft: 6,
+		marginLeft: spacing.xs,
 		fontSize: 13,
-		color: '#111827'
+		color: colors.textPrimary
 	},
 	modalBtn: {
 		flex: 1,
-		marginHorizontal: 6,
-		paddingVertical: 10,
-		borderRadius: 10,
+		marginHorizontal: spacing.xs,
+		paddingVertical: spacing.md,
+		borderRadius: radius.sm,
 		alignItems: 'center',
 		justifyContent: 'center',
 		flexDirection: 'row',
 	},
 	modalBtnText: {
-		marginLeft: 8,
+		marginLeft: spacing.sm,
 		statusFinal: {
-			backgroundColor: '#aaa',
+			backgroundColor: colors.textMuted,
 		},
 		fontWeight: '700'
 	},
 	smallBtn: {
-		paddingVertical: 6,
-		paddingHorizontal: 10,
-		borderRadius: 8,
+		paddingVertical: spacing.xs,
+		paddingHorizontal: spacing.md,
+		borderRadius: radius.sm,
 		alignItems: 'center',
 		justifyContent: 'center'
 	},
 	smallBtnText: {
-		color: '#fff',
+		color: colors.white,
 		fontWeight: '700'
 	},
 	fullBtn: {
 		flex: 1,
-		paddingVertical: 12,
-		borderRadius: 10,
+		paddingVertical: spacing.md,
+		borderRadius: radius.sm,
 		alignItems: 'center',
 		justifyContent: 'center',
 		flexDirection: 'row'
 	},
 	fullBtnText: {
-		color: '#fff',
+		color: colors.white,
 		fontWeight: '700'
 	},
 	splitBtn: {
 		flex: 1,
-		paddingVertical: 10,
+		paddingVertical: spacing.md,
 		width: '48%',
-		borderRadius: 8,
+		borderRadius: radius.sm,
 		alignItems: 'center',
 		justifyContent: 'center',
 		flexDirection: 'row'
 	},
 	splitBtnText: {
-		marginLeft: 6,
-		color: '#fff',
+		marginLeft: spacing.xs,
+		color: colors.white,
 		fontWeight: '700'
 	},
 
 		pendingActionsRow: {
 			flexDirection: 'row',
-			marginTop: 10,
+			marginTop: spacing.md,
 			width: '100%',
 			paddingHorizontal: 0,
 		},
 		pendingBtn: {
 			flex: 1,
-			paddingVertical: 10,
-			borderRadius: 8,
+			paddingVertical: spacing.md,
+			borderRadius: radius.sm,
 			alignItems: 'center',
 			justifyContent: 'center',
 			flexDirection: 'row'
@@ -188,9 +180,9 @@ export default StyleSheet.create({
 
 		pendingBtnLeft: {
 			flex: 1,
-			paddingVertical: 10,
-			borderBottomLeftRadius: 10,
-			borderTopLeftRadius: 10,
+			paddingVertical: spacing.md,
+			borderBottomLeftRadius: radius.sm,
+			borderTopLeftRadius: radius.sm,
 			alignItems: 'center',
 			justifyContent: 'center',
 			flexDirection: 'row'
@@ -198,9 +190,9 @@ export default StyleSheet.create({
 
 		pendingBtnRight: {
 			flex: 1,
-			paddingVertical: 10,
-			borderBottomRightRadius: 10,
-			borderTopRightRadius: 10,
+			paddingVertical: spacing.md,
+			borderBottomRightRadius: radius.sm,
+			borderTopRightRadius: radius.sm,
 			alignItems: 'center',
 			justifyContent: 'center',
 			flexDirection: 'row'
@@ -208,13 +200,13 @@ export default StyleSheet.create({
 
 			/* footer style when the card has pending actions */
 			pendingFooter: {
-				marginTop: 12,
+				marginTop: spacing.md,
 				borderTopWidth: 1,
-				borderTopColor: '#eef2f6',
-				paddingTop: 10,
+				borderTopColor: colors.borderLight,
+				paddingTop: spacing.md,
 				flexDirection: 'row',
 				width: '100%',
-				paddingHorizontal: 12,
+				paddingHorizontal: spacing.md,
 				justifyContent: 'center'
 			},
 
@@ -223,20 +215,17 @@ export default StyleSheet.create({
 				flexDirection: 'row',
 				alignItems: 'center',
 				justifyContent: 'center',
-				paddingVertical: 12,
-				paddingHorizontal: 16,
-				borderRadius: 10,
-				backgroundColor: '#ef4444',
+				paddingVertical: spacing.md,
+				paddingHorizontal: spacing.lg,
+				borderRadius: radius.sm,
+				backgroundColor: colors.danger,
 				width: '100%',
 				maxWidth: 420,
-				shadowColor: '#000',
-				shadowOpacity: 0.12,
-				shadowRadius: 8,
-				elevation: 4,
+				...shadows.md,
 			},
 
 			cancelBtnText: {
-				color: '#fff',
+				color: colors.white,
 				fontWeight: '700',
 				fontSize: 15
 			},
@@ -244,30 +233,26 @@ export default StyleSheet.create({
 	/* MyTours styles */
 	card: {
 		width: '100%',
-		backgroundColor: '#fff',
+		backgroundColor: colors.white,
 		borderRadius: 14,
-		padding: 12,
+		padding: spacing.md,
 		flexDirection: 'row',
 		alignItems: 'flex-start',
-		elevation: 3,
-		shadowColor: '#000',
-		shadowOpacity: 0.06,
-		shadowRadius: 8,
+		...shadows.sm,
 	},
-	thumbWrap: { marginRight: 12 },
-	thumb: { width: 84, height: 84, borderRadius: 10, backgroundColor: '#eef2f7' },
-	title: { fontSize: 15, fontWeight: '700', color: '#0f172a' },
-	meta: { fontSize: 13, color: '#6b7280', marginTop: 6 },
-	time: { fontSize: 13, color: '#475569', marginTop: 6 },
+	thumbWrap: { marginRight: spacing.md },
+	thumb: { width: 84, height: 84, borderRadius: radius.sm, backgroundColor: colors.background },
+	title: { fontSize: 15, fontWeight: '700', color: colors.textPrimary },
+	meta: { fontSize: 13, color: colors.textSecondary, marginTop: spacing.xs },
+	time: { fontSize: 13, color: colors.textSecondary, marginTop: spacing.xs },
 	viewBtn: {
-		backgroundColor: '#f97316',
-		marginLeft: 8,
-		paddingVertical: 8,
-		paddingHorizontal: 12,
-		borderRadius: 8,
+		backgroundColor: colors.accent,
+		marginLeft: spacing.sm,
+		paddingVertical: spacing.sm,
+		paddingHorizontal: spacing.md,
+		borderRadius: radius.sm,
 		alignItems: 'center',
 		justifyContent: 'center',
 		flexDirection: 'row'
 	}
 })
-

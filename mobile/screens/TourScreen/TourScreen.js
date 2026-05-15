@@ -9,6 +9,7 @@ import { Ionicons } from '@expo/vector-icons'
 import styles from './TourScreenStyle'
 import TourRequestCard from '../../components/TourRequestCard'
 import { useTranslation } from 'react-i18next'
+import { colors, spacing, radius, shadows, typography } from '../../theme'
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8000'
 
@@ -35,7 +36,7 @@ const OwnerTours = () => {
       const token = await SecureStore.getItemAsync('token')
       if (!token) return
       setLoadingBookings(true)
-      const res = await axios.get(`${API_URL}/owner/bookings`, { headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } })
+      const res = await axios.get(`${API_URL}/api/owner/bookings`, { headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } })
       if (!isFocused) return
       const list = res.data.bookings || []
       setBookings(list)
@@ -73,7 +74,7 @@ const OwnerTours = () => {
     try {
       const token = await SecureStore.getItemAsync('token')
       if (!token) return
-      const res = await axios.get(`${API_URL}/owner/bookings`, { headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } })
+      const res = await axios.get(`${API_URL}/api/owner/bookings`, { headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } })
       setBookings(res.data.bookings || [])
     } catch (e) {
       console.warn('Failed to refresh owner bookings', e.message)
@@ -98,7 +99,7 @@ const OwnerTours = () => {
       setUpdatingBookingAction(action)
       const token = await SecureStore.getItemAsync('token')
       if (!token) throw new Error('Unauthenticated')
-      await axios.patch(`${API_URL}/tour-bookings/${bookingId}`, { status }, { headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' } })
+      await axios.patch(`${API_URL}/api/tour-bookings/${bookingId}`, { status }, { headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' } })
       // update locally
       setBookings(prev => prev.map(b => (b.id === bookingId ? { ...b, status } : b)))
     } catch (e) {
@@ -242,7 +243,7 @@ export function MyTours() {
       const token = await SecureStore.getItemAsync('token')
       if (!token) return
       setLoading(true)
-      const res = await axios.get(`${API_URL}/my-tours`, { headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } })
+      const res = await axios.get(`${API_URL}/api/my-tours`, { headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } })
       if (!isFocused) return
       setBookings(res.data.bookings || [])
     } catch (e) {
@@ -263,7 +264,7 @@ export function MyTours() {
     try {
       const token = await SecureStore.getItemAsync('token')
       if (!token) return
-      const res = await axios.get(`${API_URL}/my-tours`, { headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } })
+      const res = await axios.get(`${API_URL}/api/my-tours`, { headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } })
       setBookings(res.data.bookings || [])
     } catch (e) {
       console.warn('Failed to refresh my tours', e.message)
@@ -308,7 +309,7 @@ export function MyTours() {
         }
       }
 
-      await axios.patch(`${API_URL}/tour-bookings/${bookingId}`, { status: statusToSend }, { headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' } })
+      await axios.patch(`${API_URL}/api/tour-bookings/${bookingId}`, { status: statusToSend }, { headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' } })
 
       // update locally
       setBookings(prev => prev.map(b => (b.id === bookingId ? { ...b, status: statusToSend } : b)))

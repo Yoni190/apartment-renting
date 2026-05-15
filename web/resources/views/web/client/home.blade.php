@@ -2,72 +2,17 @@
 
 @section('title', __('Welcome - Find Your Perfect Apartment'))
 
-@push('styles')
-<style>
-    .hero-section {
-        background: url('/images/apartment_hero.jpg') center/cover no-repeat;
-        height: 70vh;
-        border-radius: 20px;
-        position: relative;
-        overflow: hidden;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        z-index: -100;
-    }
-
-    .hero-section::after {
-        content: "";
-        position: absolute;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background: rgba(0, 0, 0, 0.45);
-    }
-
-    .hero-content {
-        position: relative;
-        z-index: 5;
-        text-align: center;
-    }
-
-    .category-card {
-        transition: 0.3s;
-        cursor: pointer;
-        border-radius: 15px;
-    }
-
-    .category-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 25px rgba(0,0,0,0.15);
-    }
-
-    .apartment-card {
-        transition: 0.3s;
-        border-radius: 15px;
-        overflow: hidden;
-    }
-
-    .apartment-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 12px 20px rgba(0,0,0,0.12);
-    }
-</style>
-@endpush
-
 @section('content')
 
 <div class="container mt-4">
 
-    <!-- Hero Section -->
-    <div class="hero-section mb-5">
+    <div class="hero-section mb-5" style="background-image: url('/images/apartment_hero.jpg'); background-size: cover; background-position: center;">
         <div class="hero-content">
             <h1 class="display-4 fw-bold">{{ __('Find next apartment') }}</h1>
             <p class="lead mb-4">{{ __('browse_homes')}}</p>
         </div>
     </div>
 
-    <!-- Categories -->
     <h3 class="fw-bold mb-3">{{ __('Explore Categories') }}</h3>
     <div class="row g-4 mb-5">
         <a href="{{ route('client.apartments') }}" class="col-md-3 text-decoration-none">
@@ -99,7 +44,6 @@
         </div>
     </div>
 
-    <!-- Featured Apartments -->
     <h3 class="fw-bold mb-3">{{ __('Featured Apartments') }}</h3>
 
     <div class="row g-4">
@@ -110,15 +54,13 @@
                 @endphp
                 <div class="col-md-4">
                     <div class="card apartment-card shadow-sm">
-                        <img src="{{ asset('storage/' . $firstImage->path) }}" 
-                            class="card-img-top" 
-                            alt="Apartment Image" 
-                            style="height: 230px; object-fit: cover;">
+                        <img src="{{ asset('storage/' . $firstImage->path) }}"
+                            class="card-img-top object-fit-cover"
+                            alt="{{ $apt->title }}">
 
                         <div class="card-body">
                             <h5 class="card-title">{{ $apt->title }}</h5>
-                            <p class="text-muted mb-2">{{ $apt->location }}</p>
-                            <p class="fw-bold text-primary">{{ __('ETB') }} {{ number_format($apt->price) }}/month</p>
+                            <p class="fw-bold text-primary">{{ __('ETB') }} {{ number_format($apt->price) }}/{{ __('month') }}</p>
 
                             <a href="{{ route('user.client.apartment-details', $apt->id) }}" class="btn btn-primary w-100">
                                 {{ __('View Details') }}
@@ -130,8 +72,7 @@
         @endforeach
     </div>
 
-    <!-- CTA Section -->
-    <div class="mt-5 p-5 bg-light rounded-4 shadow-sm text-center">
+    <div class="mt-5 p-5 bg-light rounded-4 text-center">
         <h3 class="fw-bold mb-3">{{ __('Still Searching for the Perfect Home?') }}</h3>
         <p class="text-muted mb-4">{{ __('We help renters find verified apartments with reliable landlords.') }}</p>
         <a href="{{ route('client.apartments') }}" class="btn btn-lg btn-dark px-5">{{ __('Browse All Apartments') }}</a>
