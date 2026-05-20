@@ -47,7 +47,7 @@ const EditProfileScreen = () => {
 
     setErrors({})
     return true
-  }
+  }// add changes here
 
 
 
