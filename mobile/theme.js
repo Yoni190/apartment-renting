@@ -1,5 +1,5 @@
 export const colors = {
-  primary: '#1a73e8',
+  primary: '#9fc5f8',
   primaryDark: '#1557b0',
   primaryLight: '#e8f0fe',
   surface: '#ffffff',
@@ -13,7 +13,7 @@ export const colors = {
   danger: '#ef4444',
   dangerLight: '#fee2e2',
   border: '#e5e7eb',
-  navBg: '#0f172a',
+  navBg: '#9fc5f8',
   white: '#ffffff',
   black: '#000000',
   overlay: 'rgba(0,0,0,0.4)',
