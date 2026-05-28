@@ -68,5 +68,15 @@
   "low": "ዝቅተኛ",
   "medium": "መካከለኛ",
   "high": "ከፍተኛ",
-  "searching": "እየፈለገ ነው..."
+  "searching": "እየፈለገ ነው...",
+  "edit_profile": "መገለጫ አርትዕ",
+  "name": "ስም",
+  "email_address": "ኢሜይል አድራሻ",
+  "phone_number": "ስልክ ቁጥር",
+  "current_password": "የአሁኑ ፓስዎርድ",
+  "new_password": "አዲስ ፓስዎርድ",
+  "confirm_password": "ፓስዎርድ አረጋግጥ",
+  "change_password": "ፓስዎርድ መቀየር",
+  "save": "አስቀምጥ",
+  "delete_account": "መለያ ሰርዝ"
 }

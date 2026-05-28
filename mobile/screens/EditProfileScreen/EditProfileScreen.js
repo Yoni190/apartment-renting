@@ -8,6 +8,7 @@ import { Eye, EyeClosed } from 'lucide-react-native'
 import Header from '../../components/Header'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { colors, spacing, radius, shadows, typography } from '../../theme'
+import { useTranslation } from 'react-i18next'
 
 const EditProfileScreen = () => {
   const navigation = useNavigation()
@@ -24,6 +25,7 @@ const EditProfileScreen = () => {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const { t } = useTranslation()
 
   const API_URL = process.env.EXPO_PUBLIC_API_URL
 
@@ -216,11 +218,11 @@ const EditProfileScreen = () => {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
-      <Header title="Edit Profile" />
+      <Header title={t("edit_profile")} />
     <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
       {errors?.message && <Text style={styles.errorText}>{errors.message}</Text>}
       <TextInput
-        placeholder="Name"
+        placeholder={t("name")}
         style={styles.textInput}
         value={name}
         onChangeText={setName}
@@ -229,7 +231,7 @@ const EditProfileScreen = () => {
       {errors?.errors?.name && <Text style={styles.errorText}>{errors.errors.name}</Text>}
 
       <TextInput
-        placeholder="Email Address"
+        placeholder={t("email_address")}
         style={styles.textInput}
         value={email}
         onChangeText={setEmail}
@@ -240,7 +242,7 @@ const EditProfileScreen = () => {
       {errors?.errors?.email && <Text style={styles.errorText}>{errors.errors.email}</Text>}
 
       <TextInput
-        placeholder="Phone Number"
+        placeholder={t("phone_number")}
         style={styles.textInput}
         value={phone}
         onChangeText={setPhone}
@@ -250,15 +252,15 @@ const EditProfileScreen = () => {
       {errors?.errors?.phone && <Text style={styles.errorText}>{errors.errors.phone}</Text>}
 
       <TouchableOpacity onPress={() => setShowPasswordFields(prev => !prev)} style={{ marginTop: spacing.md }}>
-        <Text style={[styles.linkText || { color: colors.primary, fontWeight: '600' }]}>{showPasswordFields ? 'Cancel password change' : 'Change password'}</Text>
+        <Text style={[styles.linkText || { color: colors.primary, fontWeight: '600' }]}>{showPasswordFields ? 'Cancel password change' : t('change_password')}</Text>
       </TouchableOpacity>
 
       {showPasswordFields && (
         <>
-          <Text style={styles.subTitle || { fontSize: 16, fontWeight: '500', marginTop: spacing.md }}>Change password</Text>
+          <Text style={styles.subTitle || { fontSize: 16, fontWeight: '500', marginTop: spacing.md }}>{t('change_password')}</Text>
           <View style={[styles.passwordContainer, { position: 'relative' }]}>
             <TextInput
-              placeholder="Current Password"
+              placeholder={t("current_password")}
               style={[styles.textInput, { flex: 1, marginBottom: 0 }]}
               value={currentPassword}
               onChangeText={setCurrentPassword}
@@ -273,7 +275,7 @@ const EditProfileScreen = () => {
 
           <View style={[styles.passwordContainer, { position: 'relative' }]}>
             <TextInput
-              placeholder="New Password"
+              placeholder={t("new_password")}
               style={[styles.textInput, { flex: 1, marginBottom: 0 }]}
               value={password}
               onChangeText={setPassword}
@@ -288,7 +290,7 @@ const EditProfileScreen = () => {
 
           <View style={[styles.passwordContainer, { position: 'relative' }]}>
             <TextInput
-              placeholder="Confirm Password"
+              placeholder={t("confirm_password")}
               style={[styles.textInput, { flex: 1, marginBottom: 0 }]}
               value={passwordConfirmation}
               onChangeText={setPasswordConfirmation}
@@ -306,11 +308,11 @@ const EditProfileScreen = () => {
       )}
 
       <TouchableOpacity style={[styles.btn, loading && { opacity: 0.6 }]} onPress={handleUpdate} disabled={loading}>
-        {loading ? <ActivityIndicator color={colors.white} /> : <Text style={styles.btnText}>Save</Text>}
+        {loading ? <ActivityIndicator color={colors.white} /> : <Text style={styles.btnText}>{t('save')}</Text>}
       </TouchableOpacity>
 
       <TouchableOpacity style={[styles.deleteBtn ?? { marginTop: spacing.md, padding: spacing.md, alignItems: 'center' }, loading && { opacity: 0.6 }]} onPress={handleDelete} disabled={loading}>
-        <Text style={styles.deleteBtnText ?? { color: colors.danger, fontWeight: '600' }}>Delete Account</Text>
+        <Text style={styles.deleteBtnText ?? { color: colors.danger, fontWeight: '600' }}>{t('delete_account')}</Text>
       </TouchableOpacity>
     </ScrollView>
     </SafeAreaView>
