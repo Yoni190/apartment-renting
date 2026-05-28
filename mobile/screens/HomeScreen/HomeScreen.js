@@ -10,6 +10,7 @@ import Header from '../../components/Header'
 import { SlidersHorizontal, ToolCase } from 'lucide-react-native'
 import ListingCard from '../../components/ListingCard'
 import { useTranslation } from 'react-i18next'
+import { colors, spacing, radius, shadows, typography } from '../../theme'
 
 
 
@@ -59,7 +60,7 @@ const HomeScreen = () => {
           if (!token) return
 
           try {
-            const response = await axios.get(`${API_URL}/user`, {
+            const response = await axios.get(`${API_URL}/api/user`, {
               headers: { Accept: 'application/json', Authorization: `Bearer ${token}` }
             })
             setUser(response.data)
@@ -85,7 +86,7 @@ const HomeScreen = () => {
       setLoading(true)
       try {
         const token = await SecureStore.getItemAsync('token')
-        const response = await axios.get(`${API_URL}/recommendations`, {
+        const response = await axios.get(`${API_URL}/api/recommendations`, {
           params: q,
           headers: {
             Accept: 'application/json',
@@ -110,7 +111,7 @@ const HomeScreen = () => {
         if(!access_token) navigation.replace('Login')
 
         try {
-            const response = await axios.get(`${API_URL}/user`, {
+            const response = await axios.get(`${API_URL}/api/user`, {
                 headers: {
                     Accept: "application/json",
                     Authorization: `Bearer ${access_token}`
@@ -194,7 +195,7 @@ const HomeScreen = () => {
           return
         }
         
-        await axios.post(`${API_URL}/apartments/${apartment.id}/favorite`, {}, {
+        await axios.post(`${API_URL}/api/apartments/${apartment.id}/favorite`, {}, {
           headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
         })
         
@@ -210,7 +211,7 @@ const HomeScreen = () => {
         const token = await SecureStore.getItemAsync('token')
         if (!token) return
         
-        await axios.delete(`${API_URL}/apartments/${apartment.id}/favorite`, {
+        await axios.delete(`${API_URL}/api/apartments/${apartment.id}/favorite`, {
           headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
         })
         
@@ -251,7 +252,7 @@ const HomeScreen = () => {
     }
 
     return (
-  <SafeAreaView style={{ flex: 1, backgroundColor: '#fff', paddingTop: 50 }}>
+  <SafeAreaView style={{ flex: 1, backgroundColor: colors.white, paddingTop: 50 }}>
       {/* Add top padding so the absolute-positioned Header doesn't cover content */}
       <Header 
           title={t('home')}
@@ -259,36 +260,36 @@ const HomeScreen = () => {
       <ScrollView showsVerticalScrollIndicator={false}> 
         
         {/* Search + Filters (Home only) */}
-        <View style={{ paddingHorizontal: 12, paddingTop: 16, flexDirection: 'row', alignItems: 'center' }}>
+        <View style={{ paddingHorizontal: spacing.md, paddingTop: spacing.lg, flexDirection: 'row', alignItems: 'center' }}>
           <TextInput
             placeholder="Search location..."
-            placeholderTextColor="#999"
+            placeholderTextColor={colors.textMuted}
             style={styles.textInput}
             value={searchText}
             onChangeText={setSearchText}
             onSubmitEditing={onSearchSubmit}
           />
-          <TouchableOpacity onPress={() => setShowFilters(v => !v)} style={{ marginLeft: 8, padding: 10, backgroundColor: '#eee', borderRadius: 8 }}>
+          <TouchableOpacity onPress={() => setShowFilters(v => !v)} style={{ marginLeft: spacing.sm, padding: spacing.md, backgroundColor: colors.border, borderRadius: radius.sm }}>
             <Text>Filters</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={onSearchSubmit} style={{ marginLeft: 8, padding: 10, backgroundColor: '#9fc5f8', borderRadius: 8 }}>
-            <Text style={{ color: 'white' }}>Search</Text>
+          <TouchableOpacity onPress={onSearchSubmit} style={{ marginLeft: spacing.sm, padding: spacing.md, backgroundColor: colors.primaryLight, borderRadius: radius.sm }}>
+            <Text style={{ color: colors.white }}>Search</Text>
           </TouchableOpacity>
         </View>
 
         {showFilters ? (
-          <View style={{ paddingHorizontal: 12, paddingTop: 8 }}>
-            <View style={{ flexDirection: 'row', gap: 8 }}>
+          <View style={{ paddingHorizontal: spacing.md, paddingTop: spacing.sm }}>
+            <View style={{ flexDirection: 'row', gap: spacing.sm }}>
               <TextInput placeholder="Min price" value={filters.min_price} onChangeText={(v) => setFilters(f => ({ ...f, min_price: v }))} style={[styles.textInput, { flex: 1 }]} />
               <TextInput placeholder="Max price" value={filters.max_price} onChangeText={(v) => setFilters(f => ({ ...f, max_price: v }))} style={[styles.textInput, { flex: 1 }]} />
             </View>
-            <View style={{ flexDirection: 'row', marginTop: 8, gap: 8 }}>
+            <View style={{ flexDirection: 'row', marginTop: spacing.sm, gap: spacing.sm }}>
               <TextInput placeholder="Bedrooms ex: 2" value={filters.bedrooms} onChangeText={(v) => setFilters(f => ({ ...f, bedrooms: v }))} style={[styles.textInput, { flex: 1 }]} />
               <TextInput placeholder="Property type ex: apartment" value={filters.property_type} onChangeText={(v) => setFilters(f => ({ ...f, property_type: v }))} style={[styles.textInput, { flex: 1 }]} />
             </View>
-            <View style={{ flexDirection: 'row', marginTop: 8, alignItems: 'center' }}>
+            <View style={{ flexDirection: 'row', marginTop: spacing.sm, alignItems: 'center' }}>
               <TextInput placeholder="Furnished (yes/no)" value={filters.furnished} onChangeText={(v) => setFilters(f => ({ ...f, furnished: v }))} style={[styles.textInput, { flex: 1 }]} />
-              <TouchableOpacity onPress={onClearFilters} style={{ marginLeft: 8, padding: 10, backgroundColor: '#eee', borderRadius: 8 }}>
+              <TouchableOpacity onPress={onClearFilters} style={{ marginLeft: spacing.sm, padding: spacing.md, backgroundColor: colors.border, borderRadius: radius.sm }}>
                 <Text>Clear</Text>
               </TouchableOpacity>
             </View>
@@ -332,13 +333,13 @@ const HomeScreen = () => {
         <Text style={styles.title}>{t('apartments')}</Text>
 
         {/* Show listings using ListingCard only */}
-        <View style={{ alignItems: 'center', paddingVertical: 8 }}>
+        <View style={{ alignItems: 'center', paddingVertical: spacing.sm }}>
           {loading ? (
-            <View style={{ padding: 40 }}>
+            <View style={{ padding: spacing.xxxxl }}>
               <Text>Loading...</Text>
             </View>
           ) : apartments.length === 0 ? (
-            <View style={{ padding: 40 }}>
+            <View style={{ padding: spacing.xxxxl }}>
               <Text>No listings found</Text>
             </View>
           ) : (
@@ -377,4 +378,3 @@ const HomeScreen = () => {
 }
 
 export default HomeScreen
-

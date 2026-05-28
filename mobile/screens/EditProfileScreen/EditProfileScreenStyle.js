@@ -1,84 +1,80 @@
 import { StyleSheet } from 'react-native'
+import { colors, spacing, radius, shadows, typography } from '../../theme'
 
 export default StyleSheet.create({
     container: {
         flex: 1,
-        padding: 20,
+        padding: spacing.xl,
         paddingTop: 100,
-        backgroundColor: '#fff',
+        backgroundColor: colors.white,
         alignItems: 'stretch',
         justifyContent: 'flex-start'
     },
     subTitle: {
         fontSize: 16,
-        color: '#333',
-        marginBottom: 8,
+        color: colors.textPrimary,
+        marginBottom: spacing.sm,
         fontWeight: '500'
     },
     textInput: {
         borderWidth: 1,
-        borderColor: '#e6e6e6',
-        borderRadius: 12,
-        paddingVertical: 12,
+        borderColor: colors.border,
+        borderRadius: radius.md,
+        paddingVertical: spacing.md,
         paddingHorizontal: 14,
         paddingRight: 44,
-        marginBottom: 10,
-        backgroundColor: '#fafafa',
+        marginBottom: spacing.md,
+        backgroundColor: colors.background,
         fontSize: 16,
-        color: '#111'
+        color: colors.textPrimary
     },
     linkText: {
-        color: '#0066CC',
+        color: colors.primary,
         fontWeight: '600'
     },
     btn: {
-        backgroundColor: '#0066CC',
-        borderRadius: 12,
+        backgroundColor: colors.primary,
+        borderRadius: radius.md,
         paddingVertical: 14,
-        paddingHorizontal: 16,
-        marginTop: 10,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 2
+        paddingHorizontal: spacing.lg,
+        marginTop: spacing.md,
+        ...shadows.sm,
     },
     btnText: {
-        color: '#fff',
+        color: colors.white,
         textAlign: 'center',
         fontWeight: '600',
         fontSize: 16
     },
     errorText: {
-        color: '#b91c1c',
-        marginBottom: 8,
+        color: colors.danger,
+        marginBottom: spacing.sm,
         fontSize: 13
     },
     deleteBtn: {
         marginTop: 14,
-        paddingVertical: 12,
-        borderRadius: 12,
+        paddingVertical: spacing.md,
+        borderRadius: radius.md,
         alignItems: 'center',
-        backgroundColor: '#fff',
+        backgroundColor: colors.white,
         borderWidth: 1,
-        borderColor: '#f1c0c0'
+        borderColor: colors.dangerLight
     },
     deleteBtnText: {
-        color: '#b91c1c',
+        color: colors.danger,
         fontWeight: '700'
     }
     ,
     passwordContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 10
+        marginBottom: spacing.md
     }
     ,
     eyeButton: {
         position: 'absolute',
-        right: 12,
-        top: 10,
-        padding: 6
+        right: spacing.md,
+        top: spacing.md,
+        padding: spacing.xs
     }
 })
-

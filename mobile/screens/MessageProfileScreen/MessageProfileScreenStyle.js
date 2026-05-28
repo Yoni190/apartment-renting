@@ -1,36 +1,36 @@
-import { StyleSheet } from 'react-native'
+import { StyleSheet, Platform } from 'react-native'
+import { colors, spacing, radius, shadows, typography } from '../../theme'
 
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: '#0088cc',
+		backgroundColor: colors.primary,
 	},
 	panel: {
 		flex: 1,
-		backgroundColor: '#eaf2ff',
-		// backgroundColor: '#0088cc',
+		backgroundColor: colors.primaryLight,
 	},
 	header: {
 		height: 96,
 		paddingTop: 22,
-		paddingHorizontal: 12,
+		paddingHorizontal: spacing.md,
 		alignItems: 'center',
 		flexDirection: 'row',
 		justifyContent: 'space-between',
 		borderBottomWidth: 1,
-		borderBottomColor: '#006aa0',
-		backgroundColor: '#0088cc'
+		borderBottomColor: colors.primaryDark,
+		backgroundColor: colors.primary
 	},
 	backBtn: {
 		width: 40,
 		height: 40,
-		borderRadius: 20,
+		borderRadius: spacing.xl,
 		alignItems: 'center',
 		justifyContent: 'center',
 		backgroundColor: 'rgba(255,255,255,0.12)',
 	},
 	headerTitle: {
-		color: '#ffffff',
+		color: colors.white,
 		fontSize: 16,
 		fontWeight: '700',
 	},
@@ -46,23 +46,29 @@ const styles = StyleSheet.create({
 		width: 120,
 		height: 120,
 		borderRadius: 60,
-		backgroundColor: '#005f88',
+		backgroundColor: colors.primaryDark,
 		alignItems: 'center',
 		justifyContent: 'center',
 		marginBottom: 14,
-		shadowColor: '#000',
-		shadowOpacity: 0.2,
-		shadowRadius: 12,
-		shadowOffset: { width: 0, height: 6 },
-		elevation: 6,
+		...Platform.select({
+			ios: {
+				shadowColor: colors.black,
+				shadowOpacity: 0.2,
+				shadowRadius: 12,
+				shadowOffset: { width: 0, height: 6 },
+			},
+			android: {
+				elevation: 6,
+			},
+		}),
 	},
 	avatarText: {
-		color: '#ffffff',
+		color: colors.white,
 		fontSize: 42,
 		fontWeight: '700',
 	},
 	nameText: {
-		color: '#005f88',
+		color: colors.primaryDark,
 		fontSize: 22,
 		fontWeight: '700',
 		marginBottom: 14,
@@ -70,9 +76,9 @@ const styles = StyleSheet.create({
 	infoCard: {
 		width: '88%',
 		height: '20%',
-		backgroundColor:'#0088cc',
-		borderRadius: 16,
-		paddingVertical: 12,
+		backgroundColor: colors.primary,
+		borderRadius: radius.lg,
+		paddingVertical: spacing.md,
 		paddingHorizontal: 14,
 		gap: 25,
 	},
@@ -82,12 +88,12 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 	},
 	infoLabel: {
-		color: '#c6cacf',
+		color: colors.textMuted,
 		fontSize: 16,
 		fontWeight: '600',
 	},
 	infoValue: {
-		color: '#ffffff',
+		color: colors.white,
 		fontSize: 18,
 		fontWeight: '600',
 	},

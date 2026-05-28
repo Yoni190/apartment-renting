@@ -5,6 +5,7 @@ import styles from './ApartmentDetailsStyle'
 import axios from 'axios'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Header from '../../components/Header'
+import { colors, spacing, radius, shadows, typography } from '../../theme'
 
 
 
@@ -17,20 +18,20 @@ const ApartmentReviews = ({ route }) => {
 
   useEffect(() => {
     axios
-      .get(`${API_URL}/apartments/${apartmentId}/reviews`)
+      .get(`${API_URL}/api/apartments/${apartmentId}/reviews`)
       .then(res => setReviews(res.data.reviews || []))
       .finally(() => setLoading(false))
   }, [])
 
   if (loading) {
-    return <ActivityIndicator style={{ marginTop: 40 }} />
+    return <ActivityIndicator style={{ marginTop: spacing.xxxxl }} />
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#f8fafc' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
         <Header title={'Apartment Reviews'} />
 
-        <ScrollView style={{ padding: 16, marginTop: 70 }}>
+        <ScrollView style={{ padding: spacing.lg, marginTop: 70 }}>
           {reviews.map(review => (
             <View key={review.id} style={styles.reviewCard}>
               <Text style={styles.reviewerName}>

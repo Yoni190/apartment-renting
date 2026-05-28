@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native'
 import { Picker } from '@react-native-picker/picker'
 import { useTranslation } from 'react-i18next'
 import i18n from '../../i18n'
+import { colors } from '../../theme'
 import styles from './ChooseRoleScreenStyle'
 import Header from '../../components/Header'
 
@@ -34,12 +35,12 @@ const ChooseRoleScreen = () => {
       <Header title="Gojoye" />
       {/* 🌍 Language Selector */}
       <View style={styles.languageWrapper}>
-        <Globe size={18} color="#555" />
+        <Globe size={18} color={colors.textSecondary} />
         <Picker
           selectedValue={language}
           style={styles.languagePicker}
           onValueChange={(value) => changeLanguage(value)}
-          dropdownIconColor="#555"
+          dropdownIconColor={colors.textSecondary}
         >
           <Picker.Item label="English" value="en" />
           <Picker.Item label="አማርኛ" value="am" />
@@ -52,7 +53,7 @@ const ChooseRoleScreen = () => {
       {/* Property Owner Card */}
       <TouchableOpacity style={styles.card} onPress={handleApartment}>
         <View style={styles.iconCircle}>
-          <Building2 size={32} color="#000" />
+          <Building2 size={32} color={colors.black} />
         </View>
         <Text style={styles.cardTitle}>Property Owner</Text>
         <Text style={styles.cardDesc}>
@@ -70,7 +71,7 @@ const ChooseRoleScreen = () => {
       {/* Client Card */}
       <TouchableOpacity style={styles.card} onPress={handleRenter}>
         <View style={styles.iconCircle}>
-          <User size={32} color="#000" />
+          <User size={32} color={colors.black} />
         </View>
         <Text style={styles.cardTitle}>Client</Text>
         <Text style={styles.cardDesc}>

@@ -1,117 +1,113 @@
 import {StyleSheet} from 'react-native'
+import { colors, spacing, radius, shadows, typography } from '../../theme'
 
 export default StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: "center",
-        backgroundColor: "#F9FAFB",
-        paddingHorizontal: 25
+        backgroundColor: colors.background,
+        paddingHorizontal: spacing.xl
     },
     innerContainer: {
-        backgroundColor: 'white',
-        padding: 25,
-        borderRadius: 20,
-        elevation: 5,
-        shadowColor: '#000',
-        shadowOpacity: 0.1, //?
-        shadowRadius: 8,//?
-        shadowOffset: {width: 0, height: 3} //?
+        backgroundColor: colors.surface,
+        padding: spacing.xxl,
+        borderRadius: radius.xl,
+        ...shadows.md,
     },
     textInput: {
         borderWidth: 1,
-        borderColor: '#ddd',
-        borderRadius: 12,
-        paddingVertical: 12,
-        paddingHorizontal: 15,
-        fontSize: 16,
-        marginBottom: 10,
-        backgroundColor: '#F5F5F5'
+        borderColor: colors.border,
+        borderRadius: radius.md,
+        paddingVertical: spacing.md,
+        paddingHorizontal: spacing.lg,
+        ...typography.body,
+        marginBottom: spacing.sm,
+        backgroundColor: colors.background
     },
     btn: {
-        backgroundColor: '#111',
-        borderRadius: 12,
-        paddingVertical: 15,
-        marginTop: 10    
+        backgroundColor: colors.textPrimary,
+        borderRadius: radius.md,
+        paddingVertical: spacing.lg,
+        marginTop: spacing.sm    
     },
     btnText: {
-        color: "white",
+        color: colors.white,
         textAlign: "center",
-        fontSize: 16,
-        fontWeight: '800'
+        ...typography.button
     },
     title: {
-        fontSize: 28,
+        ...typography.h1,
         textAlign: 'center',
-        fontWeight: '700',
-        color: "#111"
     },
     subTitle: {
         textAlign: "center",
-        color: '#666',
-        marginBottom: 30
+        color: colors.textSecondary,
+        marginBottom: spacing.xxl,
+        ...typography.body
     },
     roleInfo: {
         textAlign: 'center',
-        color: '#444',
-        marginBottom: 14,
-        fontWeight: '600'
+        color: colors.textSecondary,
+        marginBottom: spacing.md,
+        fontWeight: '600',
+        fontSize: 14,
     },
     footerText: {
         textAlign: 'center',
-        marginTop: 20,
-        color: '#666'
+        marginTop: spacing.xl,
+        color: colors.textSecondary
     },
     linkText: {
-        color: '#111',
+        color: colors.textPrimary,
         fontWeight: 'bold'
     },
     errorText: {
-        color: "red",
-        marginBottom: 5
+        color: colors.danger,
+        marginBottom: spacing.xs
     },
     passwordContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         borderWidth: 1,
-        borderColor: '#ddd',
-        borderRadius: 12,
-        backgroundColor: '#F5F5F5',
-        paddingHorizontal: 10,
-        marginBottom: 10
-        },
-          orRow: {
+        borderColor: colors.border,
+        borderRadius: radius.md,
+        backgroundColor: colors.background,
+        paddingHorizontal: spacing.sm,
+        marginBottom: spacing.sm
+    },
+      orRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 18,
+    marginVertical: spacing.xl,
   },
 
   line: {
     flex: 1,
     height: 1,
-    backgroundColor: '#ccc',
+    backgroundColor: colors.border,
   },
 
   orText: {
-    marginHorizontal: 10,
-    fontSize: 12,
-    color: '#555',
+    ...typography.caption,
+    color: colors.textSecondary,
+    marginHorizontal: spacing.sm,
   },
   googleBtn: {
-        backgroundColor: 'white',
+        backgroundColor: colors.surface,
         borderWidth: 1,
-        borderRadius: 12,
-        paddingVertical: 15,
-        marginTop: 10,
+        borderColor: colors.border,
+        borderRadius: radius.md,
+        paddingVertical: spacing.lg,
+        marginTop: spacing.sm,
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        gap: 10
+        gap: spacing.sm
     },
     googleBtnText: {
-        color: "black",
-        fontSize: 16,
-        fontWeight: '800',
+        color: colors.black,
+        ...typography.button
     },
     googleIcon: {
         height: 30,

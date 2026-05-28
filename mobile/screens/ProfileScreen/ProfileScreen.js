@@ -5,6 +5,7 @@ import * as SecureStore from 'expo-secure-store'
 import { useNavigation } from '@react-navigation/native'
 import axios from 'axios'
 import { BadgeQuestionMark, History, Lock, LogOut, Settings, UserPen, X, AlertTriangle } from 'lucide-react-native'
+import { colors, spacing, radius } from '../../theme'
 import styles from './ProfileScreenStyle'
 import Header from '../../components/Header'
 import i18n from '../../i18n'
@@ -41,7 +42,7 @@ const ProfileScreen = () => {
       if (!access_token) navigation.replace("Login")
 
       try {
-        const response = await axios.get(`${API_URL}/user`, {
+        const response = await axios.get(`${API_URL}/api/user`, {
           headers: {
             Accept: "application/json",
             Authorization: `Bearer ${access_token}`
@@ -66,7 +67,7 @@ const ProfileScreen = () => {
   }, [])
 
   return (
-  <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
+  <SafeAreaView style={{ flex: 1, backgroundColor: colors.surface }}>
     <Header title={i18n.t('profile')} />
 
     <ScrollView showsVerticalScrollIndicator={false}>
@@ -87,19 +88,19 @@ const ProfileScreen = () => {
       {/* Box (Edit Profile / History / Settings) */}
       <View style={styles.box}>
         <TouchableOpacity style={styles.row} onPress={() => navigation.navigate("EditProfile")}>
-          <UserPen size={20} color="#333" />
+          <UserPen size={20} color={colors.textPrimary} />
           <Text style={styles.rowText}>{i18n.t('editProfile')}</Text>
           <Text style={styles.arrow}>{'>'}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.row}>
-          <History size={20} color="#333" />
+          <History size={20} color={colors.textPrimary} />
           <Text style={styles.rowText}>{i18n.t('history')}</Text>
           <Text style={styles.arrow}>{'>'}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.row}>
-          <Settings size={20} color="#333" />
+          <Settings size={20} color={colors.textPrimary} />
           <Text style={styles.rowText}>{i18n.t('settings')}</Text>
           <Text style={styles.arrow}>{'>'}</Text>
         </TouchableOpacity>
@@ -107,11 +108,11 @@ const ProfileScreen = () => {
 
       {/* Language Selection */}
       <View style={styles.box}>
-        <Text style={[styles.rowText, { fontWeight: '600', marginBottom: 10 }]}>
+        <Text style={[styles.rowText, { fontWeight: '600', marginBottom: spacing.sm }]}>
           {i18n.t('chooseLanguage')}
         </Text>
 
-        <View style={{ borderWidth: 1, borderColor: '#ccc', borderRadius: 8 }}>
+        <View style={{ borderWidth: 1, borderColor: colors.border, borderRadius: radius.sm }}>
           <Picker
             selectedValue={selectedLanguage}
             onValueChange={async (itemValue) => {
@@ -131,7 +132,7 @@ const ProfileScreen = () => {
         style={styles.logoutBtn}
         onPress={() => setShowModal(true)}
       >
-        <LogOut size={18} color="#d00000" style={{ marginRight: 6 }} />
+        <LogOut size={18} color={colors.danger} style={{ marginRight: spacing.xs }} />
         <Text style={styles.logoutText}>{i18n.t('logout')}</Text>
       </TouchableOpacity>
 
@@ -147,7 +148,7 @@ const ProfileScreen = () => {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <AlertTriangle color="#e63946" size={40} />
+              <AlertTriangle color={colors.danger} size={40} />
               <Text style={styles.modalTitle}>{i18n.t('logout')}?</Text>
               <Text style={styles.modalMessage}>
                 {i18n.t('logoutConfirmation')}
@@ -156,17 +157,17 @@ const ProfileScreen = () => {
 
             <View style={styles.modalButtons}>
               <TouchableOpacity
-                style={[styles.modalButton, { backgroundColor: '#eee' }]}
+                style={[styles.modalButton, { backgroundColor: colors.background }]}
                 onPress={() => setShowModal(false)}
               >
-                <Text style={{ color: '#333', fontWeight: '500' }}>{i18n.t('cancel')}</Text>
+                <Text style={{ color: colors.textPrimary, fontWeight: '500' }}>{i18n.t('cancel')}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[styles.modalButton, { backgroundColor: '#e63946' }]}
+                style={[styles.modalButton, { backgroundColor: colors.danger }]}
                 onPress={handleLogout}
               >
-                <Text style={{ color: '#fff', fontWeight: '600' }}>{i18n.t('logout')}</Text>
+                <Text style={{ color: colors.white, fontWeight: '600' }}>{i18n.t('logout')}</Text>
               </TouchableOpacity>
             </View>
           </View>

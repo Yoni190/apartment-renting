@@ -1,5 +1,6 @@
 import React from 'react'
 import { ScrollView, View, Text, TextInput, Pressable } from 'react-native'
+import { colors, spacing, radius, typography } from '../theme'
 
 const PurchaseApplicationForm = ({ form, setForm, styles }) => {
   return (
@@ -33,9 +34,9 @@ const PurchaseApplicationForm = ({ form, setForm, styles }) => {
         <View style={styles.templateRadioGroup}>
           {[
             { value: 'Immediately / Within 1 month', label: 'Immediately / Within 1 month' },
-            { value: '1-3 months', label: '1–3 months' },
-            { value: '3-6 months', label: '3–6 months' },
-            { value: '6-12 months', label: '6–12 months' },
+            { value: '1-3 months', label: '1-3 months' },
+            { value: '3-6 months', label: '3-6 months' },
+            { value: '6-12 months', label: '6-12 months' },
             { value: 'other', label: 'Other' },
           ].map((opt) => (
             <Pressable

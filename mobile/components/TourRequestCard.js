@@ -1,6 +1,7 @@
 import React from 'react'
 import { View, Text, TouchableOpacity, Image, ActivityIndicator, Alert, Linking } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
+import { colors } from '../theme'
 import styles from '../screens/TourScreen/TourScreenStyle'
 import { useTranslation } from 'react-i18next'
 
@@ -8,15 +9,12 @@ const safeUri = (img) => {
   const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8000'
   if (!img) return null
 
-  // if the image is already a URL string
   if (typeof img === 'string') {
     if (img.startsWith('http')) return img
     if (img.startsWith('/')) return `${API_URL}${img}`
-    // assume it's a storage path
     return `${API_URL}/storage/${img}`
   }
 
-  // If object, try several common fields
   const url = img.url || img.uri || img.preview || img.thumb || img.thumbnail
   if (url) {
     if (typeof url === 'string') {
@@ -39,25 +37,18 @@ const safeUri = (img) => {
 }
 
 export default function TourRequestCard({ booking, isOwner=false, onOpenClient=()=>{}, onOpenOwner=()=>{}, onApprove=()=>{}, onReject=()=>{}, onCancel=()=>{}, updatingBookingId=null, updatingBookingAction=null, onViewDetails=()=>{} }){
-  // bookings from different endpoints may name the relation differently
   const listing = booking.listing || booking.apartment || booking.property || {}
   const client = booking.user || {}
   const scheduled = booking.scheduled_at ? new Date(booking.scheduled_at) : null
-  // compute hours until the scheduled time as a floating number (use timestamps to avoid rounding errors)
   const hoursUntil = scheduled ? ((scheduled.getTime() - Date.now()) / (1000 * 60 * 60)) : null
   const { t } = useTranslation()
 
-  // Support different shapes returned by the API: listing.images may be an array, an object with data, or images may be strings
   const firstImage = (() => {
     if (!listing) return null
-    // direct array of image objects or strings
     if (Array.isArray(listing.images) && listing.images.length > 0) return listing.images[0]
-    // nested resource envelope { data: [...] }
     if (listing.images && Array.isArray(listing.images.data) && listing.images.data.length > 0) return listing.images.data[0]
-    // single image field
     if (listing.image) return listing.image
     if (listing.thumbnail) return listing.thumbnail
-    // fallback to media/gallery
     if (Array.isArray(listing.media) && listing.media.length > 0) return listing.media[0]
     return null
   })()
@@ -77,7 +68,7 @@ export default function TourRequestCard({ booking, isOwner=false, onOpenClient=(
                 <Image source={{ uri: imageUri }} style={styles.bookingThumb} />
               ) : (
                 <View style={[styles.bookingThumb, { justifyContent: 'center', alignItems: 'center' }]}> 
-                  <Ionicons name="home-outline" size={28} color="#9ca3af" />
+                  <Ionicons name="home-outline" size={28} color={colors.textMuted} />
                 </View>
               )}
             </TouchableOpacity>
@@ -98,42 +89,40 @@ export default function TourRequestCard({ booking, isOwner=false, onOpenClient=(
               {isOwner ? (
                 <>
                   <TouchableOpacity style={styles.actionBtn} onPress={() => onOpenClient({ ...client, listingId: listing.id })}>
-                    <Ionicons name="person-circle-outline" size={18} color="#0f172a" />
+                    <Ionicons name="person-circle-outline" size={18} color={colors.navBg} />
                     <Text style={styles.actionText}>{t('client')}</Text>
                   </TouchableOpacity>
 
                   <TouchableOpacity style={styles.actionBtn} onPress={() => onOpenClient({ ...client, listingId: listing.id, navigateToMessages: true })}>
-                    <Ionicons name="chatbubble-ellipses-outline" size={18} color="#2563eb" />
+                    <Ionicons name="chatbubble-ellipses-outline" size={18} color={colors.primary} />
                     <Text style={styles.actionText}>{t('message')}</Text>
                   </TouchableOpacity>
 
                   <TouchableOpacity style={styles.actionBtn} onPress={() => { const phone = client.phone || client.phone_number || client.phoneNumber; if (phone) { Linking.openURL(`tel:${phone}`).catch(()=>{}) } else { Alert.alert('No phone number available') } }}>
-                    <Ionicons name="call-outline" size={18} color="#059669" />
+                    <Ionicons name="call-outline" size={18} color={colors.success} />
                     <Text style={styles.actionText}>{t('call')}</Text>
                   </TouchableOpacity>
                 </>
               ) : (
                 <>
-                  {/* Render owner actions in the compact style (same as owner sees client) */}
                   <TouchableOpacity style={styles.actionBtn} onPress={() => onOpenOwner({ ...listing.owner, listingId: listing.id })}>
-                    <Ionicons name="person-circle-outline" size={18} color="#0f172a" />
+                    <Ionicons name="person-circle-outline" size={18} color={colors.navBg} />
                     <Text style={styles.actionText}>{t('owner')}</Text>
                   </TouchableOpacity>
 
                   <TouchableOpacity style={styles.actionBtn} onPress={() => onOpenOwner({ ...listing.owner, listingId: listing.id, navigateToMessages: true })}>
-                    <Ionicons name="chatbubble-ellipses-outline" size={18} color="#2563eb" />
+                    <Ionicons name="chatbubble-ellipses-outline" size={18} color={colors.primary} />
                     <Text style={styles.actionText}>{t('message')}</Text>
                   </TouchableOpacity>
 
                   <TouchableOpacity style={styles.actionBtn} onPress={() => { const phone = listing.owner?.phone || listing.owner?.phone_number || listing.owner?.phoneNumber; if (phone) { Linking.openURL(`tel:${phone}`).catch(()=>{}) } else { Alert.alert('No phone available') } }}>
-                    <Ionicons name="call-outline" size={18} color="#059669" />
+                    <Ionicons name="call-outline" size={18} color={colors.success} />
                     <Text style={styles.actionText}>{t('call')}</Text>
                   </TouchableOpacity>
                 </>
               )}
             </View>
 
-            {/* Client: show Cancel action when booking is Pending */}
             {!isOwner && !isFinal && statusLower === 'pending' ? (
               <View style={styles.pendingFooter}>
                 <TouchableOpacity
@@ -142,10 +131,10 @@ export default function TourRequestCard({ booking, isOwner=false, onOpenClient=(
                   activeOpacity={0.85}
                 >
                   {updatingBookingId === booking.id && updatingBookingAction === 'cancel' ? (
-                    <ActivityIndicator color="#fff" />
+                    <ActivityIndicator color={colors.white} />
                   ) : (
                     <>
-                      <Ionicons name="close-circle" size={18} color="#fff" style={{ marginRight: 10 }} />
+                      <Ionicons name="close-circle" size={18} color={colors.white} style={{ marginRight: 10 }} />
                       <Text style={styles.cancelBtnText}>{t('cancel_tour')}</Text>
                     </>
                   )}
@@ -153,7 +142,6 @@ export default function TourRequestCard({ booking, isOwner=false, onOpenClient=(
               </View>
             ) : null}
 
-            {/* Client: for Approved bookings in the future, show cancel/request-cancel depending on time until tour */}
             {!isOwner && !isFinal && statusLower === 'approved' && scheduled && scheduled.getTime() > Date.now() ? (
               <View style={styles.pendingFooter}>
                 <TouchableOpacity
@@ -162,10 +150,10 @@ export default function TourRequestCard({ booking, isOwner=false, onOpenClient=(
                   activeOpacity={0.85}
                 >
                   {updatingBookingId === booking.id && updatingBookingAction === 'cancel' ? (
-                    <ActivityIndicator color="#fff" />
+                    <ActivityIndicator color={colors.white} />
                   ) : (
                     <>
-                      <Ionicons name="close-circle" size={18} color="#fff" style={{ marginRight: 10 }} />
+                      <Ionicons name="close-circle" size={18} color={colors.white} style={{ marginRight: 10 }} />
                       <Text style={styles.cancelBtnText}>{(hoursUntil !== null && hoursUntil >= 24) ? t('cancel_tour')
                       : t('request_cancellation')}</Text>
                     </>
@@ -177,7 +165,6 @@ export default function TourRequestCard({ booking, isOwner=false, onOpenClient=(
 
         </View>
 
-        {/* Owner actions: full-width split buttons under status for Pending, Cancellation Requested, or post-tour Approved */}
         {isOwner && !isFinal && (
           statusLower === 'pending'
           || statusLower === 'cancellation requested'
@@ -186,31 +173,29 @@ export default function TourRequestCard({ booking, isOwner=false, onOpenClient=(
           <View style={styles.pendingFooter}>
             {((booking.status || '').toString().toLowerCase() === 'pending') ? (
               <>
-                <TouchableOpacity style={[styles.pendingBtnLeft, { backgroundColor: '#10b981' }]} onPress={() => onApprove(booking.id)}>
-                  {updatingBookingId === booking.id && updatingBookingAction === 'approve' ? <ActivityIndicator color="#fff" /> : <Text style={styles.splitBtnText}>{t('approve')}</Text>}
+                <TouchableOpacity style={[styles.pendingBtnLeft, { backgroundColor: colors.success }]} onPress={() => onApprove(booking.id)}>
+                  {updatingBookingId === booking.id && updatingBookingAction === 'approve' ? <ActivityIndicator color={colors.white} /> : <Text style={styles.splitBtnText}>{t('approve')}</Text>}
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.pendingBtnRight, { backgroundColor: '#ef4444' }]} onPress={() => onReject(booking.id)}>
-                  {updatingBookingId === booking.id && updatingBookingAction === 'reject' ? <ActivityIndicator color="#fff" /> : <Text style={styles.splitBtnText}>{t('reject')}</Text>}
+                <TouchableOpacity style={[styles.pendingBtnRight, { backgroundColor: colors.danger }]} onPress={() => onReject(booking.id)}>
+                  {updatingBookingId === booking.id && updatingBookingAction === 'reject' ? <ActivityIndicator color={colors.white} /> : <Text style={styles.splitBtnText}>{t('reject')}</Text>}
                 </TouchableOpacity>
               </>
             ) : ((booking.status || '').toString().toLowerCase() === 'cancellation requested') ? (
-              // Cancellation Requested: Approve Cancellation -> set Canceled; Reject Cancellation -> revert to Approved
               <>
-                <TouchableOpacity style={[styles.pendingBtnLeft, { backgroundColor: '#10b981' }]} onPress={() => onApprove(booking.id, 'Canceled')}>
-                  {updatingBookingId === booking.id && updatingBookingAction === 'approve' ? <ActivityIndicator color="#fff" /> : <Text style={styles.splitBtnText}>{t('approve_cancellation')}</Text>}
+                <TouchableOpacity style={[styles.pendingBtnLeft, { backgroundColor: colors.success }]} onPress={() => onApprove(booking.id, 'Canceled')}>
+                  {updatingBookingId === booking.id && updatingBookingAction === 'approve' ? <ActivityIndicator color={colors.white} /> : <Text style={styles.splitBtnText}>{t('approve_cancellation')}</Text>}
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.pendingBtnRight, { backgroundColor: '#ef4444' }]} onPress={() => onReject(booking.id, 'Approved')}>
-                  {updatingBookingId === booking.id && updatingBookingAction === 'reject' ? <ActivityIndicator color="#fff" /> : <Text style={styles.splitBtnText}>{t('reject_cancellation')}</Text>}
+                <TouchableOpacity style={[styles.pendingBtnRight, { backgroundColor: colors.danger }]} onPress={() => onReject(booking.id, 'Approved')}>
+                  {updatingBookingId === booking.id && updatingBookingAction === 'reject' ? <ActivityIndicator color={colors.white} /> : <Text style={styles.splitBtnText}>{t('reject_cancellation')}</Text>}
                 </TouchableOpacity>
               </>
             ) : (
-              // Post-tour Approved: Owner marks Completed or No Show
               <>
-                <TouchableOpacity style={[styles.pendingBtnLeft, { backgroundColor: '#10b981' }]} onPress={() => onApprove(booking.id, 'Completed')}>
-                  {updatingBookingId === booking.id && updatingBookingAction === 'approve' ? <ActivityIndicator color="#fff" /> : <Text style={styles.splitBtnText}>{t('mark_completed')}</Text>}
+                <TouchableOpacity style={[styles.pendingBtnLeft, { backgroundColor: colors.success }]} onPress={() => onApprove(booking.id, 'Completed')}>
+                  {updatingBookingId === booking.id && updatingBookingAction === 'approve' ? <ActivityIndicator color={colors.white} /> : <Text style={styles.splitBtnText}>{t('mark_completed')}</Text>}
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.pendingBtnRight, { backgroundColor: '#ef4444' }]} onPress={() => onReject(booking.id, 'No Show')}>
-                  {updatingBookingId === booking.id && updatingBookingAction === 'reject' ? <ActivityIndicator color="#fff" /> : <Text style={styles.splitBtnText}>{t('mark_no_show')}</Text>}
+                <TouchableOpacity style={[styles.pendingBtnRight, { backgroundColor: colors.danger }]} onPress={() => onReject(booking.id, 'No Show')}>
+                  {updatingBookingId === booking.id && updatingBookingAction === 'reject' ? <ActivityIndicator color={colors.white} /> : <Text style={styles.splitBtnText}>{t('mark_no_show')}</Text>}
                 </TouchableOpacity>
               </>
             )}

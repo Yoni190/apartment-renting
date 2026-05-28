@@ -1,18 +1,17 @@
 import React from 'react'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { Text, View, TouchableOpacity } from 'react-native'
-import { Ionicons } from '@expo/vector-icons' // optional icons
+import { Ionicons } from '@expo/vector-icons'
 import LoginScreen from './LoginScreen/LoginScreen'
 import RegisterScreen from './RegisterScreen/RegisterScreen'
 import ProfileScreen from './ProfileScreen/ProfileScreen'
 import HomeScreen from './HomeScreen/HomeScreen'
-// import RequestedToursScreen from './RequestedToursScreen/RequestedToursScreen'
-// import SearchScreen from './SearchScreen/SearchScreen'
 import { MyTours } from './TourScreen/TourScreen'
 import MessagesScreen from './MessagesScreen/MessagesScreen'
 import MessageListScreen from './MessageListScreen/MessageListScreen'
 import FavouritesScreen from './FavouritesScreen/FavouritesScreen'
 import SearchScreen from './SearchScreen/SearchScreen'
+import { colors } from '../theme'
 
 const Tab = createBottomTabNavigator()
 
@@ -23,7 +22,7 @@ const HomeTabs = () => {
         headerShown: false,
         tabBarShowLabel: false,
         tabBarStyle: {
-          backgroundColor: '#9fc5f8',
+          backgroundColor: colors.primary,
           borderTopWidth: 0,
           elevation: 10,
           height: 60,

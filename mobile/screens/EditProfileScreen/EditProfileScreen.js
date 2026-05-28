@@ -7,6 +7,7 @@ import axios from 'axios'
 import { Eye, EyeClosed } from 'lucide-react-native'
 import Header from '../../components/Header'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { colors, spacing, radius, shadows, typography } from '../../theme'
 
 const EditProfileScreen = () => {
   const navigation = useNavigation()
@@ -30,7 +31,6 @@ const EditProfileScreen = () => {
     const fieldErrors = {}
 
     if (!name.trim()) fieldErrors.name = 'Name is required'
-    // simple email regex
     const emailRegex = /^\S+@\S+\.\S+$/
     if (!email.trim() || !emailRegex.test(email)) fieldErrors.email = 'Valid email is required'
 
@@ -51,7 +51,6 @@ const EditProfileScreen = () => {
 
 
 
-
   useEffect(() => {
     const getUser = async () => {
       const access_token = await SecureStore.getItemAsync("token")
@@ -59,7 +58,7 @@ const EditProfileScreen = () => {
 
       try {
         setLoading(true)
-        const response = await axios.get(`${API_URL}/user`, {
+        const response = await axios.get(`${API_URL}/api/user`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${access_token}`
@@ -69,7 +68,6 @@ const EditProfileScreen = () => {
         setUser(u)
   setName(u.name ?? '')
   setEmail(u.email ?? '')
-  // backend returns phone_number
   setPhone(u.phone_number ?? '')
       } catch (error) {
         console.log(error?.response ?? error)
@@ -83,7 +81,6 @@ const EditProfileScreen = () => {
 
   const handleUpdate = async () => {
     setErrors({})
-    // client-side validation
     if (!validate()) return
     const access_token = await SecureStore.getItemAsync('token')
     if (!access_token) {
@@ -93,7 +90,6 @@ const EditProfileScreen = () => {
 
     try {
       setLoading(true)
-      // build payload; include password only when provided
   const payload = { name, email, phone_number: phone }
       if (password.trim()) {
         payload.password = password
@@ -101,10 +97,9 @@ const EditProfileScreen = () => {
         payload.current_password = currentPassword
       }
 
-      // try PATCH first (some backends require PATCH for updates)
       let response
       try {
-        response = await axios.patch(`${API_URL}/user`, payload, {
+        response = await axios.patch(`${API_URL}/api/user`, payload, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${access_token}`
@@ -113,9 +108,8 @@ const EditProfileScreen = () => {
       } catch (err) {
         const respErr = err?.response
         console.log('Patch attempt failed:', respErr?.status, respErr?.data)
-        // fallback: if PATCH not allowed, try POST with method override header
         if (respErr?.status === 405 || respErr?.status === 419) {
-          response = await axios.post(`${API_URL}/user`, payload, {
+          response = await axios.post(`${API_URL}/api/user`, payload, {
             headers: {
               Accept: 'application/json',
               Authorization: `Bearer ${access_token}`,
@@ -128,13 +122,11 @@ const EditProfileScreen = () => {
       }
 
       const data = response.data ?? {}
-      // backend might return { user: {...} } or user object directly
   const updatedUser = data.user ?? data
   setUser(updatedUser)
   setName(updatedUser.name ?? '')
   setEmail(updatedUser.email ?? '')
   setPhone(updatedUser.phone_number ?? '')
-      // clear password fields after successful update
       setPassword('')
       setPasswordConfirmation('')
       setShowPasswordFields(false)
@@ -172,7 +164,7 @@ const EditProfileScreen = () => {
             try {
               setLoading(true)
               try {
-                const response = await axios.delete(`${API_URL}/user`, {
+                const response = await axios.delete(`${API_URL}/api/user`, {
                   headers: {
                     Accept: 'application/json',
                     Authorization: `Bearer ${access_token}`
@@ -183,8 +175,7 @@ const EditProfileScreen = () => {
                 const respDel = errDel?.response
                 console.log('Delete attempt failed:', respDel?.status, respDel?.data)
                 if (respDel?.status === 405 || respDel?.status === 419) {
-                  // try POST with method override
-                  await axios.post(`${API_URL}/user`, {}, {
+                  await axios.post(`${API_URL}/api/user`, {}, {
                     headers: {
                       Accept: 'application/json',
                       Authorization: `Bearer ${access_token}`,
@@ -215,7 +206,6 @@ const EditProfileScreen = () => {
     )
   }
 
-  // don't render inputs until we tried to load the user
   if (user === null) {
     return (
       <View style={styles.container}>
@@ -225,7 +215,7 @@ const EditProfileScreen = () => {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#f9f9f9" }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       <Header title="Edit Profile" />
     <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
       {errors?.message && <Text style={styles.errorText}>{errors.message}</Text>}
@@ -234,7 +224,7 @@ const EditProfileScreen = () => {
         style={styles.textInput}
         value={name}
         onChangeText={setName}
-        placeholderTextColor="#999"
+        placeholderTextColor={colors.textMuted}
       />
       {errors?.errors?.name && <Text style={styles.errorText}>{errors.errors.name}</Text>}
 
@@ -243,7 +233,7 @@ const EditProfileScreen = () => {
         style={styles.textInput}
         value={email}
         onChangeText={setEmail}
-        placeholderTextColor="#999"
+        placeholderTextColor={colors.textMuted}
         keyboardType="email-address"
         autoCapitalize="none"
       />
@@ -254,29 +244,29 @@ const EditProfileScreen = () => {
         style={styles.textInput}
         value={phone}
         onChangeText={setPhone}
-        placeholderTextColor="#999"
+        placeholderTextColor={colors.textMuted}
         keyboardType="phone-pad"
       />
       {errors?.errors?.phone && <Text style={styles.errorText}>{errors.errors.phone}</Text>}
 
-      <TouchableOpacity onPress={() => setShowPasswordFields(prev => !prev)} style={{ marginTop: 12 }}>
-        <Text style={[styles.linkText || { color: '#0066CC', fontWeight: '600' }]}>{showPasswordFields ? 'Cancel password change' : 'Change password'}</Text>
+      <TouchableOpacity onPress={() => setShowPasswordFields(prev => !prev)} style={{ marginTop: spacing.md }}>
+        <Text style={[styles.linkText || { color: colors.primary, fontWeight: '600' }]}>{showPasswordFields ? 'Cancel password change' : 'Change password'}</Text>
       </TouchableOpacity>
 
       {showPasswordFields && (
         <>
-          <Text style={styles.subTitle || { fontSize: 16, fontWeight: '500', marginTop: 10 }}>Change password</Text>
+          <Text style={styles.subTitle || { fontSize: 16, fontWeight: '500', marginTop: spacing.md }}>Change password</Text>
           <View style={[styles.passwordContainer, { position: 'relative' }]}>
             <TextInput
               placeholder="Current Password"
               style={[styles.textInput, { flex: 1, marginBottom: 0 }]}
               value={currentPassword}
               onChangeText={setCurrentPassword}
-              placeholderTextColor="#999"
+              placeholderTextColor={colors.textMuted}
               secureTextEntry={!showCurrentPassword}
             />
             <TouchableOpacity onPress={() => setShowCurrentPassword(prev => !prev)} style={styles.eyeButton}>
-              {showCurrentPassword ? <Eye color="#666" /> : <EyeClosed color="#666" />}
+              {showCurrentPassword ? <Eye color={colors.textSecondary} /> : <EyeClosed color={colors.textSecondary} />}
             </TouchableOpacity>
           </View>
           {errors?.errors?.current_password && <Text style={styles.errorText}>{errors.errors.current_password}</Text>}
@@ -287,11 +277,11 @@ const EditProfileScreen = () => {
               style={[styles.textInput, { flex: 1, marginBottom: 0 }]}
               value={password}
               onChangeText={setPassword}
-              placeholderTextColor="#999"
+              placeholderTextColor={colors.textMuted}
               secureTextEntry={!showNewPassword}
             />
             <TouchableOpacity onPress={() => setShowNewPassword(prev => !prev)} style={styles.eyeButton}>
-              {showNewPassword ? <Eye color="#666" /> : <EyeClosed color="#666" />}
+              {showNewPassword ? <Eye color={colors.textSecondary} /> : <EyeClosed color={colors.textSecondary} />}
             </TouchableOpacity>
           </View>
           {errors?.errors?.password && <Text style={styles.errorText}>{errors.errors.password}</Text>}
@@ -302,11 +292,11 @@ const EditProfileScreen = () => {
               style={[styles.textInput, { flex: 1, marginBottom: 0 }]}
               value={passwordConfirmation}
               onChangeText={setPasswordConfirmation}
-              placeholderTextColor="#999"
+              placeholderTextColor={colors.textMuted}
               secureTextEntry={!showConfirmPassword}
             />
             <TouchableOpacity onPress={() => setShowConfirmPassword(prev => !prev)} style={styles.eyeButton}>
-              {showConfirmPassword ? <Eye color="#666" /> : <EyeClosed color="#666" />}
+              {showConfirmPassword ? <Eye color={colors.textSecondary} /> : <EyeClosed color={colors.textSecondary} />}
             </TouchableOpacity>
           </View>
           {errors?.errors?.password_confirmation && (
@@ -316,11 +306,11 @@ const EditProfileScreen = () => {
       )}
 
       <TouchableOpacity style={[styles.btn, loading && { opacity: 0.6 }]} onPress={handleUpdate} disabled={loading}>
-        {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnText}>Save</Text>}
+        {loading ? <ActivityIndicator color={colors.white} /> : <Text style={styles.btnText}>Save</Text>}
       </TouchableOpacity>
 
-      <TouchableOpacity style={[styles.deleteBtn ?? { marginTop: 12, padding: 12, alignItems: 'center' }, loading && { opacity: 0.6 }]} onPress={handleDelete} disabled={loading}>
-        <Text style={styles.deleteBtnText ?? { color: '#b91c1c', fontWeight: '600' }}>Delete Account</Text>
+      <TouchableOpacity style={[styles.deleteBtn ?? { marginTop: spacing.md, padding: spacing.md, alignItems: 'center' }, loading && { opacity: 0.6 }]} onPress={handleDelete} disabled={loading}>
+        <Text style={styles.deleteBtnText ?? { color: colors.danger, fontWeight: '600' }}>Delete Account</Text>
       </TouchableOpacity>
     </ScrollView>
     </SafeAreaView>

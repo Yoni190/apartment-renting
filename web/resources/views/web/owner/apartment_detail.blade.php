@@ -21,16 +21,16 @@ $daysMap = [
             {{-- Image Gallery --}}
             <div class="mb-3">
                 @if($listing->images && count($listing->images) > 0)
-                    <div style="height:350px; overflow:hidden; border-radius:15px;">
+                    <div class="rounded-xl overflow-hidden h-350">
                         <img src="{{ url('/storage/' . $listing->images[0]->path) }}"
-                             style="width:100%; height:100%; object-fit:cover;">
+                             class="w-100 h-100 object-fit-cover">
                     </div>
 
                     {{-- Thumbnails --}}
-                    <div class="d-flex mt-2" style="gap:10px; overflow-x:auto;">
+                    <div class="d-flex mt-2 gap-2 overflow-x-auto">
                         @foreach($listing->images as $image)
                             <img src="{{ url('/storage/' . $image->path) }}"
-                                 style="width:80px; height:60px; object-fit:cover; border-radius:8px;">
+                                 class="object-fit-cover rounded" width="80" height="60">
                         @endforeach
                     </div>
                 @else
@@ -43,7 +43,7 @@ $daysMap = [
             <h2 class="fw-bold">{{ $listing->title }}</h2>
             <p class="text-muted">{{ $listing->address }}</p>
 
-            {{-- Description (optional if exists) --}}
+            {{-- Description --}}
             @if(isset($listing->description))
                 <div class="mt-3">
                     <h5>Description</h5>
@@ -55,7 +55,7 @@ $daysMap = [
 
         {{-- RIGHT: Booking / Price Card --}}
         <div class="col-md-4">
-            <div class="card shadow-sm" style="border-radius:15px;">
+            <div class="card shadow-sm rounded-xl">
                 <div class="card-body">
 
                     <h4 class="fw-bold mb-3">
@@ -63,18 +63,15 @@ $daysMap = [
                         <span class="text-muted fs-6">/ month</span>
                     </h4>
 
-                    {{-- Action Button --}}
                     <a href="{{ route('apartment.edit', $listing) }}"
                        class="btn btn-primary w-100 mb-2">
                         Edit Listing
                     </a>
 
-                    {{-- Delete Listing --}}
                     <form method="POST" action="{{ route('apartment.destroy', $listing->id) }}">
                         @csrf
                         @method('DELETE')
 
-                        {{-- Delete Listing Trigger --}}
                         <button type="button"
                                 class="btn btn-danger w-100 mb-2"
                                 data-bs-toggle="modal"
@@ -92,7 +89,7 @@ $daysMap = [
             </div>
         </div>
 
-        <div class="card shadow-sm mt-3" style="border-radius:15px;">
+        <div class="card shadow-sm mt-3 rounded-xl">
             <div class="card-body">
 
                 <h5 class="fw-bold mb-3">Set Open Hours</h5>
@@ -105,11 +102,10 @@ $daysMap = [
                     @if(isset($grouped) && count($grouped) > 0)
 
                         @foreach($grouped as $row)
-                            <div class="schedule-row border rounded p-3 mb-3" style="border-radius:12px; background:#f9fbfd;">
+                            <div class="border rounded p-3 mb-3 bg-light">
 
                                 <div class="row g-2">
 
-                                    {{-- FROM DAY --}}
                                     <div class="col-6">
                                         <label class="form-label small text-muted">From Day</label>
                                         <select name="days_from[]" class="form-select">
@@ -122,7 +118,6 @@ $daysMap = [
                                         </select>
                                     </div>
 
-                                    {{-- TO DAY --}}
                                     <div class="col-6">
                                         <label class="form-label small text-muted">To Day</label>
                                         <select name="days_to[]" class="form-select">
@@ -135,14 +130,12 @@ $daysMap = [
                                         </select>
                                     </div>
 
-                                    {{-- START TIME --}}
                                     <div class="col-6">
                                         <label class="form-label small text-muted">Open Time</label>
                                         <input type="time" name="time_from[]" class="form-control"
                                             value="{{ $row['start_time'] }}">
                                     </div>
 
-                                    {{-- END TIME --}}
                                     <div class="col-6">
                                         <label class="form-label small text-muted">Close Time</label>
                                         <input type="time" name="time_to[]" class="form-control"
@@ -155,8 +148,7 @@ $daysMap = [
 
                     @else
 
-                        {{-- fallback empty row --}}
-                        <div class="schedule-row border rounded p-3 mb-3" style="border-radius:12px; background:#f9fbfd;">
+                        <div class="border rounded p-3 mb-3 bg-light">
                             <div class="row g-2">
                                 <div class="col-6">
                                     <label class="form-label small text-muted">From Day</label>
@@ -190,8 +182,6 @@ $daysMap = [
 
                     </div>
 
-
-                    {{-- SUBMIT --}}
                     <button type="submit" class="btn btn-primary w-100">
                         Save Open Hours
                     </button>
@@ -204,35 +194,22 @@ $daysMap = [
 
     <div class="modal fade" id="deleteModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow" style="border-radius:15px;">
+        <div class="modal-content border-0 shadow rounded-xl">
 
             <div class="modal-body text-center p-4">
 
-                {{-- Icon --}}
                 <div class="mb-3">
-                    <div style="
-                        width:70px;
-                        height:70px;
-                        background:#ffe5e5;
-                        border-radius:50%;
-                        display:flex;
-                        align-items:center;
-                        justify-content:center;
-                        margin:auto;
-                    ">
-                        <i class="bi bi-trash-fill text-danger" style="font-size:28px;"></i>
+                    <div class="icon-circle bg-danger-subtle">
+                        <i class="bi bi-trash-fill text-danger fs-2"></i>
                     </div>
                 </div>
 
-                {{-- Title --}}
                 <h5 class="fw-bold mb-2">Delete Listing?</h5>
 
-                {{-- Message --}}
-                <p class="text-muted mb-4" style="font-size:14px;">
+                <p class="text-muted mb-4 small">
                     This action cannot be undone. All related bookings and data will be permanently removed.
                 </p>
 
-                {{-- Actions --}}
                 <div class="d-flex gap-2">
                     <button type="button" class="btn btn-light w-50" data-bs-dismiss="modal">
                         Cancel

@@ -2,138 +2,95 @@
 
 @section('title', 'Gojoye - Dashboard')
 
-@push('styles')
-
-<style>
-    .add-btn {
-        background: linear-gradient(135deg, #46c0e5ff, #33cfeaff);
-        color: #fff;
-        padding: 10px 18px;
-        border-radius: 999px;
-        font-weight: 500;
-        font-size: 14px;
-        text-decoration: none;
-        box-shadow: 0 6px 14px rgba(79, 70, 229, 0.25);
-        transition: all 0.25s ease;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-    }
-
-    .add-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 20px rgba(79, 70, 229, 0.35);
-        color: #fff;
-    }
-
-    .add-btn:active {
-        transform: scale(0.97);
-    }
-</style>
-
-@endpush
-
 @section('content')
 <div class="container mt-4">
-    <h2>Owner Dashboard</h2>
+    <h2 class="fw-bold mb-4">Owner Dashboard</h2>
 
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-lg-6">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h4 class="mb-0">Your Listings</h4>
-                <a href="{{ route('apartment-create') }}" class="add-btn">
-                    + Add Apartment
+                <a href="{{ route('apartment-create') }}" class="btn btn-primary rounded-pill">
+                    <i class="bi bi-plus-circle"></i> Add Apartment
                 </a>
             </div>
             <form method="GET" class="mb-3">
                 <div class="input-group">
                     <input type="text" name="q" value="{{ $q ?? '' }}" class="form-control" placeholder="Search bookings by listing or client" />
-                    <button class="btn btn-outline-secondary" type="submit">Search</button>
+                    <button class="btn btn-outline-secondary" type="submit">
+                        <i class="bi bi-search"></i> Search
+                    </button>
                 </div>
             </form>
             @foreach($listings as $listing)
-                <a href="{{ route('listing.details', $listing) }}" style="text-decoration: none; color: inherit;">
-                    <div class="card mb-2">
+                <a href="{{ route('listing.details', $listing) }}" class="text-decoration-none text-reset">
+                    <div class="apartment-card card mb-3">
+                        @if($listing->images && count($listing->images) > 0)
+                            <img src="{{ url('/storage/' . $listing->images[0]->path) }}" class="card-img-top object-fit-cover" height="180" alt="{{ $listing->title }}">
+                        @else
+                            <img src="https://via.placeholder.com/400x200?text=No+Image" class="card-img-top object-fit-cover" height="180" alt="No image">
+                        @endif
                         <div class="card-body">
-                            {{-- Image --}}
-                            <div style="width:100%; height:180px; overflow:hidden; border-radius:10px; margin-bottom:10px;">
-                                @if($listing->images && count($listing->images) > 0)
-                                    <img src="{{ url('/storage/' . $listing->images[0]->path) }}"
-                                        style="width:100%; height:100%; object-fit:cover;">
-                                @else
-                                    <img src="https://via.placeholder.com/400x200?text=No+Image"
-                                        style="width:100%; height:100%; object-fit:cover;">
-                                @endif
-                            </div>
-                            <h5>{{ $listing->title }}</h5>
-                            <p>{{ $listing->address }}</p>
-                            <a href="{{ route('bookings.create', $listing) }}" class="btn btn-sm btn-outline-primary">Request test booking (open form)</a>
+                            <h5 class="card-title">{{ $listing->title }}</h5>
+                            <p class="card-text text-muted small">{{ $listing->address }}</p>
+                            <a href="{{ route('bookings.create', $listing) }}" class="btn btn-sm btn-outline-primary">Request test booking</a>
                         </div>
                     </div>
                 </a>
             @endforeach
         </div>
 
-        <div class="col-md-6">
+        <div class="col-lg-6">
             <h4>Bookings</h4>
             @if($bookings->isEmpty())
-                <p>No bookings yet.</p>
+                <p class="text-muted">No bookings yet.</p>
             @else
                 <div class="list-group">
                 @foreach($bookings as $b)
-                    <a href="{{ route('owner.listing.show', ['apartment' => $b->listing->id, 'booking_id' => $b->id]) }}" class="list-group-item list-group-item-action mb-2">
-                        <div class="d-flex">
-                            <div style="width:100px; height:80px; overflow:hidden; flex-shrink:0; margin-right:12px;">
-                                @if($b->listing->images && count($b->listing->images)>0)
-                                    <img src="{{ url('/storage/' . $b->listing->images[0]->path) }}" style="width:100%; height:100%; object-fit:cover;" />
-                                @endif
-                            </div>
-                            <div class="flex-grow-1">
-                                <div class="d-flex justify-content-between">
-                                    <strong>{{ $b->listing->title }}</strong>
-                                    <small>{{ ucfirst($b->status) }}</small>
+                    <div class="list-group-item list-group-item-action mb-2 rounded-xl">
+                        <div class="d-flex gap-3">
+                            @if($b->listing->images && count($b->listing->images) > 0)
+                                <img src="{{ url('/storage/' . $b->listing->images[0]->path) }}" class="object-fit-cover rounded" width="80" height="80" alt="">
+                            @endif
+                            <div class="flex-grow-1 min-w-0">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <strong class="text-truncate">{{ $b->listing->title }}</strong>
+                                    <span class="badge status-{{ $b->status }}">{{ ucfirst($b->status) }}</span>
                                 </div>
-                                <div class="text-muted">{{ $b->listing->address }}</div>
-                                <div class="mt-2">
-                                    Requested: {{ \Carbon\Carbon::parse($b->scheduled_at)->toDayDateTimeString() }}
+                                <div class="text-muted small text-truncate">{{ $b->listing->address }}</div>
+                                <div class="small mt-1">
+                                    <i class="bi bi-calendar3"></i> {{ \Carbon\Carbon::parse($b->scheduled_at)->toDayDateTimeString() }}
                                 </div>
-                                <div class="text-muted">Client: {{ $b->user->name }} — {{ $b->user->email }}</div>
+                                <div class="text-muted small">Client: {{ $b->user->name }} &mdash; {{ $b->user->email }}</div>
                                 @if($b->status === \App\Models\TourBooking::STATUS_PENDING)
-                                    <div class="mt-3 d-flex gap-2">
-                                        {{-- Accept --}}
+                                    <div class="mt-2 d-flex gap-2">
                                         <form method="POST" action="{{ route('owner.bookings.accept', $b->id) }}">
                                             @csrf
                                             @method('PATCH')
-                                            <button class="btn btn-sm btn-success">
-                                                Accept
-                                            </button>
+                                            <button class="btn btn-sm btn-success">Accept</button>
                                         </form>
-
-                                        {{-- Reject --}}
                                         <form method="POST" action="{{ route('owner.bookings.reject', $b->id) }}">
                                             @csrf
                                             @method('PATCH')
-                                            <button class="btn btn-sm btn-danger">
-                                                Reject
-                                            </button>
+                                            <button class="btn btn-sm btn-danger">Reject</button>
                                         </form>
                                     </div>
                                 @endif
                             </div>
                         </div>
-                    </a>
+                    </div>
                 @endforeach
                 </div>
             @endif
 
             <h4 class="mt-4">Notifications</h4>
             @if($notifications->isEmpty())
-                <p>No notifications.</p>
+                <p class="text-muted">No notifications.</p>
             @else
                 <ul class="list-group">
                     @foreach($notifications as $n)
                         <li class="list-group-item {{ $n->read_at ? '' : 'fw-bold' }}">
-                            <div>{{ data_get($n->data, 'listing_title') }} — {{ data_get($n->data, 'scheduled_at') }}</div>
+                            <div>{{ data_get($n->data, 'listing_title') }} &mdash; {{ data_get($n->data, 'scheduled_at') }}</div>
                             <small class="text-muted">Received {{ $n->created_at->diffForHumans() }}</small>
                         </li>
                     @endforeach
@@ -142,5 +99,4 @@
         </div>
     </div>
 </div>
-
 @endsection

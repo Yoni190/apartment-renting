@@ -259,7 +259,7 @@
             </div>
             @endif
 
-            <div class="card p-3 mt-3" style="border-radius:15px;">
+            <div class="card p-3 mt-3 rounded-xl">
                 <h6 class="fw-bold mb-3">{{ __('Available Tour Times') }}</h6>
 
                 @php

@@ -4,6 +4,7 @@ import { useNavigation, useRoute } from '@react-navigation/native'
 import axios from 'axios'
 import * as SecureStore from "expo-secure-store"
 import { Eye, EyeClosed } from 'lucide-react-native'
+import { colors } from '../../theme'
 import styles from './RegisterScreenStyle'
 import Header from '../../components/Header'
 
@@ -35,7 +36,7 @@ const RegisterScreen = () => {
         setErrors({})
         setLoading(true)
         try {
-      const response = await axios.post(`${API_URL}/register`, {
+      const response = await axios.post(`${API_URL}/api/register`, {
         fName,
         lName,
         email,
@@ -57,7 +58,7 @@ const RegisterScreen = () => {
             await SecureStore.setItemAsync('token', access_token)
             // persist user token then fetch the user to store user_id and navigate
             try {
-              const userRes = await axios.get(`${API_URL}/user`, {
+              const userRes = await axios.get(`${API_URL}/api/user`, {
                 headers: { Accept: 'application/json', Authorization: `Bearer ${access_token}` }
               })
               const user = userRes.data
@@ -107,14 +108,14 @@ const RegisterScreen = () => {
                 <TextInput 
                     placeholder='First Name'
                     style={styles.textInput}
-                    placeholderTextColor="#999"
+                    placeholderTextColor={colors.textMuted}
                     value={fName}
                     onChangeText={(text) => setFName(text)}
                 />
                 <TextInput 
                     placeholder='Last Name'
                     style={styles.textInput}
-                    placeholderTextColor="#999"
+                    placeholderTextColor={colors.textMuted}
                     value={lName}
                     onChangeText={(text) => setLName(text)}
                 />
@@ -123,7 +124,7 @@ const RegisterScreen = () => {
                 placeholder='Email Address'
                 keyboardType='email-address'
                 style={styles.textInput}
-                placeholderTextColor="#999"
+                placeholderTextColor={colors.textMuted}
                 value={email}
                 onChangeText={(text) => setEmail(text)}
                 autoCapitalize='none'
@@ -136,7 +137,7 @@ const RegisterScreen = () => {
                 placeholder='Phone Number'
                 keyboardType='phone-pad'
                 style={styles.textInput}
-                placeholderTextColor="#999"
+                placeholderTextColor={colors.textMuted}
                 value={phone}
                 onChangeText={(text) => setPhone(text)}
               />
@@ -145,7 +146,7 @@ const RegisterScreen = () => {
                 placeholder='FAN'
                 keyboardType='phone-pad'
                 style={styles.textInput}
-                placeholderTextColor="#999"
+                placeholderTextColor={colors.textMuted}
                 value={fan}
                 onChangeText={(text) => setFAN(text)}
               />
@@ -158,7 +159,7 @@ const RegisterScreen = () => {
                 <TextInput 
                     placeholder='Password'
                     secureTextEntry={passStatus}
-                    placeholderTextColor="#999"
+                    placeholderTextColor={colors.textMuted}
                     value={password}
                     onChangeText={(text) => setPassword(text)}
                 />
@@ -166,7 +167,7 @@ const RegisterScreen = () => {
                     <Text style={styles.errorText}>{errors.errors.password}</Text>
                 )}
                 <TouchableOpacity onPress={() => setPassStatus(!passStatus)}>
-                    {passStatus ? <EyeClosed color="#666" /> : <Eye color="#666" />}
+                    {passStatus ? <EyeClosed color={colors.textSecondary} /> : <Eye color={colors.textSecondary} />}
                 </TouchableOpacity>
             </View>
 
@@ -174,12 +175,12 @@ const RegisterScreen = () => {
                     <TextInput 
                         placeholder='Confirm Password'
                         secureTextEntry={confirmPassStatus}
-                        placeholderTextColor="#999"
+                        placeholderTextColor={colors.textMuted}
                         value={passwordConfirmation}
                         onChangeText={(text) => setPasswordConfirmation(text)}
                     />
                     <TouchableOpacity onPress={() => setConfirmPassStatus(!confirmPassStatus)}>
-                        {confirmPassStatus ? <EyeClosed color="#666" /> : <Eye color="#666" />}
+                        {confirmPassStatus ? <EyeClosed color={colors.textSecondary} /> : <Eye color={colors.textSecondary} />}
                     </TouchableOpacity>
                 </View>
 

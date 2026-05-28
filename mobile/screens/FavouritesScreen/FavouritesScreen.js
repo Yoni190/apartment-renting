@@ -7,6 +7,7 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native'
 import axios from 'axios'
 import * as SecureStore from 'expo-secure-store'
 import ListingCard from '../../components/ListingCard'
+import { colors, spacing, radius, shadows, typography } from '../../theme'
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8000'
 
@@ -26,7 +27,7 @@ const FavouritesScreen = () => {
         return
       }
 
-      const response = await axios.get(`${API_URL}/favorites`, {
+      const response = await axios.get(`${API_URL}/api/favorites`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${token}`
@@ -66,7 +67,7 @@ const FavouritesScreen = () => {
       const token = await SecureStore.getItemAsync('token')
       if (!token) return
       
-      await axios.post(`${API_URL}/apartments/${apartment.id}/favorite`, {}, {
+      await axios.post(`${API_URL}/api/apartments/${apartment.id}/favorite`, {}, {
         headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
       })
       loadFavorites()
@@ -80,7 +81,7 @@ const FavouritesScreen = () => {
       const token = await SecureStore.getItemAsync('token')
       if (!token) return
       
-      await axios.delete(`${API_URL}/apartments/${apartment.id}/favorite`, {
+      await axios.delete(`${API_URL}/api/apartments/${apartment.id}/favorite`, {
         headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
       })
       loadFavorites()
@@ -175,8 +176,8 @@ export default FavouritesScreen
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    paddingTop: 50, // ensure Header (absolute) does not cover content
+    backgroundColor: colors.white,
+    paddingTop: 50,
   },
   loadingContainer: {
     flex: 1,
@@ -185,14 +186,14 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-    marginTop: 20,
+    marginTop: spacing.xl,
   },
   scrollContent: {
-    paddingBottom: 20,
+    paddingBottom: spacing.xl,
   },
   listingsContainer: {
     alignItems: 'center',
-    paddingVertical: 8,
+    paddingVertical: spacing.sm,
   },
   emptyState: {
     flex: 1,
@@ -205,25 +206,24 @@ const styles = StyleSheet.create({
     width: 150,
     height: 150,
     borderRadius: 150 / 2,
-    backgroundColor: '#edfbff',
+    backgroundColor: colors.primaryLight,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom: spacing.xxxl,
   },
   icon: {
     width: 275,
     height: 275,
   },
   title: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 10,
+    ...typography.h3,
+    color: colors.textPrimary,
+    marginBottom: spacing.md,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
     textAlign: 'center',
     lineHeight: 20,
   },
