@@ -177,7 +177,7 @@ const SearchScreen = () => {
                   ]}
                   onPress={() => setPriceFilter(p)}
                 >
-                  <Text style={{ color: priceFilter === p ? colors.white : colors.black }}>{p}</Text>
+                  <Text style={{ color: priceFilter === p ? colors.white : colors.black }}>{t(p)}</Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -221,7 +221,7 @@ const SearchScreen = () => {
         ) : (
         <ScrollView showsVerticalScrollIndicator={false} style={styles.resultsContainer}>
             {loading && (
-            <Text style={{ padding: spacing.xl }}>{t('searching...')}</Text>
+            <Text style={{ padding: spacing.xl }}>{t('searching')}</Text>
             )}
 
             {!loading && results.length === 0 && (

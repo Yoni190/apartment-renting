@@ -62,5 +62,11 @@
   "reject_cancellation": "Reject Cancellation",
   "mark_completed": "Mark as Completed",
   "mark_no_show": "Mark as No Show",
-  "no_results_found": "No results found"
+  "no_results_found": "No results found",
+  "reset": "Reset",
+  "no_listing_found": "No listings found",
+  "low": "Low",
+  "medium": "Medium",
+  "high": "High",
+  "searching": "Searching..."
 }

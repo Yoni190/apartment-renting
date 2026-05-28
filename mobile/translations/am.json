@@ -62,5 +62,11 @@
   "reject_cancellation": "የስረዛ አልቀበል",
   "mark_completed": "ተጠናቋል ብለህ ምልክት አድርግ",
   "mark_no_show": "አልተገኘም ብለህ ምልክት አድርግ",
-  "no_results_found": "ምንም ውጤት አልተገኘም"
+  "no_results_found": "ምንም ውጤት አልተገኘም",
+  "reset": "መመለስ",
+  "no_listing_found": "ምንም ዝርዝር አልተገኘም",
+  "low": "ዝቅተኛ",
+  "medium": "መካከለኛ",
+  "high": "ከፍተኛ",
+  "searching": "እየፈለገ ነው..."
 }

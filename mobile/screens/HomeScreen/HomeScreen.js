@@ -336,11 +336,11 @@ const HomeScreen = () => {
         <View style={{ alignItems: 'center', paddingVertical: spacing.sm }}>
           {loading ? (
             <View style={{ padding: spacing.xxxxl }}>
-              <Text>Loading...</Text>
+              <Text>{t('loading')}</Text>
             </View>
           ) : apartments.length === 0 ? (
             <View style={{ padding: spacing.xxxxl }}>
-              <Text>No listings found</Text>
+              <Text>{t('no_listing_found')}</Text>
             </View>
           ) : (
             apartments.map((a) => {
