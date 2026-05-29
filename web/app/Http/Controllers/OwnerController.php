@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Apartment;
+use App\Models\Location;
 use App\Models\TourBooking;
 use App\Models\ApartmentImage;
 
@@ -70,7 +71,16 @@ class OwnerController extends Controller
             'bedrooms' => 'required|integer|min:0',
             'bathrooms' => 'required|integer|min:0',
             'size' => 'nullable|numeric|min:0',
+            'sub_city' => 'required|string|max:255',
+            'woreda' => 'required|string|max:255',
+            'kebele' => 'required|string|max:255',
             'images.*' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+        ]);
+
+        $location = Location::create([
+            'sub_city' => $request->sub_city,
+            'woreda' => $request->woreda,
+            'kebele' => $request->kebele,
         ]);
 
         $apartment = Apartment::create([
@@ -83,6 +93,7 @@ class OwnerController extends Controller
             'bathrooms' => $request->bathrooms,
             'size' => $request->size,
             'is_featured' => 0,
+            'location_id' => $location->id,
             'user_id' => auth()->user()->id,
         ]);
 

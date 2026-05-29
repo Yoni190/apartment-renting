@@ -20,7 +20,8 @@ class Apartment extends Model
         'is_featured',
         'size',
         'meta',
-        'user_id'
+        'user_id',
+        'location_id'
     ];
 
     protected $casts = [
