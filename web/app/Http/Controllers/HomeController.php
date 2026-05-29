@@ -48,7 +48,7 @@ class HomeController extends Controller
         ]);
 
         try {
-            $response = Http::timeout(5)->post(config('services.national_id.url') . '/api/verify-national-id', [
+            $response = Http::post(config('services.national_id.url') . '/api/verify-national-id', [
                 'national_id' => $request->fan,
                 'first_name'  => $request->f_name,
                 'last_name'   => $request->l_name,
@@ -59,6 +59,7 @@ class HomeController extends Controller
                 return back()->with('error', 'Registration failed: ' . $reason);
             }
         } catch (\Exception $e) {
+            \Log::error('National ID API Error: ' . $e->getMessage());
             return back()->with('error', 'Registration is temporarily unavailable. Please try again later.');
         }
 
@@ -89,7 +90,7 @@ class HomeController extends Controller
         ]);
 
         try {
-            $response = Http::timeout(5)->post(config('services.national_id.url') . '/api/verify-national-id', [
+            $response = Http::post(config('services.national_id.url') . '/api/verify-national-id', [
                 'national_id' => $request->fan,
                 'first_name'  => $request->f_name,
                 'last_name'   => $request->l_name,
@@ -100,6 +101,7 @@ class HomeController extends Controller
                 return back()->with('error', 'Registration failed: ' . $reason);
             }
         } catch (\Exception $e) {
+            \Log::error('National ID API Error2: ' . $e->getMessage());
             return back()->with('error', 'Registration is temporarily unavailable. Please try again later.');
         }
         
