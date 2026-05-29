@@ -83,4 +83,9 @@ class Apartment extends Model
         return $this->hasOne(ApartmentImage::class)->latest();
     }
 
+    public function location()
+    {
+        return $this->belongsTo(Location::class);
+    }
+
 }
