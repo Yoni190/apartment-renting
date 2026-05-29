@@ -43,6 +43,48 @@ $daysMap = [
             <h2 class="fw-bold">{{ $listing->title }}</h2>
             <p class="text-muted">{{ $listing->address }}</p>
 
+            {{-- Location Details Section --}}
+            @if($listing->location)
+            <div class="mt-3 p-3 bg-light rounded">
+                <h5><i class="bi bi-geo-alt-fill me-2"></i>Location Details</h5>
+                <div class="row mt-3">
+                    <div class="col-md-4 mb-2">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-building me-2 text-primary"></i>
+                            <div>
+                                <small class="text-muted d-block">Sub City</small>
+                                <strong>{{ $listing->location->sub_city ?? 'Not specified' }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-pin-map-fill me-2 text-primary"></i>
+                            <div>
+                                <small class="text-muted d-block">Woreda</small>
+                                <strong>{{ $listing->location->woreda ?? 'Not specified' }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-house-door-fill me-2 text-primary"></i>
+                            <div>
+                                <small class="text-muted d-block">Kebele</small>
+                                <strong>{{ $listing->location->kebele ?? 'Not specified' }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @if($listing->location->address && $listing->location->address != $listing->address)
+                <div class="mt-2 pt-2 border-top">
+                    <small class="text-muted">Full Address:</small>
+                    <p class="mb-0">{{ $listing->location->address }}</p>
+                </div>
+                @endif
+            </div>
+            @endif
+
             {{-- Description --}}
             @if(isset($listing->description))
                 <div class="mt-3">
