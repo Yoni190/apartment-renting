@@ -93,7 +93,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/listings/{listing}', [ApartmentController::class, 'details'])->name('listing.details');
 
     Route::get('/edit-apartment/{apartment}', [OwnerController::class, 'editApartmentView'])->name('apartment.edit');
-    Route::post('/edit-apartment/{apartment}', [OwnerController::class, 'editApartment'])->name('apartment.update');
+    Route::put('/edit-apartment/{apartment}', [OwnerController::class, 'editApartment'])->name('apartment.update');
     Route::delete('/apartment/{apartment}', [OwnerController::class, 'destroy'])
     ->name('apartment.destroy');
 

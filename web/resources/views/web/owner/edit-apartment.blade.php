@@ -22,6 +22,41 @@
                 </div>
             </div>
 
+            <!-- Location Details Section -->
+            <div class="mb-3">
+                <label class="form-label fw-bold">Location Details</label>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Sub City</label>
+                        <select name="sub_city" class="form-control" required>
+                            <option value="">Select Sub City</option>
+                            <option value="Addis Ketema" {{ old('sub_city', $apartment->location->sub_city ?? '') == 'Addis Ketema' ? 'selected' : '' }}>Addis Ketema</option>
+                            <option value="Akaky Kaliti" {{ old('sub_city', $apartment->location->sub_city ?? '') == 'Akaky Kaliti' ? 'selected' : '' }}>Akaky Kaliti</option>
+                            <option value="Arada" {{ old('sub_city', $apartment->location->sub_city ?? '') == 'Arada' ? 'selected' : '' }}>Arada</option>
+                            <option value="Bole" {{ old('sub_city', $apartment->location->sub_city ?? '') == 'Bole' ? 'selected' : '' }}>Bole</option>
+                            <option value="Gulele" {{ old('sub_city', $apartment->location->sub_city ?? '') == 'Gulele' ? 'selected' : '' }}>Gulele</option>
+                            <option value="Kirkos" {{ old('sub_city', $apartment->location->sub_city ?? '') == 'Kirkos' ? 'selected' : '' }}>Kirkos</option>
+                            <option value="Kolfe Keranio" {{ old('sub_city', $apartment->location->sub_city ?? '') == 'Kolfe Keranio' ? 'selected' : '' }}>Kolfe Keranio</option>
+                            <option value="Lideta" {{ old('sub_city', $apartment->location->sub_city ?? '') == 'Lideta' ? 'selected' : '' }}>Lideta</option>
+                            <option value="Nifas Silk-Lafto" {{ old('sub_city', $apartment->location->sub_city ?? '') == 'Nifas Silk-Lafto' ? 'selected' : '' }}>Nifas Silk-Lafto</option>
+                            <option value="Yeka" {{ old('sub_city', $apartment->location->sub_city ?? '') == 'Yeka' ? 'selected' : '' }}>Yeka</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Woreda</label>
+                        <input type="text" name="woreda" class="form-control" 
+                               value="{{ old('woreda', $apartment->location->woreda ?? '') }}" 
+                               placeholder="e.g., Woreda 03" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Kebele</label>
+                        <input type="text" name="kebele" class="form-control" 
+                               value="{{ old('kebele', $apartment->location->kebele ?? '') }}" 
+                               placeholder="e.g., Kebele 16/17" required>
+                    </div>
+                </div>
+            </div>
+
             <div class="row mb-3">
                 <div class="col-md-4 mb-3 mb-md-0">
                     <label class="form-label">Price</label>

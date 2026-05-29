@@ -122,10 +122,12 @@ class OwnerController extends Controller
 
     public function editApartment(Request $request, Apartment $apartment)
     {
-        
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'address' => 'required|string|max:255',
+            'sub_city' => 'required|string|max:255',
+            'woreda' => 'required|string|max:255',
+            'kebele' => 'required|string|max:255',
             'price' => 'required|numeric',
             'bedrooms' => 'required|integer',
             'bathrooms' => 'required|integer',
@@ -134,25 +136,48 @@ class OwnerController extends Controller
             'images.*' => 'image|mimes:jpg,jpeg,png|max:2048'
         ]);
 
-        
-        $apartment->update($validated);
+        // Update apartment basic info
+        $apartment->update([
+            'title' => $validated['title'],
+            'address' => $validated['address'],
+            'price' => $validated['price'],
+            'bedrooms' => $validated['bedrooms'],
+            'bathrooms' => $validated['bathrooms'],
+            'size' => $validated['size'],
+            'description' => $validated['description'],
+        ]);
 
-        
+        // Update or create location
+        if ($apartment->location) {
+            $apartment->location->update([
+                'sub_city' => $validated['sub_city'],
+                'woreda' => $validated['woreda'],
+                'kebele' => $validated['kebele'],
+                'address' => $validated['address'],
+            ]);
+        } else {
+            $location = Location::create([
+                'sub_city' => $validated['sub_city'],
+                'woreda' => $validated['woreda'],
+                'kebele' => $validated['kebele'],
+                'address' => $validated['address'],
+            ]);
+            $apartment->location_id = $location->id;
+            $apartment->save();
+        }
+
+        // Handle images
         if ($request->hasFile('images')) {
-
-            
+            // Delete old images
             foreach ($apartment->images as $image) {
-                \Storage::delete($image->path);
+                \Storage::disk('public')->delete($image->path);
                 $image->delete();
             }
 
-            
+            // Upload new images
             foreach ($request->file('images') as $file) {
                 $path = $file->store('apartments', 'public');
-
-                $apartment->images()->create([
-                    'path' => $path
-                ]);
+                $apartment->images()->create(['path' => $path]);
             }
         }
 
