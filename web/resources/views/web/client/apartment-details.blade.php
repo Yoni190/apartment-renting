@@ -91,9 +91,28 @@
     <!-- Title -->
     <div class="mb-3">
         <h2 class="fw-bold">{{ $apartment->title }}</h2>
+        
+        {{-- Main address --}}
         <p class="text-muted mb-1">
             <i class="bi bi-geo-alt"></i> {{ $apartment->address }}
         </p>
+        
+        {{-- Detailed location --}}
+        @if($apartment->location)
+            @php
+                $locationParts = [];
+                if($apartment->location->sub_city) $locationParts[] = $apartment->location->sub_city;
+                if($apartment->location->kebele) $locationParts[] = 'Kebele ' . $apartment->location->kebele;
+                if($apartment->location->woreda) $locationParts[] = 'Woreda ' . $apartment->location->woreda;
+            @endphp
+            
+            @if(count($locationParts) > 0)
+            <p class="text-muted small">
+                <i class="bi bi-geo-alt-fill"></i> 
+                {{ implode(' · ', $locationParts) }}
+            </p>
+            @endif
+        @endif
     </div>
 
     <!-- Hero Image -->
