@@ -59,6 +59,17 @@
 
             <div class="row mb-3">
                 <div class="col-md-4 mb-3 mb-md-0">
+                    <label class="form-label">Type</label>
+                    <select name="type" class="form-control" required>
+                        <option value="sale" {{ old('type', $apartment->type) === 'sale' ? 'selected' : '' }}>
+                            Sale
+                        </option>
+                        <option value="rent" {{ old('type', $apartment->type) === 'rent' ? 'selected' : '' }}>
+                            Rent
+                        </option>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3 mb-md-0">
                     <label class="form-label">Price</label>
                     <input type="number" name="price" class="form-control" value="{{ old('price', $apartment->price) }}" required>
                 </div>
@@ -70,14 +81,12 @@
                     <label class="form-label">Bathrooms</label>
                     <input type="number" name="bathrooms" class="form-control" value="{{ old('bathrooms', $apartment->bathrooms) }}" required>
                 </div>
-            </div>
-
-            <div class="row mb-3">
                 <div class="col-md-6">
                     <label class="form-label">Size (m&sup2;)</label>
                     <input type="number" name="size" class="form-control" value="{{ old('size', $apartment->size) }}" required>
                 </div>
             </div>
+
 
             <div class="mb-3">
                 <label class="form-label">Description</label>
