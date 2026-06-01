@@ -43,10 +43,41 @@
                                 <h5 class="card-title fw-bold mb-1">
                                     {{ $apartment->title ?? __('Apartment #') . $favorite->apartment_id }}
                                 </h5>
-                                <p class="text-muted small mb-0">
-                                    <i class="bi bi-geo-alt me-1"></i>
-                                    {{ $apartment->location ?? __('Location not available') }}
-                                </p>
+                                {{-- Detailed location --}}
+                                @if($apartment->location)
+                                    @php
+                                        $locationParts = [];
+
+                                        if($apartment->location->sub_city) {
+                                            $locationParts[] = $apartment->location->sub_city;
+                                        }
+
+                                        if($apartment->location->kebele) {
+                                            $locationParts[] = 'Kebele ' . $apartment->location->kebele;
+                                        }
+
+                                        if($apartment->location->woreda) {
+                                            $locationParts[] = 'Woreda ' . $apartment->location->woreda;
+                                        }
+                                    @endphp
+
+                                    @if(count($locationParts) > 0)
+                                        <p class="text-muted small mb-0">
+                                            <i class="bi bi-geo-alt-fill me-1"></i>
+                                            {{ implode(' · ', $locationParts) }}
+                                        </p>
+                                    @else
+                                        <p class="text-muted small mb-0">
+                                            <i class="bi bi-geo-alt me-1"></i>
+                                            {{ __('Location not available') }}
+                                        </p>
+                                    @endif
+                                @else
+                                    <p class="text-muted small mb-0">
+                                        <i class="bi bi-geo-alt me-1"></i>
+                                        {{ __('Location not available') }}
+                                    </p>
+                                @endif
                             </div>
 
                             <div class="mb-3">
