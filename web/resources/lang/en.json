@@ -269,6 +269,13 @@
   "image_hint": "You can upload multiple images",
 
   "cancel": "Cancel",
-  "submit": "Create Apartment"
+  "submit": "Create Apartment",
+
+  "edit_apartment_title": "Edit Apartment",
+  "edit_apartment": "Edit Apartment",
+  "current_images": "Current Images",
+  "upload_images": "Upload New Images",
+  "image_upload_note": "Uploading new images may replace old ones depending on system logic",
+  "update_apartment": "Update Apartment"
 
 }

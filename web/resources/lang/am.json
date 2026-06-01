@@ -283,5 +283,14 @@
   "image_hint": "ብዙ ምስሎች ማስገባት ይችላሉ",
 
   "cancel": "ሰርዝ",
-  "submit": "አፓርታማ ፍጠር"
+  "submit": "አፓርታማ ፍጠር",
+   "edit_apartment_title": "አፓርታማ አርትዕ",
+  "edit_apartment": "አፓርታማ አርትዕ",
+
+  "current_images": "የአሁኑ ምስሎች",
+  "upload_images": "አዲስ ምስሎች ስቀል",
+  "image_upload_note": "አዲስ ምስሎች መጨመር የቀድሞ ምስሎችን ሊተካ ይችላል (በስርዓቱ አተገባበር መሰረት)",
+
+  "update_apartment": "አፓርታማ አዘምን"
+
 }
