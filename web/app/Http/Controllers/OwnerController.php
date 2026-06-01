@@ -59,7 +59,9 @@ class OwnerController extends Controller
     }
 
     public function addApartmentView() {
-        return view('web.owner.add-apartment');
+        return view('web.owner.add-apartment', [
+            'user' => auth()->user()
+        ]);
     }
 
     public function storeApartment(Request $request) {

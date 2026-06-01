@@ -5,6 +5,17 @@
 @section('content')
 <div class="container mt-4">
     <div class="info-card card p-4 mx-auto mw-800">
+        @php
+            $user = auth()->user();
+        @endphp
+
+        @if(!$user || !$user->subscribed)
+            <div class="alert alert-warning text-center">
+                <h4>Subscription Required</h4>
+                <p>You need an active subscription to add apartments.</p>
+                <a href="{{ route('owner.dashboard') }}" class="btn btn-primary">Go Back</a>
+            </div>
+        @else
         <h3 class="mb-4">Add New Apartment</h3>
 
         <form action="{{ route('apartment.store') }}" method="POST" enctype="multipart/form-data">
@@ -95,6 +106,7 @@
                 <button type="submit" class="btn btn-primary">Create Apartment</button>
             </div>
         </form>
+        @endif
     </div>
 </div>
 @endsection
