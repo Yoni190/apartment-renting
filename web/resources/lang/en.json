@@ -187,8 +187,25 @@
 
   "Can I chat with property owners?": "Can I chat with property owners?",
   "Yes, clients can directly chat with owners after viewing a property.": "Yes, clients can directly chat with owners after viewing a property.",
-
   "Need more help?": "Need more help?",
   "Contact our support team anytime.": "Contact our support team anytime.",
-  "Contact Support": "Contact Support"
+  "Contact Support": "Contact Support",
+  "Gojoye - Dashboard": "Gojoye - Dashboard",
+  "Owner Dashboard": "Owner Dashboard",
+  "Your Listings": "Your Listings",
+  "Add Apartment": "Add Apartment",
+  "Subscribe to Add Apartment": "Subscribe to Add Apartment",
+  "Search bookings by listing or client": "Search bookings by listing or client",
+  "No Image": "No Image",
+  "No image": "No image",
+  "Request test booking": "Request test booking",
+  "Bookings": "Bookings",
+  "No bookings yet.": "No bookings yet.",
+  "Client": "Client",
+  "Accept": "Accept",
+  "Reject": "Reject",
+  "Notifications": "Notifications",
+  "No notifications.": "No notifications.",
+  "Received": "Received",
+  "Help": "Help"
 }

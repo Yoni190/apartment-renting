@@ -4,27 +4,27 @@
 
     @section('content')
     <div class="container mt-4">
-        <h2 class="fw-bold mb-4">Owner Dashboard</h2>
+        <h2 class="fw-bold mb-4">{{ __('Owner Dashboard') }}</h2>
 
         <div class="row">
             <div class="col-lg-6">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h4 class="mb-0">Your Listings</h4>
+                    <h4 class="mb-0">{{ __('Your Listings') }}</h4>
                     @if(auth()->user()->subscribed)
                         <a href="{{ route('apartment-create') }}" class="btn btn-primary rounded-pill">
-                            <i class="bi bi-plus-circle"></i> Add Apartment
+                            <i class="bi bi-plus-circle"></i> {{ __('Add Apartment') }}
                         </a>
                     @else
                         <button class="btn btn-secondary rounded-pill" disabled>
-                            <i class="bi bi-lock"></i> Subscribe to Add Apartment
+                            <i class="bi bi-lock"></i> {{ __('Subscribe to Add Apartment') }}
                         </button>
                     @endif
                 </div>
                 <form method="GET" class="mb-3">
                     <div class="input-group">
-                        <input type="text" name="q" value="{{ $q ?? '' }}" class="form-control" placeholder="Search bookings by listing or client" />
+                        <input type="text" name="q" value="{{ $q ?? '' }}" class="form-control" placeholder="{{ __('Search bookings by listing or client') }}" />
                         <button class="btn btn-outline-secondary" type="submit">
-                            <i class="bi bi-search"></i> Search
+                            <i class="bi bi-search"></i> {{ __('Search') }}
                         </button>
                     </div>
                 </form>
@@ -39,7 +39,7 @@
                             <div class="card-body">
                                 <h5 class="card-title">{{ $listing->title }}</h5>
                                 <p class="card-text text-muted small">{{ $listing->address }}</p>
-                                <a href="{{ route('bookings.create', $listing) }}" class="btn btn-sm btn-outline-primary">Request test booking</a>
+                                <a href="{{ route('bookings.create', $listing) }}" class="btn btn-sm btn-outline-primary">{{ __('Request test booking') }}</a>
                             </div>
                         </div>
                     </a>
@@ -47,9 +47,9 @@
             </div>
 
             <div class="col-lg-6">
-                <h4>Bookings</h4>
+                <h4>{{ __('Bookings') }}</h4>
                 @if($bookings->isEmpty())
-                    <p class="text-muted">No bookings yet.</p>
+                    <p class="text-muted">{{ __('No bookings yet.') }}</p>
                 @else
                     <div class="list-group">
                     @foreach($bookings as $b)
@@ -67,18 +67,18 @@
                                     <div class="small mt-1">
                                         <i class="bi bi-calendar3"></i> {{ \Carbon\Carbon::parse($b->scheduled_at)->toDayDateTimeString() }}
                                     </div>
-                                    <div class="text-muted small">Client: {{ $b->user->name }} &mdash; {{ $b->user->email }}</div>
+                                    <div class="text-muted small">{{ __('Client') }}: {{ $b->user->name }} &mdash; {{ $b->user->email }}</div>
                                     @if($b->status === \App\Models\TourBooking::STATUS_PENDING)
                                         <div class="mt-2 d-flex gap-2">
                                             <form method="POST" action="{{ route('owner.bookings.accept', $b->id) }}">
                                                 @csrf
                                                 @method('PATCH')
-                                                <button class="btn btn-sm btn-success">Accept</button>
+                                                <button class="btn btn-sm btn-success">{{ __('Accept') }}</button>
                                             </form>
                                             <form method="POST" action="{{ route('owner.bookings.reject', $b->id) }}">
                                                 @csrf
                                                 @method('PATCH')
-                                                <button class="btn btn-sm btn-danger">Reject</button>
+                                                <button class="btn btn-sm btn-danger">{{ __('Reject') }}</button>
                                             </form>
                                         </div>
                                     @endif
@@ -89,15 +89,15 @@
                     </div>
                 @endif
 
-                <h4 class="mt-4">Notifications</h4>
+                <h4 class="mt-4">{{ __('Notifications') }}</h4>
                 @if($notifications->isEmpty())
-                    <p class="text-muted">No notifications.</p>
+                    <p class="text-muted">{{ __('No notifications.') }}</p>
                 @else
                     <ul class="list-group">
                         @foreach($notifications as $n)
                             <li class="list-group-item {{ $n->read_at ? '' : 'fw-bold' }}">
                                 <div>{{ data_get($n->data, 'listing_title') }} &mdash; {{ data_get($n->data, 'scheduled_at') }}</div>
-                                <small class="text-muted">Received {{ $n->created_at->diffForHumans() }}</small>
+                                <small class="text-muted">{{ __('Received') }} {{ $n->created_at->diffForHumans() }}</small>
                             </li>
                         @endforeach
                     </ul>

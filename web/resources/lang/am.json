@@ -189,5 +189,23 @@
 
   "Need more help?": "ተጨማሪ እገዛ ይፈልጋሉ?",
   "Contact our support team anytime.": "በማንኛውም ጊዜ የእኛን የድጋፍ ቡድን ያግኙ",
-  "Contact Support": "የድጋፍ ቡድን ያግኙ"
+  "Contact Support": "የድጋፍ ቡድን ያግኙ",
+  "Gojoye - Dashboard": "ጎጆዬ - ዳሽቦርድ",
+  "Owner Dashboard": "የቤት ባለቤት ዳሽቦርድ",
+  "Your Listings": "የእርስዎ ማስታወቂያዎች",
+  "Add Apartment": "አፓርታማ ጨምር",
+  "Subscribe to Add Apartment": "ለመጨመር ይመዝገቡ",
+  "Search bookings by listing or client": "በማስታወቂያ ወይም በደንበኛ ፈልግ",
+  "No Image": "ምስል የለም",
+  "No image": "ምስል የለም",
+  "Request test booking": "የመመልከቻ ቀጠሮ ጠይቅ",
+  "Bookings": "ቀጠሮዎች",
+  "No bookings yet.": "እስካሁን ቀጠሮ የለም",
+  "Client": "ደንበኛ",
+  "Accept": "ተቀባ",
+  "Reject": "አትቀበል",
+  "Notifications": "ማሳወቂያዎች",
+  "No notifications.": "ማሳወቂያ የለም",
+  "Received": "ተቀብሏል",
+  "Help": "እርዳታ"
 }

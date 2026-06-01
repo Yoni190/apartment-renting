@@ -129,7 +129,7 @@
                                 {{ __('Register') }}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="{{ route('user.renter.register') }}"><i class="bi bi-person me-2"></i>{{ __('As a Renter') }}</a></li>
+                                <li><a class="dropdown-item" href="{{ route('user.renter.register') }}"><i class="bi bi-person me-2"></i>{{ __('As Client') }}</a></li>
                                 <li><a class="dropdown-item" href="{{ route('user.owner.register') }}"><i class="bi bi-building me-2"></i>{{ __('As an Owner') }}</a></li>
                             </ul>
                         </li>
