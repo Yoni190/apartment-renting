@@ -160,7 +160,7 @@ const LoginScreen = () => {
             source={require('../../assets/google_icon.png')} 
             style={styles.googleIcon}
             />
-            <Text style={styles.googleBtnText}>Login with Google</Text>
+            <Text style={{ color: '#000' }}>Login with Google</Text>
           </TouchableOpacity>
     </KeyboardAvoidingView>
     

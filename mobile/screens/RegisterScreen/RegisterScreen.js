@@ -208,7 +208,7 @@ const RegisterScreen = () => {
               source={require('../../assets/google_icon.png')} 
               style={styles.googleIcon}
               />
-              <Text style={styles.googleBtnText}>Sign Up with Google</Text>
+              <Text style={{ color: '#000' }}>Sign Up with Google</Text>
             </TouchableOpacity>
           </View>
       </ScrollView>
