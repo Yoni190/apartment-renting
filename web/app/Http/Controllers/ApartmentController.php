@@ -431,6 +431,9 @@ class ApartmentController extends Controller
             'utility_bill' => 'sometimes|file|mimes:jpeg,png,jpg,pdf|max:51200',
             'rental_authorization_letter' => 'sometimes|file|mimes:jpeg,png,jpg,pdf|max:51200',
             'agent_authorization_letter' => 'sometimes|file|mimes:jpeg,png,jpg,pdf|max:51200',
+            'sub_city' => 'required|string|max:255',
+            'woreda' => 'required|string|max:255',
+            'kebele' => 'required|string|max:255',
         ]);
 
         // Capture previous verification status so we can reset verification fields

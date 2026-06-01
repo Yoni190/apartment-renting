@@ -40,6 +40,62 @@
                         >
                     </div>
 
+                    <!-- Location Details -->
+                    <div class="col-md-12">
+                        <label class="form-label fw-semibold">Location Details</label>
+
+                        <div class="row g-3">
+
+                            <!-- Sub City -->
+                            <div class="col-md-4">
+                                <label class="form-label">Sub City</label>
+                                @php
+                                    $subCities = [
+                                        'Addis Ketema','Akaky Kaliti','Arada','Bole','Gulele',
+                                        'Kirkos','Kolfe Keranio','Lideta','Nifas Silk-Lafto','Yeka'
+                                    ];
+
+                                    $selectedSubCity = optional($apartment->location)->sub_city;
+                                @endphp
+
+                                <select name="sub_city" class="form-select" required>
+                                    <option value="">Select Sub City</option>
+
+                                    @foreach($subCities as $city)
+                                        <option value="{{ $city }}" {{ $selectedSubCity == $city ? 'selected' : '' }}>
+                                            {{ $city }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <!-- Woreda -->
+                            <div class="col-md-4">
+                                <label class="form-label">Woreda</label>
+                                <input 
+                                    type="text" 
+                                    name="woreda" 
+                                    class="form-control" 
+                                    placeholder="e.g. 03"
+                                    value="{{ $apartment->location->woreda }}"
+                                >
+                            </div>
+
+                            <!-- Kebele -->
+                            <div class="col-md-4">
+                                <label class="form-label">Kebele</label>
+                                <input 
+                                    type="text" 
+                                    name="kebele" 
+                                    class="form-control" 
+                                    placeholder="e.g. 16/17"
+                                    value="{{ $apartment->location->kebele }}"
+                                >
+                            </div>
+
+                        </div>
+                    </div>
+
                     <!-- Price -->
                     <div class="col-md-4">
                         <label class="form-label fw-semibold">Price (ETB)</label>
