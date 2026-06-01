@@ -247,5 +247,41 @@
   "Owner Login": "የባለቤት መግቢያ",
   "Contact": "አድራሻ",
   "Addis Ababa, Ethiopia": "አዲስ አበባ, ኢትዮጵያ",
-  "All rights reserved.": "መብቶች ተጠብቀዋል"
+  "All rights reserved.": "መብቶች ተጠብቀዋል",
+  "add_apartment_title": "አፓርታማ አክል",
+  "subscription_required": "የክፍያ ምዝገባ ያስፈልጋል",
+  "subscription_message": "አፓርታማ ለማከል ንቁ የምዝገባ ክፍያ ያስፈልጋል።",
+  "go_back": "ተመለስ",
+
+  "add_apartment": "አዲስ አፓርታማ አክል",
+  "title": "ርዕስ",
+  "title_placeholder": "ዘመናዊ 2 መኝታ አፓርታማ",
+  "address": "አድራሻ",
+  "address_placeholder": "ቦሌ, አዲስ አበባ",
+
+  "location_details": "የአካባቢ መረጃ",
+  "sub_city": "ክፍለ ከተማ",
+  "select_sub_city": "ክፍለ ከተማ ይምረጡ",
+  "woreda": "ወረዳ",
+  "woreda_placeholder": "ለምሳሌ ወረዳ 03",
+  "kebele": "ቀበሌ",
+  "kebele_placeholder": "ለምሳሌ ቀበሌ 16/17",
+
+  "type": "አይነት",
+  "sale": "ሽያጭ",
+  "rent": "ኪራይ",
+
+  "price": "ዋጋ",
+  "bedrooms": "መኝታ ክፍሎች",
+  "bathrooms": "መታጠቢያ ክፍሎች",
+  "size": "መጠን (ሜ²)",
+
+  "description": "መግለጫ",
+  "description_placeholder": "አፓርታማውን ይግለጹ...",
+
+  "images": "ምስሎች",
+  "image_hint": "ብዙ ምስሎች ማስገባት ይችላሉ",
+
+  "cancel": "ሰርዝ",
+  "submit": "አፓርታማ ፍጠር"
 }

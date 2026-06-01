@@ -234,5 +234,41 @@
   "Yes, Delete": "Yes, Delete",
   "This action cannot be undone. All related bookings and data will be permanently removed.": "This action cannot be undone. All related bookings and data will be permanently removed.",
   "For Sale": "For Sale",
-  "Birr": "Birr"
+  "Birr": "Birr",
+
+  "add_apartment_title": "Add Apartment",
+  "subscription_required": "Subscription Required",
+  "subscription_message": "You need an active subscription to add apartments.",
+  "go_back": "Go Back",
+
+  "add_apartment": "Add New Apartment",
+  "title": "Title",
+  "title_placeholder": "Modern 2-bedroom apartment",
+  "address": "Address",
+  "address_placeholder": "Bole, Addis Ababa",
+
+  "location_details": "Location Details",
+  "sub_city": "Sub City",
+  "select_sub_city": "Select Sub City",
+  "woreda": "Woreda",
+  "woreda_placeholder": "e.g. Woreda 03",
+  "kebele": "Kebele",
+  "kebele_placeholder": "e.g. Kebele 16/17",
+
+  "type": "Type",
+  "sale": "Sale",
+  "rent": "Rent",
+  "price": "Price",
+  "bedrooms": "Bedrooms",
+  "bathrooms": "Bathrooms",
+  "size": "Size (m²)",
+  "description": "Description",
+  "description_placeholder": "Describe the apartment...",
+
+  "images": "Images",
+  "image_hint": "You can upload multiple images",
+
+  "cancel": "Cancel",
+  "submit": "Create Apartment"
+
 }
