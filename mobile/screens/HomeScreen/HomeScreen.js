@@ -347,27 +347,50 @@ const HomeScreen = () => {
               const imgs = Array.isArray(a.images) ? a.images : (a.images && Array.isArray(a.images.data) ? a.images.data : [])
               const images = (imgs || []).map(img => img.url || (img.path ? `${API_URL}/storage/${img.path}` : null)).filter(Boolean)
               const meta = a.meta || {}
-
+              const listingType = (a.type || a.meta?.type || '').toLowerCase()
+              const isRent = listingType === 'rent'
+              const isSale = listingType === 'sale'
               return (
-                <ListingCard
-                  key={a.id}
-                  images={images.length ? images : undefined}
-                  hasVideo={!!meta.hasVideo}
-                  hasVirtualTour={!!meta.hasVirtualTour}
-                  priceRange={meta.price_range || a.price || undefined}
-                  bedroomRange={meta.bedroom_range || (a.bedrooms ? `${a.bedrooms} Beds` : undefined)}
-                  title={a.title || undefined}
-                  address={a.address || (meta.location ? `${meta.location.area ?? ''} ${meta.location.city ?? ''}` : undefined)}
-                  amenities={meta.amenities || undefined}
-                  phoneEnabled={!!meta.allow_phone}
-                  contactPhone={meta.contact_phone || a.contact_phone || undefined}
-                  saved={a.is_favorite || a.fav || false}
-                  onSave={() => handleSave(a)}
-                  onUnsave={() => handleUnsave(a)}
-                  onMessage={() => openMessage(a)}
-                  onCall={(phone) => handleCall(phone)}
-                  onPress={() => navigation.navigate('ApartmentDetails', { listingId: a.id })}
-                />
+                <View style={{ position: 'relative' }}>
+                  {/* TYPE BADGE */}
+                  {(isRent || isSale) && (
+                    <View
+                      style={{
+                        position: 'absolute',
+                        top: 10,
+                        left: 10,
+                        zIndex: 10,
+                        backgroundColor: isRent ? '#22c55e' : '#3b82f6',
+                        paddingHorizontal: 10,
+                        paddingVertical: 4,
+                        borderRadius: 20,
+                      }}
+                    >
+                      <Text style={{ color: 'white', fontSize: 12, fontWeight: '600' }}>
+                        {isRent ? 'FOR RENT' : 'FOR SALE'}
+                      </Text>
+                    </View>
+                  )}
+                  <ListingCard
+                    key={a.id}
+                    images={images.length ? images : undefined}
+                    hasVideo={!!meta.hasVideo}
+                    hasVirtualTour={!!meta.hasVirtualTour}
+                    priceRange={meta.price_range || a.price || undefined}
+                    bedroomRange={meta.bedroom_range || (a.bedrooms ? `${a.bedrooms} Beds` : undefined)}
+                    title={a.title || undefined}
+                    address={a.address || (meta.location ? `${meta.location.area ?? ''} ${meta.location.city ?? ''}` : undefined)}
+                    amenities={meta.amenities || undefined}
+                    phoneEnabled={!!meta.allow_phone}
+                    contactPhone={meta.contact_phone || a.contact_phone || undefined}
+                    saved={a.is_favorite || a.fav || false}
+                    onSave={() => handleSave(a)}
+                    onUnsave={() => handleUnsave(a)}
+                    onMessage={() => openMessage(a)}
+                    onCall={(phone) => handleCall(phone)}
+                    onPress={() => navigation.navigate('ApartmentDetails', { listingId: a.id })}
+                  />
+                </View>
               )
             })
           )}
