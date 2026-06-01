@@ -54,6 +54,13 @@
 
             <div class="row mb-3">
                 <div class="col-md-4 mb-3 mb-md-0">
+                    <label class="form-label">Type</label>
+                    <select name="type" class="form-control" required>
+                        <option value="sale" selected>Sale</option>
+                        <option value="rent">Rent</option>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3 mb-md-0">
                     <label class="form-label">Price</label>
                     <input type="number" name="price" class="form-control" placeholder="5000" required>
                 </div>
@@ -65,14 +72,12 @@
                     <label class="form-label">Bathrooms</label>
                     <input type="number" name="bathrooms" class="form-control" placeholder="1" required>
                 </div>
-            </div>
-
-            <div class="row mb-3">
                 <div class="col-md-6">
                     <label class="form-label">Size (m&sup2;)</label>
                     <input type="number" name="size" class="form-control" placeholder="120" required>
                 </div>
             </div>
+
 
             <div class="mb-3">
                 <label class="form-label">Description</label>

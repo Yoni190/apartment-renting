@@ -21,7 +21,8 @@ class Apartment extends Model
         'size',
         'meta',
         'user_id',
-        'location_id'
+        'location_id',
+        'type'
     ];
 
     protected $casts = [
