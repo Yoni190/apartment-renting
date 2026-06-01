@@ -252,7 +252,16 @@
                 <h3 class="fw-bold text-primary">
                     {{ __('ETB') }} {{ number_format($apartment->price) }}
                 </h3>
-                <p class="text-muted mb-3">{{ __('per month') }}</p>
+
+                @if($apartment->type === 'rent')
+                    <p class="text-muted mb-3">
+                        {{ __('For Rent') }} • {{ __('per month') }}
+                    </p>
+                @else
+                    <p class="text-muted mb-3">
+                        {{ __('For Sale') }}
+                    </p>
+                @endif
 
                 <button class="btn btn-primary w-100 mb-2">
                     {{ __('Contact Owner') }}
