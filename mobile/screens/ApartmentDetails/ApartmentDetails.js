@@ -917,169 +917,173 @@ const submitReview = async () => {
           </View>
         </View>
 
-        {/* Ratings & Reviews Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Ratings & Reviews</Text>
+        {!isOwner && (
+          <>
+            {/* Ratings & Reviews Section */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Ratings & Reviews</Text>
 
-          <View style={styles.ratingSummary}>
-            <Text style={styles.ratingValue}>{averageRating ? averageRating.toFixed(1) : '0.0'}</Text>
+              <View style={styles.ratingSummary}>
+                <Text style={styles.ratingValue}>{averageRating ? averageRating.toFixed(1) : '0.0'}</Text>
 
-            <View style={styles.starsRow}>
-              {[1,2,3,4,5].map((i) => (
-                <Ionicons
-                  key={i}
-                  name={
-                    averageRating >= i
-                      ? 'star'
-                      : averageRating >= i - 0.5
-                      ? 'star-half'
-                      : 'star-outline'
-                  }
-                  size={18}
-                  color="#fbbf24"
-                />
-              ))}
-            </View>
-
-          <Text style={styles.reviewCount}>
-            Based on {totalReviews} review{totalReviews !== 1 ? 's' : ''}
-          </Text>
-          </View>
-
-          {/* Write a Review */}
-          <View style={styles.writeReviewCard}>
-            <Text style={styles.writeReviewTitle}>Write a Review</Text>
-
-            <View style={styles.writeStarsRow}>
-              {[1, 2, 3, 4, 5].map((value) => (
-                <TouchableOpacity key={value} onPress={() => setRating(value)}>
-                  <Ionicons
-                    name={value <= rating ? 'star' : 'star-outline'}
-                    size={28}
-                    color="#fbbf24"
-                  />
-                </TouchableOpacity>
-              ))}
-            </View>
-
-
-            <View style={styles.reviewInputMock}>
-              <TextInput
-                value={reviewText}
-                onChangeText={setReviewText}
-                placeholder="Share your experience about this apartment..."
-                multiline
-                style={styles.reviewInput}
-                placeholderTextColor={colors.textMuted}
-              />
-            </View>
-
-            <TouchableOpacity
-              onPress={submitReview}
-              style={styles.submitReviewBtn}
-              disabled={reviewLoading}
-              activeOpacity={0.8}>
-              {reviewLoading ? (
-                <ActivityIndicator color={colors.white} />
-              ) : (
-                <>
-                  <Ionicons name="send-outline" size={16} color={colors.white} />
-                  <Text style={styles.submitReviewText}>Submit Review</Text>
-                </>
-              )}
-            </TouchableOpacity>
-          </View>
-
-
-          {reviewsLoading && (
-            <Text style={{ padding: spacing.md }}>Loading reviews...</Text>
-          )}
-
-          {!reviewsLoading && reviews.length === 0 && (
-            <Text style={{ padding: spacing.md, color: colors.textSecondary }}>
-              No reviews yet. Be the first to review!
-            </Text>
-          )}
-
-          {reviews.slice(0, 3).map((review) => (
-            <View key={review.id} style={styles.reviewCard}>
-              <View style={styles.reviewHeader}>
-                <Text style={styles.reviewerName}>
-                  {review.user?.name || 'Anonymous'}
-                </Text>
-
-                <View style={styles.starsRowSmall}>
+                <View style={styles.starsRow}>
                   {[1,2,3,4,5].map((i) => (
                     <Ionicons
                       key={i}
-                      name={review.rating >= i ? 'star' : 'star-outline'}
-                      size={14}
+                      name={
+                        averageRating >= i
+                          ? 'star'
+                          : averageRating >= i - 0.5
+                          ? 'star-half'
+                          : 'star-outline'
+                      }
+                      size={18}
                       color="#fbbf24"
                     />
                   ))}
                 </View>
+
+              <Text style={styles.reviewCount}>
+                Based on {totalReviews} review{totalReviews !== 1 ? 's' : ''}
+              </Text>
               </View>
 
-              {review.comment ? (
-                <Text style={styles.reviewText}>{review.comment}</Text>
-              ) : null}
-            </View>
-          ))}
+              {/* Write a Review */}
+              <View style={styles.writeReviewCard}>
+                <Text style={styles.writeReviewTitle}>Write a Review</Text>
+
+                <View style={styles.writeStarsRow}>
+                  {[1, 2, 3, 4, 5].map((value) => (
+                    <TouchableOpacity key={value} onPress={() => setRating(value)}>
+                      <Ionicons
+                        name={value <= rating ? 'star' : 'star-outline'}
+                        size={28}
+                        color="#fbbf24"
+                      />
+                    </TouchableOpacity>
+                  ))}
+                </View>
 
 
-          {totalReviews > 3 && (
-              <TouchableOpacity
-                style={styles.viewAllReviewsBtn}
-                onPress={() =>
-                  navigation.navigate('ApartmentReviews', {
-                    apartmentId: listingId,
-                    apartmentTitle: listing.title,
-                  })
-                }
-              >
-                <Text style={styles.viewAllReviewsText}>View all reviews</Text>
-              </TouchableOpacity>
-          )}
-          
-        </View>
+                <View style={styles.reviewInputMock}>
+                  <TextInput
+                    value={reviewText}
+                    onChangeText={setReviewText}
+                    placeholder="Share your experience about this apartment..."
+                    multiline
+                    style={styles.reviewInput}
+                    placeholderTextColor={colors.textMuted}
+                  />
+                </View>
+
+                <TouchableOpacity
+                  onPress={submitReview}
+                  style={styles.submitReviewBtn}
+                  disabled={reviewLoading}
+                  activeOpacity={0.8}>
+                  {reviewLoading ? (
+                    <ActivityIndicator color={colors.white} />
+                  ) : (
+                    <>
+                      <Ionicons name="send-outline" size={16} color={colors.white} />
+                      <Text style={styles.submitReviewText}>Submit Review</Text>
+                    </>
+                  )}
+                </TouchableOpacity>
+              </View>
 
 
-        {/* Amenities Section */}
-        {amenitiesList.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Amenities</Text>
-            <View style={styles.amenitiesContainer}>
-              {amenitiesList.map((amenity, index) => (
-                <View key={index} style={styles.amenityChip}>
-                  <Text style={styles.amenityEmoji}>{getAmenityEmoji(amenity)}</Text>
-                  <Text style={styles.amenityText}>{amenity}</Text>
+              {reviewsLoading && (
+                <Text style={{ padding: spacing.md }}>Loading reviews...</Text>
+              )}
+
+              {!reviewsLoading && reviews.length === 0 && (
+                <Text style={{ padding: spacing.md, color: colors.textSecondary }}>
+                  No reviews yet. Be the first to review!
+                </Text>
+              )}
+
+              {reviews.slice(0, 3).map((review) => (
+                <View key={review.id} style={styles.reviewCard}>
+                  <View style={styles.reviewHeader}>
+                    <Text style={styles.reviewerName}>
+                      {review.user?.name || 'Anonymous'}
+                    </Text>
+
+                    <View style={styles.starsRowSmall}>
+                      {[1,2,3,4,5].map((i) => (
+                        <Ionicons
+                          key={i}
+                          name={review.rating >= i ? 'star' : 'star-outline'}
+                          size={14}
+                          color="#fbbf24"
+                        />
+                      ))}
+                    </View>
+                  </View>
+
+                  {review.comment ? (
+                    <Text style={styles.reviewText}>{review.comment}</Text>
+                  ) : null}
                 </View>
               ))}
-            </View>
-          </View>
-        )}
 
-        {/* Contacts Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Contacts</Text>
-          {ownerPhone ? (
-            <Text style={styles.contactPhone}>{ownerPhone}</Text>
-          ) : (
-            <Text style={styles.contactPhone}>No phone number provided</Text>
-          )}
-          <View style={styles.contactButtons}>
-            <TouchableOpacity style={styles.contactButtonPrimary} onPress={handleTour}>
-              <Text style={styles.contactButtonText}>Request Tour</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.contactButtonSecondary} onPress={handleMessage}>
-              <Text style={styles.contactButtonTextSecondary}>Message</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.ownerContactSection}>
-            <Text style={styles.ownerContactLabel}>Owned/Managed by:</Text>
-            <Text style={styles.ownerContactName}>{ownerName}</Text>
-          </View>
-        </View>
+
+              {totalReviews > 3 && (
+                  <TouchableOpacity
+                    style={styles.viewAllReviewsBtn}
+                    onPress={() =>
+                      navigation.navigate('ApartmentReviews', {
+                        apartmentId: listingId,
+                        apartmentTitle: listing.title,
+                      })
+                    }
+                  >
+                    <Text style={styles.viewAllReviewsText}>View all reviews</Text>
+                  </TouchableOpacity>
+              )}
+              
+            </View>
+
+
+            {/* Amenities Section */}
+            {amenitiesList.length > 0 && (
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Amenities</Text>
+                <View style={styles.amenitiesContainer}>
+                  {amenitiesList.map((amenity, index) => (
+                    <View key={index} style={styles.amenityChip}>
+                      <Text style={styles.amenityEmoji}>{getAmenityEmoji(amenity)}</Text>
+                      <Text style={styles.amenityText}>{amenity}</Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            )}
+
+            {/* Contacts Section */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Contacts</Text>
+              {ownerPhone ? (
+                <Text style={styles.contactPhone}>{ownerPhone}</Text>
+              ) : (
+                <Text style={styles.contactPhone}>No phone number provided</Text>
+              )}
+              <View style={styles.contactButtons}>
+                <TouchableOpacity style={styles.contactButtonPrimary} onPress={handleTour}>
+                  <Text style={styles.contactButtonText}>Request Tour</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.contactButtonSecondary} onPress={handleMessage}>
+                  <Text style={styles.contactButtonTextSecondary}>Message</Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.ownerContactSection}>
+                <Text style={styles.ownerContactLabel}>Owned/Managed by:</Text>
+                <Text style={styles.ownerContactName}>{ownerName}</Text>
+              </View>
+            </View>
+          </>
+        )}
       </ScrollView>
 
       {/* Bottom Navigation Bar */}
