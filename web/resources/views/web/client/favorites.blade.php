@@ -81,9 +81,14 @@
                             </div>
 
                             <div class="mb-3">
-                                <span class="text-success fw-bold fs-5">{{ $apartment->price ?? 'N/A' }}</span>
-                                @if($apartment && isset($apartment->price))
-                                    <span class="text-muted">/ {{ __('month') }}</span>
+                                <span class="text-success fw-bold fs-5">
+                                    {{ $apartment->price ?? 'N/A' }}
+                                </span>
+
+                                @if($apartment)
+                                    @if($apartment->type === 'rent')
+                                        <span class="text-muted">/ {{ __('month') }}</span>
+                                    @endif
                                 @endif
                             </div>
 
