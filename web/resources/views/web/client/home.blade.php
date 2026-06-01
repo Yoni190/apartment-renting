@@ -60,7 +60,14 @@
 
                         <div class="card-body">
                             <h5 class="card-title">{{ $apt->title }}</h5>
-                            <p class="fw-bold text-primary">{{ __('ETB') }} {{ number_format($apt->price) }}/{{ __('month') }}</p>
+
+                            <p class="fw-bold text-primary">
+                                {{ __('ETB') }} {{ number_format($apt->price) }}
+
+                                @if($apt->type === 'rent')
+                                    /{{ __('month') }}
+                                @endif
+                            </p>
 
                             <a href="{{ route('user.client.apartment-details', $apt->id) }}" class="btn btn-primary w-100">
                                 {{ __('View Details') }}
