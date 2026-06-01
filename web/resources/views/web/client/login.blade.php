@@ -2,6 +2,24 @@
 
 @section('title', 'Login - Gojoye')
 
+@push('styles')
+<style>
+.password-wrapper {
+    position: relative;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: #6c757d;
+}
+</style>
+@endpush
+
 @section('content')
 <div class="min-vh-100 d-flex align-items-center justify-content-center py-5">
     <div class="auth-card">
@@ -22,8 +40,12 @@
 
             <div class="mb-4">
                 <label for="password" class="form-label">Password</label>
+
                 <div class="password-wrapper">
-                    <input type="password" name="password" id="password" class="form-control form-control-lg" placeholder="********" required>
+                    <input type="password" name="password" id="password"
+                        class="form-control form-control-lg pe-5"
+                        placeholder="********" required>
+
                     <i class="bi bi-eye-slash toggle-password" id="togglePassword"></i>
                 </div>
             </div>
