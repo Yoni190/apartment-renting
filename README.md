@@ -1,57 +1,213 @@
-# apartment-renting
+#  Gojoye – Apartment Hunting Platform
 
+## 📌 Overview
 
+**GoJoye – Apartment Hunting Platform** is a digital system designed to solve major challenges in the rental and property sales market in Addis Ababa, Ethiopia. The traditional real estate market is heavily dependent on informal processes, intermediaries, and physical visits, making it inefficient, costly, and unreliable.
 
+Gojoye modernizes this process by providing a centralized, structured, and trustworthy digital marketplace where users can browse, list, and manage residential properties with ease.
 
+The platform supports both **web and mobile applications**, enabling seamless access for clients and property owners anytime, anywhere.
 
-# Tour Statuses
+---
 
-# 1. Pending
-Tour request submitted by a client and awaiting owner action. Owner either accepts or rejects the request
+## 🎯 Project Objectives
 
-# 2. Approved
-Tour request accepted/approved by the owner and scheduled for the selected date and time.
+* Digitize the apartment rental and sales process
+* Reduce dependency on informal intermediaries
+* Improve transparency and trust in property listings
+* Enable direct communication between clients and property owners
+* Provide structured property data with images, pricing, and location
 
-# 3. Cancellation Requested
-Client has requested to cancel an approved tour less than 24 hours before the scheduled time and requires owner review.
+---
 
-# 4. Cancelled
-Tour has been successfully cancelled and is no longer active.
-Client can cancel a pending tour request anytime. 
-If a cancellation request is approved/accepted by the owner, it's status becomes cancelled as well.
+## 🏗️ Tech Stack
 
-# 5. Completed
-Tour(approved/accepted tour) took place as scheduled and was completed successfully.
+### Backend
 
-# 6. No Show
-Tour was approved, but the client did not attend at the scheduled time.
+* Laravel 10.50
+* PHP
+* MySQL (Aiven Cloud Database)
+* Laravel Sanctum (Authentication)
 
-# 7. Rejected
-Tour request was declined by the property owner.
+### Frontend (Web)
 
+* Laravel Blade Templates
+* Bootstrap
 
-### Cancellation Rules
+### Mobile App
 
-Pending tours can be canceled directly by the client at any time.
+* React Native (Expo)
+* Axios API Integration
+* Expo SecureStore
 
-Approved tours follow time-based cancellation rules:
-≥ 24 hours before the tour: client can cancel directly.
-< 24 hours before the tour: client must submit a cancellation request.
+### Payment Integration
 
-Cancellation requests require owner review:
-If approved, the tour is marked Cancelled.
-If declined, the tour remains Approved and absence may be marked as No Show.
+* Chapa Payment Gateway
 
+### Deployment
 
-### Post-Tour Rules
+* Render (Dockerized Laravel Application)
+* Aiven (MySQL Cloud Hosting)
 
-After the scheduled tour time:
-Owners must mark approved tours as Completed or No Show.
+ Live Preview
+🔗 https://apartment-renting-5e8u.onrender.com
 
-### Tours marked as Canceled, Completed, No Show, or Rejected are final and cannot be modified.
+---
 
-## Validation & Enforcement
+## 👥 User Roles
 
-- Only future date-time slots (including later today) can be booked .
+###  Client (Tenant/Buyer)
 
-- Past or expired tour slots are automatically removed from availability on the tour request panel.
+* View apartments
+* Save favorites
+* Write reviews & ratings
+* Request tours
+* Communicate with owners
+
+###  Property Owner
+
+* Post and manage apartments
+* Upload images and property details
+* Accept/reject tour requests
+* Subscribe to access listing features
+
+###  Admin (Web Only)
+
+* Manage users
+* Manage apartments
+* Approve/monitor listings
+* View system reports and analytics
+
+---
+
+## ⭐ Core Features
+
+###  Authentication
+
+* User registration and login
+* Role-based access (Client / Owner)
+
+###  Property Management
+
+* Create, update, delete apartment listings
+* Upload images and property details
+* Structured location data (sub-city, woreda, kebele)
+
+###  Messaging System
+
+* Secure in-app messaging between users
+* No need for external contact sharing
+
+###  Reviews & Ratings
+
+* Clients can rate apartments
+* Helps improve trust and transparency
+
+###  Notifications
+
+* Real-time updates for messages and actions
+
+###  Favorites
+
+* Save and revisit preferred listings
+
+###  Subscription System
+
+* Required for property owners to post listings
+* Plans: Basic & Premium
+* Subscription duration: 1 year
+* Payment handled via Chapa
+
+###  Admin Dashboard
+
+* User and listing management
+* Platform monitoring and reporting
+
+---
+
+##  Subscription Flow
+
+* Owners must subscribe before posting apartments
+* Two plans available:
+
+  * Basic Plan
+  * Premium Plan
+* Payment processed via **Chapa**
+* After successful payment:
+
+  * Account is activated
+  * Subscription valid for 1 year
+
+---
+
+## 🌐 API & Architecture
+
+* Web application uses: `routes/web.php`
+* Mobile application uses: `routes/api.php`
+* Authentication handled via Laravel Sanctum
+* Mobile app communicates via REST API
+
+---
+
+##  Installation
+
+### Backend Setup
+
+```bash
+git clone https://github.com/your-repo/gojoye.git
+cd gojoye
+
+composer install
+cp .env.example .env
+php artisan key:generate
+
+php artisan migrate --seed
+
+php artisan serve
+```
+
+---
+
+### Web (Frontend)
+
+* Runs automatically with Laravel Blade
+* Access via:
+
+```
+http://localhost:8000
+```
+
+---
+
+### Mobile App (React Native Expo)
+
+```bash
+cd mobile-app
+npm install
+npx expo start
+```
+
+---
+
+##  Deployment
+
+### Backend
+
+* Hosted on **Render**
+* Dockerized Laravel application
+
+### Database
+
+* Hosted on **Aiven Cloud (MySQL)**
+
+---
+
+## 📱 Mobile App Features
+
+* Browse apartments
+* View details & images
+* Save favorites
+* Subscribe via Chapa
+* Secure authentication (token-based)
+* Language support (EN / AM / others)
+
