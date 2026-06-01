@@ -149,7 +149,7 @@
   "subscription_plan": "የምዝገባ ፕላን",
 
   "Find Your Dream Apartment": "የህልምዎን አፓርታማ ያግኙ",
-  "Browse thousands of apartments for rent in your city": "በከተማዎ ውስጥ ለኪራይ / ለሽያጭ የተዘጋጁ በሺዎች የሚቆጠሩ አፓርታማዎችን ይመልከቱ",
+  "Browse thousands of apartments for rent/sale in your city": "በከተማዎ ውስጥ ለኪራይ / ለሽያጭ የተዘጋጁ በሺዎች የሚቆጠሩ አፓርታማዎችን ይመልከቱ",
   "Start Searching": "ፍለጋ ጀምር",
   "List Your Apartment with Us": "አፓርታማዎን ከእኛ ጋር ይዘርዝሩ",
   "Reach thousands of potential renters quickly and easily": "በፍጥነት እና በቀላሉ በሺዎች የሚቆጠሩ ተከራዮች ላይ ይድረሱ",
@@ -234,5 +234,18 @@
   "Yes, Delete": "አዎ ሰርዝ",
   "This action cannot be undone. All related bookings and data will be permanently removed.": "ይህ እርምጃ አይቀለበስም። ሁሉም ተያያዥ መረጃዎች በቋሚ ሁኔታ ይሰረዛሉ።",
   "For Sale": "ለሽያጭ",
-  "Birr": "ብር"
+  "Birr": "ብር",
+  "As Client": "እንደ ደንበኛ",
+  "As an Owner": "እንደ ባለቤት",
+  "Chat": "ውይይት",
+  "Ask something...": "አንድ ነገር ጠይቅ...",
+  "Send": "ላክ",
+  "Error connecting to AI": "ከ AI ጋር መገናኘት አልተቻለም",
+  "Quick Links": "ፈጣን አገናኞች",
+  "For Owners": "ለባለቤቶች",
+  "List Your Property": "ንብረትዎን ይዘርዝሩ",
+  "Owner Login": "የባለቤት መግቢያ",
+  "Contact": "አድራሻ",
+  "Addis Ababa, Ethiopia": "አዲስ አበባ, ኢትዮጵያ",
+  "All rights reserved.": "መብቶች ተጠብቀዋል"
 }
