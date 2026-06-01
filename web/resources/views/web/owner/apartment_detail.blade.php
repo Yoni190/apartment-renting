@@ -101,8 +101,13 @@ $daysMap = [
                 <div class="card-body">
 
                     <h4 class="fw-bold mb-3">
-                        {{ $listing->price }} Birr
-                        <span class="text-muted fs-6">/ month</span>
+                        {{ number_format($listing->price) }} Birr
+
+                        @if($listing->type === 'rent')
+                            <span class="text-muted fs-6">/ month</span>
+                        @else
+                            <span class="badge bg-success">For Sale</span>
+                        @endif
                     </h4>
 
                     <a href="{{ route('apartment.edit', $listing) }}"
