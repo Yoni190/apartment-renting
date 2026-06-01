@@ -266,6 +266,9 @@ class HomeController extends Controller
                     ->orWhere('description', 'like', "%{$search}%");
                 });
             })
+            ->when($request->filled('type'), function ($query) use ($request) {
+                $query->where('type', $request->type);
+            })
             ->when($request->filled('min_price'), fn ($query) => $query->where('price', '>=', $request->min_price))
             ->when($request->filled('max_price'), fn ($query) => $query->where('price', '<=', $request->max_price))
             ->when($request->filled('bedrooms'), fn ($query) => $query->where('bedrooms', $request->bedrooms))

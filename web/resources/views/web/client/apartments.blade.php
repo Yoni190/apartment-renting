@@ -46,6 +46,19 @@
                 </select>
             </div>
 
+            <div class="col-md-2">
+                <label class="form-label small text-muted">{{ __('Type') }}</label>
+                <select name="type" class="form-select">
+                    <option value="">{{ __('Any') }}</option>
+                    <option value="sale" @selected(request('type') === 'sale')>
+                        {{ __('For Sale') }}
+                    </option>
+                    <option value="rent" @selected(request('type') === 'rent')>
+                        {{ __('For Rent') }}
+                    </option>
+                </select>
+            </div>
+
             <div class="col-md-3">
                 <label class="form-label small text-muted">{{ __('Sort By') }}</label>
                 <select name="sort" class="form-select">
