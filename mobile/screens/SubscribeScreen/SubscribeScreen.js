@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, Linking } from 'react-native'
 import React from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { CheckCircle } from 'lucide-react-native'
@@ -10,30 +10,37 @@ import i18n from '../../i18n'
 import { useNavigation } from '@react-navigation/native'
 import Header from '../../components/Header'
 
+
 const SubscribeScreen = () => {
   const navigation = useNavigation()
   const API_URL = process.env.EXPO_PUBLIC_API_URL
 
   const handleSubscribe = async (amount, plan_type) => {
     try {
-      const token = await SecureStore.getItemAsync('token')
+        const token = await SecureStore.getItemAsync('token')
 
-      await axios.post(
+        const res = await axios.post(
         `${API_URL}/api/pay`,
         { amount, plan_type },
         {
-          headers: {
+            headers: {
             Authorization: `Bearer ${token}`,
             Accept: 'application/json'
-          }
+            }
         }
-      )
+        )
 
-      navigation.goBack()
+        // backend must return checkout_url
+        const checkoutUrl = res.data?.checkout_url
+
+        if (checkoutUrl) {
+        Linking.openURL(checkoutUrl)
+        }
+
     } catch (error) {
-      console.log(error)
+        console.log(error)
     }
-  }
+    }
 
   const PlanCard = ({ title, price, features, buttonText, onPress, buttonColor }) => (
     <View style={styles.card}>
