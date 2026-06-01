@@ -46,14 +46,14 @@ $daysMap = [
             {{-- Location Details Section --}}
             @if($listing->location)
             <div class="mt-3 p-3 bg-light rounded">
-                <h5><i class="bi bi-geo-alt-fill me-2"></i>Location Details</h5>
+                <h5><i class="bi bi-geo-alt-fill me-2"></i>{{ __('Location Details') }}</h5>
                 <div class="row mt-3">
                     <div class="col-md-4 mb-2">
                         <div class="d-flex align-items-center">
                             <i class="bi bi-building me-2 text-primary"></i>
                             <div>
-                                <small class="text-muted d-block">Sub City</small>
-                                <strong>{{ $listing->location->sub_city ?? 'Not specified' }}</strong>
+                                <small class="text-muted d-block">{{ __('Sub City') }}</small>
+                                <strong>{{ $listing->location->sub_city ?? __('Not specified') }}</strong>
                             </div>
                         </div>
                     </div>
@@ -61,8 +61,8 @@ $daysMap = [
                         <div class="d-flex align-items-center">
                             <i class="bi bi-pin-map-fill me-2 text-primary"></i>
                             <div>
-                                <small class="text-muted d-block">Woreda</small>
-                                <strong>{{ $listing->location->woreda ?? 'Not specified' }}</strong>
+                                <small class="text-muted d-block">{{ __('Woreda') }}</small>
+                                <strong>{{ $listing->location->woreda ?? __('Not specified') }}</strong>
                             </div>
                         </div>
                     </div>
@@ -70,15 +70,15 @@ $daysMap = [
                         <div class="d-flex align-items-center">
                             <i class="bi bi-house-door-fill me-2 text-primary"></i>
                             <div>
-                                <small class="text-muted d-block">Kebele</small>
-                                <strong>{{ $listing->location->kebele ?? 'Not specified' }}</strong>
+                                <small class="text-muted d-block">{{ __('Kebele') }}</small>
+                                <strong>{{ $listing->location->kebele ?? __('Not specified') }}</strong>
                             </div>
                         </div>
                     </div>
                 </div>
                 @if($listing->location->address && $listing->location->address != $listing->address)
                 <div class="mt-2 pt-2 border-top">
-                    <small class="text-muted">Full Address:</small>
+                    <small class="text-muted">{{ __('Full Address') }}:</small>
                     <p class="mb-0">{{ $listing->location->address }}</p>
                 </div>
                 @endif
@@ -88,7 +88,7 @@ $daysMap = [
             {{-- Description --}}
             @if(isset($listing->description))
                 <div class="mt-3">
-                    <h5>Description</h5>
+                    <h5>{{ __('Description') }}</h5>
                     <p>{{ $listing->description }}</p>
                 </div>
             @endif
@@ -101,18 +101,18 @@ $daysMap = [
                 <div class="card-body">
 
                     <h4 class="fw-bold mb-3">
-                        {{ number_format($listing->price) }} Birr
+                        {{ number_format($listing->price) }} {{ __('Birr') }}
 
                         @if($listing->type === 'rent')
-                            <span class="text-muted fs-6">/ month</span>
+                            <span class="text-muted fs-6">/ {{ __('month') }}</span>
                         @else
-                            <span class="badge bg-success">For Sale</span>
+                            <span class="badge bg-success">{{ __('For Sale') }}</span>
                         @endif
                     </h4>
 
                     <a href="{{ route('apartment.edit', $listing) }}"
                        class="btn btn-primary w-100 mb-2">
-                        Edit Listing
+                        {{ __('Edit Listing') }}
                     </a>
 
                     <form method="POST" action="{{ route('apartment.destroy', $listing->id) }}">
@@ -123,13 +123,13 @@ $daysMap = [
                                 class="btn btn-danger w-100 mb-2"
                                 data-bs-toggle="modal"
                                 data-bs-target="#deleteModal">
-                            Delete Listing
+                            {{ __('Delete Listing') }}
                         </button>
                     </form>
 
                     <a href="{{ route('owner.dashboard') }}"
                        class="btn btn-outline-secondary w-100">
-                        Back
+                        {{ __('Back') }}
                     </a>
 
                 </div>
@@ -139,7 +139,7 @@ $daysMap = [
         <div class="card shadow-sm mt-3 rounded-xl">
             <div class="card-body">
 
-                <h5 class="fw-bold mb-3">Set Open Hours</h5>
+                <h5 class="fw-bold mb-3">{{ __('Set Open Hours') }}</h5>
 
                 <form action="{{ route('listing.hours.store', $listing) }}" method="POST">
                     @csrf
@@ -154,7 +154,7 @@ $daysMap = [
                                 <div class="row g-2">
 
                                     <div class="col-6">
-                                        <label class="form-label small text-muted">From Day</label>
+                                        <label class="form-label small text-muted">{{ __('From Day') }}</label>
                                         <select name="days_from[]" class="form-select">
                                             @foreach($daysMap as $key => $day)
                                                 <option value="{{ $day }}"
@@ -166,7 +166,7 @@ $daysMap = [
                                     </div>
 
                                     <div class="col-6">
-                                        <label class="form-label small text-muted">To Day</label>
+                                        <label class="form-label small text-muted">{{ __('To Day') }}</label>
                                         <select name="days_to[]" class="form-select">
                                             @foreach($daysMap as $key => $day)
                                                 <option value="{{ $day }}"
@@ -178,13 +178,13 @@ $daysMap = [
                                     </div>
 
                                     <div class="col-6">
-                                        <label class="form-label small text-muted">Open Time</label>
+                                        <label class="form-label small text-muted">{{ __('Open Time') }}</label>
                                         <input type="time" name="time_from[]" class="form-control"
                                             value="{{ $row['start_time'] }}">
                                     </div>
 
                                     <div class="col-6">
-                                        <label class="form-label small text-muted">Close Time</label>
+                                        <label class="form-label small text-muted">{{ __('Close Time') }}</label>
                                         <input type="time" name="time_to[]" class="form-control"
                                             value="{{ $row['end_time'] }}">
                                     </div>
@@ -198,7 +198,7 @@ $daysMap = [
                         <div class="border rounded p-3 mb-3 bg-light">
                             <div class="row g-2">
                                 <div class="col-6">
-                                    <label class="form-label small text-muted">From Day</label>
+                                    <label class="form-label small text-muted">{{ __('From Day') }}</label>
                                     <select name="days_from[]" class="form-select">
                                         @foreach($daysMap as $day)
                                             <option value="{{ $day }}">{{ $day }}</option>
@@ -207,7 +207,7 @@ $daysMap = [
                                 </div>
 
                                 <div class="col-6">
-                                    <label class="form-label small text-muted">To Day</label>
+                                    <label class="form-label small text-muted">{{ __('To Day') }}</label>
                                     <select name="days_to[]" class="form-select">
                                         @foreach($daysMap as $day)
                                             <option value="{{ $day }}">{{ $day }}</option>
@@ -230,7 +230,7 @@ $daysMap = [
                     </div>
 
                     <button type="submit" class="btn btn-primary w-100">
-                        Save Open Hours
+                        {{ __('Save Open Hours') }}
                     </button>
 
                 </form>
@@ -251,15 +251,15 @@ $daysMap = [
                     </div>
                 </div>
 
-                <h5 class="fw-bold mb-2">Delete Listing?</h5>
+                <h5 class="fw-bold mb-2">{{ __('Delete Listing?') }}</h5>
 
                 <p class="text-muted mb-4 small">
-                    This action cannot be undone. All related bookings and data will be permanently removed.
+                    {{ __('This action cannot be undone. All related bookings and data will be permanently removed.') }}
                 </p>
 
                 <div class="d-flex gap-2">
                     <button type="button" class="btn btn-light w-50" data-bs-dismiss="modal">
-                        Cancel
+                        {{ __('Cancel') }}
                     </button>
 
                     <form method="POST" action="{{ route('apartment.destroy', $listing->id) }}" class="w-50">
@@ -267,7 +267,7 @@ $daysMap = [
                         @method('DELETE')
 
                         <button class="btn btn-danger w-100">
-                            Yes, Delete
+                            {{ __('Yes, Delete') }}
                         </button>
                     </form>
                 </div>
