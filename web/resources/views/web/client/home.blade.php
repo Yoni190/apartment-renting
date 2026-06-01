@@ -13,36 +13,7 @@
         </div>
     </div>
 
-    <h3 class="fw-bold mb-3">{{ __('Explore Categories') }}</h3>
-    <div class="row g-4 mb-5">
-        <a href="{{ route('client.apartments') }}" class="col-md-3 text-decoration-none">
-            <div class="card category-card p-4 text-center shadow-sm">
-                <i class="bi bi-building display-4 text-primary"></i>
-                <h5 class="mt-3">{{ __('Apartments') }}</h5>
-            </div>
-        </a>
 
-        <div class="col-md-3">
-            <div class="card category-card p-4 text-center shadow-sm">
-                <i class="bi bi-house-door display-4 text-success"></i>
-                <h5 class="mt-3">{{ __('Houses') }}</h5>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card category-card p-4 text-center shadow-sm">
-                <i class="bi bi-person-workspace display-4 text-warning"></i>
-                <h5 class="mt-3">{{ __('Studios') }}</h5>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card category-card p-4 text-center shadow-sm">
-                <i class="bi bi-building-check display-4 text-danger"></i>
-                <h5 class="mt-3">{{ __('Condos') }}</h5>
-            </div>
-        </div>
-    </div>
 
     <h3 class="fw-bold mb-3">{{ __('Featured Apartments') }}</h3>
 
