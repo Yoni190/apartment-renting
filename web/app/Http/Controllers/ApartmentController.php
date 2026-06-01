@@ -12,6 +12,7 @@ use App\Notifications\ListingApproved;
 use App\Notifications\ListingRejected;
 use App\Notifications\ListingMoreInfoRequested;
 use App\Models\ApartmentVerificationDocument;
+use App\Models\Location;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Log as LogModel;
 
@@ -230,7 +231,7 @@ class ApartmentController extends Controller
     }
 
     public function addApartmentView() {
-        $users = User::all();
+        $users = User::where('role', 0)->get();
         return  view('web.admin.apartment.add-apartment', compact('users'));
     }
 
@@ -601,6 +602,15 @@ class ApartmentController extends Controller
             'utility_bill' => 'sometimes|file|mimes:jpeg,png,jpg,pdf|max:51200',
             'rental_authorization_letter' => 'sometimes|file|mimes:jpeg,png,jpg,pdf|max:51200',
             'agent_authorization_letter' => 'sometimes|file|mimes:jpeg,png,jpg,pdf|max:51200',
+            'sub_city' => 'required|string|max:255',
+            'woreda' => 'required|string|max:255',
+            'kebele' => 'required|string|max:255',
+        ]);
+
+        $location = \App\Models\Location::create([
+            'sub_city' => $request->sub_city,
+            'woreda' => $request->woreda,
+            'kebele' => $request->kebele,
         ]);
 
         $apartment = Apartment::create([
@@ -614,6 +624,7 @@ class ApartmentController extends Controller
             'size' => $request->size,
             'is_featured' => $request->featured,
             'user_id' => $request->owner,
+            'location_id' => $location->id,
         ]);
 
         // Persist verification meta (non-file fields) into meta JSON

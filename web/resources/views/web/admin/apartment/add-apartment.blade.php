@@ -38,6 +38,55 @@
                         >
                     </div>
 
+                    <!-- Location Details -->
+                    <div class="col-md-12">
+                        <label class="form-label fw-semibold">Location Details</label>
+
+                        <div class="row g-3">
+
+                            <!-- Sub City -->
+                            <div class="col-md-4">
+                                <label class="form-label">Sub City</label>
+                                <select name="sub_city" class="form-select" required>
+                                    <option value="">Select Sub City</option>
+                                    <option value="Addis Ketema">Addis Ketema</option>
+                                    <option value="Akaky Kaliti">Akaky Kaliti</option>
+                                    <option value="Arada">Arada</option>
+                                    <option value="Bole">Bole</option>
+                                    <option value="Gulele">Gulele</option>
+                                    <option value="Kirkos">Kirkos</option>
+                                    <option value="Kolfe Keranio">Kolfe Keranio</option>
+                                    <option value="Lideta">Lideta</option>
+                                    <option value="Nifas Silk-Lafto">Nifas Silk-Lafto</option>
+                                    <option value="Yeka">Yeka</option>
+                                </select>
+                            </div>
+
+                            <!-- Woreda -->
+                            <div class="col-md-4">
+                                <label class="form-label">Woreda</label>
+                                <input 
+                                    type="text" 
+                                    name="woreda" 
+                                    class="form-control" 
+                                    placeholder="e.g. 03"
+                                >
+                            </div>
+
+                            <!-- Kebele -->
+                            <div class="col-md-4">
+                                <label class="form-label">Kebele</label>
+                                <input 
+                                    type="text" 
+                                    name="kebele" 
+                                    class="form-control" 
+                                    placeholder="e.g. 16/17"
+                                >
+                            </div>
+
+                        </div>
+                    </div>
+
                     <!-- Price -->
                     <div class="col-md-4">
                         <label class="form-label fw-semibold">Price (ETB)</label>
