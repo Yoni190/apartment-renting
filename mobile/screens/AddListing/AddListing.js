@@ -74,6 +74,10 @@ const AddListing = () => {
   const [propertyType, setPropertyType] = useState(PROPERTY_TYPES[0])
   const [purpose, setPurpose] = useState(PURPOSES[0])
 
+const [woreda, setWoreda] = useState('');
+const [kebele, setKebele] = useState('');
+const [type, setType] = useState('rent'); 
+
   // Location
   const [city, setCity] = useState('Addis Ababa')
   const [subCity, setSubCity] = useState('')
@@ -727,7 +731,6 @@ const AddListing = () => {
         const formData = new FormData()
         formData.append('title', title.trim())
         formData.append('address', addressString)
-        formData.append('property_type', propertyType)
         formData.append('purpose', purpose)
         formData.append('price', String(price).replace(/,/g, ''))
         formData.append('payment_period', paymentPeriod)
@@ -743,6 +746,12 @@ const AddListing = () => {
         formData.append('min_stay', minStay)
         formData.append('contact_phone', contactPhone.trim())
         formData.append('contact_method', contactMethod)
+
+
+        formData.append('sub_city', subCity);
+        formData.append('woreda', woreda);
+        formData.append('kebele', kebele);
+        formData.append('type', type);
 
         formData.append('location', JSON.stringify(metaObj.location))
         formData.append('utilities', JSON.stringify(metaObj.utilities))
@@ -795,6 +804,7 @@ const AddListing = () => {
           headers: { 'Content-Type': 'multipart/form-data', Accept: 'application/json', Authorization: `Bearer ${token}` }
         })
         const serverMsg = res?.data?.message || 'Listing posted'
+        console.log(res?.data)
         Alert.alert('Success', serverMsg)
         navigation.goBack()
       }
@@ -854,17 +864,10 @@ const AddListing = () => {
           ))}
         </View>
 
-        <Text style={styles.label}>Purpose</Text>
-        <View style={styles.rowOptions}>
-          {PURPOSES.map(p => (
-            <TouchableOpacity key={p} style={[styles.radio, purpose === p && styles.radioActive]} onPress={() => setPurpose(p)}>
-              <Text style={purpose === p ? styles.radioTextActive : styles.radioText}>{p}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
 
         {/* Location */}
         <Text style={styles.sectionTitle}>Location</Text>
+        <View style={{ flex: 1, marginRight: 8 }}>
         <Text style={styles.label}>City</Text>
         <TextInput 
           style={[styles.input, focusedInput === 'city' && styles.inputFocused]} 
@@ -874,30 +877,54 @@ const AddListing = () => {
           onBlur={() => setFocusedInput(null)}
           placeholderTextColor={colors.textMuted}
         />
-
+        </View>
+        
+<View style={{ flex: 1, marginRight: 8 }}>
   <Text style={styles.label}>Sub-city</Text>
   <TextInput 
     ref={subCityRef} 
-    onFocus={() => { setFocusedInput('subCity'); scrollToInput(subCityRef); }} 
-    onBlur={() => setFocusedInput(null)}
     style={[styles.input, focusedInput === 'subCity' && styles.inputFocused]} 
     value={subCity} 
     onChangeText={setSubCity} 
     placeholder="e.g. Bole"
     placeholderTextColor={colors.textMuted}
   />
+  </View>
 
+  <View style={{ flex: 1, marginRight: 8 }}>
+    <Text style={styles.label}>Woreda</Text>
+    <TextInput
+      style={styles.input}
+      value={woreda}
+      onChangeText={setWoreda}
+      placeholder="e.g. 03"
+      placeholderTextColor={colors.textMuted}
+    />
+  </View>
+
+  <View style={{ flex: 1, marginLeft: 8 }}>
+    <Text style={styles.label}>Kebele</Text>
+    <TextInput
+      style={styles.input}
+      value={kebele}
+      onChangeText={setKebele}
+      placeholder="e.g. 16"
+      placeholderTextColor={colors.textMuted}
+    />
+  </View>
+
+<View style={{ flex: 1, marginRight: 8 }}>
   <Text style={styles.label}>Area / Neighborhood</Text>
   <TextInput 
     ref={areaRef} 
-    onFocus={() => { setFocusedInput('area'); scrollToInput(areaRef); }} 
-    onBlur={() => setFocusedInput(null)}
     style={[styles.input, focusedInput === 'area' && styles.inputFocused]} 
     value={area} 
     onChangeText={setArea} 
     placeholder="e.g. Around XYZ"
     placeholderTextColor={colors.textMuted}
   />
+  </View>
+
 
   <Text style={styles.label}>Street or landmark (optional)</Text>
   <TextInput 
@@ -941,9 +968,7 @@ const AddListing = () => {
         <Text style={styles.sectionTitle}>Pricing & Terms</Text>
   <Text style={styles.label}>Price</Text>
   <TextInput 
-    ref={priceRef} 
-    onFocus={() => { setFocusedInput('price'); scrollToInput(priceRef); }} 
-    onBlur={() => setFocusedInput(null)}
+    ref={priceRef}
     style={[styles.input, focusedInput === 'price' && styles.inputFocused]} 
     value={price} 
     onChangeText={setPrice} 
@@ -951,6 +976,21 @@ const AddListing = () => {
     keyboardType={Platform.OS === 'web' ? 'default' : 'numeric'}
     placeholderTextColor={colors.textMuted}
   />
+
+  <Text style={styles.label}>Type</Text>
+<View style={styles.rowOptions}>
+  {['rent', 'sale'].map(t => (
+    <TouchableOpacity
+      key={t}
+      style={[styles.optionPill, type === t && styles.optionPillActive]}
+      onPress={() => setType(t)}
+    >
+      <Text style={type === t ? styles.optionTextActive : styles.optionText}>
+        {t.toUpperCase()}
+      </Text>
+    </TouchableOpacity>
+  ))}
+</View>
 
         <Text style={styles.label}>Payment period</Text>
         <View style={styles.rowOptions}>
@@ -999,8 +1039,6 @@ const AddListing = () => {
   <Text style={styles.label}>Number of bedrooms</Text>
   <TextInput 
     ref={bedroomsRef} 
-    onFocus={() => { setFocusedInput('bedrooms'); scrollToInput(bedroomsRef); }} 
-    onBlur={() => setFocusedInput(null)}
     style={[styles.input, focusedInput === 'bedrooms' && styles.inputFocused]} 
     value={bedrooms} 
     onChangeText={setBedrooms} 
@@ -1011,8 +1049,6 @@ const AddListing = () => {
   <Text style={styles.label}>Number of bathrooms</Text>
   <TextInput 
     ref={bathroomsRef} 
-    onFocus={() => { setFocusedInput('bathrooms'); scrollToInput(bathroomsRef); }} 
-    onBlur={() => setFocusedInput(null)}
     style={[styles.input, focusedInput === 'bathrooms' && styles.inputFocused]} 
     value={bathrooms} 
     onChangeText={setBathrooms} 
@@ -1022,9 +1058,7 @@ const AddListing = () => {
 
   <Text style={styles.label}>Total size (sqm) — optional</Text>
   <TextInput 
-    ref={sizeRef} 
-    onFocus={() => { setFocusedInput('size'); scrollToInput(sizeRef); }} 
-    onBlur={() => setFocusedInput(null)}
+    ref={sizeRef}
     style={[styles.input, focusedInput === 'size' && styles.inputFocused]} 
     value={size} 
     onChangeText={setSize} 
@@ -1034,9 +1068,7 @@ const AddListing = () => {
 
   <Text style={styles.label}>Floor number</Text>
   <TextInput 
-    ref={floorRef} 
-    onFocus={() => { setFocusedInput('floor'); scrollToInput(floorRef); }} 
-    onBlur={() => setFocusedInput(null)}
+    ref={floorRef}
     style={[styles.input, focusedInput === 'floor' && styles.inputFocused]} 
     value={floor} 
     onChangeText={setFloor} 
@@ -1075,8 +1107,6 @@ const AddListing = () => {
               placeholder="e.g. Panoramic city view"
               placeholderTextColor={colors.textMuted}
               returnKeyType="done"
-              onFocus={() => { setFocusedInput('uniqueFeature'); scrollToInput(uniqueFeatureInputRef); }}
-              onBlur={() => setFocusedInput(null)}
               onSubmitEditing={addUniqueFeature}
             />
           <TouchableOpacity
@@ -1106,9 +1136,7 @@ const AddListing = () => {
         <Text style={styles.sectionTitle}>Description & Media</Text>
   <Text style={styles.label}>Detailed description</Text>
   <TextInput 
-    ref={descriptionRef} 
-    onFocus={() => { setFocusedInput('description'); scrollToInput(descriptionRef); }} 
-    onBlur={() => setFocusedInput(null)}
+    ref={descriptionRef}
     style={[styles.input, { height: 120 }, focusedInput === 'description' && styles.inputFocused]} 
     value={description} 
     onChangeText={setDescription} 
@@ -1195,9 +1223,7 @@ const AddListing = () => {
 
   <Text style={styles.label}>Contact phone number</Text>
   <TextInput 
-    ref={contactPhoneRef} 
-    onFocus={() => { setFocusedInput('contactPhone'); scrollToInput(contactPhoneRef); }} 
-    onBlur={() => setFocusedInput(null)}
+    ref={contactPhoneRef}
     style={[styles.input, focusedInput === 'contactPhone' && styles.inputFocused]} 
     value={contactPhone} 
     onChangeText={setContactPhone} 
@@ -1228,7 +1254,6 @@ const AddListing = () => {
             style={[styles.input, focusedInput === 'ownerFullName' && styles.inputFocused]}
             value={ownerFullName}
             onChangeText={setOwnerFullName}
-            onFocus={() => { setFocusedInput('ownerFullName'); scrollToInput(null); }}
             placeholder="Owner full name"
             placeholderTextColor={colors.textMuted}
           />
@@ -1238,7 +1263,6 @@ const AddListing = () => {
             style={[styles.input, focusedInput === 'ownerPhone' && styles.inputFocused]}
             value={ownerPhoneNumber}
             onChangeText={setOwnerPhoneNumber}
-            onFocus={() => { setFocusedInput('ownerPhone'); scrollToInput(null); }}
             placeholder="e.g. +2519xxxxxxx"
             placeholderTextColor={colors.textMuted}
             keyboardType={Platform.OS === 'web' ? 'default' : 'phone-pad'}

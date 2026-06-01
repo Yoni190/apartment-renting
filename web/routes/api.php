@@ -15,6 +15,7 @@ use App\Http\Controllers\ApartmentController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\Api\MessageApiController;
 use Illuminate\Support\Facades\Http;
+use App\Models\Location;
 
 // Helper: normalize common meta fields so clients receive consistent shapes
 // e.g. amenities, utilities may be sent as JSON strings or comma lists — store as arrays
@@ -278,6 +279,16 @@ Route::middleware('auth:sanctum')->post('/apartments', function (Request $reques
         'bathrooms' => ['nullable', 'integer'],
         'size' => ['nullable', 'numeric'],
         'images.*' => ['sometimes', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:5120'],
+        'sub_city' => ['required', 'string'],
+        'woreda' => ['required', 'string'],
+        'kebele' => ['required', 'string'],
+        'type' => ['required', 'string', 'max:255'],
+    ]);
+
+    $location = Location::create([
+        'sub_city' => $request->input('sub_city'),
+        'woreda' => $request->input('woreda'),
+        'kebele' => $request->input('kebele'),
     ]);
 
     // Prepare apartment payload
@@ -293,6 +304,8 @@ Route::middleware('auth:sanctum')->post('/apartments', function (Request $reques
         'status' => 1,
         // mark new listings as pending verification for admin review
         'verification_status' => 'pending',
+        'location_id' => $location->id,
+        'type' => $request->input('type')
     ];
 
     // Capture any extra fields into meta (utilities, amenities, deposit, open_for_tour, location, etc.)
