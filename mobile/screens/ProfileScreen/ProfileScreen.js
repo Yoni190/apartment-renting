@@ -20,6 +20,7 @@ const ProfileScreen = () => {
   const [currentLang, setCurrentLang] = useState(i18n.language)
 
   const [selectedLanguage, setSelectedLanguage] = useState(currentLang);
+  console.log(user)
 
   const API_URL = process.env.EXPO_PUBLIC_API_URL;
   const WEB_URL = process.env.EXPO_PUBLIC_WEB_URL;
@@ -105,6 +106,19 @@ const ProfileScreen = () => {
           <Text style={styles.arrow}>{'>'}</Text>
         </TouchableOpacity>
       </View>
+      
+      {/* Subscription CTA */}
+          {user?.subscribed === 0 && (
+            <TouchableOpacity
+              style={styles.subscribeBtn}
+              onPress={() => navigation.navigate("Subscribe")}
+            >
+              <Lock size={18} color={colors.white} style={{ marginRight: 8 }} />
+              <Text style={styles.subscribeText}>
+                {i18n.t('subscribeNow')}
+              </Text>
+            </TouchableOpacity>
+          )}
 
       {/* Language Selection */}
       <View style={styles.box}>

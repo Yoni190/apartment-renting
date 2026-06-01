@@ -17,6 +17,8 @@ import './i18n';
 import ApartmentReviews from './screens/ApartmentDetails/ApartmentReviews';
 import MessagesScreen from './screens/MessagesScreen/MessagesScreen';
 import MessageProfileScreen from './screens/MessageProfileScreen/MessageProfileScreen';
+import SubscribeScreen from './screens/SubscribeScreen/SubscribeScreen';
+
 
 const Stack = createStackNavigator()
 
@@ -35,8 +37,10 @@ export default function App() {
         <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ headerShown: false }}/>
         <Stack.Screen name="ApartmentDetails" component={ApartmentDetails} options={{ headerShown: false }}/>
         <Stack.Screen name="ApartmentReviews" component={ApartmentReviews} options={{ headerShown: false }} />
-  <Stack.Screen name="Messages" component={MessagesScreen} options={{ headerShown: false }} />
-  <Stack.Screen name="MessageProfile" component={MessageProfileScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="Messages" component={MessagesScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="MessageProfile" component={MessageProfileScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="Subscribe" component={SubscribeScreen} options={{ headerShown: false }} />
+
       </Stack.Navigator>
     </NavigationContainer>
     </SafeAreaProvider>

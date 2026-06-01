@@ -78,5 +78,24 @@
   "confirm_password": "Confirm Password",
   "save": "Save",
   "delete_account": "Delete Account",
-  "change_password": "Change password"
+  "change_password": "Change password",
+  "subscribeNow": "Subscribe Now",
+  "subscription.title": "Subscription Plans",
+
+  "basic_plan": "Basic Plan",
+  "basic_plan_price": "2,000 ETB / year",
+  "basic_plan_feature_1": "Add limited apartments",
+  "basic_plan_feature_2": "Standard listing visibility",
+  "basic_plan_feature_3": "Basic support",
+
+  "premium_plan": "Premium Plan",
+  "premium_plan_price": "5,000 ETB / year",
+  "premium_plan_feature_1": "Unlimited apartment listings",
+  "premium_plan_feature_2": "Top search visibility",
+  "premium_plan_feature_3": "Priority support",
+
+  "subscribe_to_basic": "Subscribe to Basic",
+  "subscribe_to_premium": "Subscribe to Premium",
+
+  "subscriptionTitle": "Choose Your Subscription Plan"
 }

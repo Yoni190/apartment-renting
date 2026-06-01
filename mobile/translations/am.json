@@ -78,5 +78,24 @@
   "confirm_password": "ፓስዎርድ አረጋግጥ",
   "change_password": "ፓስዎርድ መቀየር",
   "save": "አስቀምጥ",
-  "delete_account": "መለያ ሰርዝ"
+  "delete_account": "መለያ ሰርዝ",
+  "subscribeNow": "ይመዝገቡ",
+   "subscription.title": "የምዝገባ እቅዶች",
+
+  "basic_plan": "መሰረታዊ እቅድ",
+  "basic_plan_price": "2000 ብር / ዓመት",
+  "basic_plan_feature_1": "የተወሰነ አፓርታማ ማከል",
+  "basic_plan_feature_2": "መደበኛ የማስታወቂያ ታይነት",
+  "basic_plan_feature_3": "መሰረታዊ ድጋፍ",
+
+  "premium_plan": "ፕሪሚየም እቅድ",
+  "premium_plan_price": "5000 ብር / ዓመት",
+  "premium_plan_feature_1": "ያልተገደበ አፓርታማ ማከል",
+  "premium_plan_feature_2": "ከፍተኛ የፍለጋ ታይነት",
+  "premium_plan_feature_3": "ቅድሚያ ድጋፍ",
+
+  "subscribe_to_basic": "መሰረታዊ ይመዝገቡ",
+  "subscribe_to_premium": "ፕሪሚየም ይመዝገቡ",
+
+  "subscriptionTitle": "የምዝገባ እቅድ ይምረጡ"
 }

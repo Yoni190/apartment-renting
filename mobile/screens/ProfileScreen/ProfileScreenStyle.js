@@ -111,4 +111,24 @@ export default StyleSheet.create({
     alignItems: 'center',
     marginHorizontal: spacing.xs,
   },
+  subscribeBtn: {
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "center",
+  backgroundColor: "#9fc5f8",
+  paddingVertical: 12,
+  marginHorizontal: 20,
+  borderRadius: 12,
+  marginTop: 15,
+  shadowColor: "#000",
+  shadowOpacity: 0.1,
+  shadowRadius: 6,
+  elevation: 3,
+},
+
+subscribeText: {
+  color: "#fff",
+  fontWeight: "700",
+  fontSize: 14,
+},
 });
