@@ -15,6 +15,48 @@
     @vite('resources/css/app.css')
 
     @stack('styles')
+
+    <style>
+        .dot-flashing {
+        position: relative;
+        width: 6px;
+        height: 6px;
+        border-radius: 5px;
+        background-color: #999;
+        color: #999;
+        animation: dotFlashing 1s infinite linear alternate;
+        }
+
+        .dot-flashing::before,
+        .dot-flashing::after {
+        content: '';
+        display: inline-block;
+        position: absolute;
+        top: 0;
+        width: 6px;
+        height: 6px;
+        border-radius: 5px;
+        background-color: #999;
+        }
+
+        .dot-flashing::before {
+        left: -10px;
+        animation: dotFlashing 1s infinite alternate;
+        animation-delay: 0s;
+        }
+
+        .dot-flashing::after {
+        left: 10px;
+        animation: dotFlashing 1s infinite alternate;
+        animation-delay: 0.5s;
+        }
+
+        @keyframes dotFlashing {
+        0% { opacity: 0.2; }
+        50% { opacity: 1; }
+        100% { opacity: 0.2; }
+        }
+        </style>
 </head>
 <body>
 
@@ -208,6 +250,31 @@
     </div>
 
     <script>
+        let loadingDiv = null;
+
+        function showLoading() {
+            loadingDiv = document.createElement('div');
+            loadingDiv.className = 'd-flex justify-content-start mb-2';
+
+            const bubble = document.createElement('div');
+            bubble.className = 'bg-light border p-2 rounded d-flex align-items-center gap-2';
+            bubble.style.maxWidth = "75%";
+
+            bubble.innerHTML = `
+                <div class="dot-flashing"></div>
+            `;
+
+            loadingDiv.appendChild(bubble);
+            messages.appendChild(loadingDiv);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        function hideLoading() {
+            if (loadingDiv) {
+                loadingDiv.remove();
+                loadingDiv = null;
+            }
+        }
         const toggleBtn = document.getElementById('chatbot-toggle');
         const chatBox = document.getElementById('chatbot-box');
         const closeBtn = document.getElementById('chatbot-close');
@@ -245,6 +312,9 @@
             if (!text) return;
             appendMessage(text, 'user');
             input.value = '';
+
+            showLoading();
+
             fetch("{{ route('chat') }}", {
                 method: "POST",
                 headers: {
@@ -254,8 +324,14 @@
                 body: JSON.stringify({ message: text })
             })
             .then(res => res.json())
-            .then(data => appendMessage(data.reply, 'bot'))
-            .catch(() => appendMessage("Error connecting to AI", 'bot'));
+            .then(data => {
+                hideLoading();
+                appendMessage(data.reply, 'bot');
+            })
+            .catch(() => {
+                hideLoading();
+                appendMessage("Error connecting to AI", 'bot');
+            });
         }
     </script>
 </body>
