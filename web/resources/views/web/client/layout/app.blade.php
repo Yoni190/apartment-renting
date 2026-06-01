@@ -19,9 +19,9 @@
 <body>
 
     <!-- NAVBAR -->
-    <nav class="navbar navbar-expand-lg sticky-top custom-navbar">
+    <nav class="navbar navbar-expand-lg sticky-top" style="background: #9fc5f8">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="{{ auth()->check() ? (auth()->user()->role === 1 ? url('/home') : url('/owner/dashboard')) : url('/') }}">
+            <a class="navbar-brand fw-bold text-white" href="{{ auth()->check() ? (auth()->user()->role === 1 ? url('/home') : url('/owner/dashboard')) : url('/') }}">
                 <i class="bi bi-building"></i> {{ __('Gojoye') }}
             </a>
 
@@ -50,10 +50,10 @@
                     @endauth
 
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->is('about') ? 'active' : '' }}" href="{{ url('/about') }}">{{ __('About Us') }}</a>
+                        <a class="nav-link {{ request()->is('about') ? 'active' : '' }} text-white" href="{{ url('/about') }}">{{ __('About Us') }}</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->is('help') ? 'active' : '' }}" href="{{ url('/help') }}">{{ __('Help') }}</a>
+                        <a class="nav-link {{ request()->is('help') ? 'active' : '' }} text-white" href="{{ url('/help') }}">{{ __('Help') }}</a>
                     </li>
 
                     <li class="nav-item d-flex gap-1 ms-lg-2">
@@ -136,7 +136,7 @@
     </main>
 
     <!-- FOOTER -->
-    <footer class="site-footer">
+    <footer class="site-footer mt-5" style="background: #9fc5f8">
         <div class="container">
             <div class="row g-4">
                 <div class="col-md-4">
