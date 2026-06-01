@@ -81,7 +81,9 @@
                 <div class="card apartment-card border-0 shadow-sm h-100">
 
                     <div class="position-relative">
-                        <img src="{{ $image ? asset('storage/'.$image->path) : 'https://via.placeholder.com/400x250' }}" class="card-img-top" alt="{{ $apartment->title }}">
+                        <img src="{{ $image ? asset('storage/'.$image->path) : 'https://via.placeholder.com/400x250' }}"
+                            class="card-img-top"
+                            alt="{{ $apartment->title }}">
 
                         @if($apartment->is_featured)
                             <span class="badge bg-warning text-dark position-absolute top-0 start-0 m-2">
@@ -89,8 +91,16 @@
                             </span>
                         @endif
 
+                        <span class="badge {{ $apartment->type === 'rent' ? 'bg-info' : 'bg-success' }} position-absolute top-0 end-0 m-2">
+                            {{ $apartment->type === 'rent' ? __('For Rent') : __('For Sale') }}
+                        </span>
+
                         <span class="badge-price position-absolute bottom-0 end-0 m-3">
                             {{ __('ETB') }} {{ number_format($apartment->price) }}
+
+                            @if($apartment->type === 'rent')
+                                /{{ __('month') }}
+                            @endif
                         </span>
                     </div>
 
