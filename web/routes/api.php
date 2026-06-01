@@ -13,6 +13,7 @@ use Illuminate\Validation\Rules;
 use App\Services\RecommendationService;
 use App\Http\Controllers\ApartmentController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\MessageApiController;
 use Illuminate\Support\Facades\Http;
 use App\Models\Location;
@@ -252,7 +253,10 @@ Route::get('/apartments/{apartment}', function (Request $request, Apartment $apa
     
     return $apartment;
 });
-
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/pay', [PaymentController::class, 'initialize']);
+    Route::post('/pay/verify', [PaymentController::class, 'verify']);
+});
 // get apartments for authenticated owner
 Route::middleware('auth:sanctum')->get('/my-apartments', function (Request $request) {
     $user = $request->user();
