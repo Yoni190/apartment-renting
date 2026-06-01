@@ -19,6 +19,10 @@
 
     <div class="row g-4">
         @foreach ($featuredApartments as $apt)
+            @php
+                $avgRating = $apt->reviews->avg('rating');
+                $avgRating = $avgRating ? round($avgRating, 1) : 5;
+            @endphp
             @if($apt->images && $apt->images->count() > 0)
                 @php
                     $firstImage = $apt->images->first();
@@ -31,6 +35,22 @@
 
                         <div class="card-body">
                             <h5 class="card-title">{{ $apt->title }}</h5>
+
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="text-warning me-2">
+                                    @for ($i = 1; $i <= 5; $i++)
+                                        @if ($avgRating >= $i)
+                                            <i class="bi bi-star-fill"></i>
+                                        @else
+                                            <i class="bi bi-star"></i>
+                                        @endif
+                                    @endfor
+                                </div>
+
+                                <small class="text-muted">
+                                    {{ $avgRating }} / 5
+                                </small>
+                            </div>
 
                             <p class="fw-bold text-primary">
                                 {{ __('ETB') }} {{ number_format($apt->price) }}

@@ -23,9 +23,11 @@ class HomeController extends Controller
     }
 
     public function home() {
-        $featuredApartments = Apartment::where('is_featured', 1)->take(6)->get();
+        $featuredApartments = Apartment::where('is_featured', 1)
+            ->with(['images', 'reviews'])
+            ->take(6)
+            ->get();
 
-        $featuredApartments->load('images');
         return view('web.client.home', compact('featuredApartments'));
     }
 

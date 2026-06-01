@@ -86,11 +86,37 @@
 
 @section('content')
 
+@php
+    $totalReviews = $apartment->reviews->count();
+
+    $averageRating = $totalReviews > 0
+        ? round($apartment->reviews->avg('rating'), 1)
+        : 5;
+@endphp
+
 <div class="container my-5">
 
     <!-- Title -->
     <div class="mb-3">
         <h2 class="fw-bold">{{ $apartment->title }}</h2>
+
+        <div class="d-flex align-items-center gap-2 mb-3">
+
+            <div>
+                @for($i = 1; $i <= 5; $i++)
+                    <i class="bi
+                        {{ $i <= round($averageRating)
+                            ? 'bi-star-fill text-warning'
+                            : 'bi-star text-muted' }}"></i>
+                @endfor
+            </div>
+
+            <span class="text-muted">
+                {{ number_format($averageRating, 1) }} / 5
+                ({{ $totalReviews }} {{ __('reviews') }})
+            </span>
+
+        </div>
         
         {{-- Main address --}}
         <p class="text-muted mb-1">
