@@ -103,6 +103,30 @@
                 <h6>Address</h6>
                 <p>{{ $apartment->address }}</p>
 
+                <hr/>
+                <h5 class="card-title">Location</h5>
+
+                @if($apartment->location)
+                    <div class="row">
+                        <div class="col-md-4">
+                            <strong>Sub City</strong>
+                            <div>{{ $apartment->location->sub_city }}</div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <strong>Woreda</strong>
+                            <div>{{ $apartment->location->woreda }}</div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <strong>Kebele</strong>
+                            <div>{{ $apartment->location->kebele }}</div>
+                        </div>
+                    </div>
+                @else
+                    <div class="text-muted">No location provided</div>
+                @endif
+
                 {{-- Owner summary (moved into main column for better balance) --}}
                 <hr/>
                 <h5 class="card-title">Owner</h5>
