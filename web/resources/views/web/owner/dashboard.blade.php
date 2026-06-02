@@ -78,11 +78,35 @@
                                 @else
                                     <img src="https://via.placeholder.com/400x200?text=No+Image" class="card-img-top object-fit-cover" height="180" alt="No image">
                                 @endif
-                                <div class="card-body">
-                                    <h5 class="card-title">{{ $listing->title }}</h5>
-                                    <p class="card-text text-muted small">{{ $listing->address }}</p>
-                                    <a href="{{ route('bookings.create', $listing) }}" class="btn btn-sm btn-outline-primary">{{ __('Request test booking') }}</a>
-                                </div>
+    <div class="card-body">
+    <h5 class="card-title">{{ $listing->title }}</h5>
+
+    <p class="card-text text-muted small mb-0">
+        {{ $listing->address }}
+    </p>
+
+    @php
+        $loc = $listing->location;
+    @endphp
+
+    @if($loc && ($loc->sub_city || $loc->woreda || $loc->kebele))
+        <div class="small text-muted mt-1">
+            @if($loc->sub_city)
+                <span>{{ $loc->sub_city }}</span>
+            @endif
+
+            @if($loc->woreda)
+                <span class="mx-1">•</span>
+                <span>{{ __('Woreda') }} {{ $loc->woreda }}</span>
+            @endif
+
+            @if($loc->kebele)
+                <span class="mx-1">•</span>
+                <span>{{ __('Kebele') }} {{ $loc->kebele }}</span>
+            @endif
+        </div>
+    @endif
+</div>
                             </div>
                         </a>
                     @endforeach
