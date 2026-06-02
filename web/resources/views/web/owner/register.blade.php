@@ -6,41 +6,41 @@
 <div class="min-vh-100 d-flex align-items-center justify-content-center py-5">
     <div class="auth-card">
 
-        <h3 class="fw-bold text-center">Create an Account</h3>
-        <p class="text-muted text-center mb-4">List your properties and reach thousands of tenants</p>
+        <h3 class="fw-bold text-center">{{ __('Create an Account') }}</h3>
+        <p class="text-muted text-center mb-4">{{ __('List your properties and reach thousands of tenants') }}</p>
 
         <form action="{{ route('user.owner.register-user') }}" method="POST">
             @csrf
 
             <div class="row g-3">
                 <div class="col-md-6">
-                    <label for="f_name" class="form-label">First Name</label>
-                    <input type="text" name="f_name" id="f_name" class="form-control form-control-lg" placeholder="John" required>
+                    <label for="f_name" class="form-label">{{ __('First Name') }}</label>
+                    <input type="text" name="f_name" id="f_name" class="form-control form-control-lg" placeholder="{{ __('Abel') }}" required>
                 </div>
                 <div class="col-md-6">
-                    <label for="l_name" class="form-label">Last Name</label>
-                    <input type="text" name="l_name" id="l_name" class="form-control form-control-lg" placeholder="Doe" required>
+                    <label for="l_name" class="form-label">{{ __('Last Name') }}</label>
+                    <input type="text" name="l_name" id="l_name" class="form-control form-control-lg" placeholder="{{ __('Tesfaye') }}" required>
                 </div>
                 <div class="col-md-6">
-                    <label for="telNo" class="form-label">Phone Number</label>
+                    <label for="telNo" class="form-label">{{ __('Phone Number') }}</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-telephone"></i></span>
                         <input type="text" name="telNo" id="telNo" class="form-control form-control-lg" placeholder="09xxxxxxxx" required>
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <label for="email" class="form-label">Email Address</label>
+                    <label for="email" class="form-label">{{ __('Email Address') }}</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-envelope"></i></span>
                         <input type="email" name="email" id="email" class="form-control form-control-lg" placeholder="example@mail.com" required>
                     </div>
                 </div>
                 <div class="col-12">
-                    <label for="fan" class="form-label">FAN</label>
-                    <input type="text" name="fan" id="fan" class="form-control form-control-lg" placeholder="Fayda ID number" required>
+                    <label for="fan" class="form-label">{{ __('FAN') }}</label>
+                    <input type="text" name="fan" id="fan" class="form-control form-control-lg" placeholder="{{ __('Fayda ID number') }}" required>
                 </div>
                 <div class="col-md-6">
-                    <label for="password" class="form-label">Password</label>
+                    <label for="password" class="form-label">{{ __('Password') }}</label>
                     <div class="password-wrapper position-relative">
                         <input type="password" name="password" id="password"
                             class="form-control form-control-lg pe-5"
@@ -53,7 +53,7 @@
                 </div>
 
                 <div class="col-md-6">
-                    <label for="confirm-password" class="form-label">Confirm Password</label>
+                    <label for="confirm-password" class="form-label">{{ __('Confirm Password') }}</label>
                     <div class="password-wrapper position-relative">
                         <input type="password" name="password_confirmation" id="confirm-password"
                             class="form-control form-control-lg pe-5"
@@ -66,21 +66,21 @@
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-primary w-100 btn-lg mt-4">Register</button>
+            <button type="submit" class="btn btn-primary w-100 btn-lg mt-4">{{ __('Register') }}</button>
 
             <div class="auth-divider d-flex align-items-center my-4">
                 <hr class="flex-grow-1">
-                <span class="px-3 text-muted small fw-medium">or continue with</span>
+                <span class="px-3 text-muted small fw-medium">{{ __('or continue with') }}</span>
                 <hr class="flex-grow-1">
             </div>
 
             <a href="{{ route('google.redirect', ['role' => 0]) }}" class="btn btn-outline-dark w-100 btn-lg">
-                <i class="bi bi-google"></i> Continue with Google
+                <i class="bi bi-google"></i> {{ __('Continue with Google') }}
             </a>
 
             <p class="text-center mt-4 mb-0">
-                Already have an account?
-                <a href="{{ route('login') }}" class="fw-semibold">Login</a>
+                {{ __('Already have an account?') }}
+                <a href="{{ route('login') }}" class="fw-semibold">{{ __('Login') }}</a>
             </p>
 
         </form>
@@ -123,7 +123,7 @@
     form.addEventListener('submit', function (e) {
         if (password.value !== confirmPassword.value) {
             e.preventDefault();
-            errorMsg.textContent = 'Passwords do not match.';
+            errorMsg.textContent = '{{ __("Passwords do not match.") }}';
             errorMsg.classList.remove('d-none');
             confirmPassword.classList.add('is-invalid');
         } else {

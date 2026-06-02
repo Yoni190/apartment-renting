@@ -292,6 +292,26 @@
   "image_upload_note": "አዲስ ምስሎች መጨመር የቀድሞ ምስሎችን ሊተካ ይችላል (በስርዓቱ አተገባበር መሰረት)",
 
   "update_apartment": "አፓርታማ አዘምን",
-  "Register": "መመዝገብ"
-
+  "Register": "መመዝገብ",
+  "Welcome Back!": "እንኳን ደህና መጡ!",
+  "Sign in to your account": "ወደ መለያዎ ይግቡ",
+  "Email Address": "የኢሜይል አድራሻ",
+  "Password": "የይለፍ ቃል",
+  "or continue with": "ወይም በዚህ ይቀጥሉ",
+  "Continue with Google": "በጉግል ይቀጥሉ",
+  "Don't have an account?": "መለያ የለዎትም?",
+  "Create an Account": "መለያ ይፍጠሩ",
+  "Join Gojoye and find your perfect home": "ጎጆዬን ይቀላቀሉ እና ተስማሚ መኖሪያዎን ያግኙ",
+  "First Name": "የመጀመሪያ ስም",
+  "Last Name": "የአባት ስም",
+  "Phone Number": "ስልክ ቁጥር",
+  "FAN": "ፋይዳ ቁጥር",
+  "Fayda ID number": "የፋይዳ መለያ ቁጥር",
+  "Confirm Password": "የይለፍ ቃል ያረጋግጡ",
+  "Already have an account?": "መለያ አለዎት?",
+  "Passwords do not match.": "የይለፍ ቃሎቹ አይዛመዱም።",
+  "Abel": "አቤል",
+  "Tesfaye": "ተስፋየ",
+  "Owner Register": "የባለንብረት ምዝገባ",
+  "List your properties and reach thousands of tenants": "ንብረቶችዎን ያስተዋውቁ እና በሺዎች የሚቆጠሩ ተከራዮችን ያግኙ"
 }
