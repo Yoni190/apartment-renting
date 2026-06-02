@@ -14,21 +14,35 @@ class OwnerController extends Controller
     public function dashboard()
     {
         $request = request();
-        $q = $request->input('q', null);
+        $q = trim(request('q'));
 
         $user = Auth::user();
         if (!$user) return redirect()->route('login');
 
+        $listingsQuery = Apartment::where('user_id', $user->id)
+         ->with(['openHours']);
+
+         if ($q) {
+            $listingsQuery->where(function ($query) use ($q) {
+                $query->where('title', 'like', "%{$q}%")
+                    ->orWhere('address', 'like', "%{$q}%");
+            });
+        }
+
         // apartments owned by user
-        $listings = Apartment::where('user_id', $user->id)->with(['openHours'])->get();
+        $listings = $listingsQuery->get();
 
         // owner's bookings for their apartments; allow simple search by listing title or client name/email
         $bookingQuery = TourBooking::whereIn('listing_id', $listings->pluck('id'))->with('user','listing')->latest();
         if ($q) {
-            $bookingQuery->whereHas('listing', function($b) use ($q) {
-                $b->where('title', 'like', "%$q%");
-            })->orWhereHas('user', function($u) use ($q) {
-                $u->where('name', 'like', "%$q%")->orWhere('email', 'like', "%$q%");
+            $bookingQuery->where(function ($query) use ($q) {
+                $query->whereHas('listing', function ($b) use ($q) {
+                        $b->where('title', 'like', "%{$q}%");
+                    })
+                    ->orWhereHas('user', function ($u) use ($q) {
+                        $u->where('name', 'like', "%{$q}%")
+                        ->orWhere('email', 'like', "%{$q}%");
+                    });
             });
         }
         $bookings = $bookingQuery->get();
