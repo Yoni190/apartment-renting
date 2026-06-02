@@ -49,6 +49,7 @@
                             <!-- Sub City -->
                             <div class="col-md-4">
                                 <label class="form-label">Sub City</label>
+
                                 @php
                                     $subCities = [
                                         'Addis Ketema','Akaky Kaliti','Arada','Bole','Gulele',
@@ -62,7 +63,7 @@
                                     <option value="">Select Sub City</option>
 
                                     @foreach($subCities as $city)
-                                        <option value="{{ $city }}" {{ $selectedSubCity == $city ? 'selected' : '' }}>
+                                        <option value="{{ $city }}" {{ $selectedSubCity === $city ? 'selected' : '' }}>
                                             {{ $city }}
                                         </option>
                                     @endforeach
@@ -72,24 +73,24 @@
                             <!-- Woreda -->
                             <div class="col-md-4">
                                 <label class="form-label">Woreda</label>
-                                <input 
-                                    type="text" 
-                                    name="woreda" 
-                                    class="form-control" 
+                                <input
+                                    type="text"
+                                    name="woreda"
+                                    class="form-control"
                                     placeholder="e.g. 03"
-                                    value="{{ $apartment->location->woreda }}"
+                                    value="{{ optional($apartment->location)->woreda }}"
                                 >
                             </div>
 
                             <!-- Kebele -->
                             <div class="col-md-4">
                                 <label class="form-label">Kebele</label>
-                                <input 
-                                    type="text" 
-                                    name="kebele" 
-                                    class="form-control" 
+                                <input
+                                    type="text"
+                                    name="kebele"
+                                    class="form-control"
                                     placeholder="e.g. 16/17"
-                                    value="{{ $apartment->location->kebele }}"
+                                    value="{{ optional($apartment->location)->kebele }}"
                                 >
                             </div>
 
