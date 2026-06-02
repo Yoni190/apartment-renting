@@ -77,16 +77,16 @@
                     @auth
                         @if(auth()->user()->role === 1)
                             <li class="nav-item">
-                                <a class="nav-link {{ request()->is('/home') ? 'active' : '' }}" href="{{ url('/home') }}">{{ __('Home') }}</a>
+                                <a class="nav-link {{ request()->is('/home') ? 'active' : '' }} text-white" href="{{ url('/home') }}">{{ __('Home') }}</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link {{ request()->is('apartments') ? 'active' : '' }}" href="{{ route('client.apartments') }}">{{ __('Apartments') }}</a>
+                                <a class="nav-link {{ request()->is('apartments') ? 'active' : '' }} text-white" href="{{ route('client.apartments') }}">{{ __('Apartments') }}</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link {{ request()->is('favorites') ? 'active' : '' }}" href="{{ url('/favorites') }}">{{ __('Favorites') }}</a>
+                                <a class="nav-link {{ request()->is('favorites') ? 'active' : '' }} text-white" href="{{ url('/favorites') }}">{{ __('Favorites') }}</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link {{ request()->is('tours') ? 'active' : '' }}" href="{{ url('/client/tours') }}">{{ __('Tours') }}</a>
+                                <a class="nav-link {{ request()->is('tours') ? 'active' : '' }} text-white" href="{{ url('/client/tours') }}">{{ __('Tours') }}</a>
                             </li>
                         @endif
                     @endauth
