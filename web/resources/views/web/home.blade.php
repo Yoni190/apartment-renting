@@ -63,8 +63,16 @@
                     <h5 class="card-title">{{ $apartment->title }}</h5>
                     <p class="card-text flex-grow-1">{{ Str::limit($apartment->description, 80) }}</p>
                     <div class="mt-auto">
-                        <span class="badge-price">{{ number_format($apartment->price) }} {{__('ETB')}} / {{__('month')}}</span>
-                        <a href="{{ route('login') }}" class="btn btn-outline-primary btn-sm w-100 mt-2">{{__('View Details')}}</a>
+                        <span class="badge-price">
+                            {{ number_format($apartment->price) }} {{ __('ETB') }}
+                            @if($apartment->type === 'rent')
+                                / {{ __('month') }}
+                            @endif
+                        </span>
+
+                        <a href="{{ route('login') }}" class="btn btn-outline-primary btn-sm w-100 mt-2">
+                            {{ __('View Details') }}
+                        </a>
                     </div>
                 </div>
             </div>
