@@ -2,6 +2,25 @@
 
     @section('title', 'Gojoye - Dashboard')
 
+    @push('styles')
+<style>
+.empty-home {
+    font-size: 5rem;
+    display: inline-block;
+    animation: floatHome 3s ease-in-out infinite;
+}
+
+@keyframes floatHome {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-12px);
+    }
+}
+</style>
+@endpush
+
     @section('content')
     <div class="container mt-4">
         <h2 class="fw-bold mb-4">{{ __('Owner Dashboard') }}</h2>
@@ -14,10 +33,6 @@
                         <a href="{{ route('apartment-create') }}" class="btn btn-primary rounded-pill">
                             <i class="bi bi-plus-circle"></i> {{ __('Add Apartment') }}
                         </a>
-                    @else
-                        <button class="btn btn-secondary rounded-pill" disabled>
-                            <i class="bi bi-lock"></i> {{ __('Subscribe to Add Apartment') }}
-                        </button>
                     @endif
                 </div>
                 <form method="GET" class="mb-3">
@@ -28,22 +43,50 @@
                         </button>
                     </div>
                 </form>
-                @foreach($listings as $listing)
-                    <a href="{{ route('listing.details', $listing) }}" class="text-decoration-none text-reset">
-                        <div class="apartment-card card mb-3">
-                            @if($listing->images && count($listing->images) > 0)
-                                <img src="{{ url('/storage/' . $listing->images[0]->path) }}" class="card-img-top object-fit-cover" height="180" alt="{{ $listing->title }}">
-                            @else
-                                <img src="https://via.placeholder.com/400x200?text=No+Image" class="card-img-top object-fit-cover" height="180" alt="No image">
-                            @endif
-                            <div class="card-body">
-                                <h5 class="card-title">{{ $listing->title }}</h5>
-                                <p class="card-text text-muted small">{{ $listing->address }}</p>
-                                <a href="{{ route('bookings.create', $listing) }}" class="btn btn-sm btn-outline-primary">{{ __('Request test booking') }}</a>
+                @if($listings->isEmpty())
+                    <div class="card border-0 shadow-sm text-center py-5">
+                        <div class="card-body">
+                            <div class="empty-home mb-3">
+                                <i class="bi bi-house-heart"></i>
                             </div>
+
+                            <h5 class="fw-bold">{{ __('No apartments yet') }}</h5>
+
+                            <p class="text-muted mb-4">
+                                {{ __('Your listings will appear here once you add your first apartment.') }}
+                            </p>
+
+                            @if(auth()->user()->subscribed)
+                                <a href="{{ route('apartment-create') }}" class="btn btn-primary rounded-pill">
+                                    <i class="bi bi-plus-circle"></i>
+                                    {{ __('Add Your First Apartment') }}
+                                </a>
+                            @else
+                                <a href="{{ route('subscription.page') }}" class="btn btn-secondary rounded-pill">
+                                    <i class="bi bi-lock"></i>
+                                    {{ __('Subscribe to Add Apartment') }}
+                                </a>
+                            @endif
                         </div>
-                    </a>
-                @endforeach
+                    </div>
+                @else
+                    @foreach($listings as $listing)
+                        <a href="{{ route('listing.details', $listing) }}" class="text-decoration-none text-reset">
+                            <div class="apartment-card card mb-3">
+                                @if($listing->images && count($listing->images) > 0)
+                                    <img src="{{ url('/storage/' . $listing->images[0]->path) }}" class="card-img-top object-fit-cover" height="180" alt="{{ $listing->title }}">
+                                @else
+                                    <img src="https://via.placeholder.com/400x200?text=No+Image" class="card-img-top object-fit-cover" height="180" alt="No image">
+                                @endif
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ $listing->title }}</h5>
+                                    <p class="card-text text-muted small">{{ $listing->address }}</p>
+                                    <a href="{{ route('bookings.create', $listing) }}" class="btn btn-sm btn-outline-primary">{{ __('Request test booking') }}</a>
+                                </div>
+                            </div>
+                        </a>
+                    @endforeach
+                @endif
             </div>
 
             <div class="col-lg-6">
