@@ -276,6 +276,6 @@
   "current_images": "Current Images",
   "upload_images": "Upload New Images",
   "image_upload_note": "Uploading new images may replace old ones depending on system logic",
-  "update_apartment": "Update Apartment"
-
+  "update_apartment": "Update Apartment",
+  "Register": "Register"
 }
