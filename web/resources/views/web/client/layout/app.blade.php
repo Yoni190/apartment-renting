@@ -183,7 +183,7 @@
             <div class="row g-4">
                 <div class="col-md-4">
                     <h5><i class="bi bi-building me-2"></i>{{ __('Gojoye') }}</h5>
-                    <p class="mb-3 small">{{ __('Find your perfect apartment with ease.') }}</p>
+                    <p class="mb-3 small text-white">{{ __('Find your perfect apartment with ease.') }}</p>
                     <div class="social-links d-flex gap-2">
                         <a href="#"><i class="bi bi-facebook"></i></a>
                         <a href="#"><i class="bi bi-twitter-x"></i></a>
@@ -194,29 +194,29 @@
                 <div class="col-md-2">
                     <h5>{{ __('Quick Links') }}</h5>
                     <ul class="list-unstyled">
-                        <li class="mb-2"><a href="{{ url('/') }}">{{ __('Home') }}</a></li>
-                        <li class="mb-2"><a href="{{ route('client.apartments') }}">{{ __('Apartments') }}</a></li>
-                        <li class="mb-2"><a href="{{ url('/about') }}">{{ __('About Us') }}</a></li>
-                        <li class="mb-2"><a href="{{ url('/help') }}">{{ __('Help') }}</a></li>
+                        <li class="mb-2"><a href="{{ url('/') }}" class="text-white">{{ __('Home') }}</a></li>
+                        <li class="mb-2"><a href="{{ route('client.apartments') }}" class="text-white">{{ __('Apartments') }}</a></li>
+                        <li class="mb-2"><a href="{{ url('/about') }}" class="text-white">{{ __('About Us') }}</a></li>
+                        <li class="mb-2"><a href="{{ url('/help') }}" class="text-white">{{ __('Help') }}</a></li>
                     </ul>
                 </div>
                 <div class="col-md-3">
                     <h5>{{ __('For Owners') }}</h5>
                     <ul class="list-unstyled">
-                        <li class="mb-2"><a href="{{ route('user.owner.register') }}">{{ __('List Your Property') }}</a></li>
-                        <li class="mb-2"><a href="{{ route('login') }}">{{ __('Owner Login') }}</a></li>
+                        <li class="mb-2"><a href="{{ route('user.owner.register') }}" class="text-white">{{ __('List Your Property') }}</a></li>
+                        <li class="mb-2"><a href="{{ route('login') }}" class="text-white">{{ __('Owner Login') }}</a></li>
                     </ul>
                 </div>
                 <div class="col-md-3">
                     <h5>{{ __('Contact') }}</h5>
                     <ul class="list-unstyled">
-                        <li class="mb-2"><i class="bi bi-envelope me-2"></i><a href="mailto:yonatanadhanom00@gmail.com">yonatanadhanom00@gmail.com</a></li>
-                        <li class="mb-2"><i class="bi bi-geo-alt me-2"></i>{{ __('Addis Ababa, Ethiopia') }}</li>
+                        <li class="mb-2"><i class="bi bi-envelope me-2"></i><a href="mailto:yonatanadhanom00@gmail.com" class="text-white">yonatanadhanom00@gmail.com</a></li>
+                        <li class="mb-2" ><i class="bi bi-geo-alt me-2"></i>{{ __('Addis Ababa, Ethiopia') }}</li>
                     </ul>
                 </div>
             </div>
             <div class="footer-bottom text-center">
-                <p class="mb-0">&copy; {{ date('Y') }} {{ __('Gojoye. All rights reserved.') }}</p>
+                <p class="mb-0 text-white">&copy; {{ date('Y') }} {{ __('Gojoye. All rights reserved.') }}</p>
             </div>
         </div>
     </footer>
